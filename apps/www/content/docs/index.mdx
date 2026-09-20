@@ -42,30 +42,35 @@ a general-purpose UI kit:
   token values, prop tables and bundle sizes come out of the source and fail the
   build when they drift. See [Reading these docs](./start/reading-these-docs.mdx).
 
-### Alpha rather than unbuilt, and this page will not overstate it either
+### Built rather than unbuilt, and this page will not overstate it either
 
 There is no npm package of components, and there is not meant to be: distribution
 is copy-in through a shadcn registry, decided in
 [ADR 0002](./project/decisions/0002-shadcn-registry-distribution.mdx). There *is*
-a registry. Twenty-four components are implemented and served from `/r/<name>.json`,
+a registry. Sixty components are implemented and served from `/r/<name>.json`,
 and `npx shadcn add @opsinjs/<name>` writes their source into a shadcn-initialised
-project and compiles. Every one of them is `alpha`: the code works, the API may
-change in any release with no deprecation cycle, and none of it has been audited
-for accessibility or reviewed by a clinician. Nothing here belongs on a production
-health surface yet.
+project and compiles. Thirty-five are `alpha` and twenty-five are `beta`: at
+`alpha` the API may change in any release with no deprecation cycle, at `beta` it
+breaks only in a minor release with a documented migration, and none of it has
+been through an accessibility or clinical review. Nothing here belongs on a
+production health surface yet.
 
-The other thirty-six catalogue ids are `considered`. They are reserved names
-with no code, each answered by a short generated page saying so rather than a
-404. And the
+The considered roster is empty. Every name once reserved has been built out to at
+least `alpha`, recorded in
+[ADR 0022](./project/decisions/0022-considered-roster-built-out.mdx). The
+reserved-name mechanism from
+[ADR 0008](./project/decisions/0008-considered-components-resolve.mdx) still
+stands, so a future `considered` id would answer at its guessable URL with a short
+generated page rather than a 404, but nothing occupies it today. And the
 **specification** is still the part that is hardest to retrofit: every component
 page states what the component asserts about a person's health, what it must
 never be read as, which colour axis it may use, who owns its thresholds, and the
 accessibility bar it has to clear.
 
 If you are an agent: read `status` on the page, or `implemented` on the row in
-`/r/index.json`, and do not generalise from one page to the next. `alpha` means
-you may generate against the published API, provided you say it is unstable.
-`considered` and `planned` are definitive negative answers, not gaps. Do not
+`/r/index.json`, and do not generalise from one page to the next. `alpha` and
+`beta` both mean you may generate against the published API, provided you say it
+is unstable. `planned` is a definitive negative answer, not a gap. Do not
 generate an implementation from a proposed API. See
 [Reading these docs](./start/reading-these-docs.mdx#for-agents).
 
@@ -144,9 +149,9 @@ Beyond that:
   the page you are reading.
 - **[Recipes](./recipes/index.mdx)** is task-first. "Show a value against a
   reference range" is a recipe; `RangeBar` is a component.
-- **[Components](./components/index.mdx)** has the 24 implemented components and
-  their specifications, plus a catalogue row and a page for every name we have
-  considered and not built.
+- **[Components](./components/index.mdx)** has the sixty implemented components
+  and their specifications. Every catalogue name has been built out, so the
+  considered roster is empty and each row now points at code.
 - **[Health](./health/index.mdx)** is the doctrine layer. Read it even if you
   never install anything.
 - **[Foundations](./foundations/index.mdx)**, **[Accessibility](./accessibility/index.mdx)**,
@@ -163,10 +168,10 @@ scrolling back:
 
 1. **What is the one thing opsinjs will never do for you?** Decide what a health
    value means. It renders your product's decision; it does not make it.
-2. **What can you install today?** Twenty-four `alpha` components, as copied
-   source from the registry. That is not a package, and not anything you should
-   put in front of a patient yet. Every page says which it is in machine-readable
-   form.
+2. **What can you install today?** Sixty components, as copied source from the
+   registry, thirty-five at `alpha` and twenty-five at `beta`. That is not a
+   package, and not anything you should put in front of a patient yet. Every page
+   says which it is in machine-readable form.
 3. **Why are there two kinds of colour?** Because "which measurement is this" and
    "how worried should I be" are different questions, and one palette cannot
    answer both without ambiguity.
@@ -183,9 +188,9 @@ deliberately small, deliberately uninteractive specimen for one series.
 density-first system.
 
 **"The component page I want returned a specification, not code."** Check its
-`status`. Twenty-four pages are `alpha` and describe code you can install; the
-rest are specifications or reserved names, and returning one of those rather than
-inventing an API is working as designed. See
+`status`. Sixty component pages are `alpha` or `beta` and describe code you can
+install; other pages in the corpus are `planned` specifications, and returning one
+of those rather than inventing an API is working as designed. See
 [Reading these docs](./start/reading-these-docs.mdx#for-agents).
 
 **"I cannot find the rule that governs a component."** Every component page lists

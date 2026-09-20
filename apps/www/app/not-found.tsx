@@ -58,16 +58,16 @@ export default function NotFound() {
         <ol className="nf-list">
           <li>
             <h2>
-              You asked for a component that is only <em>considered</em>.
+              You asked for a component under a name that has moved on.
             </h2>
             <p>
-              Thirty-six component ideas were considered and left off the
-              roster. Each one still answers at its canonical address under the
-              component catalogue, with the reason it was refused and what to
-              use instead. So if a considered id brought you here, it was the
+              Every component idea opsinjs once merely <em>considered</em> has
+              since been built to at least alpha, so the considered roster is
+              empty today. Each of those names now answers at its canonical
+              address under the component catalogue as a real component page. So
+              if a name you remember as set aside brought you here, it was the
               address that was wrong rather than the name. The catalogue is the
-              definitive list of what is built, what is specified and what was
-              set aside.
+              definitive list of what is built and at what status.
             </p>
             <p>
               <Link href={routes.docs("components")}>
@@ -79,14 +79,14 @@ export default function NotFound() {
           <li>
             <h2>You asked for a component that does not exist at all.</h2>
             <p>
-              Twenty-four components are implemented, at alpha, and installable
-              from this origin&rsquo;s registry; the rest of the roster is a
-              specification or a name that was considered and refused. An id in
-              neither group has no page, no specification and no roadmap entry.
-              If an assistant told you such a component exists and sent you
-              here, the honest answer is that it does not. The machine-readable
-              catalogue at the foot of this page, not the assistant, is the
-              authority on which group any name is in.
+              Sixty components are implemented and installable from this
+              origin&rsquo;s registry, twenty-five at beta and thirty-five at
+              alpha, and the considered roster is empty. An id that names none of
+              these has no page, no specification and no roadmap entry. If an
+              assistant told you such a component exists and sent you here, the
+              honest answer is that it does not. The machine-readable catalogue
+              at the foot of this page, not the assistant, is the authority on
+              which components exist and at what status.
             </p>
             <p>
               <Link href={routes.docs("project", "roadmap")}>Roadmap</Link>

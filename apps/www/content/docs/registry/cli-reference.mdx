@@ -27,11 +27,11 @@ for is at the bottom, and it is specified rather than built.
 ## Install and add
 
 ```npm
-npx shadcn@latest add https://opsinjs.dev/r/status-pill.json
+npx shadcn@latest add https://opsinjs.pensievelabs.org/r/status-pill.json
 ```
 
 A full URL is self-contained only for an item that depends on nothing else here.
-Fourteen items name their siblings namespaced in `registryDependencies`, so
+Twenty-one items name their siblings namespaced in `registryDependencies`, so
 installing one of those needs an `@opsinjs` entry in `components.json` even by
 URL. [The registry overview](./index.mdx) has the list and the block.
 
@@ -44,7 +44,7 @@ The flags worth knowing:
 | `--view [path]` | Print file contents without installing | Read a health component's source before you accept it |
 | `-o, --overwrite` | Overwrite existing files | Discards your edits. Use with `--diff` first, never alone |
 | `-p, --path <path>` | Install somewhere specific | Overrides the alias resolution from `components.json` |
-| `-a, --all` | Add everything | Never a good idea against opsinjs: sixty items, of which thirty-six have no files to write |
+| `-a, --all` | Add everything | Never a good idea against opsinjs: it lands all sixty items at once, which is rarely what a project wants |
 
 `--view` deserves emphasis. In a copy-not-dependency model you are accepting
 source into your repository, and being able to read it before it lands is the
@@ -205,10 +205,10 @@ the fix for an MCP server reporting no tools.
 **A command works globally and not in a monorepo.** Use `-c, --cwd` to point at
 the package rather than the workspace root.
 
-**`add` wrote nothing and reported success.** The id is one of the thirty-six
-reserved names: it resolves, and it carries no `files`. Check `implemented` for
-that name in `/r/index.json`, and see
-[the registry overview](./index.mdx).
+**`add` wrote nothing and reported success.** All sixty ids now carry `files`,
+so an empty write points at your `components.json` rather than at the item.
+Confirm the `aliases` resolve to a writable path, check `implemented` for that
+name in `/r/index.json`, and see [the registry overview](./index.mdx).
 
 **A script fails with a syntax error in a `.mts` file.** Node is older than 24
 and cannot strip types. Check `node --version`.

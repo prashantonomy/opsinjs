@@ -1,12 +1,12 @@
 ---
 title: Quick start
-description: Build a result card that shows one value, its reference range and its clinical status, from three components that are implemented and alpha.
+description: Build a result card that shows one value, its reference range and its clinical status, from three components that are implemented and beta.
 status: planned
 kind: guide
 icon: Zap
 since: unreleased
 owner: core
-reviewed: 2026-09-02
+reviewed: 2026-09-20
 reviewer: engineering
 reviewEvery: 3m
 aliases: [quick start, first result card, hello world]
@@ -22,17 +22,18 @@ what `ResultCard` is for, and building it exercises almost every rule the system
 has: the two colour axes, the number formatting contract, the reference-range
 rule, and the accessibility floor.
 
-<Callout title="Alpha components, and no published host yet">
+<Callout title="Beta components, and no published host yet">
   All three components below are implemented, and their registry items carry the
   full source that `shadcn add` copies. Two things are still absent. There is no
   npm package and there will not be one. Distribution is registry copy-in, and
   [ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx) is why.
-  `opsinjs.dev`, the canonical host every command on this site names, is also not
-  serving yet, so `@opsinjs` resolves only against a registry you point it at
-  yourself. Everything implemented is `alpha`: the API will change without a
-  deprecation, so this belongs in a prototype rather than in front of a patient.
-  The `ResultCard` block further down is older than the implementation and still
-  uses the names the specification proposed; the marked gap under it says which.
+  `opsinjs.pensievelabs.org`, the canonical host every command on this site
+  names, is also not serving yet, so `@opsinjs` resolves only against a registry
+  you point it at yourself. All three are `beta`, so the shape is settled although
+  the details may still move without a deprecation. That makes this fit for a
+  prototype rather than for use in front of a patient. The `ResultCard` block
+  further down is older than the implementation and still uses the names the
+  specification proposed; the marked gap under it says which.
 </Callout>
 
 You will need a React 19 project with Tailwind v4 already working. If you do not

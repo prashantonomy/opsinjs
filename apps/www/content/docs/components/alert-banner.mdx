@@ -546,12 +546,11 @@ checked, with the gaps listed rather than left out.
 - **One element does not carry both axes.** There is no `category` prop, so the collision has
   no route in.
 
-The colour-carrier rule reports this file as a **warning rather than a pass**, and the
-distinction is worth stating rather than glossing. The gate reads one file at a time. It can
-see a status fill and `data-status` here and no `CLINICAL_STATUS_META` and no glyph, and it
-cannot follow the import to find that both went to StatusPill. Its own source names this
-component as the shape its escape hatch exists for. Confirm by eye, as it asks: the word and
-the glyph are the first things inside the heading.
+The colour-carrier rule passes this file. The gate reads one file at a time, and here it sees
+a status fill and `data-status` but no `CLINICAL_STATUS_META` and no glyph in this file itself,
+because both are delegated to StatusPill through an import. The gate follows that one import
+hop, reads StatusPill, and confirms it carries the word and a distinct glyph before it clears
+the finding. The word and the glyph are the first things inside the heading.
 
 **Argued, and true of the implementation, but not yet measured:**
 

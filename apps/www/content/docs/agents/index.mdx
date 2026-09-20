@@ -91,19 +91,21 @@ Fetch [the offline bundle](./offline-docs-bundle.mdx) once and carry it.
 
 ## The one rule that matters most
 
-Twenty-four components are implemented and the rest of the catalogue is not, so
-an agent's first job is to tell the two apart before it writes anything. The
-surface is arranged so that it can, without guessing: every id resolves, and the
-answer carries the distinction in a field.
+Sixty components are built and installable, twenty-five at `beta` and thirty-five
+at `alpha`, and the considered roster is empty today, so an agent's first job is
+to read the status a surface reports before it writes anything. The surface is
+arranged so that it can, without guessing: every id resolves, and the answer
+carries the distinction in a field.
 
-For an implemented id the correct behaviour is to install it from the registry
-and to say that `alpha` means the API may change in any release without a
-deprecation cycle. Installing copies the source into the project, because there
-is no published opsinjs package to import. For a `considered` id the correct
-behaviour is to say that the name is reserved, that there is no code and no
-specification, and stop. Inventing the missing one, or refusing the one that
-ships, are the two failures this whole surface exists to prevent. Both are
-stated in full, as testable rules, in
+For a built id the correct behaviour is to install it from the registry and to
+say that a pre-stable status, `beta` or `alpha`, means the API may change in any
+release without a deprecation cycle. Installing copies the source into the
+project, because there is no published opsinjs package to import. For a
+`considered` id the correct behaviour is to say that the name is reserved, that
+there is no code and no specification, and stop. No id sits there today, so that
+rule currently guards the mechanism rather than a live entry. Inventing a name
+that does not exist, or refusing one that ships, are the two failures this whole
+surface exists to prevent. Both are stated in full, as testable rules, in
 [Rules for agents](./rules-for-agents.mdx), and they are what the
 [evals](./evals.mdx) measure.
 
@@ -147,13 +149,13 @@ point of the whole design.
 The rewrite applies to `/docs/:path*.md` and to `/docs.md`; other routes have no
 twin.
 
-**The MCP server sees no components.** That is now a real fault. Twenty-four
+**The MCP server sees no components.** That is a real fault. All sixty built
 items list source files, and the per-item payloads at `/r/<name>.json` carry
-that source inline; the other thirty-six are reserved names that resolve with
-metadata and no files, so an empty inventory for one of *those* is the server
-working. An inventory that is empty across the board is not: check that
-`components.json` carries the `@opsinjs` entry in the `{name}` template form and
-that the fetch is not being blocked.
+that source inline. The considered roster is empty today, so every id the server
+lists resolves to real files, and there are no metadata-only reserved names to
+mistake for a fault. An inventory that is empty across the board means something
+is broken: check that `components.json` carries the `@opsinjs` entry in the
+`{name}` template form and that the fetch is not being blocked.
 
 **An agent invented a prop.** Report it as an eval failure rather than as a
 documentation bug. An implemented component's API reference is generated from

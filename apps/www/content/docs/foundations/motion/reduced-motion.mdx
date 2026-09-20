@@ -23,8 +23,8 @@ feel unwell. Those are different requests and the second one has a better answer
 
 So in opsinjs reduced motion is a **property of a token**, declared alongside it
 rather than bolted on underneath every token at once. A token that declares a
-reduced variant states what it becomes, and the answer is rarely "nothing". Five
-of the twelve motion tokens declare one today; the token section below names
+reduced variant states what it becomes, and the answer is rarely "nothing". Six
+of the thirteen motion tokens declare one today; the token section below names
 which, and says what the other seven mean for a component built on them.
 
 This is often confused with an accessibility feature you add at the end. It is
@@ -110,12 +110,14 @@ preference upwards, is the correct shape.
 ## Tokens
 
 `tokens/motion.json` is where a reduced variant is declared, one token at a time.
-Five of the twelve motion tokens carry one. Four are the springs `spring-snap`,
+Six of the thirteen motion tokens carry one. Four are the springs `spring-snap`,
 `spring-settle`, `spring-calm` and `spring-sheet`, which each become a `linear`
 easing over a shortened duration of their own. The fifth is `ease-standard`,
-which becomes `linear`. Those five are what `scripts/build-tokens.mts` emits
+which becomes `linear`. The sixth is `duration-shimmer`, which drops to zero so a
+skeleton stops sweeping. Those six are what `scripts/build-tokens.mts` emits
 inside `@media (prefers-reduced-motion: reduce)` in `app/tokens.generated.css`: an
-easing and a duration for each spring, plus the easing for `ease-standard`.
+easing and a duration for each spring, the easing for `ease-standard`, and the
+shortened `duration-shimmer`.
 
 The other seven declare nothing, so the media query leaves them alone and they
 keep their full values for a reader who has asked for less movement. They are

@@ -38,7 +38,8 @@ Nothing arrives as `stable`. Every component climbs:
   and a reason. No page, no code. Anyone can propose one.
 - **`planned`** is a full specification page: intent, when not to use it naming
   the alternative, the clinical contract, the proposed anatomy, the proposed API
-  and the accessibility bar. Still no code. All 24 shipped ids are here today.
+  and the accessibility bar. Still no code. No id sits at `planned` today,
+  because all sixty have code, twenty-five at `beta` and thirty-five at `alpha`.
 - **`alpha`** means code exists. The API will change.
 - **`beta`** means the API is settled; the measured numbers are being filled in.
 - **`stable`** means all 22 sections of the component anatomy render, and semver
@@ -112,8 +113,8 @@ on any diff. See [ADR
 ## Gotchas
 
 - **`assert-ia` checks headings against the page kind.** An extra H2 fails the
-  build even if it is a good heading, because the outline is what keeps 200
-  pages navigable.
+  build even if it is a good heading, because the outline is what keeps
+  hundreds of pages navigable.
 - **Aliases are globally unique.** They are declared in
   `registry/catalogue.ts`; a page that invents one will collide eventually.
 - **Links in MDX are relative and resolved by `createRelativeLink`.** An absolute

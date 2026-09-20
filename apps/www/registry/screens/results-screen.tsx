@@ -14,8 +14,8 @@
  * already shows; DisclaimerNote
  * closes the surface; and Card is present because CareCard is built on it, which
  * is the honest way it enters a screen rather than lifting a third surface of its
- * own. Every one is alpha today. source-citation is a considered row and is not
- * built, so provenance is a plain paragraph here, the way the shipped ResultCard
+ * own. Every one is at beta today. source-citation has since been built out too,
+ * yet provenance stays a plain paragraph here, the way the shipped ResultCard
  * demo already renders it.
  *
  * THE THREE RULES THIS SCREEN EXISTS TO DEMONSTRATE, kept while it was built.

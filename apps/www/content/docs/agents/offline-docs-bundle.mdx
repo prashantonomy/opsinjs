@@ -65,7 +65,7 @@ in front of it.
     section: string
     title: string
     description: string
-    status: string         // stable | alpha | considered | …
+    status: string         // stable | beta | alpha | considered | …
     kind: string           // component | health | foundation | …
     evidence?: string      // health pages declare this
     aliases: string[]
@@ -94,9 +94,8 @@ paragraph is the explanation.
 next to each other.
 
 The bundle carries the documentation, not the code. Component source lives in
-the registry items. `/r/<name>.json` is the item for one of the twenty-four
-implemented components, and the catalog is `/r/registry.json`. Fetch either
-separately.
+the registry items. `/r/<name>.json` is the item for one of the sixty built
+components, and the catalog is `/r/registry.json`. Fetch either separately.
 
 ## Size and freshness
 
@@ -116,11 +115,14 @@ carries moves as the corpus grows, so two bundles at the same version are the
 same text and two at different versions may not even be the same pages.
 
 <Callout>
-The most important field on every page in this bundle is `status`: `alpha` where
-there is source in the registry item, `considered` where there is a reserved
-name and nothing behind it. An agent working from a stale bundle a year from now
-must be able to discover that the world has moved. The version stamp is how it
-finds out, and `status` is what will have changed.
+The most important field on every page in this bundle is `status`. A built
+component reads `beta` or `alpha`, the source is in its registry item, and today
+that covers every component: twenty-five are at `beta` and thirty-five at
+`alpha`. A `considered` entry would be a reserved name with nothing behind it,
+and the considered roster is empty right now because every name has been built
+to at least `alpha`. An agent working from a stale bundle a year from now must
+be able to discover that the world has moved. The version stamp is how it finds
+out, and `status` is what will have changed.
 </Callout>
 
 ## Using it in an air-gapped build
@@ -167,10 +169,10 @@ the rest.
 
 ### A known page is present with its status
 
-Look up a component page and confirm it carries a `status`: `alpha` for one of
-the twenty-four implemented components, `considered` for a reserved name. A page
-present with no `status` is a bug worth reporting. A page absent altogether is
-usually the cap. Check `omitted` before reporting anything.
+Look up a component page and confirm it carries a `status`: `beta` or `alpha`
+for a built component, since all sixty are built and the considered roster is
+empty. A page present with no `status` is a bug worth reporting. A page absent
+altogether is usually the cap. Check `omitted` before reporting anything.
 
 ### The page bodies are under `markdown`
 

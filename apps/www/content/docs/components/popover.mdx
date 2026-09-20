@@ -79,7 +79,7 @@ import { Popover } from "@/components/ui/popover"
 
 The exclusion that matters is the first, and it is a question about whether going away is a valid answer. A popover is non-modal: it floats over a page that stays live, and a reader can ignore it and carry on, which is exactly what makes it wrong for a decision. When there is no state of the world in which dismissing the surface is a valid outcome, the surface is a [Dialog](./dialog.mdx), which blocks the page and holds the reader until they answer. If the reader can always leave without answering, it is a popover; if leaving would leave the product guessing, it is a dialog.
 
-The second exclusion is the honest limit of the shape. A popover floats and is dismissed by leaving it, so it has to stay small: once the content is a long form, or needs its own scroll, or has to sit under a thumb on a phone, a [Sheet](./sheet.mdx) is the surface that still works, because it docks to an edge and is built for touch. The third names the one thing a popover is often mistaken for. A [Tooltip](./tooltip.mdx) is a passive hover label, and it is on the considered roster and unbuilt on purpose, because this is a phone-first system and there is no hover on a phone. When all you want is to attach the everyday meaning of a clinical word to a sentence, that is a [Term](./term.mdx), which shows inline without anything to open.
+The second exclusion is the honest limit of the shape. A popover floats and is dismissed by leaving it, so it has to stay small: once the content is a long form, or needs its own scroll, or has to sit under a thumb on a phone, a [Sheet](./sheet.mdx) is the surface that still works, because it docks to an edge and is built for touch. The third names the one thing a popover is often mistaken for. A [Tooltip](./tooltip.mdx) is a passive hover label, and this is a phone-first system where there is no hover on a phone to open one, so a popover the reader taps open and dismisses does the job a hover label cannot. When all you want is to attach the everyday meaning of a clinical word to a sentence, that is a [Term](./term.mdx), which shows inline without anything to open.
 
 ## Anatomy
 
@@ -249,7 +249,7 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 - [Dialog](./dialog.mdx) blocks the page and holds the reader until they answer, for the one decision where dismissing is not a valid outcome. A popover is non-modal and the page stays live, so if the reader can always leave without answering, it is a popover.
 - [Sheet](./sheet.mdx) docks to an edge and is built for touch, for a larger form or a mobile-first surface. A popover floats and stays small, so once the content needs its own scroll it is a sheet.
-- [Tooltip](./tooltip.mdx) is a passive hover label, and it is unbuilt on the considered roster because this is a phone-first system with no hover. A popover is opened and dismissed rather than shown on hover.
+- [Tooltip](./tooltip.mdx) is a passive hover label, and this is a phone-first system with no hover, so a popover is opened and dismissed rather than shown on hover.
 
 **Used by**
 

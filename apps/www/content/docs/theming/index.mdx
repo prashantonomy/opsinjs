@@ -25,10 +25,10 @@ part of it is closed because changing it changes what a screen asserts about
 somebody's body. This page draws those three lines and then hands you off to the
 page that does the work.
 
-Everything below is real today. Tokens ship before components do, and that was a
-deliberate ordering decision, recorded in
+Everything below is real today. Tokens shipped before components did, and that
+was a deliberate ordering decision, recorded in
 [Tokens before components](../project/decisions/index.mdx). A theme you build
-now will therefore be correct when the first component lands.
+against the tokens is correct against the components that have since landed.
 
 ## The three tiers
 
@@ -80,9 +80,10 @@ selector, never globally.
 
 A component publishes the handful of variables that let you restyle one of its
 parts without forking it, and each component page documents them in a
-`<CssVariablesTable>` scoped per selector rather than as a global dump. Nothing
-is built yet, so there are no tier-3 variables to list; the contract is stated
-now so that the first component ships with it rather than acquiring it later.
+`<CssVariablesTable>` scoped per selector rather than as a global dump. Now that
+components have shipped, the tier-3 variables a given component exposes live on
+that component's page rather than in one global list here, so this pillar points
+you at the component instead of restating them.
 
 <Callout>
 The rule that follows from the tiers: **product code reads tier 2 and tier 3.

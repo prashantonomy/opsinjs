@@ -42,10 +42,11 @@ import { cn } from "@/lib/utils"
    it.
 
    SERVER-ONLY BY DESIGN. Everything here reads registry/catalogue.ts through
-   lib/catalogue.ts, which is a real, populated array: 24 rows resolve to a file
-   under registry/bases/base/ and 36 are reserved ids with no code, and the
-   matrix and the card index tell those two apart from the row rather than from
-   a sentence somebody maintained. Do not add "use client" to this file, and do
+   lib/catalogue.ts, which is a real, populated array: sixty rows resolve to a
+   file under registry/bases/base/, twenty-five at beta and thirty-five at
+   alpha, and the considered roster is empty. The matrix and the card index read
+   each row's phase from the row rather than from a sentence somebody maintained.
+   Do not add "use client" to this file, and do
    not import it from a client component: it would drag the whole catalogue into
    a browser bundle for the sake of a badge.
    ========================================================================== */
@@ -229,12 +230,12 @@ export interface SectionProgressProps {
 }
 
 /**
- * "24 alpha · 36 considered" on a section index. Honesty as a feature: a
+ * "35 alpha · 25 beta" on a section index. Honesty as a feature: a
  * reader arriving at Components should learn in one line how much of it is
  * real, without opening a page to find out.
  *
  * The counts come from the catalogue, not from a number somebody typed, so this
- * line cannot become quietly wrong the way a hand-maintained "we have 24
+ * line cannot become quietly wrong the way a hand-maintained "we have this many
  * components" sentence always does.
  */
 export function SectionProgress({

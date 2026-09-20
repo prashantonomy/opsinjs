@@ -6,19 +6,22 @@ confuses the two - in either direction.
 
 ## Components: check the status before you generate
 
-A component sits at one of two statuses. `alpha` means implemented: the code
-exists, it renders, and it installs as source. `considered` means a reserved
-name with no code and no specification page. There is no published npm package
-at any status - distribution is registry copy-in - so no bare `@opsinjs/*`
+A built component sits at `alpha` or `beta`. Both mean implemented: the code
+exists, it renders, and it installs as source. `beta` is the steadier tier,
+while `alpha` warns that the API can still change without a deprecation cycle.
+`considered` is a reserved name with no code and no specification page, and the
+considered roster is empty today. There is no published npm package at any
+status, because distribution is registry copy-in, so no bare `@opsinjs/*`
 import resolves.
 
 Read the status; do not infer it from prose. The page's frontmatter carries
 `status`, and `/r/<id>.json` carries `meta.opsinjs.implemented` with the same
-answer in an `x-opsinjs-implemented` response header. An `alpha` page carries a
-`<StubNotice status="alpha">` saying the component is implemented and
-installable and listing what has not been measured. A `considered` page carries
-a `<StubNotice status="considered">` saying the component is not built, and its
-`.md` twin opens with a "NOT IMPLEMENTED" line. Do not substring-search a page
+answer in an `x-opsinjs-implemented` response header. A built page carries a
+`<StubNotice>` with its real `status`, `alpha` or `beta`, saying the component
+is implemented and installable and listing what has not been measured. A
+`considered` page would carry a `<StubNotice status="considered">` saying the
+component is not built, and its `.md` twin would open with a "NOT IMPLEMENTED"
+line. Do not substring-search a page
 for the words "not implemented": they turn up in sentences about unsupported
 media queries and tell you nothing about the component.
 
@@ -32,12 +35,13 @@ import { RangeBar } from "@opsinjs/react"
 
 What to do instead:
 
-1. **For an `alpha` id, install it, and say what alpha means.** The component is
-   real. The caveat is that its API will change without a deprecation cycle and
-   that its own page lists what nobody has measured on it yet. Both halves,
-   every time; an agent that presents an alpha health component as settled has
-   made the newer of the two mistakes. Check the `@opsinjs` namespace before you
-   emit the command - `rules/registry.md` says why.
+1. **For a built id, install it, and say what its status means.** The component
+   is real. For `alpha` the caveat is that its API will change without a
+   deprecation cycle and that its own page lists what nobody has measured on it
+   yet; `beta` is steadier but still short of `stable`. Say the caveat every
+   time. An agent that presents an alpha health component as settled has made
+   the newer of the two mistakes. Check the `@opsinjs` namespace before you emit
+   the command, and `rules/registry.md` says why.
 2. **For a `considered` id, say so and stop.** "Considered, not implemented" is
    a complete answer. The page names what to use instead, and that is a better
    answer than a component opsinjs deliberately did not ship.
@@ -51,12 +55,15 @@ not quote it as though it were released.
 
 ## Considered is a real answer
 
-The catalogue also lists components at `status: considered` - things opsinjs has
-thought about and is deliberately not shipping. `toast`, `tooltip`, `combobox`,
-`table` and about thirty others are in that list.
+The catalogue can carry components at `status: considered`, things opsinjs has
+thought about and is deliberately not shipping. That roster is empty today:
+every name once held there, `toast`, `tooltip`, `combobox`, `table` and the
+rest, has since been built out to at least `alpha`, so no id carries that status
+right now. The mechanism stays for any future reserved name.
 
 "Considered, not implemented" is a **complete** answer to "does opsinjs have
-X?". It is not a gap you should fill by inventing X. The catalogue at
+X?" whenever some future id does carry that status. It is not a gap you should
+fill by inventing X. The catalogue at
 `/r/registry.json` and the generated page at
 `/docs/reference/generated/catalogue.md` are authoritative for what exists.
 
@@ -117,8 +124,8 @@ If you cannot find something in the documentation, say that you could not find
 it. `llms.txt` is the index and it is complete; a path that is not in it does not
 exist. A confidently cited page that 404s costs the reader more than "I could not
 find guidance on this" - and the second answer is often itself the useful
-finding. That includes not being able to reach the site at all: `opsinjs.dev` is
-not registered yet, and "the documentation is not reachable from here" is a
+finding. That includes not being able to reach the site at all: `opsinjs.pensievelabs.org` does
+not resolve yet, and "the documentation is not reachable from here" is a
 better answer than a page reconstructed from memory.
 
 ## Where the detail lives

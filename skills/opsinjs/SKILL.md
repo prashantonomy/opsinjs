@@ -1,16 +1,16 @@
 ---
 name: opsinjs
-description: Use when building, reviewing or generating consumer- and patient-facing health UI with opsinjs - result cards, reference ranges, clinical status, alerts, consent, health logging, vitals, lab results - or when asked to add an opsinjs component, use its colour tokens, or answer a question about the opsinjs design system. Enforces the two-colour-axes rule, tokens over raw values, the registry namespace, and the split between the components that are implemented and the reserved names that are not.
+description: Use when building, reviewing or generating consumer- and patient-facing health UI with opsinjs - result cards, reference ranges, clinical status, alerts, consent, health logging, vitals, lab results - or when asked to add an opsinjs component, use its colour tokens, or answer a question about the opsinjs design system. Enforces the two-colour-axes rule, tokens over raw values, the registry namespace, and the split between the components that are implemented and any reserved names that are not.
 ---
 
 # opsinjs
 
 opsinjs is a React design system for consumer health apps: interfaces where a
 layperson reads something about their own body. Its documentation is at
-`https://opsinjs.dev`, its machine-readable index is `https://opsinjs.dev/llms.txt`,
+`https://opsinjs.pensievelabs.org`, its machine-readable index is `https://opsinjs.pensievelabs.org/llms.txt`,
 and every page is available as plain markdown at its own URL with a `.md` suffix.
 
-**`opsinjs.dev` is the canonical address and is not registered yet**, so every URL
+**`opsinjs.pensievelabs.org` is the canonical address and does not resolve yet**, so every URL
 in this skill is a *path* that resolves against whichever host is serving the site
 - a local `pnpm dev` on port 4000, or a preview deployment - and not against the
 public internet today. Keep the paths; substitute the origin. If nothing is
@@ -19,31 +19,34 @@ recall instead is the failure this whole skill exists to prevent.
 
 ## Read this first: check before you claim
 
-opsinjs has a six-status scale - `/docs/project/release-phases.md` says what
-each one promises - and its components occupy exactly two of them. `alpha` means
-implemented: the code exists, it renders, and it installs into a project as
-source. `considered` means a reserved name with no code and no specification
-page: the address answers instead of returning a 404, and "considered, not
-implemented" is a complete answer rather than a gap to fill. No component has
-reached `beta` or `stable`, none is `planned`, and there is no npm package
-today: distribution is registry copy-in, so `import … from "@opsinjs/react"`
-does not resolve. (Pages that are not components still use `planned`; that says nothing
-about code.)
+opsinjs has a six-status scale, and `/docs/project/release-phases.md` says what
+each one promises. Its components occupy two of them today: `alpha` and `beta`.
+Both mean implemented, so the code exists, it renders, and it installs into a
+project as source. `beta` adds that the surface has settled enough to build
+against with care, while `alpha` warns that the API can still change without a
+deprecation cycle. `considered` is a reserved name with no code and no
+specification page, where the address answers instead of returning a 404 and
+"considered, not implemented" is a complete answer rather than a gap to fill.
+The considered roster is empty right now, so no id carries that status today,
+yet the mechanism stays for any future reserved name. No component has reached
+`stable`, none is `planned`, and there is no npm package today: distribution is
+registry copy-in, so `import … from "@opsinjs/react"` does not resolve. (Pages
+that are not components still use `planned`; that says nothing about code.)
 
 Which id is which is generated, so read the roster instead of trusting a count
 written in prose, including one written here. Three addresses answer for a
 single id, and they are the only three that do:
 
-- `https://opsinjs.dev/r/index.json` - every id with its `status` and an
+- `https://opsinjs.pensievelabs.org/r/index.json` - every id with its `status` and an
   `implemented` boolean, in one document. This is the roster; read it once and
   you have all of them.
-- `https://opsinjs.dev/r/<id>.json` - the same answer for one id at
+- `https://opsinjs.pensievelabs.org/r/<id>.json` - the same answer for one id at
   `meta.opsinjs.implemented`, repeated in the `x-opsinjs-implemented` and
   `x-opsinjs-status` response headers. This is the one URL where a HEAD request
   settles it, because it is the one that scopes those headers to the id you
   asked about - and the `x-opsinjs-status` beside the boolean is what proves the
   scoping.
-- `https://opsinjs.dev/docs/components/<id>.md` - the page itself. Its
+- `https://opsinjs.pensievelabs.org/docs/components/<id>.md` - the page itself. Its
   frontmatter carries `status:` and a per-page `implemented:` field, and that
   field is about the component the page is for.
 
@@ -138,18 +141,19 @@ they show up.
 
 Prefer the documentation over recall, in this order:
 
-1. `https://opsinjs.dev/llms.txt` - the curated index, absolute URLs, one line
+1. `https://opsinjs.pensievelabs.org/llms.txt` - the curated index, absolute URLs, one line
    per page. Start here to find the right page.
-2. `https://opsinjs.dev/docs/<path>.md` - any page as plain markdown.
-3. `https://opsinjs.dev/llms-health.txt`, `llms-components.txt`,
+2. `https://opsinjs.pensievelabs.org/docs/<path>.md` - any page as plain markdown.
+3. `https://opsinjs.pensievelabs.org/llms-health.txt`, `llms-components.txt`,
    `llms-foundations.txt` - the three shards, when you need a whole pillar.
-4. `https://opsinjs.dev/r/index.json` - the roster: every component id with its
+4. `https://opsinjs.pensievelabs.org/r/index.json` - the roster: every component id with its
    status and its `implemented` flag. This is the authority for what is built.
-5. `https://opsinjs.dev/r/registry.json` - the component catalogue in shadcn
-   item shape, including every considered component. This is what the shadcn MCP
-   server reads. The per-item `https://opsinjs.dev/r/<id>.json` is what carries
+5. `https://opsinjs.pensievelabs.org/r/registry.json` - the component catalogue in shadcn
+   item shape, covering every id, and any considered ones once the roster holds
+   some. This is what the shadcn MCP
+   server reads. The per-item `https://opsinjs.pensievelabs.org/r/<id>.json` is what carries
    the source.
-6. `https://opsinjs.dev/r/docs.json` - the whole corpus in one bundle, for
+6. `https://opsinjs.pensievelabs.org/r/docs.json` - the whole corpus in one bundle, for
    working without a network.
 
 All six are paths on whichever host is serving the site, per the note at the top

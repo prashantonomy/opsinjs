@@ -53,29 +53,29 @@ do not yet have a component decision to make. You have a clinical rules
 question, and the answer belongs in your product, not in the UI.
 
 The components below are the full display roster, and every one of them is at
-`alpha`: the code exists and installs, and the API may change in any release
-without a deprecation cycle. None of it has been through an accessibility or a
-clinical review. Read the fourth column before you install anything. The wrong
-choice compiles exactly as well as the right one.
+`beta`: the code exists and installs, and at beta it breaks only in a minor
+release with a documented migration. None of it has been through an accessibility
+or a clinical review. Read the fourth column before you install anything. The
+wrong choice compiles exactly as well as the right one.
 
 | What you have | Component | Status | Why not the obvious alternative |
 | --- | --- | --- | --- |
-| One measurement the reader is meant to interpret | [ResultCard](../components/result-card.mdx) | <StatusBadge status="alpha" /> | Not MetricTile: a tile is a glance, a result is a reading with meaning attached. |
-| One measurement whose position in a range is the point | [RangeBar](../components/range-bar.mdx) | <StatusBadge status="alpha" /> | Not ScoreDial: a dial implies a composite index, a range bar shows one measured value. |
-| A composite index derived from several inputs | [ScoreDial](../components/score-dial.mdx) | <StatusBadge status="alpha" /> | Not Value: a number whose derivation is hidden must show that it is derived. |
-| The same measurement over time | [TrendSparkline](../components/trend-sparkline.mdx) | <StatusBadge status="alpha" /> | Not a chart library: the y-axis rules and the honest accessible description are the component's job. |
-| One number at a glance, on a dashboard | [MetricTile](../components/metric-tile.mdx) | <StatusBadge status="alpha" /> | Not ResultCard: a tile that carries interpretation is a result card wearing the wrong size. |
-| A clinical status on its own | [StatusPill](../components/status-pill.mdx) | <StatusBadge status="alpha" /> | Not Callout: a callout is outside the status axis by design. |
-| Something the reader has to read now | [AlertBanner](../components/alert-banner.mdx) | <StatusBadge status="alpha" /> | Not Dialog: interruption is the last rung, not the first. |
-| Something the reader has to *do*, and by when | [CareCard](../components/care-card.mdx) | <StatusBadge status="alpha" /> | Not AlertBanner: a banner states, a care card instructs. |
-| A word the reader may not know | [Term](../components/term.mdx) | <StatusBadge status="alpha" /> | Not a tooltip: the expansion must survive keyboard, touch and print. |
-| A number that needs formatting | [Value](../components/value.mdx) | <StatusBadge status="alpha" /> | Not string interpolation: precision, unit adjacency and locale are correctness. |
-| A timestamp | [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="alpha" /> | Not a formatted date: staleness thresholds are per metric and belong in the component. |
-| Ordinary information, no clinical grading | [Callout](../components/callout.mdx) | <StatusBadge status="alpha" /> | Not StatusPill: the status axis is reserved for clinical meaning. |
-| The standard not-medical-advice note | [DisclaimerNote](../components/disclaimer-note.mdx) | <StatusBadge status="alpha" /> | Not free prose: placement and wording are governed, so the note is a component. |
-| Nothing to show yet | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="alpha" /> | Not a zero: a zero is a measurement, an absence is not. |
-| Data on its way | [Skeleton](../components/skeleton.mdx) | <StatusBadge status="alpha" /> | Not a spinner over stale content: never let an old value read as a new one. |
-| A bounded group of the above | [Card](../components/card.mdx) · [Surface](../components/surface.mdx) | <StatusBadge status="alpha" /> | Card is the content group; Surface is the material rung underneath it. |
+| One measurement the reader is meant to interpret | [ResultCard](../components/result-card.mdx) | <StatusBadge status="beta" /> | Not MetricTile: a tile is a glance, a result is a reading with meaning attached. |
+| One measurement whose position in a range is the point | [RangeBar](../components/range-bar.mdx) | <StatusBadge status="beta" /> | Not ScoreDial: a dial implies a composite index, a range bar shows one measured value. |
+| A composite index derived from several inputs | [ScoreDial](../components/score-dial.mdx) | <StatusBadge status="beta" /> | Not Value: a number whose derivation is hidden must show that it is derived. |
+| The same measurement over time | [TrendSparkline](../components/trend-sparkline.mdx) | <StatusBadge status="beta" /> | Not a chart library: the y-axis rules and the honest accessible description are the component's job. |
+| One number at a glance, on a dashboard | [MetricTile](../components/metric-tile.mdx) | <StatusBadge status="beta" /> | Not ResultCard: a tile that carries interpretation is a result card wearing the wrong size. |
+| A clinical status on its own | [StatusPill](../components/status-pill.mdx) | <StatusBadge status="beta" /> | Not Callout: a callout is outside the status axis by design. |
+| Something the reader has to read now | [AlertBanner](../components/alert-banner.mdx) | <StatusBadge status="beta" /> | Not Dialog: interruption is the last rung, not the first. |
+| Something the reader has to *do*, and by when | [CareCard](../components/care-card.mdx) | <StatusBadge status="beta" /> | Not AlertBanner: a banner states, a care card instructs. |
+| A word the reader may not know | [Term](../components/term.mdx) | <StatusBadge status="beta" /> | Not a tooltip: the expansion must survive keyboard, touch and print. |
+| A number that needs formatting | [Value](../components/value.mdx) | <StatusBadge status="beta" /> | Not string interpolation: precision, unit adjacency and locale are correctness. |
+| A timestamp | [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="beta" /> | Not a formatted date: staleness thresholds are per metric and belong in the component. |
+| Ordinary information, no clinical grading | [Callout](../components/callout.mdx) | <StatusBadge status="beta" /> | Not StatusPill: the status axis is reserved for clinical meaning. |
+| The standard not-medical-advice note | [DisclaimerNote](../components/disclaimer-note.mdx) | <StatusBadge status="beta" /> | Not free prose: placement and wording are governed, so the note is a component. |
+| Nothing to show yet | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="beta" /> | Not a zero: a zero is a measurement, an absence is not. |
+| Data on its way | [Skeleton](../components/skeleton.mdx) | <StatusBadge status="beta" /> | Not a spinner over stale content: never let an old value read as a new one. |
+| A bounded group of the above | [Card](../components/card.mdx) · [Surface](../components/surface.mdx) | <StatusBadge status="beta" /> | Card is the content group; Surface is the material rung underneath it. |
 
 ## Build it
 
@@ -195,20 +195,24 @@ and there is no context in a consumer app that disambiguates it.
 ## Variations
 
 **The datum is a set of answers to questions.** A symptom questionnaire, a mood
-scale, a medication schedule. There is no shipped component for these yet.
+scale, a medication schedule. These now have components at `alpha`:
+[Questionnaire](../components/questionnaire.mdx),
+[SymptomPicker](../components/symptom-picker.mdx),
+[ScaleInput](../components/scale-input.mdx),
+[DoseTracker](../components/dose-tracker.mdx) and
+[GoalRing](../components/goal-ring.mdx).
 
 <Todo>
-`questionnaire`, `symptom-picker`, `scale-input`, `dose-tracker` and `goal-ring`
-are on the considered roster: a reserved name and a reason to reach for something
-else, with no code and no specification. Each
-has a generated page at its own address, so that asking about one returns a
-definite "considered, not implemented" rather than a 404 you would fill by
-inventing an API. See [Components](../components/index.mdx).
+This recipe's decision table stops at display and formatting. The input-shaped
+components above exist and install, but the rule for choosing between a
+questionnaire, a scale and a dose tracker is not written here yet. Read each
+component's own page from [Components](../components/index.mdx) until it is.
 </Todo>
 
 **The datum came from a device.** Then it carries provenance: which device, at
 what accuracy, and under what conditions. The display has to be able to show it.
-`source-citation` is on the considered roster for exactly this.
+[SourceCitation](../components/source-citation.mdx) is the component for exactly
+this, now at `alpha`.
 
 **The datum is a comparison against the reader's own history**, not against a
 population range. That is a trend, not a result: go to

@@ -80,7 +80,7 @@ import { NumberField } from "@/components/ui/number-field"
 
 The exclusion that matters is the first, and it is what keeps this component off the clinical surface. A stepper invites a reader to walk a number up from a default, which is exactly the wrong gesture for a measurement: nobody arrives at their blood pressure by pressing plus. So a health reading is a [ReadingInput](./reading-input.mdx), which carries the unit beside the number, takes an out-of-range warning the product writes, and holds a compound reading as one named group. A NumberField carries none of that, because a count needs none of it.
 
-The other case worth naming is a value on a continuous track, where the position in a range matters more than the exact number. That is a slider's job, and the roster [declined a slider for readings](./slider.mdx) rather than ship one, so there is no slider here to reach for. Where a count genuinely wants stepping and a sensible `step`, a NumberField is the control that stays; where a reading wants a track, the answer is not this component and not a slider but a number typed in whole through ReadingInput.
+The other case worth naming is a value on a continuous track, where the position in a range matters more than the exact number. That is a [Slider](./slider.mdx)'s job, and the roster declined a slider for readings, so a health reading on a track is neither this component's to hold nor a slider's. Where a count genuinely wants stepping and a sensible `step`, a NumberField is the control that stays; where a reading wants a track, the answer is not this component and not a slider but a number typed in whole through ReadingInput.
 
 ## Anatomy
 

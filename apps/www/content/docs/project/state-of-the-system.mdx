@@ -15,9 +15,9 @@ aliases: [what exists, is it ready, production ready, current state]
 ## Read this before you depend on anything here
 
 **As of the date at the foot of this page, opsinjs is a documentation site, a set
-of design tokens, and twenty-four React components you can install as registry
-source. Every one of the twenty-four is `alpha`. No component ships as an npm
-package and none is meant to. Distribution is registry copy-in, decided in
+of design tokens, and sixty React components you can install as registry
+source. Twenty-five are at `beta` and thirty-five are at `alpha`. No component
+ships as an npm package and none is meant to. Distribution is registry copy-in, decided in
 [ADR 0002](./decisions/0002-shadcn-registry-distribution.mdx). Nothing here is
 `stable`, nothing has been independently audited for accessibility, and no
 component has been through a clinical review.**
@@ -27,9 +27,11 @@ this site is written as though the whole system were finished. A component page
 describes an anatomy, an API and an accessibility bar in the present tense,
 because a specification written in the conditional is unreadable. The marker that
 tells you which you are reading is the `status` in the page's frontmatter:
-`alpha` means the code exists and its API may move in any release without a
-deprecation cycle, `considered` means a reserved name with no code behind it.
-This page is where the plain version of that lives.
+`alpha` and `beta` both mean the code exists, with `alpha` free to move its API
+in any release without a deprecation cycle and `beta` breaking only in a minor
+release with a documented migration; `considered` means a reserved name with no
+code behind it, which no catalogue row is today. This page is where the plain
+version of that lives.
 
 ## What exists today
 
@@ -39,10 +41,10 @@ This page is where the plain version of that lives.
 | Foundations covering colour, materials, motion, type, space and shape | Written against real tokens | **Yes**, as guidance |
 | Design tokens (`tokens/*.json`) | Authored: two colour axes, six material rungs, spring easings, type, space and shape scales | **Yes**, as values. Names may change before 1.0 |
 | Generated tables and measured contrast | Produced by scripts from those tokens; empty wherever the source is empty | **Yes**, for the presets described. Not for a theme you derived |
-| Component pages (24) | Written as specifications; for these twenty-four they now also describe shipped code | **Yes** to design against, and to review an implementation against |
-| React components | **24, all `alpha`**, under `registry/bases/base/`. The other 36 catalogue ids are `considered`: reserved names with no code, each answered by a generated stub page | **Yes** to prototype and evaluate, knowing the API may move without a deprecation cycle. **No** for a production health surface |
+| Component pages (60) | Written as specifications; for all sixty they now also describe shipped code | **Yes** to design against, and to review an implementation against |
+| React components | **60: twenty-five at `beta`, thirty-five at `alpha`**, under `registry/bases/base/`. The considered roster is empty, so every catalogue id resolves to built code | **Yes** to prototype and evaluate, knowing an `alpha` API may move without a deprecation cycle. **No** for a production health surface |
 | `@opsinjs/*` npm packages | **None published** | No |
-| Registry endpoints under `/r` | Serve the catalogue, and the full source of all 24 implemented items | **Yes.** The item shape follows the upstream shadcn specification and moves with it |
+| Registry endpoints under `/r` | Serve the catalogue, and the full source of all sixty implemented items | **Yes.** The item shape follows the upstream shadcn specification and moves with it |
 | CLI | Does not exist and is not planned first, because `npx shadcn` already does the job | Not applicable |
 | Accessibility conformance | No independent audit has taken place | No. See [Accessibility statement](../accessibility/accessibility-statement.mdx) |
 
@@ -67,20 +69,20 @@ the documentation. See [Agents and automation](../agents/index.mdx).
 
 **4. The component pages.** A component page tells you what the component
 asserts, what it must never be read as, its anatomy and API, and the
-accessibility bar it has to clear. For the twenty-four pages at `alpha` that
-describes code you can install and read, and the page is the right place to check
-an implementation against. For everything else it is a specification: enough to
-design a screen against and enough to build your own version deliberately, but
-not enough to generate code from. Read `status` rather than inferring which of
-the two you have. It is in the frontmatter, in the `.md` twin and in
-`/r/index.json`, so a program never has to guess.
+accessibility bar it has to clear. All sixty pages are now at `beta` or `alpha`,
+so each describes code you can install and read, and the page is the right place
+to check an implementation against. Read `status` rather than inferring how far a
+component has settled: `beta` breaks only in a minor release with a documented
+migration, `alpha` may move its API in any release, and neither is `stable`. It
+is in the frontmatter, in the `.md` twin and in `/r/index.json`, so a program
+never has to guess.
 
 ## What will break
 
 - **Token names before 1.0.** Values are stable in intent; identifiers are not.
-- **The considered roster.** Names in the catalogue with `status: considered` are
-  reservations. Some will be specified, some will be dropped, and the ones that
-  survive may change shape entirely.
+- **Any future considered entry.** The catalogue has no `status: considered` rows
+  today. The reservation mechanism remains, so a future reserved name would carry
+  no commitment and could be specified, dropped, or change shape entirely.
 - **The category members.** The status axis is closed at four levels and will not
   grow. The category axis is expected to change as real products bring real
   subjects. See [Category palettes](../theming/category-palettes.mdx).

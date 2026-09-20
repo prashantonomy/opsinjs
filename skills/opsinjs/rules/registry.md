@@ -55,10 +55,10 @@ dependency, three consequences follow that a package would not have.
   the version it came from. Do not strip it. It is the only way to answer "what
   has changed since the version I copied", which is the question every upgrade
   starts with.
-- **The registry is the machine surface.** `https://opsinjs.dev/r/registry.json`
+- **The registry is the machine surface.** `https://opsinjs.pensievelabs.org/r/registry.json`
   is the catalogue - it is what the shadcn MCP server reads, and it lists every
-  component including the considered ones, with status and category. Prefer it
-  over guessing a component name from prose.
+  component with status and category. Prefer it over guessing a component name
+  from prose.
 
 ## Which items carry files
 
@@ -74,6 +74,12 @@ and a `meta.opsinjs.useInstead` list. Resolving with nothing to install is the
 honest outcome rather than a failure: "considered, not implemented" is a
 complete answer, and `useInstead` is the better half of it. See
 `rules/never-invent.md`.
+
+The considered roster is currently empty: sixty components are built and
+installable, twenty-five at `beta` and thirty-five at `alpha`, so every id you
+resolve today carries files. The considered shape above is the mechanism that
+still governs any future considered entry, not a description of anything the
+registry serves right now.
 
 The marker to read is `meta.opsinjs.implemented` on an item, `implemented` on a
 roster row in `/r/index.json`, or the `x-opsinjs-implemented` response header on

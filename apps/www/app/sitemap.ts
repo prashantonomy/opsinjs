@@ -34,10 +34,12 @@ import { source } from "@/lib/source"
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   /* ADR 0008 - considered component pages are resolvable but not published.
-     They are thin by design and there are thirty-six of them; putting them in
-     front of a search engine serves nobody. The audience that needs a definitive
-     "this does not exist" answer reaches them through search on the site, the
-     .md twins and /r/index.json, none of which depend on the sitemap. */
+     The considered roster is currently empty, so this filter removes nothing
+     today. It stays because any future considered page is thin by design, and
+     putting one in front of a search engine serves nobody. The audience that
+     needs a definitive "this does not exist" answer reaches such pages through
+     search on the site, the .md twins and /r/index.json, none of which depend
+     on the sitemap. */
   const pages = source
     .getPages()
     .filter(

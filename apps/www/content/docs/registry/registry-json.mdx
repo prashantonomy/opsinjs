@@ -67,7 +67,7 @@ schema's own.
 | `items[].type` | Yes | What kind of thing it is, one of the types listed below |
 | `items[].title` | Yes | Human-readable. PascalCase in opsinjs, the same string as the exported component. That is `ResultCard`, not "Result card" |
 | `items[].description` | Yes | One sentence. In opsinjs this is the plain-English definition written for the patient, not the engineer |
-| `items[].files` | For anything with code | Path, type and target per file. **No `content`** in the catalog, as the rule below explains. Absent entirely on the thirty-six reserved names |
+| `items[].files` | For anything with code | Path, type and target per file. **No `content`** in the catalog, as the rule below explains. Absent only on a considered entry, and the considered roster is empty |
 | `items[].dependencies` | No | npm packages the item needs |
 | `items[].registryDependencies` | No | Other items it needs, by name or by URL. opsinjs names them namespaced, `@opsinjs/status-pill` |
 | `items[].categories` | No | Free-form grouping used by search |
@@ -126,11 +126,11 @@ at `/r/index.json` for a consumer that would rather not walk into `meta` to find
 them. Nothing is invented at the top level, which is what keeps an opsinjs item
 valid against a validator that has never heard of opsinjs.
 
-**Every id resolves.** Both the twenty-four implemented components and the
-thirty-six names on the considered roster appear somewhere addressable. An agent
-asking about a considered component gets a definite "considered, not implemented"
-answer and never a 404. That is the failure the whole design exists to
-eliminate.
+**Every id resolves.** All sixty implemented components appear somewhere
+addressable, and so would any future name on the considered roster, which is
+empty today. An agent asking about a considered component gets a definite
+"considered, not implemented" answer and never a 404. That is the failure the
+whole design exists to eliminate.
 
 ## Generated, not hand-written
 
@@ -171,10 +171,11 @@ registry it is worth asserting the same thing.
 **The CLI reports an invalid registry.** Usually `files[].content` present in the
 catalog, or an item missing `type`.
 
-**An item resolves but installs nothing.** Correct for the thirty-six reserved
-names, which carry no `files` at all; read `meta.opsinjs.implemented` to tell
-which you have. For one of the twenty-four, or in your own registry, check that
-`files[].path` points at a file that exists relative to the registry root.
+**An item resolves but installs nothing.** That would describe a considered
+entry, which carries no `files` at all, but the considered roster is empty today
+so every opsinjs id installs real code. Read `meta.opsinjs.implemented` to
+confirm. If a built item, or one in your own registry, installs nothing, check
+that `files[].path` points at a file that exists relative to the registry root.
 
 **Search finds nothing.** `search` matches on `name`, `title` and `description`.
 An item with a terse description is hard to find; that is a content bug.

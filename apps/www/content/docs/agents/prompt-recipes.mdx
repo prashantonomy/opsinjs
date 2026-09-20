@@ -24,13 +24,15 @@ it, prepend the six rules from
 [Rules for agents](./rules-for-agents.mdx) to each one.
 
 <Callout>
-Twenty-four of the sixty catalogue entries have source behind them; the other
-thirty-six are reserved names and nothing else. So the correct outcome of every
-recipe below depends on the id it lands on. For an `alpha` id the assistant may
-install the component and write against it; for a `considered` id it should
-describe the specification and refuse to emit an import. Code produced for a
-`considered` id is fiction however plausible it looks, and checking the status
-before reading the code is the cheapest way to catch it.
+All sixty catalogue entries have source behind them: twenty-five at `beta` and
+thirty-five at `alpha`. The considered roster is empty, because every name once
+reserved has been built to at least `alpha`. So the correct outcome of every
+recipe below depends on the status of the id it lands on. For a built id the
+assistant may install the component and write against it. Were an id ever
+`considered` again, it should describe the specification and refuse to emit an
+import, because code produced for a `considered` id is fiction however plausible
+it looks. Checking the status before reading the code is the cheapest way to
+catch it.
 </Callout>
 
 ## Ask what exists before asking for code
@@ -38,7 +40,7 @@ before reading the code is the cheapest way to catch it.
 <PromptRecipe
   title="Inventory first"
   prompt="Using the opsinjs registry, list every component whose category begins with health-, with its status. Do not write any code."
-  expects="A list of component ids and titles, each marked `alpha` or `considered`. No imports, no JSX, no invented components."
+  expects="A list of component ids and titles, each marked `beta` or `alpha`. No imports, no JSX, no invented components."
 />
 
 Separating discovery from generation is the single highest-value habit. A model
@@ -144,11 +146,11 @@ output; constraints the model is improvising around produce variety.
 **The assistant follows the rules at first and drifts.** Attention decays over a
 long session. Re-anchor before each generation step, or split the work.
 
-**It refuses too much.** Read the status before calling it over-caution: for one
-of the thirty-six `considered` ids, refusing to emit component code is the
-correct behaviour. Refusing for an `alpha` id means the rules have been applied
-without the catalogue in context. Supply the inventory step's output. If it
-also refuses to *describe* the specification, the prompt has been read as a
+**It refuses too much.** Read the status before calling it over-caution. The
+considered roster is empty today, so every catalogue id is built at `beta` or
+`alpha`, and refusing to emit component code for one means the rules have been
+applied without the catalogue in context. Supply the inventory step's output. If
+it also refuses to *describe* the specification, the prompt has been read as a
 request for code.
 
 **Output is right but cites no pages.** Add "cite the documentation page for

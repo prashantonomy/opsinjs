@@ -5,24 +5,26 @@ for the kind of screen where somebody who is not a clinician reads their own blo
 pressure, HbA1c or symptom log and has to decide what, if anything, to do next.
 
 This repository contains **the documentation site and the component layer**.
-Twenty-four components are implemented under `apps/www/registry/bases/base/` and are
+Sixty components are implemented under `apps/www/registry/bases/base/` and are
 served as shadcn-spec registry items from `/r/<name>.json`; install them through the
 `@opsinjs` namespace registered in a project's `components.json`, never by pasting a
-raw URL.
+raw URL. Twenty-five are at `beta` and thirty-five are at `alpha`.
 
-The other thirty-six ids in `apps/www/registry/catalogue.ts` are `considered`: reserved
-names with no code and no specification behind them. Each still answers at a page in
-`apps/www/content/docs/components` that is generated from the catalogue row and gives
-what the name refers to, why it is not on the roster, and which built component to use
-instead. The page says all of that out loud, in machine-readable form, so that an agent
-asking "does opsinjs have a Toast?" gets a definitive *considered, not implemented, use
-this instead* rather than a 404 it will answer by inventing an API.
+The `considered` roster in `apps/www/registry/catalogue.ts` is currently empty: every id
+is now built to at least `alpha`. The mechanism behind `considered` still exists (ADR
+0008). Any future reserved name would answer at a page in `apps/www/content/docs/components`
+that is generated from its catalogue row and gives what the name refers to, why it is not
+on the roster, and which built component to use instead. That page would say all of it out
+loud, in machine-readable form, so that an agent asking "does opsinjs have a Toast?" gets a
+definitive *considered, not implemented, use this instead* rather than a 404 it will answer
+by inventing an API. No id sits in that state today.
 
 ## What is actually real today
 
-- **Twenty-four components.** Implemented, installable, `alpha`. Nothing is `stable`,
-  nothing is independently accessibility-audited, and none of them is for a production
-  health surface yet: the API may change in any release without a deprecation cycle.
+- **Sixty components.** Implemented and installable: twenty-five at `beta` and
+  thirty-five at `alpha`. Nothing is `stable`, nothing is independently
+  accessibility-audited, and none of them is for a production health surface yet: the API
+  may change in any release without a deprecation cycle.
 - **Tokens.** The two colour axes, the material ladder, the motion springs and the
   type/space/shape scales are authored in `apps/www/tokens/*.json` and are the source
   for every generated table on the site.

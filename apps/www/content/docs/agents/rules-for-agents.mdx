@@ -71,13 +71,14 @@ answer from its prior.
 
 Before emitting `import { RangeBar } from …`, check the catalogue. Also check
 `/r/index.json`, which answers the same question in a field rather than in
-prose. Every id resolves, and there are two kinds of answer behind them.
-Twenty-four ids carry `"implemented": true` at `"status": "alpha"`: the registry
-item for one of those carries its source, and the right output installs it from
-the registry this project has configured and says what `alpha` costs. The other
-thirty-six carry `"implemented": false` at `"status": "considered"`: a reserved
-name, no specification and no code, and the right output is a refusal that names
-the status and stops.
+prose. Every id resolves. All sixty carry `"implemented": true`, twenty-five at
+`"status": "beta"` and thirty-five at `"status": "alpha"`: the registry item
+carries its source, and the right output installs it from the registry this
+project has configured and says what `beta` or `alpha` costs. The considered
+roster is empty today, because every reserved name has been built to at least
+`alpha`. Were an id ever `"implemented": false` at `"status": "considered"`, it
+would be a reserved name with no specification and no code, and the right output
+would be a refusal that names the status and stops.
 
 What is wrong for either is an import from a package. There is no published
 opsinjs package, so `@opsinjs/react` never resolves and an install that copies
@@ -127,11 +128,11 @@ that has configured it, and the failure is a confusing error rather than a
 missing dependency.
 
 ```bash
-npx shadcn@latest add https://opsinjs.dev/r/status-pill.json
+npx shadcn@latest add https://opsinjs.pensievelabs.org/r/status-pill.json
 ```
 
 One exception, and it is worth stating in the same breath: a component that
-composes others names them namespaced. Fourteen items carry `@opsinjs/…`
+composes others names them namespaced. Twenty-one items carry `@opsinjs/…`
 entries in `registryDependencies`, and `result-card`, `range-bar`,
 `metric-tile` and `consent-sheet` are among them. Installing one of those needs
 the `@opsinjs` block in `components.json` even when you gave the full URL, so
@@ -183,9 +184,10 @@ to render the mixed pair.
 
 ### Do not invent a component, a prop or a variant
 
-If `SymptomPicker` is in the considered roster, it has no implementation and no
-API. Inventing one produces code that compiles against nothing and a reviewer
-who believes the feature exists.
+If a name is only in the considered roster, it has no implementation and no
+API. The considered roster is empty today, but the moment a reserved name lands
+there, inventing an API for it produces code that compiles against nothing and
+a reviewer who believes the feature exists.
 
 ### Do not assume a registry is configured
 
@@ -219,9 +221,11 @@ the version you took in the commit that installed it. Nothing writes a version
 stamp into the file yet, so that commit is the only record a later upgrade can
 be measured against.
 
-**A `considered` component resolves.** Getting an answer is not evidence that
-something exists. Read the `status` field; `considered` means "we have thought
-about it and decided nothing".
+**A resolved id is not a built id.** Getting an answer is not evidence that
+something exists. Read the `status` field; a `considered` id means "we have
+thought about it and decided nothing". The considered roster is empty today, so
+every id resolves to a built component, but the mechanism stays for the next
+reserved name.
 
 **The docs chrome is not the product theme.** Class names and colours visible in
 this site's HTML belong to a shadcn style used for documentation. Copying them

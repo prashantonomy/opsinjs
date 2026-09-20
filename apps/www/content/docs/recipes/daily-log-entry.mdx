@@ -31,9 +31,9 @@ The target is three taps from the screen the person was on: open, enter, save.
 
 The components this entry flow composes are all at `alpha`: the code exists and
 installs, the API may change in any release without a deprecation cycle, and
-none of it has been through an accessibility or a clinical review. The last row
-is `considered`, meaning reserved names with no code. A stepped or segmented
-entry is therefore yours to build for now.
+none of it has been through an accessibility or a clinical review. The considered
+roster is empty now, so every part below installs, the stepped and segmented
+entry in the last row included. Composing them into the flow is still yours to do.
 
 | Part | Component | Status | What it does here |
 | --- | --- | --- | --- |
@@ -44,7 +44,7 @@ entry is therefore yours to build for now.
 | Save and undo | [Button](../components/button.mdx) | <StatusBadge status="alpha" /> | The primary action, within thumb reach. |
 | The confirmation | [Value](../components/value.mdx) · [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="alpha" /> | Shows what was saved, where it will live. |
 | First run | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="alpha" /> | Before there is anything logged. |
-| Stepped entry | `number-field` · `segmented-control` | <StatusBadge status="considered" /> | Considered, not implemented. |
+| Stepped entry | [NumberField](../components/number-field.mdx) · [SegmentedControl](../components/segmented-control.mdx) | <StatusBadge status="alpha" /> | A stepped or segmented entry, when a free number is not the fit. |
 
 Tokens, by family:
 
@@ -216,18 +216,14 @@ number between 30 and 300" is help; "Invalid value" is a shrug.
 often pulse: one reading, one save, one timestamp. Do not split it into three
 entries. A systolic without its diastolic is not usable.
 
-**A value on a scale rather than a number.** Pain, mood, fatigue. `scale-input` is
-on the considered roster.
+**A value on a scale rather than a number.** Pain, mood, fatigue.
+[ScaleInput](../components/scale-input.mdx) now ships at alpha for this. Prefer its
+labelled set of options over a free slider, because a slider invites false
+precision on a scale that has none.
 
-<Todo>
-No shipped component captures a subjective scale. Until one exists, a labelled
-set of options is safer than a slider: a slider invites false precision on a
-scale that has none.
-</Todo>
-
-**A dose or a medication taken.** `dose-tracker` is considered, not implemented.
-Adherence data is more sensitive than most measurements and needs an explicit
-consent conversation. See
+**A dose or a medication taken.** [DoseTracker](../components/dose-tracker.mdx)
+now ships at alpha. Adherence data is more sensitive than most measurements and
+needs an explicit consent conversation. See
 [Ask for consent before collecting](./consent-before-collection.mdx).
 
 **Backfilling several days at once.** A different task with a different shape,

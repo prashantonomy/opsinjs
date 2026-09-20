@@ -16,9 +16,10 @@ aliases: [start here, five minute map, where do I begin]
 ## Overview
 
 This site is large, and most of it is doctrine rather than code. That is
-deliberate, and it stayed true after the code arrived: twenty-four components are
-implemented at `alpha`, and the tokens, the rules and the accessibility contract
-are still the part with the longest useful life. This page is the map.
+deliberate, and it stayed true after the code arrived: sixty components are built,
+twenty-five at beta and thirty-five at alpha, and the tokens, the rules and the
+accessibility contract are still the part with the longest useful life. This page
+is the map.
 
 <SectionProgress />
 
@@ -71,11 +72,11 @@ are on tells you what you can expect from it:
   *means*: colour, material, motion, type, space, shape. Real today, and the
   layer every implemented component reads from.
 - **Components.** [Components](../components/index.mdx) lists sixty catalogued
-  ids. Twenty-four are `alpha`. That means a written specification and shipped
-  code, which the page shows side by side. The other thirty-six are `considered`:
-  a reserved name, a reason to reach for something else, and no code. Every one
-  of the twenty-four names its intent, when *not* to use it, its clinical
-  contract, its API, and the accessibility bar it must clear.
+  ids, and all sixty are built: twenty-five at `beta` and thirty-five at `alpha`.
+  Each carries a written specification and shipped code, which the page shows side
+  by side. The considered roster is empty today, so no id is a reserved name with
+  no code behind it. Every component page names its intent, when *not* to use it,
+  its clinical contract, its API, and the accessibility bar it must clear.
 - **Recipes and screens.** [Recipes](../recipes/index.mdx) covers task-first
   assemblies: components plus tokens plus copy rules, in one scroll. The five
   [Screens](../screens/index.mdx) specimens are specifications; none has been
@@ -87,18 +88,20 @@ Two more you will need eventually: [Handbook](../handbook/index.mdx) and
 
 ## Know what pre-release means here
 
-There is code, and there is no host serving it. `opsinjs.dev` does not resolve
-yet, so the commands on the installation pages work only against a registry you
-point `@opsinjs` at yourself; and there is no npm package, which is a permanent
-answer rather than a gap. Distribution is registry copy-in, decided in
+There is code, and there is no host serving it. `opsinjs.pensievelabs.org` is the
+intended host and does not resolve yet, so the commands on the installation pages
+work only against a registry you point `@opsinjs` at yourself; and there is no npm
+package, which is a permanent answer rather than a gap. Distribution is registry
+copy-in, decided in
 [ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx). Every
 installation page says so at the top.
 
-Everything implemented is `alpha`: the API may change in any release with no
-deprecation cycle, and none of it has been through an accessibility or a clinical
-review. A page for a `considered` id carries a machine-readable marker saying
-there is no implementation, so an agent reading the markup gets a definite answer
-rather than a plausible blank.
+Everything built is still pre-release: at `alpha` the API may change in any release
+with no deprecation cycle, at `beta` it is more settled but not yet guaranteed, and
+none of it has been through an accessibility or a clinical review. The considered
+roster is empty today. The machine-readable marker a `considered` id would carry, a
+statement that there is no implementation, still exists for any future entry, so an
+agent reading such a page gets a definite answer rather than a plausible blank.
 
 The useful consequence is that both layers are reviewable *now*, while they are
 still cheap to change. If an API looks wrong to you, that is the most valuable
@@ -134,8 +137,9 @@ canonical in
 page links to it rather than restating it, and a build check enforces that.
 
 **A link took you to a page that shows no code.** Read its status chip. `alpha`
-means there is code and an install command; `considered` means a reserved name
-with nothing behind it, and that is the answer rather than a missing page. See
+and `beta` both mean there is code and an install command. `considered` would mean
+a reserved name with nothing behind it, a definite answer rather than a missing
+page, though the considered roster is empty today. See
 [Reading these docs](./reading-these-docs.mdx#for-agents).
 
 ## Next

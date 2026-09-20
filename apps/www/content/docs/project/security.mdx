@@ -15,15 +15,14 @@ aliases: [vulnerability, responsible disclosure, report a security issue]
 ## Reporting a vulnerability
 
 <Todo>
-There is no working reporting channel today. The canonical repository is not
-public, so the Security tab described below does not exist, and this project
-deliberately publishes no security email. A vulnerability therefore cannot be
-reported to us privately at all right now. The escalation route under "What to
-expect" and the safety route under "What is not a security issue" both end at
-the same missing tracker. Opening the repository is a release blocker for that
-reason and not only for distribution. Do not read this as permission to disclose
-publicly; read it as the reason the policy below cannot yet be followed. Remove
-this note when the Security tab exists, and check that the routes on
+GitHub private vulnerability reporting, the Security tab route described below, is
+a feature of public repositories, so it cannot be turned on while this repository
+is private. It will be enabled at the moment the repository is made public, and
+until then an outside reporter has no private route to us: the repository is not
+visible to them at all. Opening the repository is therefore a release blocker for
+this reason as much as for distribution. Do not read this as permission to
+disclose publicly. Take this note down once the repository is public and private
+vulnerability reporting is enabled, and check that the routes on
 [Community](./community.mdx) resolve at the same time.
 </Todo>
 
@@ -74,8 +73,9 @@ model is not that of a runtime dependency:
 it.** If a component, a piece of guidance or an example could lead a person to
 misread their own health data, that is more urgent than most security reports and
 belongs in a public issue where a clinical reviewer can see it. Opening one
-needs an issue tracker, which today there is not, for the reason in the note
-at the top of this page. Say clearly that it is a safety concern; the
+needs a public issue tracker, which is not reachable until the repository is
+public, for the reason in the note at the top of this page. Say clearly that it
+is a safety concern; the
 [safety review checklist](../health/safety-review-checklist.mdx) is the shape of
 the argument that helps most.
 
@@ -88,8 +88,9 @@ the developer's machine.
 
 No advisory has been published, and no version has been released, so there is no
 released version to attach one to. That is not the same as saying there is no
-code: twenty-four components are `alpha` and their source is served through the
-registry for anybody to copy in. A defect in one of those would be handled here
+code: sixty components are built, twenty-five at `beta` and thirty-five at
+`alpha`, and their source is served through the registry for anybody to copy in.
+A defect in one of those would be handled here
 exactly as described above. It would simply have no version number to name,
 which is one more reason the version stamp on
 [Version stamps](../registry/version-stamps.mdx) matters.

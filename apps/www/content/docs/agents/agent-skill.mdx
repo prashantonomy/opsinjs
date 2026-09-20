@@ -56,13 +56,14 @@ colour class on the same element fails.
 
 **`rules/never-invent.md`** holds that a component that is not in the catalogue
 does not exist, and neither does a prop that is not in the component's source.
-The rule binds in both directions, because the catalogue now has two kinds of
-row in it. For a name on the considered roster the correct answer is a refusal
-that names the status and stops. For one of the twenty-four `alpha` ids the
-correct answer is to install it and say, in the same breath, that an `alpha` API
-can change in any release without a deprecation cycle. A false refusal is the
-mirror image of an invention, and the rule file treats it as the same class of
-mistake.
+The rule binds in both directions, because the catalogue can hold two kinds of
+row. For a name on the considered roster the correct answer is a refusal that
+names the status and stops. The considered roster is empty today, so that branch
+guards the mechanism rather than any current id. For one of the sixty built ids,
+twenty-five at `beta` and thirty-five at `alpha`, the correct answer is to
+install it and say, in the same breath, that a pre-stable API can change in any
+release without a deprecation cycle. A false refusal is the mirror image of an
+invention, and the rule file treats it as the same class of mistake.
 
 **`rules/registry.md`** says never to emit `add @opsinjs/<name>` without first
 checking that `components.json` registers the namespace, and to offer the
@@ -104,10 +105,10 @@ they are specified rather than built.
 
 ### The assistant refuses to invent
 
-Ask for a component from the considered roster. A correct response names the
-status and stops. A confident API means the skill did not load. Then ask for an
-`alpha` one: a refusal there is the opposite failure, and it means the skill
-loaded against a stale idea of what is built.
+Ask for a component that is not in the catalogue at all. A correct response says
+it does not exist and stops. A confident API means the skill did not load. Then
+ask for one of the built ids. A refusal there is the opposite failure, and it
+means the skill loaded against a stale idea of what is built.
 
 ### It reaches for tokens
 

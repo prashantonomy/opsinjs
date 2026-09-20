@@ -2,17 +2,20 @@
  * GET /r/registry.json serves the shadcn registry catalog.
  *
  * This is the file `npx shadcn@latest mcp` fetches when a project has
- * `"@opsinjs": "https://opsinjs.dev/r/{name}.json"` in its components.json. If
+ * `"@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"` in its
+ * components.json. If
  * it is absent or malformed the MCP server does not report an error; the
  * assistant simply learns nothing and answers from memory. So every id opsinjs
  * has claimed is published here, whether or not there is code behind it, and
  * each row says which it is.
  *
  * Both rosters are published. One roster holds the ids that carry a written
- * specification page, and some of those ids now install real source. The other
- * holds the `considered` ids whose names are merely reserved. An agent asking
- * "does opsinjs have a symptom picker?" gets `status: "considered"` rather than
- * a silence it will fill in. The per-row answers are `meta.opsinjs.status`,
+ * specification page, and those ids now install real source. The other holds
+ * the `considered` ids whose names are merely reserved, and it is currently
+ * empty because every name once considered has been built. The mechanism stays
+ * regardless, so a future `considered` id would answer an agent asking "does
+ * opsinjs have a symptom picker?" with `status: "considered"` rather than a
+ * silence it will fill in. The per-row answers are `meta.opsinjs.status`,
  * `meta.opsinjs.implemented` and the presence of `files`; no count is asserted
  * in this comment, because a count written in a comment is a count nobody
  * updates.

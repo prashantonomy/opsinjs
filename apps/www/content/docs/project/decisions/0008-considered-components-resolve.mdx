@@ -25,10 +25,10 @@ render for now.
 
 ## Context
 
-The catalogue contains two kinds of row. Twenty-four ids have specifications and
-pages. Around thirty-five more are `considered`: names we have reserved, with no
-specification and no commitment, so that the system has an answer to "do you have
-a Tooltip" that is not silence.
+When this record was written, the catalogue contained two kinds of row.
+Twenty-four ids had specifications and pages. Around thirty-five more were
+`considered`: names reserved, with no specification and no commitment, so that the
+system had an answer to "do you have a Tooltip" that was not silence.
 
 The question is what happens when somebody asks for one. And "somebody" is
 increasingly a program: an assistant asked to build a health screen guesses a
@@ -97,13 +97,15 @@ We did *not* adopt a catch-all route.
 **This section said, when the record was written, that the generator did not
 exist and that guessing `docs/components/tooltip` still returned a 404.** That
 was true then. It is not true now: `scripts/build-registry.mts` writes one MDX
-stub per `considered` catalogue row into the components directory, thirty-six of
-them today, each carrying the `GENERATED FILE - DO NOT EDIT` marker comment,
-`status: considered` frontmatter and a `<StubNotice>`, and each covered by
-`pnpm check:generated`. `docs/components/tooltip` resolves and says that Tooltip
-is not built.
+stub per `considered` catalogue row into the components directory, each carrying
+the `GENERATED FILE - DO NOT EDIT` marker comment, `status: considered`
+frontmatter and a `<StubNotice>`, and each covered by `pnpm check:generated`. The
+considered roster is empty today, as
+[ADR 0022](./0022-considered-roster-built-out.mdx) records, so the generator
+writes no stub at present, and a name such as `docs/components/tooltip` now
+resolves to a built component page rather than to a stub.
 
-So a considered id now answers on four surfaces, and the fourth is the one this
+So a considered id would answer on four surfaces, and the fourth is the one this
 record was written to add:
 
 - Its own page at `docs/components/<id>`, guessable from the name alone, absent

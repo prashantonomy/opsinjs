@@ -84,29 +84,30 @@ What does the opsinjs registry say about range-bar? Do not write any code.
 ```
 
 ```txt
-Is there an opsinjs component for showing a symptom picker?
+Is there an opsinjs component for scanning a barcode?
 ```
 
-The third is the interesting one. `symptom-picker` is in the considered roster,
-so a correct answer is "it is considered and not implemented", not a 404 and not
-an invented component. If your assistant invents one, that is the failure mode
-the [evals](./evals.mdx) exist to measure, and
+The third is the interesting one. There is no barcode scanner in the catalogue,
+so a correct answer names that absence plainly, not a 404 and not an invented
+component. If your assistant invents one, that is the failure mode the
+[evals](./evals.mdx) exist to measure, and
 [Rules for agents](./rules-for-agents.mdx) is the fix.
 
 ## What the server can and cannot do here
 
 <Callout>
-**Twenty-four items carry source; thirty-six do not.** `add` against an
-implemented id writes real files. Against a `considered` id it resolves the item
-and finds nothing to write. That is the correct behaviour and not a broken
-configuration. `meta.opsinjs.implemented` on the item is the discriminator, and
-it is worth checking before you conclude anything from an empty result.
+**All sixty built items carry source; the considered roster is empty.** `add`
+against a built id writes real files. Against a `considered` id, were the roster
+to carry one, it would resolve the item and find nothing to write. That is the
+correct behaviour and not a broken configuration. `meta.opsinjs.implemented` on
+the item is the discriminator, and it is worth checking before you conclude
+anything from an empty result.
 </Callout>
 
 | The server can | The server cannot |
 | --- | --- |
 | List every item with its status and `implemented` flag | Install a `considered` id, because the item resolves and carries no files |
-| Install the source of the twenty-four implemented items, exported prop interfaces included | Promise that an `alpha` API survives the next release |
+| Install the source of all sixty built items, exported prop interfaces included | Promise that a `beta` or `alpha` API survives the next release |
 | Install the theme preset, which is real CSS | Fetch a documentation example on its own. The examples are not published as registry items |
 | Search across opsinjs and your other registries | Enforce the clinical rules. That is the [skill](./agent-skill.mdx) |
 
@@ -143,17 +144,17 @@ re-enable the server in your client. This is by far the most common cause.
 
 **`@opsinjs` is not found.** The registry block is missing from
 `components.json`, or the file is not at the project root the client opened.
-The full-URL form is `npx shadcn@latest add https://opsinjs.dev/r/<name>.json`.
+The full-URL form is `npx shadcn@latest add https://opsinjs.pensievelabs.org/r/<name>.json`.
 That form needs no configuration for an item that composes nothing, and is a
-quick way to isolate the problem. It will not rescue one of the fourteen items
-whose `registryDependencies` are namespaced; those need the block whichever form
-you use.
+quick way to isolate the problem. It will not rescue an item whose
+`registryDependencies` name other opsinjs items; those need the block whichever
+form you use.
 
 **It lists items but `add` writes nothing.** Check the id first. For a
-`considered` id that is correct. See the callout above. For one of the
-twenty-four implemented ids it is a real fault: the item carries files, so an
-empty write means the fetch failed, the CLI resolved a different registry, or
-the aliases in `components.json` do not name a directory it can write to.
+`considered` id that is correct. See the callout above. For one of the sixty
+built ids it is a real fault: the item carries files, so an empty write means the
+fetch failed, the CLI resolved a different registry, or the aliases in
+`components.json` do not name a directory it can write to.
 
 **The assistant still invents components.** The server supplies inventory, not
 judgement. Install the [agent skill](./agent-skill.mdx) or paste

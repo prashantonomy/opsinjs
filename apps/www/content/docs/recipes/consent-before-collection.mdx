@@ -41,22 +41,22 @@ See [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
 
 ## What you need
 
-The seven components this surface composes are at `alpha`: the code exists and
-installs, the API may change in any release without a deprecation cycle, and
-none of it has been through an accessibility or a clinical review. The last row
-is `considered`, meaning reserved names with no code. The per-item toggles
-inside the sheet are therefore yours to supply.
+The seven components this surface composes are at `beta`: the code exists and
+installs, and at beta each breaks only in a minor release with a documented
+migration. None of it has been through an accessibility or a clinical review. The
+per-item toggles in the last row, `switch` and `checkbox`, are at `alpha`, so
+they too install as source and you wire their state.
 
 | Part | Component | Status | What it does here |
 | --- | --- | --- | --- |
-| The consent surface | [ConsentSheet](../components/consent-sheet.mdx) | <StatusBadge status="alpha" /> | Granular, revocable, recorded consent for one scope. |
-| The presentation | [Sheet](../components/sheet.mdx) | <StatusBadge status="alpha" /> | Detents, focus handling, dismissal that does not imply an answer. |
-| The choice | [Field](../components/field.mdx) | <StatusBadge status="alpha" /> | Label, control and description for each grantable item. |
-| The two answers | [Button](../components/button.mdx) | <StatusBadge status="alpha" /> | Agree and decline, of equal weight. |
-| Unfamiliar words | [Term](../components/term.mdx) | <StatusBadge status="alpha" /> | Plain-English expansion, inline, not in a footnote. |
-| The boundary | [DisclaimerNote](../components/disclaimer-note.mdx) | <StatusBadge status="alpha" /> | What this consent does not cover. |
-| Context | [Callout](../components/callout.mdx) | <StatusBadge status="alpha" /> | Information about the request; never on the status axis. |
-| Per-item toggles | `switch` · `checkbox` | <StatusBadge status="considered" /> | Considered, not implemented. |
+| The consent surface | [ConsentSheet](../components/consent-sheet.mdx) | <StatusBadge status="beta" /> | Granular, revocable, recorded consent for one scope. |
+| The presentation | [Sheet](../components/sheet.mdx) | <StatusBadge status="beta" /> | Detents, focus handling, dismissal that does not imply an answer. |
+| The choice | [Field](../components/field.mdx) | <StatusBadge status="beta" /> | Label, control and description for each grantable item. |
+| The two answers | [Button](../components/button.mdx) | <StatusBadge status="beta" /> | Agree and decline, of equal weight. |
+| Unfamiliar words | [Term](../components/term.mdx) | <StatusBadge status="beta" /> | Plain-English expansion, inline, not in a footnote. |
+| The boundary | [DisclaimerNote](../components/disclaimer-note.mdx) | <StatusBadge status="beta" /> | What this consent does not cover. |
+| Context | [Callout](../components/callout.mdx) | <StatusBadge status="beta" /> | Information about the request; never on the status axis. |
+| Per-item toggles | `switch` · `checkbox` | <StatusBadge status="alpha" /> | Individual grant toggles; both install at alpha. |
 
 Tokens, by family:
 

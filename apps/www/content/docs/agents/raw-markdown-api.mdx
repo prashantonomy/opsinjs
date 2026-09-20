@@ -57,8 +57,9 @@ Three consequences worth knowing:
   than errors to report.
 - **Frontmatter is rebuilt, not copied through.** The twin carries the authored
   fields plus `url`, `source` and `section`, so a page read in isolation still
-  knows where it came from. `status` is the field to trust: `alpha` for an
-  implemented component, `considered` for a reserved name. One field is not
+  knows where it came from. `status` is the field to trust: for a built
+  component it reads `beta` or `alpha`, and `considered` marks a reserved name
+  were the roster ever to hold one. One field is not
   authored at all: a component page or a screen specimen documents something
   buildable, and its twin also carries `implemented`, read from the generated
   index rather than from the MDX, so no edit to the page can contradict it. A
@@ -90,9 +91,11 @@ the scope is worth reading off a table rather than inferring:
 | `x-opsinjs-implemented-count` | The system | How many component ids have real source behind them |
 
 A component or screen twin overrides `x-opsinjs-implemented` with its own
-subject's answer, exactly as `/r/<id>.json` does, so `HEAD` on
-`/docs/components/toast.md` returns `false` for a reserved name even though the
-count beside it is not zero. Every other page names nothing buildable, whether
+subject's answer, exactly as `/r/<id>.json` does, so `HEAD` on a component's
+`.md` reports that one component's source status rather than the system's. A
+reserved name would return `false` there even though the count beside it is not
+zero, though the considered roster is empty today so every component twin
+returns `true`. Every other page names nothing buildable, whether
 it is a guide, a handbook chapter or a doctrine page, so the header keeps its
 system value there, which answers "is anything implemented" rather than "is
 this implemented". `x-opsinjs-status` is sent on every twin and is always the
@@ -137,8 +140,8 @@ Either one means you have raw source or the HTML page rather than the twin.
 ### The status is present
 
 Every component page's twin carries `status` in frontmatter. The value is
-`alpha` for an implemented component and `considered` for a reserved name. If a
-twin omits `status` altogether, that is a bug worth reporting: it is the field
+`beta` or `alpha` for a built component, and every component is built today. If
+a twin omits `status` altogether, that is a bug worth reporting: it is the field
 that stops an agent generating against something that does not exist.
 
 </Steps>

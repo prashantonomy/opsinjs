@@ -46,20 +46,22 @@ registry and this site's chrome:
 type Status =
   | "stable"      // shipped, supported, changes go through deprecation
   | "beta"        // shipped, API may still move
-  | "alpha"       // shipped, expect breakage. Every implemented component is here
+  | "alpha"       // shipped, expect breakage without a deprecation cycle
   | "planned"     // specified, not implemented. No component sits here today
   | "deprecated"  // shipped, being removed
   | "considered"  // thought about, decided nothing, no implementation
 ```
 
-`alpha` and `considered` are the two a machine must handle correctly, because
-between them they account for every component id: `alpha` means there is source
-in the registry item and an API that may move without a deprecation cycle,
-`considered` means there is a catalogue row and nothing else. `planned` is a
-specification you may read and must not generate against. That status is still
-live on documentation pages, and no component carries it today. Handle all six
-anyway: the vocabulary is closed, not fixed, and a client that only knows the
-values it saw once will misread the day one of them moves.
+`beta`, `alpha` and `considered` are the ones a machine must handle correctly.
+Between them, `beta` and `alpha` account for every component id today, because
+the considered roster is empty: a built id, whether `beta` or `alpha`, means
+there is source in the registry item and an API that may still move without a
+deprecation cycle, and `considered` means a catalogue row and nothing else, were
+the roster ever to carry one. `planned` is a specification you may read and must
+not generate against. That status is still live on documentation pages, and no
+component carries it today. Handle all six anyway: the vocabulary is closed, not
+fixed, and a client that only knows the values it saw once will misread the day
+one of them moves.
 
 The clinical status levels are a **different, unrelated** four-value vocabulary,
 and the four are `steady`, `watch`, `attention` and `urgent`. Confusing the two
@@ -108,11 +110,12 @@ model.
 
 ### Check `status` and `implemented` on every read
 
-Twenty-four items are `alpha` and thirty-six are `considered`. `status` tells
-you how stable a thing is; `implemented` tells you whether there is source to
-install, which is the question most tools are actually asking. A tool that
-ignores either will behave, next year, as though half-built components were
-finished, or it will refuse to install a component that ships.
+Sixty items are built, twenty-five `beta` and thirty-five `alpha`, and the
+considered roster is empty. `status` tells you how stable a thing is;
+`implemented` tells you whether there is source to install, which is the question
+most tools are actually asking. A tool that ignores either will behave, next
+year, as though half-built components were finished, or it will refuse to install
+a component that ships.
 
 ### Treat aliases as input, not as output
 
@@ -132,13 +135,14 @@ can be identified as stale.
 ## Verify it worked
 
 ```bash
-curl -s https://opsinjs.dev/r/index.json | head -30
+curl -s https://opsinjs.pensievelabs.org/r/index.json | head -30
 ```
 
 You should get JSON with one entry per catalogue row, each carrying a `status`
-and an `implemented` flag. Then confirm the negative: request an id from the
-considered roster and check you get a `considered` item with `implemented:
-false` rather than a 404.
+and an `implemented` flag. Because the considered roster is empty today, every
+entry reports `implemented: true`. Confirm you read the flag rather than
+inferring it from the URL: a build that ever lists a `considered` row would
+report `implemented: false` for it, and that is the field a tool must check.
 
 ## Troubleshooting
 
