@@ -69,18 +69,9 @@ itself plus the shared substrate it needs, `lib/opsinjs.ts` and `lib/status.ts`.
 `npx shadcn add` writes those files into the project, resolving composite
 dependencies by name rather than inlining them.
 
-An item for a `considered` id carries no `files` key at all, plus
-`meta.opsinjs.implemented: false`, a `meta.opsinjs.why` that states the decision
-and a `meta.opsinjs.useInstead` list. Resolving with nothing to install is the
-honest outcome rather than a failure: "considered, not implemented" is a
-complete answer, and `useInstead` is the better half of it. See
-`rules/never-invent.md`.
-
-The considered roster is currently empty: sixty components are built and
-installable, twenty-five at `beta` and thirty-five at `alpha`, so every id you
-resolve today carries files. The considered shape above is the mechanism that
-still governs any future considered entry, not a description of anything the
-registry serves right now.
+Every component in the opsinjs catalogue is built and installable, and all of
+them are `shipped`, so every id you resolve today carries files. An id that
+resolves to nothing is an id opsinjs does not have, and saying so is the answer.
 
 The marker to read is `meta.opsinjs.implemented` on an item, `implemented` on a
 roster row in `/r/index.json`, or the `x-opsinjs-implemented` response header on
@@ -94,10 +85,9 @@ content, because it is the catalogue rather than the delivery. Fetch the item.
 
 So the practical answer to "add ResultCard to my project" is the install
 command, with the namespace check above done first, followed by the caveat said
-out loud: `result-card` is `alpha`, so it works and its API may change in any
-release without a deprecation cycle. For a `considered` id the practical answer
-is that there is nothing to install, and here is what the page suggests
-instead.
+out loud: `result-card` is `shipped`, so it works, its API may change in any
+release without a deprecation cycle, and nobody has run an accessibility review
+or a clinical review on it.
 
 ## The MCP server
 

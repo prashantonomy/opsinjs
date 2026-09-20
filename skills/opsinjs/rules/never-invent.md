@@ -1,29 +1,28 @@
 # Rule 3 - never invent a component, an API, a threshold or a citation
 
-opsinjs documents things that do not exist yet, on purpose, at addresses you can
-guess, alongside the things that do. That is useful precisely as long as nobody
-confuses the two - in either direction.
+opsinjs documents both what it has built and what it has only specified, at
+addresses you can guess. That is useful precisely as long as nobody confuses the
+two, and as long as nobody reads "built" as "reviewed".
 
 ## Components: check the status before you generate
 
-A built component sits at `alpha` or `beta`. Both mean implemented: the code
-exists, it renders, and it installs as source. `beta` is the steadier tier,
-while `alpha` warns that the API can still change without a deprecation cycle.
-`considered` is a reserved name with no code and no specification page, and the
-considered roster is empty today. There is no published npm package at any
-status, because distribution is registry copy-in, so no bare `@opsinjs/*`
-import resolves.
+A built component is `shipped`, and every component in the opsinjs catalogue is
+shipped today. `shipped` means implemented: the code exists, it renders, and it
+installs as source. It does not mean reviewed. The API may change in any release
+without a deprecation cycle, and no opsinjs component has had an accessibility
+review or a clinical review, so none of them belongs on a production health
+surface. There is no published npm package either, because distribution is
+registry copy-in, so no bare `@opsinjs/*` import resolves.
 
 Read the status; do not infer it from prose. The page's frontmatter carries
 `status`, and `/r/<id>.json` carries `meta.opsinjs.implemented` with the same
 answer in an `x-opsinjs-implemented` response header. A built page carries a
-`<StubNotice>` with its real `status`, `alpha` or `beta`, saying the component
-is implemented and installable and listing what has not been measured. A
-`considered` page would carry a `<StubNotice status="considered">` saying the
-component is not built, and its `.md` twin would open with a "NOT IMPLEMENTED"
-line. Do not substring-search a page
-for the words "not implemented": they turn up in sentences about unsupported
-media queries and tell you nothing about the component.
+`<StubNotice status="shipped">` saying the component is implemented and
+installable and listing what has not been measured. That notice is where the
+review gap is written down, so read it rather than assuming the absence of a
+warning means somebody checked. Do not substring-search a page for the words
+"not implemented": they turn up in sentences about unsupported media queries and
+tell you nothing about the component.
 
 ```tsx
 // WRONG - there is no npm package, so this import cannot resolve, and these
@@ -35,37 +34,24 @@ import { RangeBar } from "@opsinjs/react"
 
 What to do instead:
 
-1. **For a built id, install it, and say what its status means.** The component
-   is real. For `alpha` the caveat is that its API will change without a
-   deprecation cycle and that its own page lists what nobody has measured on it
-   yet; `beta` is steadier but still short of `stable`. Say the caveat every
-   time. An agent that presents an alpha health component as settled has made
+1. **For a built id, install it, and say what `shipped` means.** The component
+   is real. The caveat is that its API will change without a deprecation cycle,
+   that nobody has run an accessibility review or a clinical review on it, and
+   that its own page lists what has not been measured. Say the caveat every
+   time. An agent that presents a shipped health component as settled has made
    the newer of the two mistakes. Check the `@opsinjs` namespace before you emit
    the command, and `rules/registry.md` says why.
-2. **For a `considered` id, say so and stop.** "Considered, not implemented" is
-   a complete answer. The page names what to use instead, and that is a better
-   answer than a component opsinjs deliberately did not ship.
+2. **For an id opsinjs does not have, say so and stop.** "opsinjs does not have
+   one" is a complete answer. The catalogue at `/r/registry.json` and the
+   generated page at `/docs/reference/generated/catalogue.md` are authoritative
+   for what exists, and neither is a gap you should fill by inventing X.
 3. **If you write one anyway**, build it from a primitive the project already
    has, styled with opsinjs tokens, and do not call it opsinjs.
 
-An `alpha` API is real rather than a proposal, but it is narrow and it is
+A `shipped` API is real rather than a proposal, but it is narrow and it is
 unstable. Take it from the component page's generated props table or from the
 source in the `files` of its registry item. Do not extend it by guessing, and do
-not quote it as though it were released.
-
-## Considered is a real answer
-
-The catalogue can carry components at `status: considered`, things opsinjs has
-thought about and is deliberately not shipping. That roster is empty today:
-every name once held there, `toast`, `tooltip`, `combobox`, `table` and the
-rest, has since been built out to at least `alpha`, so no id carries that status
-right now. The mechanism stays for any future reserved name.
-
-"Considered, not implemented" is a **complete** answer to "does opsinjs have
-X?" whenever some future id does carry that status. It is not a gap you should
-fill by inventing X. The catalogue at
-`/r/registry.json` and the generated page at
-`/docs/reference/generated/catalogue.md` are authoritative for what exists.
+not quote it as though it were released or as though it were reviewed.
 
 ## Thresholds belong to whoever supplies the data
 
@@ -135,4 +121,4 @@ better answer than a page reconstructed from memory.
 - `/docs/health/reference-ranges.md` - showing a range without implying a diagnosis
 - `/docs/health/evidence-and-references.md` - the evidence discipline
 - `/docs/health/uncertainty-and-staleness.md` - rendering "we do not know"
-- `/docs/reference/generated/catalogue.md` - what exists and what is only considered
+- `/docs/reference/generated/catalogue.md` - every component opsinjs has

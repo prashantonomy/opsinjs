@@ -1,6 +1,6 @@
 ---
 name: opsinjs
-description: Use when building, reviewing or generating consumer- and patient-facing health UI with opsinjs - result cards, reference ranges, clinical status, alerts, consent, health logging, vitals, lab results - or when asked to add an opsinjs component, use its colour tokens, or answer a question about the opsinjs design system. Enforces the two-colour-axes rule, tokens over raw values, the registry namespace, and the split between the components that are implemented and any reserved names that are not.
+description: Use when building, reviewing or generating consumer- and patient-facing health UI with opsinjs - result cards, reference ranges, clinical status, alerts, consent, health logging, vitals, lab results - or when asked to add an opsinjs component, use its colour tokens, or answer a question about the opsinjs design system. Enforces the two-colour-axes rule, tokens over raw values, the registry namespace, and the gap between a component that installs and a component anybody has reviewed.
 ---
 
 # opsinjs
@@ -19,19 +19,14 @@ recall instead is the failure this whole skill exists to prevent.
 
 ## Read this first: check before you claim
 
-opsinjs has a six-status scale, and `/docs/project/release-phases.md` says what
-each one promises. Its components occupy two of them today: `alpha` and `beta`.
-Both mean implemented, so the code exists, it renders, and it installs into a
-project as source. `beta` adds that the surface has settled enough to build
-against with care, while `alpha` warns that the API can still change without a
-deprecation cycle. `considered` is a reserved name with no code and no
-specification page, where the address answers instead of returning a 404 and
-"considered, not implemented" is a complete answer rather than a gap to fill.
-The considered roster is empty right now, so no id carries that status today,
-yet the mechanism stays for any future reserved name. No component has reached
-`stable`, none is `planned`, and there is no npm package today: distribution is
-registry copy-in, so `import … from "@opsinjs/react"` does not resolve. (Pages
-that are not components still use `planned`; that says nothing about code.)
+opsinjs has three release phases, and `/docs/project/release-phases.md` says what
+each one promises: `planned` is a written specification with no code, `shipped`
+is installable source, and `deprecated` still installs while naming its
+replacement and its removal version. Every opsinjs component is `shipped` today.
+`shipped` means the code exists, it renders, and it installs into a project as
+source, and it does not mean anybody has reviewed it. There is no npm package
+either: distribution is registry copy-in, so `import … from "@opsinjs/react"`
+does not resolve.
 
 Which id is which is generated, so read the roster instead of trusting a count
 written in prose, including one written here. Three addresses answer for a
@@ -54,9 +49,9 @@ single id, and they are the only three that do:
 `/docs/…` and on its `.md` twin, `x-opsinjs-implemented` is scoped to the
 system - it says whether opsinjs has implemented components at all, not whether
 this one is among them - and no `x-opsinjs-status` is sent beside it to
-disambiguate, so it can read `true` on the page of a reserved name with no code.
-Nothing in the build gates that header against the body underneath it. If you
-have the page open, read its `implemented:` frontmatter; if all you want is the
+disambiguate, so it reads `true` on any documentation page whatever that page
+is about. Nothing in the build gates that header against the body underneath
+it. If you have the page open, read its `implemented:` frontmatter; if all you want is the
 boolean, ask `/r/<id>.json`. A header on a docs response is never the answer
 about one component.
 
@@ -67,25 +62,22 @@ That means:
 
 - **Check `implemented` before you claim anything, in either direction.**
   Telling someone that a built component does not exist costs them a
-  hand-written clinical surface nobody reviewed. Telling them a reserved name is
-  built costs them an import that cannot resolve. These are the same mistake and
-  the first one is the more expensive.
-- **`alpha` is real, and it is unstable.** The code exists and the API will
-  change without a deprecation cycle. Accessibility is claimed only where it has
-  been checked, and each component page lists its own unmeasured gaps rather than
-  omitting them. Hand someone an alpha component with both halves said out loud:
-  it works, and it belongs in a prototype rather than in a production health
-  surface.
-- **Never invent a prop.** An alpha surface is narrow. Read the component page's
+  hand-written clinical surface nobody reviewed. Telling them an id opsinjs does
+  not have is built costs them an install that cannot resolve. These are the same
+  mistake and the first one is the more expensive.
+- **`shipped` is real, and it is unreviewed.** The code exists and the API will
+  change without a deprecation cycle. No opsinjs component has had an
+  accessibility review or a clinical review, and each component page lists its
+  own unmeasured gaps rather than omitting them. Hand someone a shipped component
+  with both halves said out loud: it works, and it belongs in a prototype rather
+  than in a production health surface.
+- **Never invent a prop.** A shipped surface is narrow. Read the component page's
   generated props table, or the source in the `files` of its registry item. Do
   not infer the API from the component's name.
 - **Install it; do not rewrite it.** `npx shadcn@latest add @opsinjs/<id>` is the
   path, but only once `@opsinjs` is registered in the project's
   `components.json` - check that first, every time. `rules/registry.md` is the
   rule and it comes before the command.
-- When the id is `considered`, say so and stop. The page names what to use
-  instead, and that answer is better than a component opsinjs deliberately did
-  not ship.
 
 ## When to use this skill
 
@@ -149,9 +141,7 @@ Prefer the documentation over recall, in this order:
 4. `https://opsinjs.pensievelabs.org/r/index.json` - the roster: every component id with its
    status and its `implemented` flag. This is the authority for what is built.
 5. `https://opsinjs.pensievelabs.org/r/registry.json` - the component catalogue in shadcn
-   item shape, covering every id, and any considered ones once the roster holds
-   some. This is what the shadcn MCP
-   server reads. The per-item `https://opsinjs.pensievelabs.org/r/<id>.json` is what carries
+   item shape, covering every id. This is what the shadcn MCP server reads. The per-item `https://opsinjs.pensievelabs.org/r/<id>.json` is what carries
    the source.
 6. `https://opsinjs.pensievelabs.org/r/docs.json` - the whole corpus in one bundle, for
    working without a network.

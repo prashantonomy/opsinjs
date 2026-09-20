@@ -36,20 +36,21 @@ route handlers) stay at `app/` and are unaffected by the grouping.
 
 ## Where a built component lives
 
-The component layer is being built against the specifications that already exist under
-`content/docs/components/`. Those specifications are binding: you implement against
-them, you do not redesign them, and where one genuinely contradicts itself you resolve
-it deliberately with an ADR and fix the losing side in the same commit. The `considered`
-pages are not specifications and are not implementation targets. They are generated
-stubs that record a reserved name, say why it is not on the roster and name what to use
-instead, and `scripts/build-registry.mts` rewrites them from `registry/catalogue.ts` on
-every run.
+The component layer was built against the specifications under
+`content/docs/components/`, and every one of those pages is now a built component.
+Those specifications are binding: you implement against them, you do not redesign them,
+and where one genuinely contradicts itself you resolve it deliberately with an ADR and
+fix the losing side in the same commit. Every page under `content/docs/components/` is
+hand-written. Nothing in that directory is generated.
 
-A component page moves to `alpha` only once its component renders at
+A component page reads `shipped` only once its component renders at
 `/view/base/base-lyra/component/<id>` with `data-opsin-view-state="ready"` and the gates
-pass. Its catalogue row's `status` moves in the same commit. Everything not yet built
-keeps the honesty vocabulary (`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>`,
-`<Todo>`), which is still most of the corpus.
+pass. Its catalogue row's `status` moves in the same commit, and `status` exists on a
+`kind: component` page and nowhere else. `shipped` says the source installs and says
+nothing about review: no component has had an accessibility review or a clinical review,
+and each page's `<StubNotice>` carries that sentence in authored MDX. Everything not yet
+built keeps the honesty vocabulary (`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>`,
+`<Todo>`).
 
 `registry/` is where the code lands. The mechanics are app-local and easy to get wrong
 from recall:

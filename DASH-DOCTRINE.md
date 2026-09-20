@@ -153,8 +153,7 @@ Everything authored in this repository. By path, from the repo root:
 - `apps/www/hooks/**`
 - `apps/www/next.config.mjs`, `apps/www/.gitignore`, `apps/www/.prettierignore`
 - `apps/www/package.json`, `package.json`, `pnpm-workspace.yaml`, `.npmrc`, `turbo.json`
-- `AGENTS.md` (13), `CLAUDE.md` (8), `README.md` (5),
-  `BUILD-THE-COMPONENT-LAYER.md` (113 em dashes and 5 en dashes), `LICENSE-DOCS` (4)
+- `AGENTS.md` (13), `CLAUDE.md` (8), `README.md` (5), `LICENSE-DOCS` (4)
 - `skills/**`
 
 `LICENSE-DOCS` is in scope because its four dashes are at lines 3, 4, 12 and 29, all inside
@@ -451,14 +450,6 @@ pause than a dash, not a shorter one.
 > An interface that clips, truncates or overlaps at their setting is not "slightly off" for
 > them. It is the version of the product they have, permanently.
 
-**BEFORE** `content/docs/agents/index.mdx:137`
-> You should get a definite "considered, not implemented" answer rather than a 404 U+2014
-> that behaviour is the point of the whole design.
-
-**AFTER**
-> You should get a definite "considered, not implemented" answer rather than a 404. That
-> behaviour is the point of the whole design.
-
 **BEFORE** `content/docs/foundations/colour/deriving-a-theme.mdx:68`
 > This is not a pass/fail U+2014 it is a judgement you have to make about your own
 > product...
@@ -618,7 +609,7 @@ block.
 
 ### R10. Numbered record and stage labels
 
-**Recognise.** `0008 U+2014 Considered components resolve, never 404`, or
+**Recognise.** `0014 U+2014 The material rung names are the token names`, or
 `### 1 U+2014 Parse and normalise to OKLCH`. The dash is a numbering convention, not
 punctuation.
 
@@ -629,12 +620,13 @@ result.
 | Before | After |
 |---|---|
 | `content/docs/project/decisions/0001-base-ui-not-radix.mdx:2` `title: "0001 U+2014 Base UI, not Radix"` | `title: "ADR 0001. Base UI, not Radix"` |
-| `content/docs/project/decisions/0008-considered-components-resolve.mdx:2` | `title: "ADR 0008. Considered components resolve, never 404"` |
+| `content/docs/project/decisions/0014-material-rung-names.mdx:2` | `title: "ADR 0014. The material rung names are the token names"` |
 | `content/docs/project/changelog/2026-09-scaffold.mdx:2` `title: "0.0.0 U+2014 The scaffold"` | `title: "0.0.0. The scaffold"` |
 | `content/docs/foundations/colour/how-the-engine-works.mdx:33,47` `### 1 U+2014 Parse and normalise to OKLCH` | `### Step 1. Parse and normalise to OKLCH`, `### Step 2. Fix the lightness ladder` |
 | `content/docs/accessibility/for-compliance-reviewers.mdx:75` `### Minutes 0U+20133 U+2014 the scope claim` | `### The scope claim (minutes 0 to 3)` |
 
-**There are 18 decision records**, `0001` through `0021` with gaps, and **all 18 titles carry
+**There are 18 decision records**, `0001` through `0023` with gaps at `0008`, `0018` to
+`0020` and `0022`, and **all 18 titles carry
 a dash**. `content/docs/project/decisions/meta.json` controls sidebar order, `assert-ia.mts`
 never reads a decision title, and `check-llms.mts` reads no title at all, so nothing sorts
 differently. **Inbound link texts that quote an ADR title change in the same commit.**
@@ -823,10 +815,10 @@ does not answer "Example". Write `No single example`.
 > `| `--background` / `--foreground` | No single example | The page surface and its default text |`
 
 **BEFORE** `content/docs/handbook/migrating-from-shadcn.mdx:47`
-> `| `Progress` | U+2014 | `considered`; a `RangeBar` is not a progress bar |`
+> `| `Progress` | U+2014 | Direct equivalent; a `RangeBar` is a different component |`
 
 **AFTER**
-> `| `Progress` | No equivalent | `considered`; a `RangeBar` is not a progress bar |`
+> `| `Progress` | [Progress](../components/progress.mdx) | Direct equivalent; a `RangeBar` is a different component |`
 
 ---
 
@@ -850,8 +842,8 @@ does not answer "Example". Write `No single example`.
    character later in the same string. Its existing semicolon stays, because it was already
    there; its dash reframes.
 3. **`<StubNotice questions={[...]}>` strings are the honesty surface.** They are the open
-   safety questions and they survive promotion to `alpha`. Edit for the dash. Never edit the
-   claim.
+   safety questions and they survive on every shipped component page. Edit for the dash.
+   Never edit the claim.
 4. **HTML entities.** Where the real file holds `&lt;` and `&gt;`, keep them. Where it holds
    real angle brackets, keep those.
 
@@ -1858,7 +1850,7 @@ gate in §8.6 needs no allowlist for these pages.
 
 ### 7.5 `content/docs/health/numbers-units-precision.mdx`, rules 12 and 13
 
-This page is `status: stable`, `kind: health`, `evidence: mixed`, `reviewed: 2026-09-02`,
+This page is `kind: health`, `evidence: mixed`, `reviewed: 2026-09-02`,
 `reviewer: design`. It is canonical for numeric formatting and wins where the four pages
 disagree.
 
@@ -1878,7 +1870,7 @@ disagree.
 ```
 
 **The one named exception to §6.16.** Rewriting rules 12 and 13 is a doctrine change on a
-`kind: health`, `status: stable` page, not punctuation tidying. **This page's `reviewed` date
+`kind: health` page, not punctuation tidying. **This page's `reviewed` date
 moves to the date of that commit and `reviewer` stays `design`.** Everywhere else in this
 sweep, `reviewed` is untouched. Do not generalise this exception to any other page.
 
@@ -2027,9 +2019,8 @@ Every worker appends to this list in their summary. Three entries are already op
 | The **first sentence** of the JSDoc above each `export` under `lib/**` | `content/docs/reference/generated/types.mdx` and the body of `content/docs/reference/api/<Symbol>.mdx`. Chiefly `lib/color/oklch.ts:18,19,26,31,43,193,198,203,210,316,325,340`, `lib/color/apca.ts:34,220`, `lib/preset.ts:118,122`, `lib/registry.ts:136`, `lib/routes.ts:93,123,254,315`, `lib/status.ts:209`, `lib/opsinjs.ts:180`. **First sentence only: see R21 publication rule 2** |
 | `content/docs/reference/api/<Symbol>.mdx` frontmatter and everything above the marker | **that file, by hand**, matching the new JSDoc first sentence exactly, in the same commit. Three descriptions are affected: `Oklch.mdx:3`, `Rgb.mdx:3`, `Rgb255.mdx:3` |
 | The eight begin-marker lines listed in §2.3 | **those files, by hand.** `assemble()` preserves an existing marker line forever, so they never self-heal, and hand-editing them produces zero drift |
-| `registry/catalogue.ts` string fields | `lib/generated/catalogue.json`, `public/r/**`, `content/docs/reference/generated/catalogue.mdx`, and every `considered` stub. Guarded by `node scripts/build-registry.mts --check`, which CI runs **before** `generate` |
+| `registry/catalogue.ts` string fields | `lib/generated/catalogue.json`, `public/r/**` and `content/docs/reference/generated/catalogue.mdx`. Guarded by `node scripts/build-registry.mts --check`, which CI runs **before** `generate` |
 | `registry/catalogue.ts:85-88` | **also `content/docs/components/meta.json:8,15,21,24`, which is hand-maintained and NOT gated against it.** Same worker, same commit (§2.5) |
-| `scripts/build-registry.mts:789` | the identical sentence spliced into every `considered` stub. Editing the MDX alone fails `--check` |
 | `tokens/glossary.json` (§5.6) | `lib/generated/glossary.json` and the generated half of `content/docs/reference/generated/glossary.mdx`. The three hand-written lines at `:3,23,38` sit above the marker at `:43` and are hand-edited |
 | `tokens/errors.json:7,42` | the errors region of `lib/opsinjs.ts`, the generated region of `content/docs/handbook/error-codes.mdx`, and the runtime warning printed in a consumer's console |
 | `tokens/{color,material,motion,shape,space,type,units}.json` | `lib/generated/tokens.ts`, `lib/generated/units.json`, `app/tokens.generated.css`, `content/docs/reference/generated/{tokens,css-variables}.mdx` |
@@ -2047,7 +2038,7 @@ Every worker appends to this list in their summary. Three entries are already op
    Left last, the rule regenerates itself on every page anybody writes.
 2. **The doctrine commit.** §7's four files plus rule 13, `registry/bases/base/value.tsx` and
    its four MDX sites (§5.1), and `registry/bases/base/term.tsx` with
-   `content/docs/components/term.mdx` (§5.3). Five pages and two shipped `alpha` components
+   `content/docs/components/term.mdx` (§5.3). Five pages and two shipped components
    have to agree, and every other edit in `content/` depends on the answer.
 3. **The 796-item related-links cluster** (§4.1), as one pass, with the verb table handed to
    every worker as the rule.
@@ -2066,8 +2057,8 @@ Every worker appends to this list in their summary. Three entries are already op
 9. **The gate** (§8.6), last.
 
 **A component page's `status` and its `registry/catalogue.ts` row still move together, in one
-commit. A copy edit never promotes a page.** `value`, `term` and `score-dial` are `alpha`, so
-CLAUDE.md requires each to still render at `/view/base/base-lyra/component/<id>` after the
+commit. A copy edit never promotes a page.** `value`, `term` and `score-dial` are `shipped`,
+so CLAUDE.md requires each to still render at `/view/base/base-lyra/component/<id>` after the
 JSX edits in §5. **That check belongs to the sequential phase**, run by whoever runs
 `generate`, not by the parallel worker who made the edit. The parallel worker lands the edit
 and says so in their summary.

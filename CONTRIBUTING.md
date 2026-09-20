@@ -7,9 +7,8 @@ those specifications are binding. When you build a component you build the one i
 specification already describes. You implement it, you do not redesign it, and you do
 not promote its page past what the code actually does.
 
-This file is the practical starting point. The fuller guide, including the maturity
-ladder, the four routes a change can take and the component intake questions, lives in
-the handbook at
+This file is the practical starting point. The fuller guide, including the component
+intake questions and the four routes a change can take, lives in the handbook at
 [Contributing](https://opsinjs.pensievelabs.org/docs/handbook/contributing). That
 address is being attached to a fresh deployment and does not resolve yet.
 
@@ -92,11 +91,13 @@ package manifest, not in any prose copy of it.
 
 ## What is real today
 
-Sixty components are built and installable, twenty-five at `beta` and thirty-five at
-`alpha`. Nothing is `stable` yet, so any API may change in a release without a
-deprecation cycle. The considered roster is empty: every name once reserved as
-`considered` has since been built to at least `alpha`. The considered-stub mechanism
-still exists for a future entry, and it renders nothing while the roster is empty.
+Every component in the catalogue is built and installable, and every one of them is
+`shipped`. That word means the code exists and installs as source. It does not mean
+anybody has checked it: no opsinjs component has had an accessibility review or a
+clinical review, so none of them is for a production health surface, and any API may
+change in a release without a deprecation cycle. Read each component page's
+`<StubNotice>`, which carries that sentence and names the questions still open on that
+component in particular.
 
 Components install through the `@opsinjs` namespace registered in a project's
 `components.json`. Nothing is published to npm, and the `packages/*` workspace glob
@@ -106,10 +107,10 @@ points at a directory that is reserved and empty.
 
 Use [Conventional Commits](https://www.conventionalcommits.org) for the subject line,
 for example `fix(www): correct the contrast table source`. Explain in the body why the
-change is needed, not what the diff already shows. A component page earns `alpha` or a
-higher status only once its file under `registry/bases/base/` renders and all three
-gates pass, and the page's `status` moves together with its `registry/catalogue.ts` row
-in one commit.
+change is needed, not what the diff already shows. A component page reads `shipped` only
+once its file under `registry/bases/base/` renders and all three gates pass, and the
+page's `status` moves together with its `registry/catalogue.ts` row in one commit. Only
+a component page has a status.
 
 ## Reporting a security issue
 

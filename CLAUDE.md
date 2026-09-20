@@ -6,11 +6,12 @@ working protocol on top of it.
 
 ## The one-line summary
 
-This repo is the documentation site for a design system whose component layer is being
-built, against specifications that were written first and are binding. So there are two
-jobs here and you have to know which one you are on. Writing a *specification* precise
-enough that the component could be built from it, and honest enough that no human and
-no agent mistakes it for something shipped, is still most of the work. Building a
+This repo is the documentation site for a design system, and the component layer under
+it. Every component in the catalogue is built, against a specification that was written
+first and is binding, and not one of them has been reviewed. So there are two jobs here
+and you have to know which one you are on. Writing a *specification* precise enough that
+the component could be built from it, and honest enough that no human and no agent
+mistakes it for something anybody has checked, is still most of the work. Building a
 component means building the one its specification already describes: you implement it,
 you do not redesign it, and you do not promote its page past what the code actually
 does.
@@ -19,13 +20,11 @@ does.
 
 1. `AGENTS.md` §2 (Next 16 has two root layouts and no `app/layout.tsx`) and §4
    (fumadocs 16 / mdx 15 API shapes) are the two places recall will betray you.
-2. Check whether the file you are about to touch is **generated**. If it is under
-   `lib/generated/`, `registry/generated/`, `content/docs/reference/generated/`,
-   `content/docs/reference/api/`, `public/r/`, or is `registry/__index__.ts` or
-   `app/tokens.generated.css`, edit its *source* instead. The source is
-   `tokens/*.json`, `registry/catalogue.ts`, a file under `registry/bases/`, or the
-   emitting script. Those seven paths are exactly what `check:generated` diffs; the
-   authority is `apps/www/package.json`, not this list.
+2. Check whether the file you are about to touch is **generated**. If it is, edit its
+   *source* instead. The source is `tokens/*.json`, `registry/catalogue.ts`, a file
+   under `registry/bases/`, or the emitting script. The authority for what is generated
+   is the `check:generated` script in `apps/www/package.json`, not a prose copy of the
+   list.
 3. Check the page's `kind` frontmatter. It determines the headings exactly. Do not add
    a heading the outline for that `kind` does not have, and do not drop one it does.
 
@@ -60,13 +59,17 @@ here is the script that will fill it), `<Todo>` (a measured gap). Use them inste
 softening the truth in prose. They are still required for everything that is not built,
 which is most of the corpus.
 
-Promotion sheds exactly two of them. `<NotBuiltYet>` and `<Todo>` go in the same commit
-that moves a page to `alpha`, and a promoted page carries neither. The other two stay, for
-different reasons. `<StubNotice>` stays and gains its real `status`. At `alpha` it stops
-saying "nothing is implemented" and starts saying "this is not stable yet", which is the
-truth a reader needs, and its open safety questions are still open. `<NoDataYet>` stays
-wherever a generator genuinely has no source data: an `alpha` page whose contrast pairs
-have not been measured must say so rather than print a table nobody produced. The MDX
+Building the component sheds exactly two of them. `<NotBuiltYet>` and `<Todo>` go in the
+same commit that moves a page to `shipped`, and a shipped page carries neither. The other
+two stay, for different reasons. `<StubNotice>` stays and gains `status="shipped"`, and it
+becomes the review signal: the component is implemented and installable, the API may change
+in any release, and it has had no accessibility review and no clinical review, so it is not
+for a production health surface. Write that in the page's own MDX rather than reaching for
+a generated string, because the `.md` twins are built from page text, and `assert-ia` rule
+SAFE001 fails the build on a component page that drops it. Its open safety questions are
+still open. `<NoDataYet>` stays wherever a generator genuinely has no source data: a
+shipped page whose contrast pairs have not been measured must say so rather than print a
+table nobody produced. The MDX
 vocabulary is **closed**: only the tags listed in the anatomy contract exist, `assert-ia`
 fails the build on any other JSX tag, and content work never defines a new one.
 
@@ -111,11 +114,11 @@ do not fix it.
 
 ## Definition of done for a page
 
-Correct frontmatter (`status` and `kind` are mandatory) · exactly the headings its `kind`
-prescribes · relative MDX links, never absolute `/docs/` · every component id matched
-against the catalogue · every claim either generated, cited, or marked as opinion · and
-nothing anywhere that implies a component has been built when it has not. A component
-page earns `alpha` only once its file under `registry/bases/base/` renders at
-`/view/base/base-lyra/component/<id>` and `pnpm typecheck`, `pnpm lint` and `pnpm check`
-all pass; the page's `status` and its `registry/catalogue.ts` row move together, in one
-commit.
+Correct frontmatter (`kind` is mandatory everywhere, `status` only on a component page) ·
+exactly the headings its `kind` prescribes · relative MDX links, never absolute `/docs/` ·
+every component id matched against the catalogue · every claim either generated, cited, or
+marked as opinion · and nothing anywhere that implies a component has been built when it
+has not. A component page reads `shipped` only once its file under `registry/bases/base/`
+renders at `/view/base/base-lyra/component/<id>` and `pnpm typecheck`, `pnpm lint` and
+`pnpm check` all pass; the page's `status` and its `registry/catalogue.ts` row move
+together, in one commit. `status` exists only on a `kind: component` page.

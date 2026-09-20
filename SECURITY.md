@@ -61,9 +61,9 @@ the developer's machine.
 ## Advisories
 
 No advisory has been published and no version has been released, so there is no
-released version to attach one to. Sixty components are built and installable, and
-their source is served through the registry for anybody to copy in, so a defect in
-one of those would be handled exactly as described above. It would simply have no
+released version to attach one to. Every component in the catalogue is built and
+installable, and its source is served through the registry for anybody to copy in, so
+a defect in one would be handled exactly as described above. It would simply have no
 version number to name. When there are advisories, each will name the affected
 versions and the fix, and because you own the copied source, each will also name
 the exact change to apply by hand if you are not taking a full upgrade.

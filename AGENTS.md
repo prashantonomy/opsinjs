@@ -3,29 +3,37 @@
 Read this before writing a line. Several things here contradict what you probably
 learned from older Next.js, fumadocs and shadcn material.
 
-## 1. The component layer is being built
+## 1. The component layer is built, and it is not reviewed
 
 The component pages under `apps/www/content/docs/components/` were written as
-specifications before any component existed, and those specifications are now being
-implemented against. Both halves of that sentence are load-bearing, and they pull in
-opposite directions, so establish which half you are on before you type.
+specifications before any component existed, and every one of those specifications has
+since been implemented. Neither half is safe to forget: the specification still binds
+the code, and the code is what the page must now describe.
 
-**A component that exists is documented, not proposed.** Its page carries `status:
-alpha`, a `<ComponentPreview>` that actually renders, and real `parts`/`tree`/`rows`
-data. A page reaches `alpha` only when its file under `registry/bases/base/` renders
-at `/view/base/base-lyra/component/<id>` and `pnpm typecheck`, `pnpm lint` and
-`pnpm check` all pass. "It typechecks" is not "it renders". Frontmatter `status`
-and the `registry/catalogue.ts` row's `status` move in the same commit, because
-nothing cross-checks them for you.
+**A component that exists is documented, not proposed.** Its page carries
+`status: shipped`, a `<ComponentPreview>` that actually renders, and real
+`parts`/`tree`/`rows` data. A page reads `shipped` only when its file under
+`registry/bases/base/` renders at `/view/base/base-lyra/component/<id>` and
+`pnpm typecheck`, `pnpm lint` and `pnpm check` all pass. "It typechecks" is not "it
+renders". Frontmatter `status` and the `registry/catalogue.ts` row's `status` move in
+the same commit, because nothing cross-checks them for you.
 
-**Everything else is still a specification and must read as one**, and everything
-else is most of the corpus. Do not "finish" a spec by writing an implementation you
-were not assigned, do not generate code against a `## Proposed API`, and never edit a
-page so that it reads as though a component exists when it does not. The honest
-vocabulary is `<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>`. `<Todo>`
-is counted by the build's coverage report, so it is a measurement, not a shrug.
-Those four markers are removed from a page in the same commit that promotes it, and
-not before.
+**`shipped` says the source installs, and it says nothing about review.** No opsinjs
+component has had an accessibility review or a clinical review, so nothing here is for
+a production health surface, and the API may change in any release with a changelog
+entry. That sentence is authored in each component page's `<StubNotice>` rather than
+generated into it, because the `.md` twins are built from page text, and `assert-ia`
+rule SAFE001 fails the build on a component page that drops it. Do not soften it, and
+do not move it into a generated string.
+
+**Everything that is not a component page is doctrine or specification and must read as
+one**, and that is most of the corpus. Do not "finish" a spec by writing an
+implementation you were not assigned, do not generate code against a `## Proposed API`,
+and never edit a page so that it reads as though something exists when it does not. The
+honest vocabulary is `<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>`.
+`<Todo>` is counted by the build's coverage report, so it is a measurement, not a shrug.
+`<NotBuiltYet>` and `<Todo>` are removed from a page in the same commit that builds what
+it describes, and not before.
 
 The directory listing of `registry/bases/base/` is the answer to "does code exist for
 this id". One flat `.tsx` file per component id; `scripts/build-registry.mts` registers
@@ -33,15 +41,15 @@ every direct child and produces the index entry, the `/view` route and the previ
 file, no entry, and `<ComponentPreview>` renders `<NotBuiltYet>`. Read the directory
 rather than any prose about it, including this prose.
 
-It is not the answer to "is this ready to use". That takes three things agreeing: a file
-in the directory, the page's `status`, and the catalogue row's `status`. They are moved
-together, in one commit, and only after the component renders at `/view` and the gates
-pass. A file can be in the directory and the component still not be a component. A
-helper or a throwaway dropped in beside them picks up a `/view` route and a preview with
-no catalogue row behind it, and the honest signal there is that the page is still
-`considered` and still carries its `<StubNotice status="considered">`. Component pages
-sit at `alpha` or at `considered` and at nothing else; `planned` is a status for pages
-that are not components, and it says nothing about code.
+It is not the answer to "is this ready to use". A file can be in the directory and not
+be a component at all: a helper or a throwaway dropped in beside them picks up a `/view`
+route and a preview with no catalogue row behind it. What makes an id a component is the
+catalogue row, and what would make it ready is the review nobody has done.
+
+`status` is frontmatter on a `kind: component` page and on nothing else. The three
+values are `planned` (a written specification and no code), `shipped`, and `deprecated`
+(still installs, on its way out, with a named replacement and a named removal version).
+ADR 0023 is the record.
 
 ## 2. This is not the Next.js you know
 
@@ -120,11 +128,11 @@ regenerate.
 Two of those nine paths are hand-written files carrying one spliced generated region
 each: `lib/opsinjs.ts`, the substrate `shadcn add` copies into a consumer's project, and
 `content/docs/handbook/error-codes.mdx`. The prose outside the markers is yours to write;
-everything between them is rewritten by `build-tokens.mts` on every run. And one
-generated output is not on the list at all. The 36 `considered` stubs under
-`content/docs/components` are guarded by `node scripts/build-registry.mts --check`
-instead. CI runs that check *before* `generate`, because afterwards it would only be
-comparing freshly written files with themselves.
+everything between them is rewritten by `build-tokens.mts` on every run. Nothing under
+`content/docs/components` is generated; every page there is authored. CI also runs
+`--check` on each of the three generator scripts *before* `generate`, so that each one
+compares the tree as checked out against what it would write. Afterwards it would only
+be comparing freshly written files with themselves.
 
 `app/tokens.generated.css` is emitted by `scripts/build-tokens.mts`. `app/globals.css`
 owns only the one `@import` line that pulls it in, at its fixed position.

@@ -4,27 +4,19 @@ opsinjs is a React design system for consumer- and patient-facing health apps. I
 for the kind of screen where somebody who is not a clinician reads their own blood
 pressure, HbA1c or symptom log and has to decide what, if anything, to do next.
 
-This repository contains **the documentation site and the component layer**.
-Sixty components are implemented under `apps/www/registry/bases/base/` and are
-served as shadcn-spec registry items from `/r/<name>.json`; install them through the
+This repository contains **the documentation site and the component layer**. Every
+component in the catalogue is implemented under `apps/www/registry/bases/base/` and is
+served as a shadcn-spec registry item from `/r/<name>.json`; install them through the
 `@opsinjs` namespace registered in a project's `components.json`, never by pasting a
-raw URL. Twenty-five are at `beta` and thirty-five are at `alpha`.
-
-The `considered` roster in `apps/www/registry/catalogue.ts` is currently empty: every id
-is now built to at least `alpha`. The mechanism behind `considered` still exists (ADR
-0008). Any future reserved name would answer at a page in `apps/www/content/docs/components`
-that is generated from its catalogue row and gives what the name refers to, why it is not
-on the roster, and which built component to use instead. That page would say all of it out
-loud, in machine-readable form, so that an agent asking "does opsinjs have a Toast?" gets a
-definitive *considered, not implemented, use this instead* rather than a 404 it will answer
-by inventing an API. No id sits in that state today.
+raw URL. All of them are `shipped`, which means the code exists and installs. It does
+not mean any of them has been reviewed.
 
 ## What is actually real today
 
-- **Sixty components.** Implemented and installable: twenty-five at `beta` and
-  thirty-five at `alpha`. Nothing is `stable`, nothing is independently
-  accessibility-audited, and none of them is for a production health surface yet: the API
-  may change in any release without a deprecation cycle.
+- **The component layer.** Every catalogue row is implemented and installable, and every
+  one of them is `shipped`. Not one has had an accessibility review or a clinical review,
+  so none of them is for a production health surface, and the API may change in any
+  release with a changelog entry. Every component page says so in its own `<StubNotice>`.
 - **Tokens.** The two colour axes, the material ladder, the motion springs and the
   type/space/shape scales are authored in `apps/www/tokens/*.json` and are the source
   for every generated table on the site.

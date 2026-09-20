@@ -39,7 +39,7 @@ The authority for what is generated is the check:generated diff in apps/www/pack
 
 ## Docs pages, if this pull request touches content
 
-- [ ] Frontmatter is correct: `status` and `kind` are both present and honest.
+- [ ] Frontmatter is correct: `kind` is present on every page, and `status` is present only on a `kind: component` page.
 - [ ] The page carries exactly the headings its `kind` prescribes, with none added and none dropped.
 - [ ] Internal MDX links are relative. None points at an absolute `/docs/` path.
 - [ ] Every claim is generated, cited, or labelled as opinion. No citation, statistic, DOI, date or study is invented.

@@ -93,10 +93,10 @@ the most common health-UI task resolves and says when *not* to use it. The other
 three check the honesty contract in both directions, because it can now fail
 either way. `body-map-is-built` asks for a working `BodyMap` snippet and asserts
 the page supplies one, pinned to the catalogue row as well as to the page.
-`alpha-is-real-and-unstable` asks how far `ResultCard` can be trusted and asserts
-the page names the import path that resolves *and* says the API may move in any
-release: presenting a built component as settled fails it, and so does still
-calling it unbuilt. `toast-is-built` checks the same for the id that spent
+`shipped-is-real-and-unreviewed` asks how far `ResultCard` can be trusted and
+asserts the page names the import path that resolves *and* says the API may move
+in any release and that nobody has reviewed it: presenting a built component as
+settled fails it, and so does still calling it unbuilt. `toast-is-built` checks the same for the id that spent
 longest unbuilt.
 
 **Getting it installed.** `install-path`, `which-registry` and
