@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import { RootProvider } from "fumadocs-ui/provider/next"
 
 import "../globals.css"
+import { SiteFooter } from "@/components/site-footer"
 import { cn } from "@/lib/utils"
 
 /**
@@ -18,6 +19,19 @@ import { cn } from "@/lib/utils"
  *
  * `(home)`, `(docs)` and `(playground)` are nested groups UNDER this layout and
  * supply their own fumadocs chrome; they do not render <html>.
+ *
+ * THE FOOTER IS RENDERED HERE, once, for every route under this layout. It used
+ * to live on the `(home)` group, which meant it appeared on the six tool pages
+ * and on none of the four hundred documentation pages. Since the sidebar now
+ * holds documentation sections and nothing else, the footer is the only route
+ * to the tools, the machine surfaces and the theme switch, and a reader inside
+ * the corpus is precisely the one who needs it. See components/site-footer.tsx.
+ *
+ * It is a SIBLING of `{children}`, not a child. Each nested group puts its
+ * children inside a <main>, and a <footer> inside <main> does not expose the
+ * contentinfo landmark: it degrades to a generic element and the site loses the
+ * landmark screen-reader users navigate by. Rendering it here keeps the
+ * landmark, and its `mt-auto` works because this <body> is a flex column.
  */
 
 const fontSans = Inter({
@@ -51,6 +65,7 @@ export default function ChromeRootLayout({
           theme={{ defaultTheme: "light", enableSystem: true, hotKey: false }}
         >
           {children}
+          <SiteFooter />
         </RootProvider>
       </body>
     </html>

@@ -28,10 +28,10 @@ import { absoluteUrl, docsMarkdownPath, ogUrl, site } from "@/lib/routes"
  * itself has exactly one canonical, un-namespaced URL per component, which is
  * also the only URL an agent can guess. See addendum A6 and locked decision 6.
  *
- * `params` is a Promise in Next 16 and is awaited. `PageProps<'/docs/[[...slug]]'>`
+ * `params` is a Promise in Next 16 and is awaited. `PageProps<'/[[...slug]]'>`
  * comes from `next typegen`, which the `typecheck` script runs before `tsc`.
  */
-export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
+export default async function Page(props: PageProps<"/[[...slug]]">) {
   const params = await props.params
   const page = source.getPage(params.slug)
   if (!page) notFound()
@@ -85,7 +85,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/docs/[[...slug]]">
+  props: PageProps<"/[[...slug]]">
 ): Promise<Metadata> {
   const params = await props.params
   const page = source.getPage(params.slug)

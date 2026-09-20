@@ -42,6 +42,14 @@ import { type Dirent, readdirSync, readFileSync, statSync } from "node:fs"
 import { join, relative, sep } from "node:path"
 import { fileURLToPath } from "node:url"
 
+/* The corpus is rooted: `DOCS_BASE` is empty and a page lives at
+   `/components/button`. Every URL this script predicts is built with
+   `docsPath`, the same function the site builds its links with, so moving the
+   base cannot leave this file probing a prefix that no longer exists. That is
+   what it did before: it predicted `/docs/<slug>.md` for all 404 twins and
+   reported every one of them as a 404 of the site's rather than of its own. */
+import { docsMarkdownPath, docsPath } from "../lib/routes.ts"
+
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const DOCS_DIR = join(APP_DIR, "content", "docs")
 const APP_ROUTES = join(APP_DIR, "app")
@@ -57,7 +65,7 @@ const REQUIRED_ROUTES = [
   { path: "llms-components.txt", purpose: "shard: component and screen specifications" },
   { path: "llms-health.txt", purpose: "shard: health, accessibility and content doctrine" },
   { path: "llms-foundations.txt", purpose: "shard: foundations, theming and generated reference" },
-  { path: "llms.mdx", purpose: "the processed-markdown twin behind the /docs/:path*.md rewrite" },
+  { path: "llms.mdx", purpose: "the processed-markdown twin behind the /:path*.md rewrite" },
   { path: join("r", "docs.json"), purpose: "the offline agent bundle" },
   { path: join("r", "registry.json"), purpose: "the catalog the shadcn MCP server requires" },
 ]
@@ -83,9 +91,15 @@ const FULL_SIZE_WARNING = 900_000
  * courtesy, not a contract.
  */
 const GUESSABLE_PATHS = [
-  { from: "/docs/installation", why: "shadcn's URL for the same page" },
-  { from: "/docs/foundations/color", why: "the American spelling of the colour foundation" },
-  { from: "/docs/components/base/button", why: "the per-base URL shape the ecosystem uses" },
+  { from: docsPath("installation"), why: "shadcn's URL for the same page" },
+  {
+    from: docsPath("foundations", "color"),
+    why: "the American spelling of the colour foundation",
+  },
+  {
+    from: docsPath("components", "base", "button"),
+    why: "the per-base URL shape the ecosystem uses",
+  },
 ]
 
 interface Finding {
@@ -371,12 +385,14 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
   const seen = new Map<string, number>()
   for (const url of urls) {
     const path = url.slice(base.length).replace(/\.md$/, "")
-    const slug = path.replace(/^\/docs\/?/, "").replace(/\/$/, "")
+    const slug = path.replace(/^\//, "").replace(/\/$/, "")
     seen.set(slug, (seen.get(slug) ?? 0) + 1)
   }
   for (const [slug, count] of seen) {
     if (count > 1) {
-      fail(`llms.txt lists /docs/${slug} ${count} times. Every page appears exactly once.`)
+      fail(
+        `llms.txt lists ${docsPath(slug)} ${count} times. Every page appears exactly once.`,
+      )
     }
   }
   const missing = slugs.filter((slug) => !seen.has(slug))
@@ -517,7 +533,9 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
         .map((item) => [item.name as string, item.implemented === true]),
     )
     const twinsByName = await fetchAllText(
-      [...rosterImplemented.keys()].map((name) => `${base}/docs/components/${name}.md`),
+      [...rosterImplemented.keys()].map(
+        (name) => `${base}${docsMarkdownPath("components", name)}`,
+      ),
       8,
     )
     const disagreements: string[] = []
@@ -525,7 +543,7 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     const headerMissing: string[] = []
     const systemScopedTwins: string[] = []
     for (const [name, expected] of rosterImplemented) {
-      const twin = twinsByName.get(`${base}/docs/components/${name}.md`)
+      const twin = twinsByName.get(`${base}${docsMarkdownPath("components", name)}`)
       /* A missing or unreachable twin is already reported by the twin sweep
          further down; reporting it twice under a different heading would send
          the reader looking for a second defect that is not there. */
@@ -533,7 +551,7 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
       const declared = /^implemented:\s*(true|false)\s*$/m.exec(twin.body)
       if (!declared) {
         fail(
-          `/docs/components/${name}.md carries no \`implemented:\` frontmatter line. It is ` +
+          `${docsMarkdownPath("components", name)} carries no \`implemented:\` frontmatter line. It is ` +
             "generated in app/_machine/corpus.ts from the same index /r/index.json is built " +
             "from, and an agent reading the twin has no other way to tell a specification " +
             "from a component with code behind it.",
@@ -641,7 +659,9 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
   }
 
   /* The .md twins. A sample would hide exactly the pages nobody visits, so all of them. */
-  const twinUrls = slugs.map((slug) => `${base}/docs${slug === "" ? "" : `/${slug}`}.md`)
+  const twinUrls = slugs.map(
+    (slug) => `${base}${docsMarkdownPath(...(slug === "" ? [] : slug.split("/")))}`,
+  )
   const twinStatuses = await fetchAll(twinUrls, 8)
   const brokenTwins = [...twinStatuses.entries()].filter(([, status]) => status !== 200)
   for (const [url, status] of brokenTwins.slice(0, 25)) {

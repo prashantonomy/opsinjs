@@ -76,8 +76,9 @@ There is no `app/layout.tsx` in this application. There are two *root* layouts,
 siblings, and neither is nested under the other:
 
 - `app/(chrome)/layout.tsx` owns an `<html>` and a `<body>`, imports
-  `globals.css`, and mounts the docs provider. The docs, the home page and the
-  playgrounds all live under it, and that is everything you read.
+  `globals.css`, and mounts the docs provider and the global footer. The docs,
+  the tool pages and the playgrounds all live under it, and that is everything
+  you read.
 - `app/(view)/layout.tsx` owns its **own** `<html>` and `<body>` and imports
   `product.css` and nothing else. No docs chrome, no docs stylesheet, no
   provider.

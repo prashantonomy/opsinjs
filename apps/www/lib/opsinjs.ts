@@ -1066,7 +1066,7 @@ export type OpsinErrorParams = Record<string, string | number>
  * file ships to projects that have no `lib/routes.ts` and no way to resolve a
  * page id, and a warning whose link is a bare slug sends the reader nowhere.
  */
-const OPSIN_DOCS_ORIGIN = "https://opsinjs.pensievelabs.org/docs/"
+const OPSIN_DOCS_ORIGIN = "https://opsinjs.pensievelabs.org/"
 
 /**
  * Every message already emitted this session.

@@ -59,7 +59,6 @@ import { DeviceFrame, ViewportToolbar } from "./docs/preview"
    text in the browser bundle of every page on this site. DeviceFrame and
    ViewportToolbar have no lookup to do and come straight from the surface. */
 import { ComponentPreview, IframePreview } from "./docs/preview-server"
-import { SectionsRail } from "./docs/sections-rail"
 import {
   CodeBlockCommand,
   CodeCollapsible,
@@ -165,7 +164,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     SectionProgress,
     ComponentsList,
     StatusLegend,
-    SectionsRail,
 
     // ---- Preview and source ------------------------------------------------
     ComponentPreview,

@@ -62,7 +62,7 @@ Next 16 App Router. Concretely, in this repo:
 
 ## 3. Do not read `searchParams` in the docs route
 
-`app/(chrome)/(docs)/docs/[[...slug]]/page.tsx` must stay statically generated. Reading
+`app/(chrome)/(docs)/[[...slug]]/page.tsx` must stay statically generated. Reading
 `searchParams` there deoptimises the entire docs corpus out of SSG. The `?base=&style=`
 switcher is a **client** component using `useSearchParams()` that re-points an
 `<IframePreview>` at a `/view/[base]/[style]/…` URL.
@@ -129,17 +129,40 @@ comparing freshly written files with themselves.
 `app/tokens.generated.css` is emitted by `scripts/build-tokens.mts`. `app/globals.css`
 owns only the one `@import` line that pulls it in, at its fixed position.
 
-## 8. Never hardcode `/docs/`
+## 8. The corpus is rooted, and paths come from `lib/routes.ts`
 
-- In `.ts`/`.tsx`: build every path through `lib/routes.ts`. `assert-ia.mts` fails the
-  build on a literal `/docs/` outside `lib/routes.ts` and `lib/source.ts`, with a short
-  allowlist for `next.config.mjs`, `app/robots.ts`, `app/sitemap.ts` and
-  `lib/layout.shared.tsx`.
+`DOCS_BASE` is **empty**. The documentation is the site: the introduction renders at `/`,
+Components at `/components`, a component at `/components/button`. There is no landing page
+in front of it and no `/docs` prefix behind it. The `.md` twin of a page is that page plus
+`.md`, and the index twin is `/index.md`.
+
+- In `.ts`/`.tsx`: build every path through `lib/routes.ts`, and **never by
+  concatenation**. `` `${routes.docs()}/reference/api` `` is `//reference/api`, which
+  matches nothing and fails silently; `routes.docs("reference", "api")` is right whatever
+  the base is. `assert-ia.mts` still fails the build on a literal `/docs/` outside
+  `lib/routes.ts` and `lib/source.ts`, with a short allowlist for `next.config.mjs`,
+  `app/robots.ts`, `app/sitemap.ts` and `lib/layout.shared.tsx`.
 - In `.mdx`: use **relative** file links resolved by fumadocs' `createRelativeLink`.
-  Absolute `/docs/...` links are banned. The Sections rail in the root `meta.json` is the
-  single allowlisted exception.
+  An absolute site link is banned with no exception. IA005 still checks that a
+  `[Label](/…)` Link entry in a `meta.json` resolves, for the day somebody adds one.
+- **No top-level folder under `content/docs/` may be named after a real route.** Next
+  resolves a static segment before the catch-all, so `content/docs/colors/` would be
+  shadowed whole by `/colors` and every page under it would serve the colour browser.
+  IA007 fails the build on that collision.
 
-This is what keeps a future `[lang]` segment a bounded change instead of a migration.
+This is what keeps a future `[lang]` segment a bounded change instead of a migration, and
+it is what made moving the corpus to the root a one-line change to `DOCS_BASE` plus the
+two rewrite sources in `next.config.mjs`.
+
+## 8a. There is no top navigation
+
+The sidebar is the navigation, and it holds a wordmark, a search box and ten sections:
+Introduction, Foundations, Components, Accessibility, Health, Handbook, Agents, Reference,
+Roadmap, Changelog. Nothing else goes in it. `lib/sidebar-tree.ts` is the single file that
+decides that shape, and it does so by transforming the page tree, so no page moves and no
+URL changes. Everything that is not a documentation section, which is the tool pages, the
+machine surfaces, the licence and the theme switch, lives in `components/site-footer.tsx`,
+rendered once from `app/(chrome)/layout.tsx` on every route.
 
 ## 9. Never invent evidence
 

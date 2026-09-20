@@ -3,48 +3,30 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared"
 import { site } from "@/lib/routes"
 
 /**
- * THE FROZEN TOP NAV. Nothing else in the application may define one.
+ * THERE IS NO TOP NAVIGATION, AND THAT IS THE POINT.
  *
- * Six destinations and a right-hand cluster of search, GitHub and the theme
- * switch. The set is frozen because it is a contract between two workers who
- * cannot see each other's files: whoever builds `/colors` and `/playground`
- * needs to know they will be reachable, and `assert-ia.mts` enforces the other
- * direction by requiring every `page.tsx` under `app/` to be reachable from
- * this nav, from the docs sidebar, or from the named allowlist in
- * `lib/routes.ts`. A live page nobody links to is the defect this site
- * criticises other documentation for having.
+ * This file used to declare six frozen nav items. They are gone, along with the
+ * landing page they sat on. opsinjs is a documentation site and nothing else,
+ * so the sidebar is the navigation: a wordmark, a search box, and ten sections
+ * that open into their pages. A horizontal bar repeating four of those ten
+ * above it was a second, worse copy of the same map.
  *
- * WHY THESE SIX. Docs and Components are where a developer arrives. Health is
- * the reason this system exists rather than another button library, and burying
- * it inside Docs would say the opposite. Foundations is the second-largest
- * pillar and the one people arrive at from search. Playground and Colors are
- * TOOLS rather than reading, and a tool that lives three levels inside a
- * documentation tree does not get used.
+ * What the nav bar used to carry, and where it went:
  *
- * WHY THE PATHS ARE LITERAL HERE. `lib/routes.ts` owns path construction and
- * this file is one of four allowlisted exceptions. `baseOptions()` is called
- * inside the layout of every route group, including the ones that render before
- * the docs source is loaded, and the link set has to be readable as a list. The
- * literals are checked against `routes.ts` by `assert-ia.mts` so the exception
- * cannot rot.
+ *   - Docs, Components, Health, Foundations. The sidebar, which shows all ten
+ *     sections rather than four, and shows you which one you are in.
+ *   - Playground and Colors. The global footer, with the rest of the tools.
+ *   - GitHub and the theme switch. The global footer.
  *
- * THE SIX DO NOT FIT AT 640px, AND THIS FILE CANNOT FIX IT. fumadocs shows the
- * `type: "main"` row from its own `sm` breakpoint (`max-sm:hidden` on the `<ul>`
- * in `fumadocs-ui/layouts/home/slots/header`) and only collapses it again at
- * `lg`. Measured on the home page: at a 640px viewport, which is a 1280px
- * window at the 200% zoom a low-vision reader typically sets, the wordmark, the
- * six labels and the trailing search-and-menu cluster come to 703px, so the
- * page scrolls sideways and the search button sits off-screen. 600px and 768px
- * are both clean. Do not fix it by dropping a link: `TOP_NAV` in
- * `assert-ia.mts` names all six and IA006 warns for any this file stops
- * declaring, and the set is the cross-worker contract above. The repair lives
- * in `app/globals.css`, in the section headed "The 640-767px navigation
- * reflow": it hides the bar row below `md` AND un-hides the same items inside
- * the collapsed menu, which fumadocs marks `sm:hidden`. Both halves are
- * load-bearing, because hiding only the first makes the six unreachable between
- * 640px and 767px. So if you change the link set here, re-measure
- * `documentElement.scrollWidth` at 640, 672, 700 and 767. Adding a seventh link
- * makes this worse at every width.
+ * So `baseOptions()` now returns a wordmark and a search toggle. `HomeLayout`
+ * renders them as a thin bar over the tool pages; `DocsLayout` renders them at
+ * the top of the sidebar. Both get the same two things, which is why they still
+ * share this function.
+ *
+ * ROUTE REACHABILITY DID NOT MOVE WITH THEM. `assert-ia.mts` requires every
+ * `page.tsx` to be linked from somewhere in the source. The footer links every
+ * tool route, and `lib/routes.ts` names them all as literals, so IA003 is
+ * satisfied by a real link rather than by an allowlist entry.
  */
 export function baseOptions(): BaseLayoutProps {
   return {
@@ -61,62 +43,19 @@ export function baseOptions(): BaseLayoutProps {
       url: "/",
       transparentMode: "none",
     },
-    githubUrl: site.github,
-    links: [
-      {
-        type: "main",
-        text: "Docs",
-        url: "/docs",
-        active: "nested-url",
-        description: "Everything, from installation to the clinical doctrine.",
-      },
-      {
-        type: "main",
-        text: "Components",
-        url: "/docs/components",
-        active: "nested-url",
-        description:
-          "The catalogue, its status, and the specification for each entry.",
-      },
-      {
-        type: "main",
-        text: "Health",
-        url: "/docs/health",
-        active: "nested-url",
-        description:
-          "What this system decides for you about showing someone their own health data.",
-      },
-      {
-        type: "main",
-        text: "Foundations",
-        url: "/docs/foundations",
-        active: "nested-url",
-        description:
-          "What each token means, across colour, materials, motion, type, shape and space.",
-      },
-      {
-        type: "main",
-        text: "Playground",
-        url: "/playground",
-        active: "nested-url",
-        description:
-          "Three tools: derive a theme, check a contrast pair, exercise the two colour axes.",
-      },
-      {
-        type: "main",
-        text: "Colors",
-        url: "/colors",
-        active: "nested-url",
-        description: "Browse both colour axes, switch format, copy a value.",
-      },
-    ],
+    /**
+     * No links, no GitHub icon, no theme switch in the chrome. Each of those
+     * renders a row in the sidebar that is not a section, and the sidebar is
+     * meant to hold sections. They are in the footer, on every page.
+     */
+    links: [],
+    themeSwitch: { enabled: false },
     /**
      * Both triggers on. The small one is the icon in the header on narrow
-     * screens; the full one is the ⌘K dialog. Search is the primary navigation
-     * on a site this size and hiding it behind a keyboard shortcut assumes a
-     * keyboard.
+     * screens; the full one is the ⌘K dialog. With the nav gone, search is the
+     * only way to reach a page without opening the section it is in, so it is
+     * load-bearing rather than convenient.
      */
     searchToggle: { enabled: true },
-    themeSwitch: { enabled: true },
   }
 }

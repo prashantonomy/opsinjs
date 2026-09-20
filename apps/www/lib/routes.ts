@@ -44,8 +44,24 @@ export const site = {
   defaultBranch: "main",
 } as const
 
-/** The docs base segment. Everything else derives from it. */
-export const DOCS_BASE = "/docs"
+/**
+ * The docs base segment. Everything else derives from it.
+ *
+ * IT IS EMPTY, AND THAT IS THE WHOLE SITE DESIGN. The documentation is not a
+ * section of opsinjs.org, it is opsinjs.org: the introduction renders at `/`,
+ * Components at `/components`, a component at `/components/button`. There is no
+ * landing page in front of it and no `/docs` prefix behind it.
+ *
+ * The four non-docs routes (`/colors`, `/tokens`, `/icons`, `/showcase`,
+ * `/official`, `/playground`) still win over the catch-all, because Next
+ * resolves a static segment before a `[[...slug]]`. The rule that keeps it
+ * that way: no top-level folder under `content/docs/` may be named after one
+ * of them. `assert-ia.mts` checks that collision directly.
+ *
+ * Restoring a prefix is still this one line plus the two `/` literals in
+ * `next.config.mjs`, which is the property ADR 0005 wanted from this module.
+ */
+export const DOCS_BASE = ""
 
 /* ── low-level helpers ──────────────────────────────────────────────────── */
 
@@ -78,10 +94,15 @@ export function docsPath(...slugs: (string | undefined)[]): string {
   return joinPath(DOCS_BASE, ...slugs)
 }
 
-/** The same page as processed markdown: `/docs/components/range-bar.md`. */
+/**
+ * The same page as processed markdown: `/components/range-bar.md`.
+ *
+ * The index is `/index.md` rather than `/.md`, which is not a path. Every other
+ * page appends `.md` to its own path.
+ */
 export function docsMarkdownPath(...slugs: (string | undefined)[]): string {
   const path = docsPath(...slugs)
-  return path === DOCS_BASE ? `${DOCS_BASE}.md` : `${path}.md`
+  return path === "/" ? "/index.md" : `${path}.md`
 }
 
 /** A component specification page, by catalogue id. */
@@ -318,27 +339,6 @@ export const routes = {
   robots: () => "/robots.txt",
 }
 
-/**
- * THE SECTIONS RAIL is the persistent jump rail rendered as the sidebar banner
- * by `<SectionsRail>`, and duplicated as Link entries at the top of the root
- * `content/docs/meta.json`.
- *
- * They are Link items in the tree rather than pages, so no URL appears twice in
- * the page tree and the one-URL-per-node rule survives. The root meta.json is
- * the single allowlisted place where these paths appear as literals.
- */
-export const SECTIONS_RAIL: { title: string; url: string }[] = [
-  { title: "Introduction", url: routes.docs() },
-  { title: "Components", url: routes.components() },
-  { title: "Health", url: routes.health() },
-  { title: "Foundations", url: routes.foundations() },
-  { title: "Accessibility", url: routes.accessibility() },
-  { title: "Handbook", url: routes.handbook() },
-  { title: "Agents", url: routes.agents() },
-  { title: "Reference", url: routes.reference() },
-  { title: "Roadmap", url: routes.roadmap() },
-  { title: "Changelog", url: routes.changelog() },
-]
 
 /**
  * Routes that exist but are not reachable from the top nav or the sidebar, and

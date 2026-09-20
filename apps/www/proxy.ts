@@ -34,13 +34,17 @@ import { routes } from "@/lib/routes"
  * in a commit message.
  */
 
-const DOCS_PREFIX = routes.docs()
-
 /**
  * The generated per-symbol API pages. Case-sensitive by construction. See the
  * guard in the case-folding branch below.
+ *
+ * EVERY PATH IN THIS FILE IS BUILT WITH `routes.docs()`, NEVER BY CONCATENATION.
+ * The corpus is rooted: `DOCS_BASE` is empty, so `routes.docs()` is `/` and
+ * `${routes.docs()}/reference/api` would be `//reference/api`, which matches
+ * nothing and fails silently. `routes.docs("reference", "api")` is `/reference/api`
+ * whatever the base is, which is the whole reason that function exists.
  */
-const API_PREFIX = `${DOCS_PREFIX}/reference/api/`
+const API_PREFIX = `${routes.docs("reference", "api")}/`
 
 /** Exact-match redirects. Keys are lower-cased paths without a trailing slash. */
 const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
@@ -49,7 +53,7 @@ const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
 
   // fumadocs serves content/docs/index.mdx at /docs. `/docs/index` is what
   // people type when they have seen the file tree rather than the site.
-  [`${DOCS_PREFIX}/index`]: { to: DOCS_PREFIX, permanent: true },
+  [routes.docs("index")]: { to: routes.docs(), permanent: true },
 
   // The curated agent index is a file, and the extension is part of its name.
   "/llms": { to: "/llms.txt", permanent: true },
@@ -58,8 +62,8 @@ const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
   // Arriving with another system's map. A reader who has used shadcn/ui reaches
   // for /docs/installation; ours is a group, under Start here. 307, because if
   // a top-level installation page is ever written this URL becomes its own.
-  [`${DOCS_PREFIX}/installation`]: {
-    to: `${DOCS_PREFIX}/start/installation`,
+  [routes.docs("installation")]: {
+    to: routes.docs("start", "installation"),
     permanent: false,
   },
 }
@@ -77,8 +81,8 @@ const PREFIX_REDIRECTS: { from: string; to: string; permanent: boolean }[] = [
   // identifier we publish, so it is the spelling a developer will type. The
   // whole subtree redirects, not only its index.
   {
-    from: `${DOCS_PREFIX}/foundations/color`,
-    to: `${DOCS_PREFIX}/foundations/colour`,
+    from: routes.docs("foundations", "color"),
+    to: routes.docs("foundations", "colour"),
     permanent: true,
   },
   // The per-base URL shape (`/docs/components/base/button`). opsinjs has
@@ -86,8 +90,8 @@ const PREFIX_REDIRECTS: { from: string; to: string; permanent: boolean }[] = [
   // decision 6, and the base × style matrix lives on /view instead. A reader
   // who has internalised the namespaced shape lands on the real page.
   {
-    from: `${DOCS_PREFIX}/components/base/`,
-    to: `${DOCS_PREFIX}/components/`,
+    from: routes.docs("components", "base"),
+    to: routes.docs("components"),
     permanent: true,
   },
 ]
@@ -141,11 +145,12 @@ export default function proxy(request: NextRequest) {
   // guard every one of those pages 308s to a URL that does not exist, which is
   // exactly what it did: 43 pages and every .md twin returned 404 while each
   // page itself built and prerendered perfectly.
-  if (
-    canonicalPath.startsWith(`${DOCS_PREFIX}/`) &&
-    !canonicalPath.startsWith(API_PREFIX) &&
-    canonicalPath !== lower
-  ) {
+  //
+  // THE GUARD USED TO NAME A `/docs` PREFIX AND NOW NAMES NOTHING, because the
+  // corpus is rooted and every path this proxy sees is a documentation path.
+  // The exclusions moved into `config.matcher` below, which already keeps the
+  // registry, the API, the preview shell and the metadata routes out.
+  if (!canonicalPath.startsWith(API_PREFIX) && canonicalPath !== lower) {
     const target = url.clone()
     target.pathname = lower
     return NextResponse.redirect(target, 308)

@@ -171,9 +171,10 @@ away from the thing it documents without somebody noticing.
 ## Gotchas
 
 **Links are relative.** Write `[Two colour axes](../health/two-colour-axes.mdx)`. fumadocs
-resolves it through `createRelativeLink`. Absolute `/docs/...` links are banned everywhere
-except the Sections rail in the root `meta.json`, because the day a locale segment appears
-they all break at once and nothing tells you which.
+resolves it through `createRelativeLink`. An absolute site link is banned, with no exception
+left, because the day a locale segment appears they all break at once and nothing tells you
+which. The corpus is rooted, so an absolute link is also shorter than it looks: it is
+`/health/two-colour-axes`, one rename away from being wrong everywhere.
 
 **The MDX vocabulary is closed.** Only the tags listed in this contract exist. Content
 authors use them and never define one; an unknown JSX tag fails the build rather than

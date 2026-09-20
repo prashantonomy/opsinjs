@@ -15,7 +15,7 @@ reviewer: engineering
 Append `.md` to any documentation URL and you get that page as markdown.
 
 ```bash
-curl -s https://opsinjs.pensievelabs.org/docs/health/two-colour-axes.md
+curl -s https://opsinjs.pensievelabs.org/health/two-colour-axes.md
 ```
 
 That is the whole API. There is no key, no endpoint, no pagination and no
@@ -116,9 +116,9 @@ a problem.
 ## What has a twin and what does not
 
 Every page under the documentation tree has one. So does the documentation index
-itself, at `/docs.md`.
+itself, at `/index.md`.
 
-Nothing else does. The home page, the playgrounds, the colour browser and the
+Nothing else does. The playgrounds, the colour browser and the
 preview host are applications, not documents, and there is no meaningful
 markdown rendering of an interactive tool. Asking for their twin returns the
 application.
@@ -151,7 +151,7 @@ that stops an agent generating against something that does not exist.
 ## Troubleshooting
 
 **404 on a `.md` URL.** The path is not a documentation page. Twins exist for
-the docs tree and `/docs.md` only.
+the docs tree and `/index.md` only.
 
 **The twin shows a tag where the page shows a table.** Expected. The
 documentation components are not rendered into markdown; fetch the values from

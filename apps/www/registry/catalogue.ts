@@ -242,7 +242,7 @@ export interface CatalogueEntry {
 
 /**
  * THE SIXTY SHIPPED IDS. Every one has a specification page at
- * `/docs/components/<id>` and a row in `/r/index.json`. Order within a category
+ * `/components/<id>` and a row in `/r/index.json`. Order within a category
  * is roughly the order they appear in the sidebar, though the sidebar order is
  * owned by `content/docs/components/meta.json` and is authoritative.
  */

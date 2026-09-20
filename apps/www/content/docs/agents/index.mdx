@@ -47,7 +47,7 @@ free to move.
 
 | Surface | Status | What it is |
 | --- | --- | --- |
-| `/docs/**.md` | Contract | Processed markdown twin of any docs page |
+| `/**.md` | Contract | Processed markdown twin of any docs page |
 | `/llms.txt` | Contract | Curated index with absolute URLs and section headers |
 | `/llms-full.txt` | Contract | The whole corpus, size-capped |
 | `/llms-components.txt`, `/llms-health.txt`, `/llms-foundations.txt` | Contract | Shards, for context windows that cannot take the whole thing |
@@ -125,7 +125,7 @@ one will usually catch another.
 ### The twin returns markdown
 
 ```bash
-curl -s https://opsinjs.pensievelabs.org/docs/components/range-bar.md | head -20
+curl -s https://opsinjs.pensievelabs.org/components/range-bar.md | head -20
 ```
 
 You should get frontmatter and prose, not HTML. Documentation components arrive
@@ -148,7 +148,7 @@ point of the whole design.
 ## Troubleshooting
 
 **The `.md` twin returns HTML.** You requested a path that is not a docs page.
-The rewrite applies to `/docs/:path*.md` and to `/docs.md`; other routes have no
+The rewrite applies to `/:path*.md` and to `/index.md`; other routes have no
 twin.
 
 **The MCP server sees no components.** That is a real fault. All sixty built

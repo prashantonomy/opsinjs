@@ -197,18 +197,21 @@ const CONSIDERED_IDS = [
 ]
 
 /**
- * The frozen top navigation (addendum A10). lib/layout.shared.tsx is the only
- * file allowed to define it; this list is what route reachability is measured
- * against, and a mismatch between the two is itself reported.
+ * THE TOP NAVIGATION IS EMPTY, AND THAT IS THE CURRENT DESIGN.
+ *
+ * Addendum A10 froze a six-item nav bar when the site had a landing page in
+ * front of the documentation. It no longer does: the documentation is the site,
+ * the sidebar is its navigation, and the tool routes the bar used to carry are
+ * in the global footer. So this list is empty and IA006 has nothing to compare.
+ *
+ * The check it fed is not gone, only unfed. Route reachability below still
+ * requires every `page.tsx` to be linked from real source, and with no nav to
+ * lean on, a tool page that drops out of `components/site-footer.tsx` is caught
+ * by IA003 rather than excused by an entry here. If a nav bar ever returns,
+ * name its routes here and `lib/layout.shared.tsx` stays the only file allowed
+ * to define it.
  */
-const TOP_NAV = [
-  "/docs",
-  "/docs/components",
-  "/docs/health",
-  "/docs/foundations",
-  "/playground",
-  "/colors",
-]
+const TOP_NAV: string[] = []
 
 /**
  * The CLOSED MDX vocabulary (contract C4). Content pages may use these tags and
@@ -287,7 +290,6 @@ const MDX_VOCABULARY = [
   "PromptRecipe",
   "EvalResult",
   "Feedback",
-  "SectionsRail",
   "StatusLegend",
   "Steps",
   "Tabs",
@@ -340,13 +342,9 @@ const DOCS_PATH_ALLOWLIST = [
  */
 const ROUTE_ALLOWLIST: Array<{ route: string; reason: string }> = [
   {
-    route: "/",
-    reason: "the home page; the wordmark links to it from every layout",
-  },
-  {
-    route: "/docs/[[...slug]]",
+    route: "/[[...slug]]",
     reason:
-      "the docs corpus itself, reached through the Docs nav item and the sidebar",
+      "the docs corpus, which is the whole site: it owns `/` as well as every section, and is reached through the sidebar on every page",
   },
   {
     route: "/view/[base]/[style]/[kind]/[name]",
@@ -1489,7 +1487,7 @@ function checkMdxTags(page: ParsedPage, known: Set<string>): void {
  * anything else is handed back untouched. So `[colour](colour/tokens.mdx)`
  * never becomes a URL. It reaches the browser as written, the browser resolves
  * it against the CURRENT page rather than against the file, and
- * `/docs/foundations` plus `colour/tokens.mdx` is `/docs/colour/tokens.mdx`,
+ * `/foundations` plus `colour/tokens.mdx` is `/colour/tokens.mdx`,
  * which is a 404 with no build error behind it. 353 links in the corpus were
  * written that way, including the six token-family links on the Foundations
  * index, which is why Colour looked missing from a pillar that has always
@@ -1917,9 +1915,16 @@ function checkMetaTrees(pages: ParsedPage[]): void {
 
   visit(DOCS_DIR)
 
-  /* The Sections rail in the root meta.json is the one allowlisted place an
-     absolute /docs link may appear (addendum A11). Everything it points at must
-     resolve, or the rail sends readers to a 404 from every page on the site. */
+  /* A Link entry in the root meta.json is the one allowlisted place an absolute
+     /docs link may appear (addendum A11). Everything such an entry points at
+     must resolve, or it sends readers to a 404 from every page on the site.
+
+     There are none today. The root meta.json used to carry a `---Sections---`
+     run of them, duplicating the pillar rail in plain text; that came out when
+     the sidebar tree started opening only the path you are on, which left every
+     pillar one line away in the tree itself. The check stays because the
+     allowlist stays: the next Link entry anybody adds is checked from the day
+     it lands, rather than after the first 404. */
   const rootMeta = readMaybe(join(DOCS_DIR, "meta.json"))
   if (rootMeta) {
     const pattern = /\[[^\]]+\]\((\/docs[^)]*)\)/g
@@ -1931,7 +1936,7 @@ function checkMetaTrees(pages: ParsedPage[]): void {
         fail(
           "IA005",
           "content/docs/meta.json",
-          `the Sections rail links to /docs/${href}, which is not a page in the corpus.`
+          `a Link entry points at /${href}, which is not a page in the corpus.`
         )
       }
     }
@@ -1986,12 +1991,6 @@ function checkRouteReachability(pages: ParsedPage[]): void {
     if (allowed.has(route)) continue
     if (navSet.has(route)) continue
 
-    /* A docs route is reachable if the corresponding page exists in the tree. */
-    if (route.startsWith("/docs")) {
-      const slug = route.replace(/^\/docs\/?/, "") || "index"
-      if (docsSlugs.has(slug)) continue
-    }
-
     let linkedFrom: string | undefined
     for (const [source, contents] of corpus) {
       if (source === file) continue
@@ -2013,14 +2012,12 @@ function checkRouteReachability(pages: ParsedPage[]): void {
     )
   }
 
-  /* The top nav is frozen. If lib/layout.shared.tsx exists, it must agree. */
+  /* The top nav is frozen. If lib/layout.shared.tsx exists, it must agree.
+     TOP_NAV is empty today, so this loop does not run. See its declaration. */
   const layout = readMaybe(join(APP_DIR, "lib", "layout.shared.tsx"))
   if (layout) {
     for (const href of TOP_NAV) {
-      if (
-        !layout.includes(href) &&
-        !layout.includes(href.replace("/docs", ""))
-      ) {
+      if (!layout.includes(href)) {
         warn(
           "IA006",
           "lib/layout.shared.tsx",
@@ -2028,6 +2025,37 @@ function checkRouteReachability(pages: ParsedPage[]): void {
         )
       }
     }
+  }
+
+  /* IA007. THE DOCUMENTATION OWNS THE ROOT, SO TWO THINGS CAN CLAIM ONE NAME.
+     `DOCS_BASE` is empty: the corpus renders at `/`, so `content/docs/health/`
+     is `/health` and `app/(chrome)/(home)/colors/` is `/colors`. Next resolves a
+     static segment before a `[[...slug]]`, so if somebody adds
+     `content/docs/colors/`, the tool page wins and an entire documentation
+     section returns the colour browser instead. Nothing else catches it: the
+     page exists, the sidebar links it, and the link 200s.
+
+     This is the check that makes a rooted corpus safe. The repair is to rename
+     one of the two, and renaming the docs folder is almost always the cheaper
+     side. */
+  const appTopSegments = new Map<string, string>()
+  for (const file of pageFiles) {
+    const segment = routeForPageFile(file).split("/")[1]
+    if (!segment || segment.startsWith("[")) continue
+    appTopSegments.set(segment, rel(file))
+  }
+  const reportedCollisions = new Set<string>()
+  for (const slug of docsSlugs) {
+    const segment = slug.split("/")[0]
+    if (!segment || reportedCollisions.has(segment)) continue
+    const owner = appTopSegments.get(segment)
+    if (!owner) continue
+    reportedCollisions.add(segment)
+    fail(
+      "IA007",
+      `content/docs/${segment}`,
+      `collides with ${owner}, which serves /${segment}. The docs corpus is rooted at / (DOCS_BASE is empty), and Next resolves a static route before the catch-all, so every page under this folder is unreachable. Rename one of the two.`
+    )
   }
 }
 

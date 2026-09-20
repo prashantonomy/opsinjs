@@ -127,7 +127,7 @@ function parseBase(): string | undefined {
 async function loadPage(slug: string, base: string | undefined): Promise<string | undefined> {
   if (base) {
     try {
-      const response = await fetch(`${base}/docs/${slug}.md`, { redirect: "follow" })
+      const response = await fetch(`${base}/${slug}.md`, { redirect: "follow" })
       if (response.status !== 200) return undefined
       return await response.text()
     } catch {

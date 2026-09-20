@@ -24,13 +24,21 @@ import { docs } from "@/.source/server"
  * not pass one. See /docs/project/decisions/0005-no-lang-segment-yet. The
  * retrofit is a config object here plus a locale segment in `docsPath()`, and
  * nothing else, which is the whole reason path construction is centralised.
+ *
+ * THE PAGE TREE IS RESHAPED ON THE WAY OUT. `sidebarTree` turns the sixteen
+ * authored folders into the ten sections the sidebar shows, and every
+ * `---Separator---` run into a collapsible subsection. It changes no URL and
+ * no page, only the shape of the tree the sidebar renders. lib/sidebar-tree.ts
+ * is the single place to edit when the navigation is wrong.
  */
 
 import { DOCS_BASE } from "./routes.ts"
+import { sidebarTree } from "./sidebar-tree.ts"
 
 export const source = loader({
   baseUrl: DOCS_BASE,
   source: docs.toFumadocsSource(),
+  pageTree: { transformers: [sidebarTree] },
   icon(icon) {
     if (!icon) return
     if (icon in icons) return createElement(icons[icon as keyof typeof icons])
