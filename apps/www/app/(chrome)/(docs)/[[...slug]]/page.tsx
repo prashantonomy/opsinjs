@@ -8,6 +8,7 @@ import {
 } from "fumadocs-ui/layouts/docs/page"
 import { createRelativeLink } from "fumadocs-ui/mdx"
 
+import { Reviewed, type ReviewedProps } from "@/components/docs/guidance"
 import { PageTemplate } from "@/components/docs/page-template"
 import { getMDXComponents } from "@/components/mdx"
 import { source } from "@/lib/source"
@@ -45,13 +46,15 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
       <DocsBody>
         {/*
           PageTemplate is the contract enforcer. A page declares its `kind` in
-          frontmatter, the kind fixes its headings, and the declared `status`
-          fixes which of those headings are required. A component page at
-          `planned` owes eleven sections, and a stable one owes twenty-two.
-          Handing it the table of contents is what lets it check the page it is
-          wrapping instead of trusting the author, and a missing required
-          section fails the build rather than shipping a heading with three
-          sentences under it.
+          frontmatter, the kind fixes its headings, and on a component page the
+          declared `status` fixes which of those headings are required. The
+          outline lives in `COMPONENT_SECTIONS_BY_STATUS` in `lib/status.ts`
+          and no count is repeated here, because a number in a comment about a
+          list in another file is the duplication this contract exists to
+          avoid. Handing it the table of contents is what lets it check the
+          page it is wrapping instead of trusting the author, and a missing
+          required section fails the build rather than shipping a heading with
+          three sentences under it.
         */}
         <PageTemplate
           kind={page.data.kind}
@@ -72,6 +75,23 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
           <MDX
             components={getMDXComponents({
               a: createRelativeLink(source, page),
+              /*
+                `<Reviewed />` is authored bare on every page that ends with it,
+                and the component falls back to "Not yet reviewed." when it is
+                given no date. Nothing bound one, so 114 pages printed that
+                sentence directly under frontmatter declaring a real review
+                date and a real discipline. The spread goes LAST so a page that
+                passes an explicit prop still wins.
+              */
+              Reviewed: (props: ReviewedProps) => (
+                <Reviewed
+                  date={page.data.reviewed}
+                  by={page.data.reviewer}
+                  every={page.data.reviewEvery}
+                  path={page.url}
+                  {...props}
+                />
+              ),
             })}
           />
         </PageTemplate>
