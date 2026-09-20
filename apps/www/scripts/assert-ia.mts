@@ -1155,6 +1155,30 @@ function headingCandidates(heading: string): string[] {
   return [key, ...(HEADING_ALIASES[key] ?? []).map(normaliseHeading)]
 }
 
+/**
+ * What SAFE001 says when a component page drops the review floor.
+ *
+ * It is a constant rather than an inline string because it is long, and it is
+ * long because a one-line message would get the sentence put back in the wrong
+ * place. The two things an author needs to know are what to write and where it
+ * has to live, and the second one is counter-intuitive.
+ */
+const SAFE001_MESSAGE =
+  "this component page does not say inside <StubNotice>, in authored MDX, " +
+  "that it has had no accessibility review and no clinical review and is " +
+  "not for a production health surface. Write both halves. `shipped` means " +
+  "the source installs and means nothing about either review, and no " +
+  "component in this catalogue has had either, so the phase word cannot " +
+  "carry this and the page has to. It belongs in the MDX body rather than " +
+  "in the React component because app/_machine/corpus.ts builds every .md " +
+  "twin from getText(\"processed\"), which keeps a JSX tag and the children " +
+  "an author wrote and never what the component renders at runtime. A " +
+  "sentence moved into chrome reaches a human on the rendered page and " +
+  "disappears from all 60 twins, from every llms-*.txt shard, from " +
+  "/r/docs.json and from the offline bundle, which is where an agent reads " +
+  "this page. Take it out in the same commit as the first review that " +
+  "lands, and not before."
+
 function checkOutline(
   page: ParsedPage,
   outlines: Record<string, string[]>
@@ -1324,14 +1348,46 @@ function checkOutline(
      shards read. The rule now covers every phase rather than naming two of
      three, so adding a fourth phase could not quietly exempt a page. */
   if (kind === "component") {
+    const notice = /<StubNotice\b[\s\S]*?<\/StubNotice>/.exec(stripCode(page.body))
     if (!/<StubNotice[\s/>]/.test(stripCode(page.body))) {
       fail(
         "C6001",
         file,
         status === "planned"
           ? "a component page at status: planned must render <StubNotice> under ## Status. Without it the page reads as documentation for something that exists."
-          : 'a component page must render <StubNotice status="shipped"> under ## Status. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays, carries the phase, and carries the open safety questions, which are still open on every component in this catalogue.'
+          : status === "deprecated"
+            ? 'a component page at status: deprecated must render <StubNotice status="deprecated"> under ## Status. A component on its way out is the one a reader is most likely to meet through an old link, so the page that names the replacement is the last page that may drop the marker.'
+            : 'a component page must render <StubNotice status="shipped"> under ## Status. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays, carries the phase, and carries the open safety questions, which are still open on every component in this catalogue.'
       )
+    } else {
+      /* SAFE001. THE REVIEW FLOOR, IN AUTHORED MDX, ON EVERY COMPONENT PAGE.
+         Collapsing the phase vocabulary to three words took away the only
+         gradient a reader had between "this works" and "somebody checked
+         this", and `shipped` answers the first question and is silent on the
+         second. The sentence below is what replaced the gradient. It is
+         carried on six surfaces and this is the only one a build can hold,
+         because the other five are single strings in TypeScript.
+
+         The rule is per page and it is not keyed on the phase. A `planned`
+         page has had no review either, and a `deprecated` one is the page a
+         reader is most likely to reach through a stale link. Keying the floor
+         to `shipped` would have made the two quiet phases the loud exception,
+         which is backwards.
+
+         Matching is done on the normalised text of the whole element, so the
+         sentence may wrap wherever the prose reads best; `metric-tile` wraps
+         it across two lines and a naive line grep found 31 of 60 pages that
+         carry it. Both halves are required, because either half alone is a
+         half-truth: "no review" without "not for production" reads as a
+         caveat, and "not for production" without "no review" reads as a
+         maturity note. */
+      const block = (notice?.[0] ?? "").split(/\s+/).join(" ")
+      if (
+        !/no accessibility review and no clinical review/i.test(block) ||
+        !/not for a production health surface/i.test(block)
+      ) {
+        fail("SAFE001", file, SAFE001_MESSAGE)
+      }
     }
   }
 

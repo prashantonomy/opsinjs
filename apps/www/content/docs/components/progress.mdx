@@ -22,10 +22,11 @@ reviewer: engineering
     "Forced colours and prefers-contrast: more are unhandled. The muted track and the primary fill are both replaced by the platform's own pair under forced colours, and whether the fill stays distinct from the track in that mode has not been tested.",
   ]}
 >
-  <code className="text-sm">progress</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">progress</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 Progress is a bar that shows how far through a task the reader has got: an upload part way done, a multi-step form on step three of five, an export being prepared. It is built on Base UI's Progress primitive, so it renders a `role="progressbar"` with the value semantics a screen reader reads, and it draws only neutral chrome with the primary action fill.

@@ -22,10 +22,11 @@ reviewer: engineering
     "Forced colours and prefers-contrast: more are unhandled. Under forced-colors: active the overlay shadow is dropped and the panel leans entirely on its hairline against the page, and the arrow's fill and border are replaced by the platform's own pair, and none of that has been put in front of a machine or a high-contrast reader.",
   ]}
 >
-  <code className="text-sm">popover</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not for
-  a production health surface yet.
+  <code className="text-sm">popover</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 Popover is a small panel anchored to the control that opened it, floated in a portal so it escapes whatever card or scroll area the trigger sits in. Its home is a short aside a reader can open, read or fill and then dismiss without leaving the page: a note beside a value, a rename field on a list, a couple of options that are not worth a whole screen.

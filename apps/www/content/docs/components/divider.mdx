@@ -22,7 +22,11 @@ reviewer: engineering
     "Whether an unlabelled separator should be announced at all, or whether every boundary it draws ought to be carried by structure so the divider can be hidden, is unresolved. The current build keeps role=\"separator\" on the unlabelled form because it costs nothing and lets a reader skip by region.",
   ]}
 >
-  <code className="text-sm">divider</code> is implemented and installable. It is <strong className="font-medium">alpha</strong>: it works and it is documented, the API may change in any release without a deprecation cycle, and it is not for a production health surface yet. The questions below are still open.
+  <code className="text-sm">divider</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 A divider is the smallest component in the system: a border and a spacing token, drawn as a neutral hairline. It earns a component of its own for one reason only, which is the labelled case. A line with a word centred on it looks like the simplest thing on the page and is the easiest to get wrong, because a screen reader cannot be told a boundary has a name through the role that draws a boundary. So the labelled divider is quietly a different structure, and this page is mostly about that difference and about the colour a divider must never carry.

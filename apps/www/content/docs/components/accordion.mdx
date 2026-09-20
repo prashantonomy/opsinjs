@@ -23,10 +23,11 @@ reviewer: engineering
     "Forced colours, prefers-contrast: more and prefers-reduced-motion are unhandled beyond what the product stylesheet supplies. The chevron rotation collapses to an instant turn under reduced motion because the duration token does, but the panel mount and unmount, and whether the open section reads as open in a forced-colours theme, have not been tested.",
   ]}
 >
-  <code className="text-sm">accordion</code> is implemented and installable. It
-  is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">accordion</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 Accordion is a stack of sections that each expand and collapse, so a long page of headings can be scanned first and read second. Its home is a set of related passages a reader wants an index of before they commit to any one of them, and the case it was built for is a list of questions and answers where the headers are the map and the panels are the detail.

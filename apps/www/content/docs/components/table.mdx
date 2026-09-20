@@ -24,10 +24,11 @@ reviewer: engineering
     "There is no keyboard navigation from cell to cell. This is a table to read rather than a grid to operate, so it has no arrow key cell traversal, no roving tabindex and no selection. Whether any chart twin needs cell traversal is deferred rather than answered.",
   ]}
 >
-  <code className="text-sm">table</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet. The questions below are still open.
+  <code className="text-sm">table</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 Every chart in this system owes the reader a way to read it that does not depend on seeing it. A line going up is a shape, and a shape is not a figure a screen reader can read out or a keyboard user can tab to. So every chart ships a table beside it, and this is that table: the same numbers, in rows and columns, in a real `<table>` with a caption, headers that carry their scope, and its own sideways scroll.

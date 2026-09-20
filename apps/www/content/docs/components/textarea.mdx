@@ -23,10 +23,11 @@ reviewer: engineering
     "Forced colours and prefers-contrast: more are unhandled, and the resize handle the browser draws is the platform's own. Whether the box stays legible and the vertical resize stays usable in those modes, and whether maxLength refusing a keystroke in silence needs more than the footnote a consumer writes, has not been checked.",
   ]}
 >
-  <code className="text-sm">textarea</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">textarea</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 Textarea is a multi-line text box for a free-text note a reader writes in their own words, such as a line about how a day went or a question for a clinician to read later. It is a native `<textarea>` element with the opsinjs border, radius, type step, padding and focus ring pulled onto it, and nothing more.

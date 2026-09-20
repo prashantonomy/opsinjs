@@ -23,10 +23,11 @@ reviewer: engineering
     "The list has no measured ceiling on its own length. It caps its height at the room below the trigger and scrolls inside that, but nobody has checked how a very long list of options reads for a keyboard or a switch user who has to arrow through it, and typeahead has not been verified against a real screen reader's own type-to-find.",
   ]}
 >
-  <code className="text-sm">select</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">select</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 Select is a trigger that opens a list to choose one option from. Its home is a single choice out of a list too long to lay out flat, a timezone or a unit system being the case it was built for, where the options are worth having but not worth the vertical space of showing them all at once.

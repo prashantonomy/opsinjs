@@ -23,10 +23,11 @@ reviewer: engineering
     "Forced colours, prefers-contrast: more and a right-to-left layout are unhandled. The on and off fills are both replaced by the platform's own pair under forced colours, and the thumb travels with a left-to-right transform, so whether the state survives either high-contrast mode or an RTL layout has not been tested.",
   ]}
 >
-  <code className="text-sm">switch</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">switch</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 Switch is a labelled on-or-off control that takes effect the moment it is flipped. Its home is a single setting a reader turns on or off and sees the result of straight away, and the case it was built for is a preference in a settings list, a "Larger text" toggle that changes the text the instant the thumb slides across.

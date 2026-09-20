@@ -347,6 +347,25 @@ ${categories
 @media print { .opsin-matrix tbody tr { display: table-row !important; } .opsin-matrix fieldset { display: none; } }
 `}</style>
 
+      {/* SAFETY CARRIER 5, and the one carrier that belongs in chrome. It is a
+          statement about the catalogue rather than about any one page, so it
+          has no authored home: the overview page renders the matrix and owns
+          no per-row prose to hang it on. It is unconditional on purpose. Tying
+          it to a phase count would silence it the day the roster changed
+          shape, which is the failure the five other carriers were written to
+          prevent. The per-page version of this sentence lives in authored MDX
+          inside <StubNotice> and is held by SAFE001; this one is not gated,
+          because a React string is a string a reviewer reads in the diff. */}
+      <p
+        data-opsinjs-unreviewed=""
+        className="m-0 text-sm text-muted-foreground"
+      >
+        No component in this catalogue has had an accessibility review and no
+        component has had a clinical review. The phase word says how installable
+        the source is and says nothing about either review. Nothing here is for
+        a production health surface.
+      </p>
+
       <fieldset className="m-0 flex flex-wrap items-baseline gap-1 border-0 p-0">
         <legend className="sr-only">Filter by release phase</legend>
         <span className="mr-1 text-xs text-muted-foreground">Phase</span>

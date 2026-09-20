@@ -22,10 +22,11 @@ aliases: ["loader", "busy indicator", "activity indicator"]
     "Forced colours and prefers-contrast: more are unhandled. An SVG stroke is left where the author set it under forced colours rather than remapped to a system colour, so unlike the shipped graphics that carry a forced-colors rule, this ring has no such rule and whether it stays visible in that mode is untested.",
   ]}
 >
-  <code className="text-sm">spinner</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">spinner</code> is implemented and installable.
+  It is <strong className="font-medium">shipped</strong>: the API may change
+  in any release, and every change is in the changelog. It has had no
+  accessibility review and no clinical review, so it is not for a production
+  health surface. The questions below are still open.
 </StubNotice>
 
 Spinner is an indeterminate loading indicator: a small ring that turns while a brief, in-place wait resolves. It says nothing about what is arriving or how long it will take, only that something is on its way, and that narrowness is the whole reason it sits so low on the list of things to reach for.
