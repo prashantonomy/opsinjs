@@ -463,7 +463,7 @@ export const SHIPPED: CatalogueEntry[] = [
     a11yDate: null,
     governedBy: ["uncertainty-and-staleness", "trends-and-change"],
     registryDependencies: ["relative-time", "status-pill"],
-    usedIn: ["daily-log-screen"],
+    usedIn: ["daily-log-screen", "diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -555,6 +555,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "ask-users-for/symptoms",
       "choose-a-component",
       "consent-and-permissions",
+      "diabetes-medicines-app",
       "empty-and-first-use",
       "offline-and-stale-data",
       "onboarding-and-first-run",
@@ -586,6 +587,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "choose-a-component",
       "consent-and-permissions",
       "consent-flow",
+      "diabetes-medicines-app",
       "onboarding-screen",
       "result-disclosure",
       "results-screen",
@@ -613,6 +615,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "consent-and-permissions",
       "consent-before-collection",
       "consent-flow",
+      "diabetes-medicines-app",
       "forms/required-and-optional",
       "onboarding-and-first-run",
       "onboarding-screen",
@@ -646,6 +649,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "choose-a-component",
       "consent-and-permissions",
       "consent-flow",
+      "diabetes-medicines-app",
       "onboarding-and-first-run",
       "onboarding-screen",
       "result-disclosure",
@@ -669,7 +673,7 @@ export const SHIPPED: CatalogueEntry[] = [
     a11yDate: null,
     governedBy: ["data-provenance-and-device-accuracy", "evidence-and-references"],
     registryDependencies: ["link"],
-    usedIn: ["results-screen"],
+    usedIn: ["diabetes-medicines-app", "results-screen"],
     contrastScopes: ["neutral"],
   },
   {
@@ -696,6 +700,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "daily-log-entry",
       "daily-log-screen",
       "daily-logging",
+      "diabetes-medicines-app",
       "forms/autocomplete-and-input-types",
       "forms/question-pages",
       "forms/required-and-optional",
@@ -783,6 +788,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "choose-a-component",
       "daily-log-screen",
       "daily-logging",
+      "diabetes-medicines-app",
       "forms/units-and-numeric-entry",
       "health-metric-card",
       "onboarding-screen",
@@ -810,6 +816,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "choose-a-component",
       "daily-log-screen",
       "daily-logging",
+      "diabetes-medicines-app",
       "health-metric-card",
       "offline-and-stale-data",
       "results-screen",
@@ -843,6 +850,7 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["counter", "label chip"],
     owner: "design",
     a11yDate: null,
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
 
@@ -860,6 +868,7 @@ export const SHIPPED: CatalogueEntry[] = [
     usedIn: [
       "choose-a-component",
       "daily-log-screen",
+      "diabetes-medicines-app",
       "health-metric-card",
       "onboarding-screen",
       "results-screen",
@@ -882,6 +891,7 @@ export const SHIPPED: CatalogueEntry[] = [
     usedIn: [
       "choose-a-component",
       "daily-log-screen",
+      "diabetes-medicines-app",
       "health-metric-card",
       "onboarding-screen",
       "results-screen",
@@ -909,6 +919,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "daily-log-entry",
       "daily-log-screen",
       "daily-logging",
+      "diabetes-medicines-app",
     ],
     contrastScopes: ["materials", "neutral"],
   },
@@ -925,7 +936,7 @@ export const SHIPPED: CatalogueEntry[] = [
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     registryDependencies: ["surface", "button"],
-    usedIn: ["alert-escalation", "consent-flow"],
+    usedIn: ["alert-escalation", "consent-flow", "diabetes-medicines-app"],
     contrastScopes: ["materials", "neutral"],
   },
 
@@ -945,6 +956,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "choose-a-component",
       "consent-and-permissions",
       "consent-flow",
+      "diabetes-medicines-app",
       "empty-and-first-use",
       "forms/error-summaries",
       "offline-and-stale-data",
@@ -975,6 +987,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "consent-flow",
       "daily-log-screen",
       "daily-logging",
+      "diabetes-medicines-app",
       "empty-and-first-use",
       "onboarding-and-first-run",
       "onboarding-screen",
@@ -1016,6 +1029,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "design",
     a11yDate: null,
     dependencies: ["@base-ui/react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1031,6 +1045,7 @@ export const SHIPPED: CatalogueEntry[] = [
     a11yDate: null,
     dependencies: ["lucide-react"],
     registryDependencies: ["surface"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["materials", "neutral"],
   },
   {
@@ -1044,6 +1059,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "design",
     a11yDate: null,
     dependencies: ["lucide-react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1062,6 +1078,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "consent-flow",
       "daily-log-entry",
       "daily-log-screen",
+      "diabetes-medicines-app",
       "empty-and-first-use",
       "forms/error-summaries",
       "forms/question-pages",
@@ -1082,6 +1099,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     registryDependencies: ["button"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1117,6 +1135,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "daily-log-entry",
       "daily-log-screen",
       "daily-logging",
+      "diabetes-medicines-app",
       "forms/autocomplete-and-input-types",
       "forms/error-summaries",
       "forms/question-pages",
@@ -1140,6 +1159,7 @@ export const SHIPPED: CatalogueEntry[] = [
     a11yDate: null,
     dependencies: ["lucide-react"],
     registryDependencies: ["button"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1153,6 +1173,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1166,6 +1187,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1179,6 +1201,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1192,6 +1215,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral", "materials"],
   },
   {
@@ -1205,6 +1229,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1217,6 +1242,7 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["long text", "notes input"],
     owner: "engineering",
     a11yDate: null,
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
 
@@ -1230,6 +1256,7 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["separator", "rule"],
     owner: "design",
     a11yDate: null,
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
 
@@ -1256,6 +1283,7 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["sr only", "screen reader only", "clip"],
     owner: "engineering",
     a11yDate: null,
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
 
@@ -1312,6 +1340,7 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     dependencies: ["lucide-react"],
     registryDependencies: ["relative-time"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1427,6 +1456,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral", "materials"],
   },
   {
@@ -1453,6 +1483,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
   {
@@ -1479,6 +1510,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
+    usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral", "materials"],
   },
   {

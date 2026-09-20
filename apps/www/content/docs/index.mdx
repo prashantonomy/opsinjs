@@ -30,14 +30,14 @@ Three things follow from that, and they are what makes this system different fro
 a general-purpose UI kit:
 
 - **Colour carries two independent meanings, and mixing them is a bug.** A
-  category colour says *which part of your health this is*. A status colour says
-  *how concerning this is*. A system that lets the same green mean "sleep" on one
+  category colour says _which part of your health this is_. A status colour says
+  _how concerning this is_. A system that lets the same green mean "sleep" on one
   card and "you are fine" on the next has made a reading error unavoidable. See
   [The two colour axes](./health/two-colour-axes.mdx).
 - **The doctrine is testable.** The rules in [Health](./health/index.mdx) are
   written as prohibitions a reviewer can check on a screenshot rather than as
   principles. "Never show a bare percentage change." "At most one urgent surface
-  per screen." "Do not print the word *normal* next to a person's result."
+  per screen." "Do not print the word _normal_ next to a person's result."
 - **Numbers in these docs are generated, never remembered.** Contrast ratios,
   token values, prop tables and bundle sizes come out of the source and fail the
   build when they drift. See [Reading these docs](./start/reading-these-docs.mdx).
@@ -46,7 +46,7 @@ a general-purpose UI kit:
 
 There is no npm package of components, and there is not meant to be: distribution
 is copy-in through a shadcn registry, decided in
-[ADR 0002](./project/decisions/0002-shadcn-registry-distribution.mdx). There *is*
+[ADR 0002](./project/decisions/0002-shadcn-registry-distribution.mdx). There _is_
 a registry. Sixty components are implemented and served from `/r/<name>.json`,
 and `npx shadcn add @opsinjs/<name>` writes their source into a shadcn-initialised
 project and compiles. Thirty-five are `alpha` and twenty-five are `beta`: at
@@ -79,17 +79,17 @@ generate an implementation from a proposed API. See
 A design system earns its keep by removing decisions. These are the ones opsinjs
 takes off your team's plate, permanently and identically across every surface:
 
-| Decision | Where it is fixed |
-| --- | --- |
-| What a colour is allowed to mean | [Two colour axes](./health/two-colour-axes.mdx) |
-| The four clinical status levels and their words | [Clinical status semantics](./health/clinical-status-semantics.mdx) |
-| How a number, a unit and a precision are rendered | [Numbers, units and precision](./health/numbers-units-precision.mdx) |
-| Which unit system a reader sees, and how switching it stays correct | [Unit systems](./health/unit-systems.mdx) |
-| How many alarming surfaces one screen may carry | [Alarm fatigue](./health/alarm-fatigue.mdx) |
-| The contrast floor every token pair must clear | [The contrast floor](./foundations/materials/the-contrast-floor.mdx) |
-| What a surface may be made of, and what it must stay readable over | [Materials](./foundations/materials/index.mdx) |
-| What motion is allowed to communicate, and what it degrades to | [Motion in health UI](./health/motion-in-health-ui.mdx) |
-| Which words are banned from patient-facing copy | [Content and language](./content/index.mdx) |
+| Decision                                                            | Where it is fixed                                                    |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| What a colour is allowed to mean                                    | [Two colour axes](./health/two-colour-axes.mdx)                      |
+| The four clinical status levels and their words                     | [Clinical status semantics](./health/clinical-status-semantics.mdx)  |
+| How a number, a unit and a precision are rendered                   | [Numbers, units and precision](./health/numbers-units-precision.mdx) |
+| Which unit system a reader sees, and how switching it stays correct | [Unit systems](./health/unit-systems.mdx)                            |
+| How many alarming surfaces one screen may carry                     | [Alarm fatigue](./health/alarm-fatigue.mdx)                          |
+| The contrast floor every token pair must clear                      | [The contrast floor](./foundations/materials/the-contrast-floor.mdx) |
+| What a surface may be made of, and what it must stay readable over  | [Materials](./foundations/materials/index.mdx)                       |
+| What motion is allowed to communicate, and what it degrades to      | [Motion in health UI](./health/motion-in-health-ui.mdx)              |
+| Which words are banned from patient-facing copy                     | [Content and language](./content/index.mdx)                          |
 
 ## What it refuses to decide
 
@@ -110,7 +110,7 @@ about its boundary invites teams to assume it is doing clinical work it is not.
 - **Localisation.** There is no locale segment yet, and the reasons and the exact
   retrofit are recorded in
   [ADR 0005](./project/decisions/0005-no-lang-segment-yet.mdx). Unit systems are
-  handled as a *correctness* surface instead, because millimoles and milligrams
+  handled as a _correctness_ surface instead, because millimoles and milligrams
   per decilitre are not a translation problem.
 - **Regulatory status.** opsinjs is not a medical device and confers nothing on
   the product that uses it. This is important enough to have its own page:
@@ -152,6 +152,11 @@ Beyond that:
 - **[Components](./components/index.mdx)** has the sixty implemented components
   and their specifications. Every catalogue name has been built out, so the
   considered roster is empty and each row now points at code.
+- **[Screens](./screens/index.mdx)** is the assembly, and it is where to go if
+  you want to see the system working rather than read about it. The
+  [diabetes medicines app](./screens/diabetes-medicines-app.mdx) is a whole
+  running application built from thirty-five of the components, and it renders in
+  the page.
 - **[Health](./health/index.mdx)** is the doctrine layer. Read it even if you
   never install anything.
 - **[Foundations](./foundations/index.mdx)**, **[Accessibility](./accessibility/index.mdx)**,
@@ -206,3 +211,7 @@ components that implement it. The link exists in both directions on purpose.
   clinical-adjacent.
 - [The two colour axes](./health/two-colour-axes.mdx) is the single idea that
   most changes how a health product looks.
+- [The diabetes medicines app](./screens/diabetes-medicines-app.mdx) is the
+  system assembled into a running product, with the refusals that keep a
+  medicines record on the safe side of the line between a diary and a regulated
+  device.

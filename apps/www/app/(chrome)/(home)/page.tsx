@@ -10,7 +10,7 @@ import {
 } from "@/app/_shared/ui"
 import { getConsidered } from "@/lib/catalogue"
 import { builtComponentCount } from "@/lib/registry"
-import { routes, site } from "@/lib/routes"
+import { routes, site, viewPath } from "@/lib/routes"
 
 export const metadata: Metadata = {
   /* `absolute` because the group layout appends " · opsinjs" to every title
@@ -74,6 +74,9 @@ export default function HomePage() {
             <CtaLink href={routes.docs("components")} variant="secondary">
               Browse the components
             </CtaLink>
+            <CtaLink href={routes.showcaseMedicinesApp()} variant="secondary">
+              See a whole app built from it
+            </CtaLink>
           </div>
 
           <div className="mt-10 max-w-2xl">
@@ -119,6 +122,72 @@ export default function HomePage() {
               The two colour axes
             </Link>
           </p>
+        </Container>
+      </section>
+
+      {/* ---------------------------------------------------------------- */}
+      {/* The kit assembled, shown rather than argued                       */}
+      {/* ---------------------------------------------------------------- */}
+      {/*
+        This page is meant to stay short, and this section earns its place on the
+        page's own terms: it shows rather than argues. A specimen of one component
+        proves a component. A whole application proves the system, and it is the
+        only thing on this site that answers "what does a product built this way
+        actually look like" without asking anybody to take it on faith.
+
+        The frame points at the `(view)` route, because the `opsin-*` utilities the
+        kit is written in are loaded only by that layout. Rendering the app inline
+        would show it wearing the documentation site's clothes.
+      */}
+      <section className="border-t border-border py-16">
+        <Container>
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                A whole app, built only from these parts
+              </h2>
+              <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
+                A diabetes medicines diary: one page, four destinations, and
+                thirty-five of the {builtComponentCount()} components. It
+                records the medicines somebody takes and reminds them at times
+                they chose. It calculates no dose, changes no dose, and says
+                nothing about what to do about a dose they did not take, and
+                those three refusals are in the code rather than in a
+                disclaimer.
+              </p>
+              <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+                It carries neither colour axis, because a medicines record
+                states no clinical level and names no category. That is the
+                finding rather than a gap, and building it also turned up two
+                real defects in the kit that no single-component preview would
+                have shown.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <CtaLink href={routes.showcaseMedicinesApp()}>
+                  Open the app
+                </CtaLink>
+                <CtaLink
+                  href={routes.docs("screens", "diabetes-medicines-app")}
+                  variant="secondary"
+                >
+                  Read how it was assembled
+                </CtaLink>
+              </div>
+            </div>
+
+            <div className="flex justify-center overflow-x-auto lg:justify-end">
+              <iframe
+                title="A diabetes medicines app built from opsinjs components"
+                src={viewPath({
+                  kind: "screen",
+                  name: "diabetes-medicines-app",
+                })}
+                loading="lazy"
+                className="shrink-0 border border-border bg-background"
+                style={{ width: 380, maxWidth: "100%", height: 620 }}
+              />
+            </div>
+          </div>
         </Container>
       </section>
 

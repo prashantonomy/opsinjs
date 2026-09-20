@@ -34,19 +34,23 @@ distinctive have to hold **simultaneously**:
   `prefers-reduced-motion`.
   [Choreography](../foundations/motion/choreography.mdx) covers all three.
 
-There are five specimens. They are chosen to cover the four things a consumer
+There are six specimens. Five are chosen to cover the four things a consumer
 health product does: show a result, capture a reading, show change, ask
-permission. The fifth is the first run, which decides whether any of the rest
-happens.
+permission. The fifth of those is the first run, which decides whether any of the
+rest happens. The sixth is a different kind of artefact: a whole application
+rather than a screen, so that the assembly question can be asked at the scale a
+product is actually built at.
 
-<Callout title="One built specimen, four specifications">
-One of the five is now built. The results screen renders its real composition in
+<Callout title="Two built specimens, four specifications">
+Two of the six are now built. The results screen renders its real composition in
 the preview frame, assembled from parts that already ship, so the three screen-level
-checks below have something rendered to run against. The other four are still
-specifications: each carries the composition it is intended to have, the ways it
-could mislead, and the accessibility contract it must meet, so that it can be
-reviewed and argued with now, and its preview frame falls back to the
-not-implemented notice until the registry has something to put in it.
+checks below have something rendered to run against. The medicines app goes further
+and renders a whole application out of thirty-five of them, with four destinations,
+five overlays and a working form. The other four are still specifications: each
+carries the composition it is intended to have, the ways it could mislead, and the
+accessibility contract it must meet, so that it can be reviewed and argued with now,
+and its preview frame falls back to the not-implemented notice until the registry
+has something to put in it.
 </Callout>
 
 ## What a screen page contains
@@ -78,7 +82,7 @@ settle.
 
 ## The screens
 
-<SectionProgress counts={{ planned: 5 }} />
+<SectionProgress counts={{ alpha: 1, planned: 5 }} />
 
 - **[Results screen](./results-screen.mdx)** covers one result, what it means,
   and what happens next. The highest-stakes screen in the set, and the one where
@@ -91,6 +95,10 @@ settle.
   the one place where the design's honesty is directly testable.
 - **[Onboarding screen](./onboarding-screen.mdx)** is the first run. The minimum
   is collected before something useful is visible.
+- **[Diabetes medicines app](./diabetes-medicines-app.mdx)** is the whole
+  application: four destinations, thirty-five components, and a set of refusals
+  that keep a medicines record on the safe side of the line between a diary and a
+  regulated device.
 
 ## Recipes and patterns first
 
@@ -121,19 +129,21 @@ per-component review passes and a screen fails.
 **"The preview is empty."** Expected on the four screens that are still
 specifications. Their frame renders the not-implemented notice, naming the screen
 and its status, and the composition and the contract on the page are the reviewable
-artefact for now. The results screen is the exception: its frame renders the real
-assembly.
+artefact for now. The results screen and the medicines app are the exceptions:
+both frames render the real assembly.
 
-**"My screen has parts no specimen covers."** Likely. These five are specimens,
+**"My screen has parts no specimen covers."** Likely. These six are specimens,
 not a catalogue. Compose from [Recipes](../recipes/index.mdx) and check the result
 against the three questions above.
 
 **"The screen I need is not here."**
 
 <Todo>
-There is no **today** or **dashboard** specimen. That screen is the one most
-consumer health products actually open on, and the one where the alarm budget
-and the two axes are hardest to hold. It is the largest gap in this set.
+There is still no multi-metric **dashboard** specimen. The medicines app is a
+today surface for one domain and it carries neither colour axis, so it answers
+the composition half of the question and not the hard half: a home screen showing
+readings from several categories, where the alarm budget and the two axes have to
+hold at once. That remains the largest gap in this set.
 </Todo>
 
 <Todo>

@@ -7,30 +7,76 @@ import { routes, site } from "@/lib/routes"
 export const metadata: Metadata = {
   title: "Showcase",
   description:
-    "Products built with opsinjs. Empty, because nothing has been built with it yet. This page says what an entry will have to prove before it appears here.",
+    "Products built with opsinjs. One so far, and opsinjs built it. This page carries that one, and says what an entry from another team will have to prove before it appears here.",
 }
 
 /**
- * `/showcase` is reserved, and empty on purpose.
+ * `/showcase` carries one thing, and it is opsinjs's own.
  *
- * The route exists now so that the criteria can be published now. A showcase is
- * the one page on a design-system site that is pure social proof, which makes it
- * the one page most likely to be filled with side projects, concept work and
- * screenshots of the system's own examples. Deciding the bar while the page is
- * empty is the only time it can be decided honestly.
+ * A showcase is the one page on a design-system site that is pure social proof,
+ * which makes it the one page most likely to be filled with side projects,
+ * concept work and screenshots of the system's own examples. The bar for an entry
+ * was published while there was nothing to put here, which is the only time it
+ * could be set honestly, and it has not moved since.
+ *
+ * WHAT THE MEDICINES APP IS DOING AT THE TOP OF IT. It is the system assembled
+ * into a product, and a reader who came to this page came to see exactly that. It
+ * would still be dishonest to list it in the grid below as though somebody else
+ * had shipped it, so it is named as opsinjs's own work, above the empty state
+ * rather than beneath it, and the four tests it fails are printed directly
+ * underneath. Burying it below an empty box was the earlier arrangement and it
+ * hid the one piece of evidence the page has.
  */
 export default function ShowcasePage() {
   return (
     <>
       <PageHeader
-        eyebrow="Reserved"
+        eyebrow="One built, none submitted"
         title="Showcase"
-        lead="Nothing has been built with opsinjs, so there is nothing here. That will be true for a while, and saying so is more useful than a grid of invented screenshots."
+        lead="One thing has been built with opsinjs, and opsinjs built it. Nobody else has shipped anything yet, so there are no entries from other teams, and saying so is more useful than a grid of invented screenshots."
       />
 
       <Container className="py-10">
-        <div className="rounded-lg border border-dashed border-border bg-muted/40 p-8 text-center">
-          <p className="text-lg font-medium">No entries yet.</p>
+        <section>
+          <h2 className="text-lg font-semibold tracking-tight">
+            One thing opsinjs built itself, which is not an entry
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            It is named as opsinjs&apos;s own work rather than listed as an
+            entry, deliberately. It clears none of the four tests below: nobody
+            uses it, no team shipped it, and every figure in it is invented. It
+            is here because a design system that has never assembled its own
+            parts into a product has not finished arguing its case, and because
+            the argument is more useful made in a running application than in
+            another page of prose.
+          </p>
+          <div className="mt-6">
+            <Panel>
+              <h3 className="font-medium">A diabetes medicines app</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                One page, four destinations, thirty-five components. It records
+                the medicines somebody takes and reminds them at times they
+                chose. It calculates no dose, changes no dose, and says nothing
+                about what to do about a dose they did not take, and those three
+                refusals are in the code rather than in a disclaimer. It carries
+                neither colour axis, which is the finding rather than a gap.
+              </p>
+              <p className="mt-4 text-sm">
+                <Link
+                  className="underline underline-offset-4"
+                  href={routes.showcaseMedicinesApp()}
+                >
+                  Open the app and read why it refuses what it refuses
+                </Link>
+              </p>
+            </Panel>
+          </div>
+        </section>
+
+        <div className="mt-14 rounded-lg border border-dashed border-border bg-muted/40 p-8 text-center">
+          <p className="text-lg font-medium">
+            No entries from other teams yet.
+          </p>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
             opsinjs has no published packages, and every component that is
             implemented is at alpha: the API may change in any release without a
@@ -54,8 +100,8 @@ export default function ShowcasePage() {
             What an entry will have to show
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Published now, while the page is empty, so that the bar is not set
-            by whoever asks first.
+            Published while there was nothing to put on this page, so that the
+            bar was not set by whoever asked first.
           </p>
 
           <Grid cols={2} className="mt-6">
@@ -105,12 +151,13 @@ export default function ShowcasePage() {
           </h2>
           <Prose className="mt-3">
             <p>
-              The nearest thing to a showcase today is{" "}
-              <Link href={routes.docs("screens")}>the screen specimens</Link>.
-              Each one is a whole-screen specification that shows the two colour
-              axes, the material ladder and the motion tokens working together
-              rather than one component at a time. They are specifications too,
-              and they say so, but they are the best available answer to “what
+              Beside the app above,{" "}
+              <Link href={routes.docs("screens")}>the screen specimens</Link>{" "}
+              are the other place to look. Each one is a whole-screen
+              specification showing the two colour axes, the material ladder and
+              the motion tokens working together rather than one component at a
+              time. Most of them are specifications, and they say so, but
+              together with the app they are the best available answer to “what
               does a system built this way actually look like”.
             </p>
             <p>

@@ -298,6 +298,14 @@ export const routes = {
   tokens: () => "/tokens",
   icons: () => "/icons",
   showcase: () => "/showcase",
+  /**
+   * The one thing on the showcase that is not an entry: the medicines app opsinjs
+   * built out of its own parts. The literal is written here rather than composed
+   * from segments because `assert-ia.mts` proves a route is reachable by finding
+   * its path as a literal string somewhere under `app/`, `components/` or `lib/`,
+   * and this file is where every path in the application is spelled.
+   */
+  showcaseMedicinesApp: () => "/showcase/diabetes-medicines-app",
   official: () => "/official",
 
   playground: () => "/playground",
@@ -347,6 +355,11 @@ export const ORPHAN_ALLOWLIST: { path: string; reachedBy: string }[] = [
     path: "/showcase",
     reachedBy:
       "Linked from the landing page and the footer; deliberately not in the top nav while it is empty.",
+  },
+  {
+    path: "/showcase/diabetes-medicines-app",
+    reachedBy:
+      "Linked from /showcase and from the screen specimen page under Screens. It is a first-party specimen rather than a showcase entry, so it sits beneath the showcase rather than in it.",
   },
   {
     path: "/official",
