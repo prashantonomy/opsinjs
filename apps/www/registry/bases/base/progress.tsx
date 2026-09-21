@@ -88,6 +88,16 @@ const FILL_INDETERMINATE =
   "h-full w-full rounded-full bg-primary animate-pulse motion-reduce:animate-none"
 
 /**
+ * The screen-reader-only clip, spelled once rather than imported from
+ * VisuallyHidden: that component takes only `children` and `className`, and
+ * this file needs a bare `<span>` it can also mark `role="status"`. The rules
+ * are the same four `visually-hidden.tsx` names as the pattern every opsinjs
+ * component that needs an announced-but-unseen string inlines.
+ */
+const SR_ONLY =
+  "absolute m-[-1px] h-px w-px overflow-hidden whitespace-nowrap border-0 p-0 [clip:rect(0,0,0,0)] [clip-path:inset(50%)]"
+
+/**
  * Development warnings for uncoded mistakes, said once per distinct offender.
  * Nothing here has an `OpsinErrorCode`: a progress bar asserts nothing
  * clinical, so the codes in `tokens/errors.json` do not apply, and minting one
@@ -136,6 +146,7 @@ export interface ProgressProps {
 
 export function Progress({ label, value, max = 100, className }: ProgressProps) {
   const indeterminate = value === null || !Number.isFinite(value)
+  const complete = value !== null && Number.isFinite(value) && value >= max
 
   if (isDevelopment()) {
     if (typeof label !== "string" || label.trim() === "") {
@@ -167,41 +178,73 @@ export function Progress({ label, value, max = 100, className }: ProgressProps) 
     }
   }
 
+  /*
+   * `aria-label` is set on the root below in addition to the `aria-labelledby`
+   * Base UI wires up itself. Base UI's own wiring waits on its client island
+   * mounting: `Progress.Label` registers its id with the root in an effect,
+   * so on a first paint with no JavaScript yet run, or with none at all, the
+   * root would otherwise carry a `progressbar` role and no name at all. The
+   * `aria-label` set directly here is present from that first paint and costs
+   * nothing once the island mounts, because `aria-labelledby` takes
+   * precedence in name computation and points at the same `label` text, so
+   * the two never disagree.
+   */
   return (
-    <ProgressPrimitive.Root
-      data-slot="progress"
-      value={value}
-      max={max}
-      className={cn("flex w-full flex-col gap-opsin-2", className)}
-    >
-      <div className="flex items-baseline justify-between gap-opsin-3">
-        <ProgressPrimitive.Label
-          data-slot="progress-label"
-          className="text-opsin-subheadline [color:var(--foreground)]"
-        >
-          {label}
-        </ProgressPrimitive.Label>
-        {indeterminate ? (
-          <span
-            data-slot="progress-value"
-            className="text-opsin-subheadline tabular-nums [color:var(--muted-foreground)]"
+    <>
+      <ProgressPrimitive.Root
+        data-slot="progress"
+        value={value}
+        max={max}
+        aria-label={label}
+        className={cn("flex w-full flex-col gap-opsin-2", className)}
+      >
+        <div className="flex items-baseline justify-between gap-opsin-3">
+          <ProgressPrimitive.Label
+            data-slot="progress-label"
+            className="text-opsin-subheadline [color:var(--foreground)]"
           >
-            In progress
-          </span>
-        ) : (
-          <ProgressPrimitive.Value
-            data-slot="progress-value"
-            className="text-opsin-subheadline tabular-nums [color:var(--muted-foreground)]"
+            {label}
+          </ProgressPrimitive.Label>
+          {indeterminate ? (
+            <span
+              data-slot="progress-value"
+              aria-hidden="true"
+              className="text-opsin-subheadline tabular-nums [color:var(--muted-foreground)]"
+            >
+              In progress
+            </span>
+          ) : (
+            <ProgressPrimitive.Value
+              data-slot="progress-value"
+              className="text-opsin-subheadline tabular-nums [color:var(--muted-foreground)]"
+            />
+          )}
+        </div>
+        <ProgressPrimitive.Track data-slot="progress-track" className={TRACK}>
+          <ProgressPrimitive.Indicator
+            data-slot="progress-indicator"
+            className={indeterminate ? FILL_INDETERMINATE : FILL_DETERMINATE}
           />
-        )}
-      </div>
-      <ProgressPrimitive.Track data-slot="progress-track" className={TRACK}>
-        <ProgressPrimitive.Indicator
-          data-slot="progress-indicator"
-          className={indeterminate ? FILL_INDETERMINATE : FILL_DETERMINATE}
-        />
-      </ProgressPrimitive.Track>
-    </ProgressPrimitive.Root>
+        </ProgressPrimitive.Track>
+      </ProgressPrimitive.Root>
+      {/*
+       * The completion announcement, held outside the progressbar rather than
+       * inside it. `progressbar` is one of the ARIA roles whose descendants
+       * are presentational, so a live region nested inside `ProgressPrimitive
+       * .Root` would have its role stripped by the accessibility tree before
+       * a screen reader ever saw it. A sibling status region has no such
+       * problem. It is silent while a task runs: a reader who is not looking
+       * at the bar is not told the percentage on every tick, only the one
+       * change that matters. When the caller re-renders this component with
+       * a value that reaches `max`, the text changes from empty to a
+       * sentence, and that change inside a `role="status"` region is what
+       * gets announced without the reader having to have focus anywhere near
+       * the bar.
+       */}
+      <span role="status" className={SR_ONLY}>
+        {complete ? `${label} complete.` : ""}
+      </span>
+    </>
   )
 }
 

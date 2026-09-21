@@ -185,7 +185,7 @@ const LINK_ROOT_CLASS = cn(
   "group/card grid min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
   "text-inherit no-underline",
   "active:translate-y-px",
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+  "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring",
   SHAPE,
   PRINT_BOUNDARY,
 )

@@ -121,10 +121,12 @@ function warnDev(key: string, message: string): void {
 export interface CheckboxProps {
   /**
    * Required. The visible words beside the box, and the box's accessible name.
-   * The label wraps the box, so its text names the control through a native
-   * relationship rather than through `aria-label`, and a reader hears what they
-   * are choosing. There is no default, because a checkbox with no words asks a
-   * reader to agree to something they cannot see, and a missing or empty label
+   * Base UI renders the visible box as a `<span role="checkbox">`, and a wrapping
+   * `<label>` names only the hidden native input rather than that span, so the
+   * span is pointed at the visible label with `aria-labelledby`. The name is the
+   * label text a sighted reader sees, so a screen-reader user hears exactly the
+   * choice on screen. There is no default, because a checkbox with no words asks
+   * a reader to agree to something they cannot see, and a missing or empty label
    * raises a development warning.
    */
   label: string
@@ -183,6 +185,7 @@ export function Checkbox({
   className,
 }: CheckboxProps) {
   const generatedId = useId()
+  const labelId = `${generatedId}-label`
   const descriptionId = description ? `${generatedId}-description` : undefined
 
   if (isDevelopment()) {
@@ -211,6 +214,7 @@ export function Checkbox({
           checked={resolvedChecked}
           indeterminate={isIndeterminate}
           disabled={disabled}
+          aria-labelledby={labelId}
           aria-describedby={descriptionId}
           onCheckedChange={(next) => onCheckedChange?.(next)}
           className={CONTROL}
@@ -227,6 +231,7 @@ export function Checkbox({
           </CheckboxPrimitive.Indicator>
         </CheckboxPrimitive.Root>
         <span
+          id={labelId}
           data-slot="checkbox-label"
           className={cn(
             "text-opsin-body",

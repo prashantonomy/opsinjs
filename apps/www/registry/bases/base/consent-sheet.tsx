@@ -122,7 +122,7 @@ function warnDev(key: string, message: string): void {
  * keyboard reader most needs to know where they are.
  */
 const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+  "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
 
 /**
  * The class both decision controls carry, identical, so they cannot drift apart.

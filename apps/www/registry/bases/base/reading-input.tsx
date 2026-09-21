@@ -451,6 +451,19 @@ export interface ReadingInputProps {
    */
   name?: string
   /**
+   * The autofill token for the box. Defaults to `"off"`, which is the honest
+   * answer for a health reading: weight, blood pressure, glucose and temperature
+   * have no WCAG autofill token, so there is nothing true to fill from and `"off"`
+   * keeps the browser from offering a stored value that was never a reading.
+   *
+   * It is forwardable rather than forced, and never invented. A caller who
+   * repurposes this field for something the platform can genuinely fill, such as
+   * an age in whole years, passes the correct token here. Do not pass a made-up
+   * token on a measurement: a wrong token fills the box with a value the reader
+   * never typed.
+   */
+  autoComplete?: string
+  /**
    * Which keypad appears. `"decimal"` for a measurement that can be fractional,
    * `"numeric"` for one that cannot. Defaults to `"decimal"`: a decimal keypad
    * can type a whole number and a numeric one cannot type a fraction, so the
@@ -520,6 +533,7 @@ export function ReadingInput({
   warning,
   precision,
   name,
+  autoComplete = "off",
   inputMode = "decimal",
   enterKeyHint,
   optionality = "none",
@@ -990,7 +1004,7 @@ export function ReadingInput({
     const control = (
       <Field.Control
         aria-describedby={describedBy === "" ? undefined : describedBy}
-        autoComplete="off"
+        autoComplete={autoComplete}
         disabled={disabled}
         enterKeyHint={enterKeyHint}
         inputMode={inputMode}

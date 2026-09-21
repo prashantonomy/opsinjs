@@ -204,8 +204,17 @@ export function Avatar({ name, src, size, className }: AvatarProps) {
     )
   }
 
+  // `hasName` gates the picture too, not only the initials. Without it, a
+  // picture supplied alongside a missing name would render with `alt=""`,
+  // which marks an informative photograph as decorative and hides it from a
+  // screen reader while a sighted reader still sees a face. Requiring a name
+  // before showing the picture keeps the promise above: the fallback chain
+  // never renders an unlabelled circle, image tier included.
   const showImage =
-    typeof src === "string" && src.trim() !== "" && erroredSrc !== src
+    hasName &&
+    typeof src === "string" &&
+    src.trim() !== "" &&
+    erroredSrc !== src
   const initials = hasName ? initialsFrom(trimmedName) : ""
   const showInitials = !showImage && initials !== ""
   const labelled = !showImage && hasName
@@ -226,7 +235,7 @@ export function Avatar({ name, src, size, className }: AvatarProps) {
         <img
           data-slot="avatar-image"
           src={src}
-          alt={hasName ? trimmedName : ""}
+          alt={trimmedName}
           className="size-full rounded-full object-cover"
           onError={() => setErroredSrc(src ?? null)}
         />

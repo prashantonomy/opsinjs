@@ -174,7 +174,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "srLabel": {
       type: "string",
-      description: "What a screen reader should announce in place of, or alongside, the visible content. Give the bare number a noun, \"3 unread\", so a reader does not hear a lone \"3\" with no idea what it counts. Set it to an empty string to hide a purely decorative badge, one whose count is already spoken beside it, from the accessibility tree. Omitted, the visible content is what is announced.",
+      description: "What a screen reader should announce in place of the visible content. Give the bare number a noun, \"3 unread\", so a reader does not hear a lone \"3\" with no idea what it counts. Set it to an empty string to hide a purely decorative badge, one whose count is already spoken beside it, from the accessibility tree. Omitted, the visible content is what is announced.",
       required: false,
     },
     "className": {
@@ -431,7 +431,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "CheckboxProps": {
     "label": {
       type: "string",
-      description: "Required. The visible words beside the box, and the box's accessible name. The label wraps the box, so its text names the control through a native relationship rather than through `aria-label`, and a reader hears what they are choosing. There is no default, because a checkbox with no words asks a reader to agree to something they cannot see, and a missing or empty label raises a development warning.",
+      description: "Required. The visible words beside the box, and the box's accessible name. Base UI renders the visible box as a `<span role=\"checkbox\">`, and a wrapping `<label>` names only the hidden native input rather than that span, so the span is pointed at the visible label with `aria-labelledby`. The name is the label text a sighted reader sees, so a screen-reader user hears exactly the choice on screen. There is no default, because a checkbox with no words asks a reader to agree to something they cannot see, and a missing or empty label raises a development warning.",
       required: true,
     },
     "checked": {
@@ -1331,6 +1331,11 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       description: "The form control name, put on every box. For a compound reading each box gets the name with its index appended, so the parts stay distinguishable in a `FormData`.",
       required: false,
     },
+    "autoComplete": {
+      type: "string",
+      description: "The autofill token for the box. Defaults to `\"off\"`, which is the honest answer for a health reading: weight, blood pressure, glucose and temperature have no WCAG autofill token, so there is nothing true to fill from and `\"off\"` keeps the browser from offering a stored value that was never a reading. It is forwardable rather than forced, and never invented. A caller who repurposes this field for something the platform can genuinely fill, such as an age in whole years, passes the correct token here. Do not pass a made-up token on a measurement: a wrong token fills the box with a value the reader never typed.",
+      required: false,
+    },
     "inputMode": {
       type: "\"decimal\" | \"numeric\"",
       description: "Which keypad appears. `\"decimal\"` for a measurement that can be fractional, `\"numeric\"` for one that cannot. Defaults to `\"decimal\"`: a decimal keypad can type a whole number and a numeric one cannot type a fraction, so the default is the one that fails safely.",
@@ -1811,7 +1816,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "SliderProps": {
     "label": {
       type: "string",
-      description: "Required. The accessible name for the control, shown as the visible label above the track and wired to the thumb's input by Base UI, so a screen-reader user hears what the slider sets before its value. Name the preference the slider adjusts, \"Screen brightness\" rather than a bare number. There is no default, because a guessed name would describe the wrong thing on most screens, and a slider with no name is a control a reader cannot place.",
+      description: "Required. The accessible name for the control, shown as the visible label above the track and forwarded to the thumb's input as its `aria-label`, so a screen-reader user hears what the slider sets before its value. Name the preference the slider adjusts, \"Screen brightness\" rather than a bare number. There is no default, because a guessed name would describe the wrong thing on most screens, and a slider with no name is a control a reader cannot place.",
       required: true,
     },
     "value": {
@@ -1931,6 +1936,11 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       type: "number",
       description: "The 0-based index of the step the reader is on now. Every step before it is drawn complete, the step at this index is drawn current and carries aria-current=\"step\", and every step after it is drawn upcoming. This is a value the product passes from a flow it owns; the component keeps no state. A value outside the range, or a non-integer, is truncated and clamped to the nearest real step and a development warning names it, because a progress indicator that renders nothing is useless.",
       required: true,
+    },
+    "label": {
+      type: "string",
+      description: "Names the whole indicator for a screen reader, applied as the list's accessible name. A step indicator is a group of related items, so a reader is helped by one short phrase saying what the steps track, for example \"Setup progress\". Optional: when it is left off, the list still reads as an ordered list of steps and each item still reads its own state word.",
+      required: false,
     },
     "className": {
       type: "string",
@@ -2518,5 +2528,5 @@ export const PROPS_SOURCES: Record<string, string> = {
 
 export const PROPS_META: { interfaces: number; props: number } = {
   interfaces: 67,
-  props: 450,
+  props: 452,
 }

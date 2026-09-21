@@ -116,8 +116,19 @@ const ITEM = "border-t border-border first:border-t-0"
  * `--opsin-target-minimum` in rem, so the 44pt pressable region grows with the
  * reader's text size rather than pinning at a device pixel, with a literal
  * fallback so the declaration stays valid where the generated token sheet was not
- * installed. `group` is set so the chevron can read the trigger's own
- * `data-panel-open` state and turn with it.
+ * installed. The offset is negated so the ring draws inside the trigger rather
+ * than around it. The root sets `overflow-hidden` to keep the first and last
+ * corners rounded, and the trigger runs edge to edge inside it, so an outward
+ * ring would be clipped on its left and right and on the top of the first
+ * section. An inset ring sits within that clip and stays whole along every
+ * straight edge. One honest limit remains: the trigger keeps square corners
+ * while the root clips to a rounded radius, so on the first section's top
+ * corners and the last section's bottom corners the square ring is trimmed to
+ * a small notch where the curve cuts in. Most of the ring is present and the
+ * focus stays clearly visible, so this does not reopen the 2.4.7 gap the inset
+ * closed, but the ring is not literally unbroken at those two pairs of corners.
+ * `group` is set so the chevron can read the trigger's own `data-panel-open`
+ * state and turn with it.
  */
 const TRIGGER =
   "group flex w-full items-center justify-between gap-opsin-3 " +
@@ -126,7 +137,7 @@ const TRIGGER =
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
   "hover:bg-state-hover " +
   "data-[disabled]:cursor-not-allowed data-[disabled]:[color:var(--muted-foreground)] data-[disabled]:hover:bg-transparent " +
-  "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
+  "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[calc(var(--opsin-border-focus-offset,2px)*-1)] focus-visible:outline-ring"
 
 /**
  * The chevron. It rotates a half turn when its section opens, reading the

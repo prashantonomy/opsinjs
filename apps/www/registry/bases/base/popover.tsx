@@ -75,14 +75,16 @@ type PopoverSide = "top" | "right" | "bottom" | "left"
  * in the `color` group instead and both the ink and the size survive. The target
  * floor is `--opsin-target-minimum` in rem with a literal fallback, so it stays
  * valid where the token sheet was not installed and grows with the reader's text
- * size rather than pinning at a device pixel. The open state is echoed with the
+ * size rather than pinning at a device pixel. It is set on both height and width, so
+ * an icon-only or single-glyph trigger keeps a full hit area on both axes rather than
+ * shrinking to its content, while a wider label expands past the floor as usual. The open state is echoed with the
  * neutral `state-hover` surface read from the trigger's own `data-popup-open`, so
  * a reader can see which trigger the floating panel belongs to.
  */
 const TRIGGER =
   "inline-flex items-center justify-center gap-opsin-2 " +
   "rounded-opsin-md border border-border bg-background " +
-  "px-opsin-3 py-opsin-2 min-h-(--opsin-target-minimum,2.75rem) " +
+  "px-opsin-3 py-opsin-2 min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) " +
   "text-opsin-body [color:var(--foreground)] text-center align-middle cursor-pointer " +
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
   "hover:bg-state-hover data-[popup-open]:bg-state-hover " +

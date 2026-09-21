@@ -41,7 +41,10 @@ const ENTRIES = [
 
 export default function RelativeTimeInALogList() {
   return (
-    <ul className="m-0 flex w-full max-w-md list-none flex-col gap-opsin-2 p-0">
+    <ul
+      role="list"
+      className="m-0 flex w-full max-w-md list-none flex-col gap-opsin-2 p-0"
+    >
       {ENTRIES.map((entry) => (
         <li
           key={entry.subject}

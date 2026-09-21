@@ -120,7 +120,7 @@ const VIEW_META: Record<"front" | "back", { groupLabel: string; caption: string 
  * The relative box each figure is drawn into. The silhouette fills it and the
  * region buttons are positioned by percentage over it.
  */
-const FIGURE_BOX = "relative mx-auto aspect-[120/300] w-full max-w-[160px]"
+const FIGURE_BOX = "relative mx-auto aspect-[120/300] w-full max-w-[10rem]"
 
 /**
  * A region marker, spelled once. The 44pt target floor sits on both axes with

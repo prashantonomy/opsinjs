@@ -21,6 +21,7 @@ export default function RangeLegendTheFourLevels() {
   return (
     <div className="w-full max-w-xs">
       <RangeLegend
+        aria-label="The range tone key"
         bands={[
           {
             label: "The usual range",

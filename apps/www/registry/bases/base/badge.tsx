@@ -34,6 +34,14 @@
  * badge from the accessibility tree entirely. The visible text is never hidden by
  * this component on the caller's behalf, because a badge that removed its own
  * words for a sighted reader would be a badge that says nothing.
+ *
+ * A NAMED BADGE ALSO TAKES `role="img"`, THE SAME PAIRING `avatar.tsx` USES FOR
+ * ITS OWN `aria-label`. The root is a plain span, and a plain span carries the
+ * ARIA "generic" role, whose accessible name is computed from author markup
+ * only when a role that allows naming is present, so an `aria-label` sitting
+ * alone on a bare span is not reliably read by assistive technology. Pairing it
+ * with `role="img"` makes the override the name a reader actually hears rather
+ * than an attribute a screen reader is free to ignore.
  */
 
 import type { ReactNode } from "react"
@@ -89,11 +97,11 @@ export interface BadgeProps {
    */
   variant?: "soft" | "outline"
   /**
-   * What a screen reader should announce in place of, or alongside, the visible
-   * content. Give the bare number a noun, "3 unread", so a reader does not hear
-   * a lone "3" with no idea what it counts. Set it to an empty string to hide a
-   * purely decorative badge, one whose count is already spoken beside it, from
-   * the accessibility tree. Omitted, the visible content is what is announced.
+   * What a screen reader should announce in place of the visible content. Give
+   * the bare number a noun, "3 unread", so a reader does not hear a lone "3"
+   * with no idea what it counts. Set it to an empty string to hide a purely
+   * decorative badge, one whose count is already spoken beside it, from the
+   * accessibility tree. Omitted, the visible content is what is announced.
    */
   srLabel?: string
   /**
@@ -109,12 +117,14 @@ export interface BadgeProps {
 export function Badge({ children, variant = "soft", srLabel, className }: BadgeProps) {
   const resolved: BadgeVariant = variant === "outline" ? "outline" : "soft"
   const decorative = srLabel === ""
+  const labelled = typeof srLabel === "string" && srLabel !== ""
 
   return (
     <span
       data-slot="badge"
+      role={labelled ? "img" : undefined}
       aria-hidden={decorative ? "true" : undefined}
-      aria-label={srLabel === "" ? undefined : srLabel}
+      aria-label={labelled ? srLabel : undefined}
       className={cn(BADGE, VARIANT[resolved], className)}
     >
       {children}

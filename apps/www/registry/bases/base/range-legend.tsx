@@ -175,9 +175,24 @@ export interface RangeLegendProps {
   bands: RangeLegendBand[]
   /** Merged onto the root. A class passed here wins where the two conflict. */
   className?: string
+  /**
+   * An accessible name for the key as a whole, so a screen reader meets it as
+   * a named list rather than an unlabelled run of items. Prefer
+   * `aria-labelledby` pointing at the heading or the bar label the key sits
+   * under; use `aria-label` only where no such visible text exists. The words
+   * are yours, because the component supplies none.
+   */
+  "aria-label"?: string
+  /** Ties the key to visible text that names it, by that text's id. */
+  "aria-labelledby"?: string
 }
 
-export function RangeLegend({ bands, className }: RangeLegendProps) {
+export function RangeLegend({
+  bands,
+  className,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledby,
+}: RangeLegendProps) {
   if (bands.length === 0) {
     warnDev(
       "empty-bands",
@@ -191,6 +206,8 @@ export function RangeLegend({ bands, className }: RangeLegendProps) {
   return (
     <ul
       data-slot="range-legend"
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledby}
       className={cn(
         "m-0 flex w-full list-none flex-col gap-opsin-2 p-0 text-opsin-body",
         className,
@@ -198,6 +215,18 @@ export function RangeLegend({ bands, className }: RangeLegendProps) {
     >
       {bands.map((band, index) => {
         const level = resolveTone(band.tone)
+        if (
+          level !== undefined &&
+          (typeof band.label !== "string" || band.label.trim() === "")
+        ) {
+          warnDev(
+            "blank-status-label",
+            "[opsinjs] <RangeLegend> was given a status row with a blank `label`, so " +
+              "the row shows a colour and a glyph but no word. A clinical status must " +
+              "always carry a visible word, never a colour alone. Pass the product's " +
+              "own phrasing for this level.",
+          )
+        }
         const Glyph = level === undefined ? null : ICONS[level]
         return (
           <li
@@ -269,6 +298,7 @@ export default function RangeLegendDemo() {
   return (
     <div className="w-full max-w-xs">
       <RangeLegend
+        aria-label="Range legend"
         bands={[
           {
             label: "The usual range",

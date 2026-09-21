@@ -258,6 +258,21 @@ export function SymptomPicker({
       ? options.filter((option) => option.label.toLowerCase().includes(trimmed))
       : options
 
+  /**
+   * The spoken form of the filter result, for the live region below. A change to
+   * how many options match moves no focus, so a screen-reader user learns of it
+   * only if it is announced (WCAG 4.1.3). It stays empty until the reader has
+   * typed something, so an untouched list announces nothing.
+   */
+  const filterStatus =
+    searchable && trimmed.length > 0
+      ? visible.length === 0
+        ? "No options match your filter."
+        : `${visible.length} ${
+            visible.length === 1 ? "option matches" : "options match"
+          } your filter.`
+      : ""
+
   return (
     <CheckboxGroup
       data-slot="symptom-picker"
@@ -277,6 +292,18 @@ export function SymptomPicker({
             placeholder="Filter"
             className={SEARCH_INPUT}
           />
+        </div>
+      ) : null}
+
+      {searchable ? (
+        <div
+          data-slot="symptom-picker-filter-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {filterStatus}
         </div>
       ) : null}
 

@@ -472,10 +472,43 @@ export function Field({
           still reads hint then error, and no announcement moves. The spacing is
           also unchanged, because the root's own `gap-opsin-2` sits the error
           one gap above the control now rather than one gap below it. */}
+      {/* A LIVE REGION, so the error is announced when it appears and not only
+          when the control is next focused. `aria-describedby` ties the message
+          to the control and covers the moment a screen reader lands on the
+          field, but the path a product should be on sets `error` declaratively
+          and moves focus nowhere, so on submit the message can appear while
+          focus sits on the button that was pressed. Without a live region that
+          appearance is silent, which is the 4.1.3 gap this closes. The role is
+          `alert` rather than a polite region for a reason that is easy to get
+          wrong: Base UI's Error part is not in the DOM while the field is valid,
+          so when the field turns invalid the message element is inserted into
+          the page already carrying its text. A polite region inserted with its
+          content already in place is commonly not announced at all by NVDA or
+          VoiceOver, which is the reader this most has to reach. An `alert` is
+          announced on insertion by design, so the message is spoken the moment
+          it appears. It does not chatter on every keystroke: while the same
+          words stay on screen the message node keeps its place and its text, so
+          nothing is re-announced until the sentence itself changes. `aria-atomic`
+          reads the whole message as a unit rather than a diff, and the glyph is
+          `aria-hidden`, so only the sentence is spoken. Base UI's Error part
+          renders a plain `<div>` with no live semantics of its own, so these
+          attributes are the component's own contribution and they pass straight
+          through the part's prop spread. */}
       {message === undefined ? (
-        <FieldPrimitive.Error data-slot="field-error" className={ERROR_CLASS} />
+        <FieldPrimitive.Error
+          data-slot="field-error"
+          className={ERROR_CLASS}
+          role="alert"
+          aria-atomic="true"
+        />
       ) : (
-        <FieldPrimitive.Error match data-slot="field-error" className={ERROR_CLASS}>
+        <FieldPrimitive.Error
+          match
+          data-slot="field-error"
+          className={ERROR_CLASS}
+          role="alert"
+          aria-atomic="true"
+        >
           {/* Decorative: the sentence beside it carries the meaning. Sized in
               em so it grows with the text rather than staying put while the
               words around it get bigger, and pushed down by a fraction of a

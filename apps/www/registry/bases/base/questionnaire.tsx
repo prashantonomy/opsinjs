@@ -120,7 +120,13 @@ const QUESTION =
 /** The prompt, at the body step in the neutral ink. */
 const PROMPT = "text-opsin-body font-medium [color:var(--foreground)]"
 
-/** The control wrapper. It sets spacing only and no colour, so the product's own control keeps its look. */
+/**
+ * The control wrapper, which is also the per-question group. It sets spacing only
+ * and no colour, so the product's own control keeps its look. It carries
+ * `role="group"` and is named by the prompt through `aria-labelledby`, so a
+ * screen-reader user hears which question a control belongs to even when the
+ * control the product passed carries no accessible name of its own.
+ */
 const CONTROL = "flex flex-col gap-opsin-2"
 
 /**
@@ -188,6 +194,7 @@ export function Questionnaire({
   className,
 }: QuestionnaireProps) {
   const titleId = useId()
+  const promptBaseId = useId()
   const [current, setCurrent] = useState(0)
 
   if (isDevelopment()) {
@@ -258,22 +265,34 @@ export function Questionnaire({
       ) : null}
 
       <ol className={LIST}>
-        {questions.map((question, index) => (
-          <li
-            key={question.id}
-            data-slot="questionnaire-question"
-            data-question-index={index}
-            onFocus={() => setCurrent(index)}
-            className={QUESTION}
-          >
-            <div data-slot="questionnaire-prompt" className={PROMPT}>
-              {question.prompt}
-            </div>
-            <div data-slot="questionnaire-control" className={CONTROL}>
-              {question.control}
-            </div>
-          </li>
-        ))}
+        {questions.map((question, index) => {
+          const promptId = `${promptBaseId}-${index}`
+          return (
+            <li
+              key={question.id}
+              data-slot="questionnaire-question"
+              data-question-index={index}
+              onFocus={() => setCurrent(index)}
+              className={QUESTION}
+            >
+              <div
+                id={promptId}
+                data-slot="questionnaire-prompt"
+                className={PROMPT}
+              >
+                {question.prompt}
+              </div>
+              <div
+                role="group"
+                aria-labelledby={promptId}
+                data-slot="questionnaire-control"
+                className={CONTROL}
+              >
+                {question.control}
+              </div>
+            </li>
+          )
+        })}
       </ol>
     </form>
   )
@@ -325,6 +344,7 @@ export default function QuestionnaireDemo() {
           control: (
             <textarea
               rows={2}
+              aria-label="Anything you would like to add before your next visit"
               className="w-full rounded-opsin-md border border-border bg-card p-opsin-2 text-opsin-body [color:var(--foreground)] focus-visible:outline-ring focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)]"
             />
           ),

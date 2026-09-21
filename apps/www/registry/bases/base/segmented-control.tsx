@@ -115,12 +115,14 @@ const TRACK =
  * a project installed without that stylesheet does not lose it. The 44pt target
  * floor is `--opsin-target-minimum` in rem, so it grows with the reader's text
  * size rather than pinning at a device pixel, with a literal fallback so the
- * declaration stays valid where the generated token sheet was not installed.
+ * declaration stays valid where the generated token sheet was not installed. The
+ * floor sits on both axes, so a one-character label or the `sm` size cannot
+ * shrink a segment below the minimum hit area.
  */
 const SEGMENT =
   "relative inline-flex select-none items-center justify-center whitespace-normal " +
   "rounded-opsin-md border border-transparent align-middle text-center " +
-  "min-h-(--opsin-target-minimum,2.75rem) cursor-pointer [color:var(--foreground)] " +
+  "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) cursor-pointer [color:var(--foreground)] " +
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
   "data-[unchecked]:hover:bg-state-hover " +
   "data-[checked]:border-border data-[checked]:bg-card " +

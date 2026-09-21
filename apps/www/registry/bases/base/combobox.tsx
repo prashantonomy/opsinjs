@@ -101,7 +101,7 @@ const FIELD =
 const INPUT =
   "min-w-0 flex-1 bg-transparent px-opsin-3 py-opsin-2 " +
   "min-h-(--opsin-target-minimum,2.75rem) rounded-opsin-md " +
-  "text-opsin-body [color:var(--foreground)] outline-none " +
+  "text-opsin-body [color:var(--foreground)] " +
   "placeholder:[color:var(--muted-foreground)] " +
   "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
 
@@ -287,7 +287,11 @@ export function Combobox({
           placeholder={placeholder}
           className={INPUT}
         />
-        <ComboboxPrimitive.Trigger data-slot="combobox-trigger" className={TRIGGER}>
+        <ComboboxPrimitive.Trigger
+          data-slot="combobox-trigger"
+          aria-label={`Show ${label} options`}
+          className={TRIGGER}
+        >
           <ChevronsUpDown aria-hidden="true" className="size-[1em]" />
         </ComboboxPrimitive.Trigger>
       </div>

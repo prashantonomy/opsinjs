@@ -466,7 +466,7 @@ const TRIGGER_BUTTON =
   "[font:inherit] text-inherit rounded-opsin-xs " +
   "hover:bg-state-hover active:bg-state-press aria-expanded:bg-muted " +
   "before:absolute before:content-[''] before:-inset-y-[0.5em] before:-inset-x-opsin-1 " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+  "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
 
 /** The definition itself: quieter than the sentence, never smaller than it. */
 const DEFINITION = "text-muted-foreground"

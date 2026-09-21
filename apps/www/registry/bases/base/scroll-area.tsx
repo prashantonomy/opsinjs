@@ -17,13 +17,20 @@
  * more than it can show: a scrolling region set inside a page that still scrolls
  * on its own.
  *
- * IT MUST NOT TRAP THE CONTENT. Base UI's ScrollArea renders the viewport with
- * `overflow: scroll` and gives it a tab stop when there is more to see, so the
- * region is reachable and scrollable from the keyboard rather than by a pointer
- * alone. This wrapper carries the focus ring on the viewport for exactly that
- * reason, so a keyboard reader can see which region they have entered. Nothing
- * here captures focus, holds it, or moves it: the viewport is one ordinary tab
- * stop that a reader passes through, not a well they fall into.
+ * IT MUST NOT TRAP THE CONTENT, AND IT MUST NOT HIDE IT FROM THE KEYBOARD. Base
+ * UI renders the viewport with `overflow: scroll`, but it only makes the
+ * viewport a tab stop when its scrollbar is visible, and this component draws a
+ * thin scrollbar that stays out of the way until hover, so left to Base UI an
+ * overflowing region would be reachable by pointer alone. This wrapper gives the
+ * viewport its own `tabIndex={0}`, so a keyboard reader can reach the region and
+ * scroll it with the arrow keys (WCAG 2.1.1). The tab stop is unconditional
+ * rather than measured against live overflow: a region that currently fits its
+ * content becomes an extra stop that scrolls nothing, which is a small cost, and
+ * the alternative of leaving an overflowing region unreachable is a real one.
+ * This wrapper carries the focus ring on the viewport for the same reason, so a
+ * keyboard reader can see which region they have entered. Nothing here captures
+ * focus, holds it, or moves it: the viewport is one ordinary tab stop that a
+ * reader passes through, not a well they fall into.
  *
  * NEITHER COLOUR AXIS. A scrolling region states no clinical level and names no
  * category. It carries neither `data-status` nor `data-category` and draws only
@@ -65,8 +72,9 @@ const ORIENTATIONS: ScrollAreaOrientation[] = ["vertical", "horizontal", "both"]
 
 /*
  * The viewport, spelled once. It is the scrollable element: Base UI sets its
- * `overflow: scroll` and its tab stop, and this class carries the focus ring so
- * a keyboard reader can see which region they have entered. The ring is kept in
+ * `overflow: scroll`, the component gives it a tab stop on the element itself,
+ * and this class carries the focus ring so a keyboard reader can see which
+ * region they have entered. The ring is kept in
  * the component's own classes rather than left to the product stylesheet, for
  * the reason `link.tsx` records: a project installed without that stylesheet
  * would otherwise lose the ring silently. `overscroll-contain` stops a scroll
@@ -78,7 +86,10 @@ const ORIENTATIONS: ScrollAreaOrientation[] = ["vertical", "horizontal", "both"]
 const VIEWPORT =
   "h-full max-h-[inherit] w-full overscroll-contain rounded-[inherit] " +
   "focus-visible:outline-ring focus-visible:outline-[length:var(--opsin-border-focus,2px)] " +
-  "focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)]"
+  // The offset is negated so the ring draws inside the viewport. The viewport
+  // fills a container the caller usually rounds and borders, so an outward ring
+  // would be clipped at those corners; an inset ring stays whole.
+  "focus-visible:outline-offset-[calc(var(--opsin-border-focus-offset,2px)*-1)]"
 
 /*
  * The scrollbar track per axis, written out per axis because Tailwind reads
@@ -200,6 +211,7 @@ export function ScrollArea({
     <BaseScrollArea.Root data-slot="scroll-area" className={cn("relative", className)}>
       <BaseScrollArea.Viewport
         data-slot="scroll-area-viewport"
+        tabIndex={0}
         style={maxHeight ? { maxHeight } : undefined}
         className={VIEWPORT}
       >

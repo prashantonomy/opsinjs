@@ -119,7 +119,8 @@ type LinkEmphasis = "inline" | "action" | "secondary"
  */
 const INLINE =
   "wrap-anywhere underline underline-offset-[0.25em] active:translate-y-px " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+  "focus-visible:outline-[length:var(--opsin-border-focus,2px)] " +
+  "focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
 
 /**
  * The class list for one emphasis on one ground. `action` and `secondary` come
@@ -183,6 +184,34 @@ export function Link({
 }: LinkProps) {
   const classes = cn(classForEmphasis(emphasis, ground), className)
 
+  /* A link that opens a new tab is hardened and announced. `target="_blank"`
+     defaults `rel` to `noopener noreferrer` so the new document cannot reach
+     this one through `window.opener`, and a spoken-only tail names the new tab
+     so a screen reader is told where the link goes rather than finding
+     out only after it has opened. SC 2.4.4 asks for that indication, and it
+     stays out of the visual design by riding in an `sr-only` span. A caller
+     that supplies its own `rel` keeps it. */
+  const opensNewTab = rest.target === "_blank"
+  /* Build the `rel` as a spread object rather than a `rel={value}` prop, so a
+     link that neither opens a new tab nor carries a caller `rel` gets no `rel`
+     attribute at all. An attribute set to `undefined` does not vanish here: it
+     survives into the RSC flight payload as the literal string "$undefined",
+     the same trap the markers in stub.tsx and source.tsx spread an object to
+     dodge. `callerRel` is pulled out of `rest` so the spread of `rest` cannot
+     reintroduce it. */
+  const { rel: callerRel, ...restNoRel } = rest
+  const relValue = opensNewTab
+    ? (callerRel ?? "noopener noreferrer")
+    : callerRel
+  const relProp = relValue ? { rel: relValue } : {}
+
+  const content = (
+    <>
+      {children}
+      {opensNewTab ? <span className="sr-only"> (opens in a new tab)</span> : null}
+    </>
+  )
+
   if (render && isValidElement(render)) {
     /* Link's own attributes win over the router element's, exactly as
        Field.Control keeps the ids it generated, and the class lists are joined
@@ -194,16 +223,17 @@ export function Link({
       {
         href,
         "data-slot": "link",
-        ...rest,
+        ...restNoRel,
+        ...relProp,
         className: cn(renderClassName, classes),
       },
-      children,
+      content,
     )
   }
 
   return (
-    <a href={href} data-slot="link" {...rest} className={classes}>
-      {children}
+    <a href={href} data-slot="link" {...restNoRel} {...relProp} className={classes}>
+      {content}
     </a>
   )
 }

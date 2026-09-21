@@ -165,6 +165,15 @@ export interface StepperProps {
    */
   current: number
   /**
+   * Names the whole indicator for a screen reader, applied as the list's
+   * accessible name. A step indicator is a group of related items, so a
+   * reader is helped by one short phrase saying what the steps track, for
+   * example "Setup progress". Optional: when it is left off, the list still
+   * reads as an ordered list of steps and each item still reads its own
+   * state word.
+   */
+  label?: string
+  /**
    * Merged onto the root list. Width, margin and place in a layout belong
    * here. A class you pass wins over the list's own where the two conflict,
    * because it is merged last.
@@ -172,7 +181,7 @@ export interface StepperProps {
   className?: string
 }
 
-export function Stepper({ steps, current, className }: StepperProps) {
+export function Stepper({ steps, current, className, label }: StepperProps) {
   if (isDevelopment()) {
     if (!Array.isArray(steps) || steps.length === 0) {
       warnDev(
@@ -222,7 +231,11 @@ export function Stepper({ steps, current, className }: StepperProps) {
   )
 
   return (
-    <ol data-slot="stepper" className={cn("flex flex-col", className)}>
+    <ol
+      data-slot="stepper"
+      aria-label={label}
+      className={cn("flex flex-col", className)}
+    >
       {steps.map((step, index) => {
         const state: StepState =
           index < activeIndex
@@ -299,6 +312,7 @@ export default function StepperDemo() {
   return (
     <Stepper
       current={1}
+      label="Example setup progress"
       steps={[
         { label: "Create your example account" },
         { label: "Confirm the sample email" },

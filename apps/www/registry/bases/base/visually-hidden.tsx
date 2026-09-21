@@ -38,7 +38,7 @@
  * renders on the server and ships no JavaScript.
  */
 
-import { type ReactNode } from "react"
+import { isValidElement, type ReactNode } from "react"
 
 import { isDevelopment } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
@@ -87,6 +87,64 @@ function isEmptyNode(node: ReactNode): boolean {
   return false
 }
 
+/**
+ * Host tags and ARIA roles a browser or a screen reader treats as a tab stop.
+ * The list is deliberately short rather than exhaustive: it is a development
+ * guard against the mistake the file's own docblock names, not a claim about
+ * every element that could ever take focus.
+ */
+const FOCUSABLE_TAGS = new Set([
+  "a",
+  "button",
+  "input",
+  "select",
+  "textarea",
+  "audio",
+  "video",
+  "iframe",
+  "embed",
+  "object",
+  "summary",
+])
+
+const FOCUSABLE_ROLES = new Set([
+  "button",
+  "link",
+  "checkbox",
+  "radio",
+  "switch",
+  "tab",
+  "menuitem",
+  "menuitemcheckbox",
+  "menuitemradio",
+  "option",
+  "slider",
+  "spinbutton",
+  "textbox",
+  "combobox",
+])
+
+/**
+ * Whether a descendant renders as, or is marked as, a focusable control.
+ * Placing one inside this component is the keyboard trap the docblock warns
+ * against: the control keeps its tab stop while the clip keeps it off
+ * screen, so a keyboard user can focus something they cannot see and gets no
+ * visible ring to follow. Checked alongside the empty-content check, in
+ * development only.
+ */
+function hasFocusableDescendant(node: ReactNode): boolean {
+  if (Array.isArray(node)) return node.some(hasFocusableDescendant)
+  if (!isValidElement(node)) return false
+  const props = node.props as Record<string, unknown>
+  const type = node.type
+  if (typeof type === "string" && FOCUSABLE_TAGS.has(type)) return true
+  const role = props.role
+  if (typeof role === "string" && FOCUSABLE_ROLES.has(role)) return true
+  const tabIndex = props.tabIndex
+  if (typeof tabIndex === "number" && tabIndex >= 0) return true
+  return hasFocusableDescendant(props.children as ReactNode)
+}
+
 export interface VisuallyHiddenProps {
   /**
    * The words to announce. They are read by assistive technology and drawn
@@ -118,6 +176,22 @@ export function VisuallyHidden({ children, className }: VisuallyHiddenProps) {
       "[opsinjs] VisuallyHidden was given no content to announce. It renders " +
         "an empty span that a screen reader passes over in silence. Pass the " +
         "words a sighted reader gets from the icon or the layout, or remove it.",
+    )
+  }
+
+  /* A focusable control inside always-hidden content is the keyboard trap
+     the docblock warns against: it keeps its tab stop while the clip keeps
+     it off screen. No OPSIN code covers it either, for the same reason the
+     empty-content warning above has none, so this is the same plain
+     dev-only pattern applied to the second named misuse. */
+  if (hasFocusableDescendant(children)) {
+    warnDev(
+      "focusable-child",
+      "[opsinjs] VisuallyHidden was given a focusable child. This component " +
+        "is always hidden and never reveals its content, so a control placed " +
+        "inside it can receive keyboard focus with nothing on screen to show " +
+        "it, which is a keyboard trap. Move the control outside, or use a " +
+        "link that reveals itself on focus instead of this component.",
     )
   }
 

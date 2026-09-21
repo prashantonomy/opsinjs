@@ -123,7 +123,10 @@ const POPUP =
  * One action row, spelled once. A full-width row with the label on the left. The
  * highlight is the neutral `state-hover` surface switched on by `data-highlighted`,
  * which is the active row under the Arrow keys and under the pointer, so the
- * roving highlight is visible without a colour on either axis. A disabled row
+ * roving highlight is visible without a colour on either axis. Base UI moves
+ * real keyboard focus onto the highlighted row, so the row also carries the
+ * house focus ring on `focus-visible`, which is the strong keyboard cue that
+ * the low-contrast surface lift cannot be on its own. A disabled row
  * drops to the muted ink and is skipped by the keys. Each row floors its target
  * at `--opsin-target-minimum` in rem with a literal fallback, so a touch reader
  * gets a 44pt row and the declaration stays valid where the token sheet was not
@@ -137,6 +140,13 @@ const ITEM =
   "relative flex w-full cursor-pointer select-none items-center gap-opsin-2 " +
   "rounded-opsin-sm px-opsin-3 py-opsin-2 min-h-(--opsin-target-minimum,2.75rem) " +
   "text-opsin-body [color:var(--foreground)] outline-none " +
+  // The offset is negated so the ring sits inside the item's box. The item runs
+  // the full width of POPUP, whose padding equals the ring's outward reach and
+  // which is `overflow-y-auto` with rounded corners, so an outward ring would be
+  // clipped at the popup's edge and its rounded corners, most visibly on the
+  // first item highlighted when the menu opens. This is the same inset-ring
+  // treatment `accordion.tsx` uses inside its own clipping shell.
+  "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[calc(var(--opsin-border-focus-offset,2px)*-1)] focus-visible:outline-ring " +
   "data-[highlighted]:bg-state-hover " +
   "data-[disabled]:cursor-not-allowed data-[disabled]:[color:var(--muted-foreground)] data-[disabled]:bg-transparent"
 

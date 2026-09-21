@@ -23,7 +23,8 @@
  * card carries the deadline alone and lets it be the one timing.
  *
  * The two actions show the recommended one leading. It is distinguished by
- * position and by fill, not by colour alone.
+ * position, by the bordered box it sits in against the quiet underlined
+ * alternative, and by a spoken qualifier, not by colour alone.
  *
  * THE `locale` IS EXPLICIT. Without it the date is written in the runtime's
  * default locale, and on a server-rendered card that default is the server's

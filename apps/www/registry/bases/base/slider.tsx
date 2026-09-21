@@ -24,9 +24,11 @@
  * behaviour differs across browsers in ways nobody wants to re-test. Base UI's
  * Slider splits the control into Root, Label, Value, Control, Track, Indicator
  * and Thumb, keeps a real `<input type="range">` inside the thumb for assistive
- * technology and forms, and wires the Label to that input through its field
- * context so the thumb carries an accessible name without a second `aria-label`
- * to keep in sync. The Arrow keys, Home, End, Page Up and Page Down all come
+ * technology and forms, and lets the visible Label name the control. This file
+ * also forwards the label text to that input as an `aria-label`, because Base UI
+ * 1.7.0 does not reliably carry the `Slider.Label` association through to the
+ * nested input, and a range input with no name is the one thing a screen reader
+ * must not meet here. The Arrow keys, Home, End, Page Up and Page Down all come
  * from the primitive rather than from a bespoke handler this file would own.
  *
  * NEITHER COLOUR AXIS. A slider sets a preference; it states no clinical level
@@ -89,8 +91,12 @@ const ROOT = "flex w-full flex-col gap-opsin-2"
 const HEADER = "flex items-baseline justify-between gap-opsin-3"
 
 /**
- * The label, wired to the thumb's input by Base UI's field context so it names
- * the control without a second `aria-label`. It is set at the subheadline step
+ * The label, shown above the track and read as the control's visible name. Its
+ * text is also forwarded to the thumb's `<input>` as an `aria-label` (see the
+ * `getAriaLabel` on `Slider.Thumb`), because Base UI 1.7.0 does not carry the
+ * `Slider.Label` association through to that input on its own, so a screen
+ * reader would otherwise reach a range input with no name. It is set at the
+ * subheadline step
  * and the foreground ink, written as the arbitrary property so tailwind-merge
  * does not file it in the same conflict group as the type step and drop one.
  */
@@ -166,7 +172,7 @@ const KNOB =
 export interface SliderProps {
   /**
    * Required. The accessible name for the control, shown as the visible label
-   * above the track and wired to the thumb's input by Base UI, so a
+   * above the track and forwarded to the thumb's input as its `aria-label`, so a
    * screen-reader user hears what the slider sets before its value. Name the
    * preference the slider adjusts, "Screen brightness" rather than a bare
    * number. There is no default, because a guessed name would describe the wrong
@@ -273,7 +279,11 @@ export function Slider({
             data-slot="slider-indicator"
             className={INDICATOR}
           />
-          <BaseSlider.Thumb data-slot="slider-thumb" className={THUMB}>
+          <BaseSlider.Thumb
+            data-slot="slider-thumb"
+            className={THUMB}
+            getAriaLabel={() => label}
+          >
             <span aria-hidden="true" className={KNOB} />
           </BaseSlider.Thumb>
         </BaseSlider.Track>

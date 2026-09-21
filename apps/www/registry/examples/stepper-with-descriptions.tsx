@@ -4,6 +4,7 @@ export default function StepperWithDescriptions() {
   return (
     <Stepper
       current={1}
+      label="Example walkthrough progress"
       steps={[
         {
           label: "Sample details",
