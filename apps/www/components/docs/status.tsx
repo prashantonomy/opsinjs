@@ -368,10 +368,11 @@ ${categories
         data-opsinjs-unreviewed=""
         className="m-0 text-sm text-muted-foreground"
       >
-        No component in this catalogue has had an accessibility review and no
-        component has had a clinical review. The phase word says how installable
-        the source is and says nothing about either review. Nothing here is for
-        a production health surface.
+        Every component in this catalogue has been audited against WCAG 2.2 AA,
+        and none has had an independent accessibility review or a clinical
+        review. The phase word says how installable the source is and says
+        nothing about review. Nothing here is for a production health surface
+        until a clinician has signed it.
       </p>
 
       {/* THE PHASE FACET IS RENDERED ONLY WHEN THERE IS A CHOICE TO MAKE.

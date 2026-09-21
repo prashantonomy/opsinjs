@@ -18,9 +18,7 @@ aliases: ["snackbar", "transient message", "notification toast"]
     "Whether the title, the description and the close control clear the text and non-text contrast floors has been argued from the roles rather than measured.",
   ]}
 >
-  <code className="text-sm">toast</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -143,19 +141,11 @@ Keep a toast to the fact of the action, past tense, a word or two: "Saved", "Rem
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+Audited against WCAG 2.2 AA in a source pass and a rendered pass that together raised no axe violation, no target-size hit and no 320px reflow failure. This is an author-run audit, not an independent review; clinical review is pending.
 
-- No colour on either axis: only neutral chrome roles and the card material, so no `data-status` and no colour literal.
-- No `px` type size, so the toast grows with the reader's text size rather than pinning.
+**The audit found nothing in the source to change.** Roles, names, the polite live region, pause on hover and focus, Escape and focus return all come correctly from `@base-ui/react`. The X icon is `aria-hidden` and the close carries a translatable `aria-label`. Colours are role tokens, type sizes are `text-opsin-*` tokens, and the controls floor their hit area at `--opsin-target-minimum`.
 
-**Argued from the source, not measured.**
-
-- The viewport is `role="region"` with `aria-live="polite"` and its name from `label`, so a confirmation is announced without stealing focus.
-- Each toast is a labelled dialog. Tab moves between its controls and Escape dismisses it, so nobody waits on the timer.
-- The close control floors its hit area at `--opsin-target-minimum` in rem, so 44px survives a larger text size.
-- Under `prefers-reduced-motion` the travel is pinned and only the opacity crossfade is kept.
-
-**Not checked by any gate.** Every contrast pair, what the toast draws under `forced-colors: active`, and whether five seconds suits a slow reader.
+**Residual items to know.** A toast pushed with a description and no title yields a dialog with no accessible name, because `ToastList` rightly emits no empty title; the default and both examples always pass a title, and a description-only toast is still announced by the live region through `aria-describedby`. Whether an appearing toast overlaps a control focused elsewhere is a product-layout question outside component scope. Contrast pairs are unmeasured, so the report below carries what was measured.
 
 <KeyboardTable
   name="toast"

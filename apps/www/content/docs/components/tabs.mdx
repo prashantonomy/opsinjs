@@ -18,9 +18,7 @@ reviewer: engineering
     "Forced colours and prefers-contrast: more are unhandled, so whether the selection survives the platform's own pair has not been tested.",
   ]}
 >
-  <code className="text-sm">tabs</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -170,22 +168,22 @@ needs together, such as a side by side comparison.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** The row draws neutral
-chrome with no colour literal and no ramp step. No `px` type size, and each tab
-floors its target at `--opsin-target-minimum`.
+**Audited against WCAG 2.2 AA, in a source pass and a rendered pass at `/view`.**
+This is an author-run audit, not an independent review, and clinical review is
+still pending.
 
-**Argued from the source, not measured.**
+The audit found nothing to change and applied no fix. Base UI's Tabs carries the
+tested WAI-ARIA pattern and the wrapper overrides none of it. Activation is
+manual, three sighted carriers plus `aria-selected` mark the active tab, and the
+row draws neutral chrome with no status or category axis. The rendered pass was
+clean: no axe violation, no target-size breach, no focus gap, no 320px reflow.
 
-- Base UI's Tabs renders the WAI-ARIA pattern: a tablist of tabs, each with
-  `aria-selected`, controlling a tabpanel.
-- Activation is manual. Arrow keys move the highlight and Enter or Space commits.
-- Three sighted carriers plus `aria-selected` mark the active tab, so the
-  selection survives greyscale.
-- The focus ring sits in the component's own classes, not the product
-  stylesheet.
+Two items to weigh. Each tab floors its height at `--opsin-target-minimum` with
+padding but sets no `min-w`, the house treatment for a word-labelled target under
+SC 2.5.8. The `label` prop applies only as the tablist's `aria-label`, right here
+because every tab shows its own text.
 
-**Not checked by any gate.** Every contrast pair for the active ink, the rail
-and the indicator bar, plus `forced-colors: active` and `prefers-contrast: more`.
+Contrast pairs for the active ink, the rail and the indicator stay unmeasured.
 
 <KeyboardTable
   name="tabs"

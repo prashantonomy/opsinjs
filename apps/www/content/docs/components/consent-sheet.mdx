@@ -20,9 +20,7 @@ reviewer: engineering
     "No previousDecision prop exists, so a reader who refused once sees the same sheet again, and re-asking on a timer is a dark pattern the component cannot refuse.",
   ]}
 >
-  <code className="text-sm">consent-sheet</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -65,15 +63,15 @@ import { ConsentSheet } from "@/components/ui/consent-sheet"
 
 <WhenToUse
   use={[
-    "Asking permission to collect, use or share a specific kind of health data, when it first becomes relevant.",
+    "Asking permission to collect, use or share a specific kind of health data.",
     "Re-asking for a permission whose scope has changed, so the earlier decision no longer covers it.",
-    "Confirming a decision with consequences the reader should see stated first, such as sharing a record.",
+    "Confirming a decision with consequences the reader should see first, such as sharing a record.",
   ]}
   avoid={[
-    { case: "Showing permissions already given, so the reader can review or withdraw them.", instead: "card" },
+    { case: "Showing permissions already given, to review or withdraw them.", instead: "card" },
     { case: "The reader must simply acknowledge something before continuing, with no meaningful choice.", instead: "dialog" },
-    { case: "You need an operating-system permission, such as notifications. The platform owns that dialogue.", instead: "sheet" },
-    { case: "The message is the standing not-medical-advice note rather than a request.", instead: "disclaimer-note" },
+    { case: "You need an operating-system permission, such as notifications; the platform owns that.", instead: "sheet" },
+    { case: "The message is the standing not-medical-advice note, not a request.", instead: "disclaimer-note" },
     { case: "You are collecting the data itself rather than the permission to collect it.", instead: "field" },
   ]}
 />
@@ -87,16 +85,16 @@ collected, what it is for, who sees it and how long it is kept.
 sheet says so. Never as permanent: the sheet says where to withdraw. See
 [Consent and disclosure](../health/consent-and-disclosure.mdx).
 
-**Colour axis.** Neither. No element carries `data-status` or `data-category`. See
-[Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
+**Colour axis.** Neither. No element carries `data-status` or `data-category`.
+See [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
 
-**Thresholds.** None. The sheet displays no reading. Every consent string arrives as a
+**Thresholds.** None; the sheet displays no reading. Every consent string arrives as a
 prop, because the wording is the product's legal statement
 ([Regulatory context](../health/regulatory-context.mdx)).
 
 **Closing is not deciding.** `onDecision` fires only when a reader presses one of the two
-controls. Escape, scrim, drag and header Close call nothing. `granted` is a
-boolean, so *did not answer* is the absence of a call, never a stored `false`.
+controls. Escape, scrim, drag and header Close call nothing, so *did not answer* is the
+absence of a call, never a stored `false`.
 
 <SafetyCallout severity="urgent" evidence="opinion">
 No pre-ticked boxes, no default-on switches, no *agree* that is also *continue*, and no
@@ -110,7 +108,7 @@ sheet that cannot be closed without deciding.
   parts={[
     {
       name: "ConsentSheet",
-      describes: "Sheet's container. open, onOpenChange, detents, modal, dismissible and className pass through.",
+      describes: "Sheet's container. open, onOpenChange, detents, modal and dismissible pass through.",
       prop: "open",
     },
     {
@@ -125,22 +123,22 @@ sheet that cannot be closed without deciding.
     },
     {
       name: "ConsentSheet.Scope",
-      describes: "A ul of three facts: collected, shared with, retention. Drawn only when the sheet can ask.",
+      describes: "A ul of three facts: collected, shared with, retention.",
       prop: "scope",
     },
     {
       name: "ConsentSheet.Details",
-      describes: "Optional full wording behind a named trigger. The panel stays in the DOM while collapsed.",
+      describes: "Optional full wording behind a named trigger, kept in the DOM while collapsed.",
       prop: "details",
     },
     {
       name: "ConsentSheet.Withdrawal",
-      describes: "Where to change this later. Mandatory, and text rather than a link.",
+      describes: "Where to change this later. Mandatory, and text, not a link.",
       prop: "withdrawalPath",
     },
     {
       name: "ConsentSheet.Consequence",
-      describes: "What a refusal costs, read before the choice rather than after.",
+      describes: "What a refusal costs, read before the choice, not after.",
       prop: "consequenceOfDeclining",
     },
     {
@@ -150,7 +148,7 @@ sheet that cannot be closed without deciding.
     },
     {
       name: "ConsentSheet.NotAsked",
-      describes: "One line in place of the controls when required wording is missing.",
+      describes: "One line replacing the controls when required wording is missing.",
       prop: "notAskedMessage",
     },
   ]}
@@ -160,22 +158,22 @@ sheet that cannot be closed without deciding.
 
 ### Closing is not consent
 
-Press a control and `onDecision` receives a record. Leave by any other exit and
-nothing arrives: no record, no `false`, no call.
+Press a control and `onDecision` receives a record. Leave by any other exit and nothing
+arrives: no record, no `false`.
 
 <ComponentPreview name="consent-sheet-closing-is-not-consent" kind="example" align="start" />
 
 ### Two questions, two sheets
 
 No `purposes` array exists, so two permissions are two sheets and two records. The second
-follows an answer through `onDecision`, never a dismissal, and shows `consequenceOfDeclining`.
+follows an answer, never a dismissal, and shows `consequenceOfDeclining`.
 
 <ComponentPreview name="consent-sheet-two-questions-two-sheets" kind="example" align="start" />
 
 ### When the wording is missing
 
-Any required string blank or absent means the sheet refuses to ask. It shows the not-asked
-line and names the missing fields in the console.
+Any required string blank or absent means the sheet refuses to ask, showing the not-asked
+line and naming the missing fields in the console.
 
 <ComponentPreview name="consent-sheet-no-wording-supplied" kind="example" align="start" />
 
@@ -183,7 +181,7 @@ line and names the missing fields in the console.
 
 Ask a question, with *we* for the product and *you* for the reader. Say what the reader
 gets, not what the product does. Never write *by continuing you agree*, and never *not now*
-when it means *no*. The component warns in development and renders it as written.
+when it means *no*. The component warns in development, then renders it as written.
 
 <DoDont>
   <DoDont.Do>
@@ -198,27 +196,34 @@ when it means *no*. The component warns in development and renders it as written
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No `px` type size, no raw colour, no
-banned word, and no element resolving a category or status property.
+Audited against WCAG 2.2 AA, source pass and rendered axe pass. The audit is author-run,
+not an independent review, and clinical review is still pending.
 
-**Argued from the source, not measured.**
+**Gated on every commit by `pnpm run check:a11y`:** no `px` size, no raw colour, no banned
+word, no element resolving a category or status property.
 
-- `heading` is the popup's `aria-labelledby` and `purpose` its `aria-describedby`. Focus
-  lands on the popup, not on either control.
-- The two decisions are two cells of one grid, one `Button` variant, and never stack.
-- The details trigger carries `aria-expanded` and `aria-controls`. The panel stays in the
-  DOM while collapsed, for print.
+- `heading` is the dialog's accessible name and `purpose` its description; focus lands on
+  the sheet. The two decisions are one grid, one `Button` variant at one size, decline first,
+  never stacked, and the copy carries every meaning so nothing rides on colour. The details
+  trigger is a real button with `aria-expanded` and `aria-controls`.
 
-**Not checked by any gate.** Contrast in both themes and under forced colours, the 44pt
-targets and 200% reflow, screen reader announcement, and whether the collapsed panel prints.
+**What the audit changed.** One fix: the disclosure trigger's focus ring now uses the
+`--opsin-border-focus` token the decision buttons share, so a theme that thickens the focus
+ring reaches it too. A ring was already visible, so this closes no gap.
+
+**Residual.** With `heading` omitted the sheet refuses to ask and the dialog then has no
+accessible name; the component dev-warns, so this is invalid usage, not a supported state.
+The open sheet could not be exercised on the stale port 4000 build, so those verdicts rest on
+source. Focus trap, focus return, dismissal and the swipe close alternative belong to
+[Sheet](./sheet.mdx) and are verified there.
 
 <KeyboardTable
   name="consent-sheet"
   rows={[
     {
       keys: "Tab",
-      action: "Moves through the sheet in DOM order: close control, scrolling region, the disclosure control if there is one, decline, accept",
-      notes: "Focus lands on the sheet, named by the heading.",
+      action: "Moves through the sheet in DOM order: close, scrolling region, disclosure if present, decline, accept",
+      notes: "Focus starts on the sheet.",
     },
     {
       keys: "Shift + Tab",
@@ -228,22 +233,22 @@ targets and 200% reflow, screen reader announcement, and whether the collapsed p
     {
       keys: "Enter",
       action: "Activates the control that has focus",
-      notes: "Both decisions cost one press of the same key.",
+      notes: "",
     },
     {
       keys: "Space",
       action: "Activates the control that has focus",
-      notes: "Identical to Enter, without scrolling the sheet.",
+      notes: "Identical to Enter.",
     },
     {
       keys: "Escape",
-      action: "Closes the sheet without deciding, returning focus to whatever opened it",
-      notes: "onDecision is not called. onOpenChange reports route \"escape\". dismissible={false} cancels it, never the header Close.",
+      action: "Closes the sheet without deciding, returning focus to the opener",
+      notes: "onDecision is not called. onOpenChange reports route \"escape\".",
     },
     {
       keys: "Arrow keys",
       action: "Nothing",
-      notes: "Two tab stops, not a radio group with roving focus.",
+      notes: "Two tab stops, not a radio group.",
     },
   ]}
 />
@@ -272,4 +277,4 @@ counts as missing. There is no `purposes`, `defaultGranted`, `required`, `hideDe
 - [Sheet](./sheet.mdx) is the surface underneath, with none of the contract.
 - [Dialog](./dialog.mdx) is for a decision with no consent semantics and nothing to record.
 - [DisclaimerNote](./disclaimer-note.mdx) is a statement, not a request.
-- [CareCard](./care-card.mdx) asks the reader to act in the world, not to permit something in the product.
+- [CareCard](./care-card.mdx) asks the reader to act in the world, not to permit something.

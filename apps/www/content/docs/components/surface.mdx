@@ -19,9 +19,7 @@ reviewer: engineering
     "Nobody has opened the site under a real Windows contrast theme, and the scrim's dimming does not survive there because the palette replaces the tint with Canvas.",
   ]}
 >
-  <code className="text-sm">surface</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -114,29 +112,32 @@ stay, because they carry the layering once translucency goes.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a
-`--opsin-material-*` token or a bridged surface role, nothing resolves to
-nothing under the product theme, and no `px` font size appears.
+**Audited against WCAG 2.2 AA.** A source pass over the full rubric and a
+rendered pass on `/view/base/base-lyra/component/surface`. This audit is
+author-run, so it is not an independent accessibility review, and clinical
+review is still pending. The rendered pass reported zero axe violations, no
+target-size hits, no focus-visible findings, and no horizontal scroll at 320px.
+The audit changed nothing in the source, because the source already met the
+checks: the surface is presentational with no role, no name and no tab stop, its
+three decorative layers are empty and `aria-hidden`, the Backdrop renders only
+in the branch where the Scrim is unconditional so no text sits over an unscrimmed
+blur, and reduced transparency, `prefers-contrast: more`, `forced-colors: active`
+and a missing `backdrop-filter` each reach a defined
+[opaque fallback](../accessibility/reduced-transparency.mdx) that keeps the
+border, shadow and geometry. The boundary is an outline, so `forced-colors`
+preserves it where a shadow would be dropped.
 
-**Measured by `pnpm run contrast`.** Body text against each of the five content
-rungs in both themes, in both APCA and WCAG 2.2, with `scrim` excluded.
-
-**Argued from the source, not measured.**
-
-- The surface is not announced. It has no role and no name, takes no focus, and
-  its three decorative layers are empty and `aria-hidden`.
-- No text is ever placed over an unscrimmed backdrop. The Backdrop renders only
-  in the branch where the Scrim is unconditional.
-- Reduced transparency and a missing `backdrop-filter` both reach a defined
-  [opaque fallback](../accessibility/reduced-transparency.mdx), with the border,
-  shadow and geometry left alone.
-- `prefers-contrast: more` and `forced-colors: active` both drop the material,
-  one [widening](../accessibility/increased-contrast.mdx) the edge and the other
-  recolouring it to `CanvasText`.
-
-**Not checked by any gate.** The composited translucent figures, the widened
-edge against the non-text floor, a large-text scrim floor, the three-layer
-budget, and the scrim at 200% text.
+**Two residual items belong to the token owner, not to this file.** Under
+`prefers-contrast: more` the edge [widens](../accessibility/increased-contrast.mdx)
+from a hairline to an emphasis width but keeps its published
+`--opsin-material-*-border` colour, and several rungs publish a low alpha, so
+whether the widened edge clears 3:1 for SC 1.4.11 is unmeasured. Substituting a
+solid colour would give `canvas` and `scrim` an edge they are specified not to
+have, so the fix sits in `tokens/material.json`, not here. Separately, `className`
+is merged unrestricted, so a caller can put a category tint and a status tint on
+one Surface. The component cannot detect that at render time, and the
+[two colour axes](../health/two-colour-axes.mdx) rule and its repair are stated
+on the API. No mix occurs on any element the component itself renders.
 
 <KeyboardTable
   name="surface"

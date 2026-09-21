@@ -20,9 +20,7 @@ reviewer: engineering
     "The glossary's policy rule says the plain wording should be the visible text and the clinical word the annotation, which is the opposite of this component's shape.",
   ]}
 >
-  <code className="text-sm">term</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -70,30 +68,28 @@ import { Term, TermGlossaryProvider } from "@/components/ui/term"
 
 ## Clinical meaning
 
-**Asserts.** That this word has this everyday meaning, according to the product's
-glossary. That translation claim is the product's, not a clinician's. opsinjs ships an
-empty glossary. See [Who this is for](../health/who-this-is-for.mdx).
+**Asserts.** That this word has this everyday meaning in the product's glossary. That
+translation is the product's claim, not a clinician's, and opsinjs ships an empty glossary.
+See [Who this is for](../health/who-this-is-for.mdx).
 
 **Never read as.** A statement about the reader's condition, or advice. *Chronic means
-long-lasting* is a translation. *Chronic means you will have this for life* is a
-prognosis, which the glossary is not for.
+long-lasting* is a translation; *chronic means you will have this for life* is a prognosis
+the glossary is not for.
 
-**Colour axis.** Neither. The mark is a dotted underline, which survives greyscale.
-Tinting jargon by category makes a word look like a status, and tinting it by status
-invents a clinical level nobody assigned. See
+**Colour axis.** Neither. The mark is a dotted underline that survives greyscale, because
+tinting jargon by category or status would invent a clinical level nobody assigned. See
 [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
 
 **Thresholds.** None. Term puts no reading on the screen, so it holds no threshold and
 stamps no value.
 
 **Gap you must build around.** A call site naming a `plain-only` entry gets the authored
-sentence and a development warning, because a runtime cannot rewrite a sentence. The lint
-rule that would catch it does not exist.
+sentence and a development warning, because a runtime cannot rewrite one. No lint rule
+catches it.
 
 <SafetyCallout severity="attention" evidence="opinion">
-Review the glossary as clinical content, not as microcopy. *Acute means sudden* is a
-definition. *Acute means this will settle down on its own* is guidance with nobody
-behind it. Nothing catches the drift.
+Review the glossary as clinical content, not as microcopy. A definition that slides into
+guidance has nobody behind it, and nothing catches the drift.
 </SafetyCallout>
 
 ## Anatomy
@@ -158,22 +154,22 @@ behind it. Nothing catches the drift.
 
 ### Reading a paragraph without leaving it
 
-Two terms is close to the ceiling for one paragraph. The third appearance carries `once`,
-so the word stays marked and reachable but the definition is not printed again.
+Two terms is near the ceiling for one paragraph. A third carries `once`, so the word stays
+marked and reachable but its definition is not reprinted.
 
 <ComponentPreview name="term-in-a-sentence" kind="example" align="start" />
 
 ### An abbreviation needs two things
 
-The expansion says what the letters stand for and the definition says what the thing is.
-Both entries are marked `showBoth: "always"`, so both arrive inline. `SpO2` adds `speech`.
+The expansion says what the letters stand for, the definition what the thing is. Both
+entries are marked `showBoth: "always"`, so both arrive inline. `SpO2` adds `speech`.
 
 <ComponentPreview name="term-an-abbreviation" kind="example" align="start" />
 
 ## Content guidelines
 
-Definitions are one sentence, under about twenty words. Define the word, not the
-condition, and never use a second piece of jargon inside one. Expansions are the full form
+Definitions are one sentence under about twenty words: define the word, not the condition,
+and never nest a second piece of jargon. Expansions are the full form
 and nothing else. `auto` keeps a definition of about eighty characters or less beside the
 word, so a tight sentence needs no press.
 
@@ -190,23 +186,22 @@ word, so a tight sentence needs no press.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every pull request and every push to `main`.** No
-type size is in `px` and no colour literal appears anywhere in the component.
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
+author-run, not independent, and clinical review is still pending.
 
-**Argued from the source, not measured.**
+**Fixed by the audit.** The disclosure trigger's focus ring hardcoded a 2px width and
+offset, ignoring the `--opsin-border-focus` and `--opsin-border-focus-offset` tokens. It
+now honours them, so the indicator grows with a reader's focus width.
 
-- `present` has no `hover` value, so the definition never depends on hover.
-- Collapsed, the definition is `display: none` but still reaches the reader as the
-  trigger's description.
-- The disclosure is a real button named by its visible word, as SC 2.5.3 Label in Name
-  asks.
-- The mark changes form, not colour: dotted at rest, solid while open. The definition is
-  its next sibling.
+**Verified in source.** `present` has no `hover` value, so the definition never depends on
+hover. Collapsed, it is `display: none` yet still reaches the reader as the trigger's
+description. The disclosure is a real button named by its visible word, meeting SC 2.5.3
+Label in Name. The mark changes form, not colour: dotted at rest, solid while open.
 
-**Not checked by any gate.** The 44 by 44 floor relies on the inline-target exception, and
-two triggers on adjacent wrapped lines can overlap. No screen reader and no speech-input
-software have been run. The interaction tints are unmeasured, and neither
-`prefers-contrast` nor `forced-colors` is answered.
+**Residual, and stated plainly.** The inline trigger falls under the 44 by 44 floor and
+relies on the SC 2.5.8 inline exception, and adjacent wrapped triggers can overlap. `aria-controls` deliberately points at the closed `display:
+none` panel. No assistive technology has been tested against it, so the lived experience
+is unverified.
 
 <KeyboardTable
   name="term"
@@ -247,16 +242,15 @@ software have been run. The interaction tints are unmeasured, and neither
 
 <PropsTable name="TermGlossaryProviderProps" />
 
-There is no way to supply a definition at a call site. Definitions live in the glossary so
-they stay consistent, reviewable and countable, and they arrive once through
-`TermGlossaryProvider`. An `id` the glossary does not hold renders unmarked and warns in
+There is no way to supply a definition at a call site. Definitions live in the glossary
+and arrive once through `TermGlossaryProvider`, so they stay consistent and reviewable. An `id` the glossary does not hold renders unmarked and warns in
 development, printing `children` where a call site supplied any and otherwise the raw `id`.
 
 ## Related
 
-- [Tooltip](./tooltip.mdx) is a general hover or focus popup. Term is deliberately not
-  built on it, because a definition must not depend on hover.
+- [Tooltip](./tooltip.mdx) is a general hover or focus popup. Term avoids it, because a
+  definition must not depend on hover.
 - [Callout](./callout.mdx) is for an explanation longer than a sentence or two.
 - [Value](./value.mdx) formats numbers and units. Term explains words.
 - [DisclaimerNote](./disclaimer-note.mdx) is a standing statement about the product, not
-  the meaning of one word.
+  one word's meaning.

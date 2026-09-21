@@ -20,9 +20,7 @@ reviewer: engineering
     "The instant rule and the staleness verdict are computed here and again inside RelativeTime, and only a reader keeps the two in step.",
   ]}
 >
-  <code className="text-sm">metric-tile</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -188,23 +186,21 @@ A caveat belongs on the surface the tile opens.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is author-run,
+not an independent review, and clinical review is still pending. The rendered pass returned
+zero axe violations, no target-size hits, no `focus-visible` failure and no reflow at 320px;
+the source pass found no defect to fix.
 
-- No element carries both `data-status` and `data-category`.
-- No type size in pixels, no colour literal.
-- No staleness number ships in the component or its examples.
+**Residual.**
 
-**Argued from the source, not measured.**
+- A linked tile can trip WCAG 2.5.3 Label in Name because `Value` speaks *kilograms* for a
+  visible *kg*. The repair belongs in `Value` and is deferred; the *steps* demo does not trip.
+- Nothing enforces the JSDoc rule that `attention` and `urgent` pair with an `href`.
+- The event word names when a reading happened, not how it was obtained; there is no
+  provenance prop, so an estimate and a lab result sound alike.
 
-- A linked tile's accessible name runs label, reading, time, level, joined by visually
-  hidden commas.
-- `Value` speaks *kilograms* for *kg*, so visible and accessible names can diverge, a
-  WCAG 2.5.3 risk.
-- A static tile has no accessible name, so the pill takes `describes` there.
-- Staleness is never tone alone: muting and words share one parse.
-
-**Not checked by any gate.** Contrast as the tile composes it, `prefers-contrast: more`,
-`forced-colors`, 200% text, print, and masking on a shared screen.
+**Beyond the audit.** Contrast as the tile composes it, `prefers-contrast: more`,
+`forced-colors`, 200% text, print, and masking all stay unverified.
 
 <KeyboardTable
   name="metric-tile"

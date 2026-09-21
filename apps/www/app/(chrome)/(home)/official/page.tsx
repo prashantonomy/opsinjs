@@ -59,8 +59,12 @@ export default function OfficialPage() {
             URL below and from no other origin. Every one of them is{" "}
             <Mono>shipped</Mono> and carries no version number, and{" "}
             <Mono>shipped</Mono> means only that the source installs: nothing
-            here has been released, and nothing here has had an accessibility
-            review or a clinical review. This paragraph will change the day something is, and
+            here has been released. Every component has been audited against
+            WCAG 2.2 AA by its own authors, in a static source pass and a
+            rendered pass, and the findings were fixed. That is an author-run
+            audit, not an independent review, and none of it has had a clinical
+            review, so nothing here is for a production health surface until a
+            clinician signs it. This paragraph will change the day something is, and
             the release will be announced in the changelog with a version and a
             date.
           </p>

@@ -19,9 +19,7 @@ usedIn: [alert-escalation, consent-and-permissions, consent-flow, daily-log-entr
     "Nothing here was measured in a browser. What gets measured first: hit areas, a real keyboard, or iOS scrolling?",
   ]}
 >
-  <code className="text-sm">sheet</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -57,13 +55,13 @@ import { Sheet } from "@/components/ui/sheet"
 
 <WhenToUse
   use={[
-    "A focused task started from the current screen and returned from, such as capturing a reading.",
-    "Content that should be reachable one-handed, where the thumb is.",
-    "A surface whose height follows its content rather than the viewport.",
+    "A focused task started from the current screen, such as capturing a reading.",
+    "Content reachable one-handed, where the thumb is.",
+    "A surface whose height follows its content, not the viewport.",
   ]}
   avoid={[
     { case: "A repeated daily log entry, with its own contract and ceiling.", instead: "log-sheet" },
-    { case: "Asking for permission to collect or share data.", instead: "consent-sheet" },
+    { case: "Asking permission to collect or share data.", instead: "consent-sheet" },
     { case: "A decision the reader must make before continuing, at any width.", instead: "dialog" },
     { case: "A panel that stays put while the reader works behind it.", instead: "surface" },
     { case: "A small menu anchored to a control.", instead: "popover" },
@@ -77,12 +75,12 @@ import { Sheet } from "@/components/ui/sheet"
   parts={[
     {
       name: "Sheet.Scrim",
-      describes: "Only when modal. A Surface at the scrim rung.",
+      describes: "Only when modal; a Surface at the scrim rung.",
       prop: "modal",
     },
     {
       name: "Sheet.Container",
-      describes: "The popup. Top corner, slide and detent transform.",
+      describes: "The popup: top corner, slide and detent transform.",
       prop: "className",
     },
     {
@@ -96,7 +94,7 @@ import { Sheet } from "@/components/ui/sheet"
     },
     {
       name: "Sheet.Title",
-      describes: "An h2, and what aria-labelledby points at. Fixed level.",
+      describes: "An h2; what aria-labelledby points at. Fixed level.",
       prop: "title",
     },
     {
@@ -105,15 +103,15 @@ import { Sheet } from "@/components/ui/sheet"
     },
     {
       name: "Sheet.Content",
-      describes: "The caller's scrolling region. Contains its overscroll. A focus stop.",
+      describes: "The caller's scrolling region. Contains overscroll. A focus stop.",
     },
     {
       name: "Sheet.Description",
-      describes: "What aria-describedby points at. At most one, never empty.",
+      describes: "What aria-describedby points at, at most one, never empty.",
     },
     {
       name: "Sheet.Footer",
-      describes: "Pinned actions, above the keyboard and the safe-area inset.",
+      describes: "Pinned actions, above the keyboard and safe-area inset.",
       prop: "footer",
     },
   ]}
@@ -123,37 +121,43 @@ import { Sheet } from "@/components/ui/sheet"
 
 ### A form the reader cannot leave by accident
 
-`dismissible={false}` cancels the scrim, the escape key and a downward drag. A
-refused close returns focus to the container, and the close control stays.
+`dismissible={false}` cancels the scrim, Escape and a downward drag, and
+returns focus to the container.
 
 <ComponentPreview name="sheet-a-form-that-stays-put" kind="example" align="start" />
 
 ### Two detents, and the button the gesture owes
 
-A second entry in `detents` makes the grabber a real button, so the sheet
-travels between half and full with no pointer.
+A second `detents` entry makes the grabber a real button, moving the sheet
+between half and full with no pointer.
 
 <ComponentPreview name="sheet-two-detents-and-a-control" kind="example" align="start" />
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no shipped string uses a banned word.
+Audited against WCAG 2.2 AA in a source and a rendered pass, author-run rather
+than independent, with clinical review pending. The rendered pass found no
+axe violation, no target-size breach, no missed focus ring and no reflow break
+at 320px. The source pass required no changes.
 
-**Argued from the source, not measured.**
-
-- A modal sheet takes the dialog role, is named by `Sheet.Title` and traps
-  focus. The page behind is `aria-hidden`, not `inert`.
-- Every gesture has a control: the close button for drag-to-dismiss, the
-  grabber for drag-between-detents.
+- A modal sheet takes the dialog role, named by `Sheet.Title`, and traps
+  focus; the page behind is `aria-hidden`, not `inert`.
+- Every gesture has a control: close for drag-to-dismiss, grabber for
+  drag-between-detents.
 - The footer sits outside the scrolling region and inside the keyboard inset,
-  so the primary action is never covered.
-- `prefers-reduced-motion` removes the distance, not the transition. It
-  crossfades in place, and the drag still works.
+  keeping the primary action visible.
+- `prefers-reduced-motion` removes distance, not transition: it crossfades in
+  place, and the drag still works.
 
-**Not checked by any gate.** The 44 by 44 targets, close and grabber contrast,
-and the grabber's clipped focus ring. Nor software keyboards, iOS scroll
-chaining, `modal={false}`, `forced-colors` or `prefers-contrast`.
+Residual:
+
+- Focus rings use a negative outline offset to stay visible inside the
+  clipped popup, meeting 2.4.7 and 1.4.11.
+- No live region announces the new height; the grabber's accessible name
+  updates to name the next action instead.
+- Non-modal mode (`modal={false}`) pins the sheet to the bottom while the page
+  behind stays focusable, an unchecked obscured-focus shape; default and demo
+  stay modal.
 
 <KeyboardTable
   name="sheet"
@@ -161,32 +165,32 @@ chaining, `modal={false}`, `forced-colors` or `prefers-contrast`.
     {
       keys: "Tab",
       action: "Moves through the sheet's own controls",
-      notes: "Trapped in a modal sheet: grabber, close, content, footer.",
+      notes: "Trapped in a modal sheet.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves backwards through the same controls",
-      notes: "Reverse visual order. The footer's action is last both ways.",
+      notes: "Reverse order; footer stays last.",
     },
     {
       keys: "Enter",
       action: "Activates the focused control",
-      notes: "On the grabber it moves to the next detent.",
+      notes: "Moves the grabber to the next detent.",
     },
     {
       keys: "Space",
       action: "Activates the focused button, or scrolls the content",
-      notes: "Inside Sheet.Content it scrolls that region, not the page.",
+      notes: "Scrolls Sheet.Content, not the page.",
     },
     {
       keys: "Escape",
       action: "Closes a dismissible sheet and returns focus to what opened it",
-      notes: "With dismissible={false} focus returns to the container, re-announcing the title.",
+      notes: "With dismissible={false}, returns to the container.",
     },
     {
       keys: "Arrow keys",
       action: "Scroll the content, once focus is in the scrolling region",
-      notes: "No roving focus. Only the grabber changes detent.",
+      notes: "Only the grabber changes detent.",
     },
   ]}
 />
@@ -200,7 +204,7 @@ chaining, `modal={false}`, `forced-colors` or `prefers-contrast`.
   rows={[
     {
       attribute: "data-slot",
-      condition: "On every rendered part, whenever it is present",
+      condition: "On every rendered part",
       value: "sheet-container, sheet-grabber, sheet-header, sheet-title, sheet-close, sheet-scrim, sheet-content, sheet-description, sheet-footer",
     },
     {
@@ -210,17 +214,17 @@ chaining, `modal={false}`, `forced-colors` or `prefers-contrast`.
     },
     {
       attribute: "data-expanded",
-      condition: "On sheet-container while the active detent is full",
+      condition: "While the active detent is full",
       value: "present",
     },
     {
       attribute: "data-swiping, data-swipe-dismiss, data-swipe-direction",
-      condition: "On sheet-container during a drag. Dismiss means release would close it",
+      condition: "During a drag; dismiss means release would close it",
       value: "present, direction down",
     },
     {
       attribute: "data-drawer-content",
-      condition: "On sheet-content, always. Makes a touch there a scroll, not a swipe",
+      condition: "Always; makes a touch there scroll, not swipe",
       value: "present",
     },
   ]}
@@ -232,10 +236,9 @@ chaining, `modal={false}`, `forced-colors` or `prefers-contrast`.
 
 <PropsTable name="SheetProps" />
 
-`detents` defaults to `["content"]`, and its first entry is where the sheet
-opens. `half` and `full` combine, and `content` is supported only alone.
-`onOpenChange` receives the close route second, so a product can ask before
-discarding unsaved work.
+`detents` defaults to `["content"]`; its first entry is where the sheet opens.
+`half` and `full` combine, `content` stands alone. `onOpenChange` receives the
+close route second, so a product can ask before discarding unsaved work.
 
 ### Sheet.Content
 
@@ -247,8 +250,8 @@ discarding unsaved work.
 
 ## Related
 
-- [Dialog](./dialog.mdx) is a question that must be answered, not a place the reader chose.
-- [LogSheet](./log-sheet.mdx) is a Sheet with a capture contract and a field ceiling.
+- [Dialog](./dialog.mdx) is a question that must be answered, not a place chosen.
+- [LogSheet](./log-sheet.mdx) is a Sheet with a capture contract and field ceiling.
 - [ConsentSheet](./consent-sheet.mdx) is a Sheet with a consent contract and equal-weight decisions.
-- [Surface](./surface.mdx) is the layer Sheet is built from, for the sheet and the scrim.
+- [Surface](./surface.mdx) is the layer Sheet is built from, for sheet and scrim.
 - [Popover](./popover.mdx) is small, anchored to a control rather than the screen.

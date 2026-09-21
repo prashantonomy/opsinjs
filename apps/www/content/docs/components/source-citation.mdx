@@ -20,9 +20,7 @@ usedIn: [diabetes-medicines-app, results-screen]
     "No contrast pair for the source ink or the quieter date ink has been measured on the surfaces a citation sits on.",
   ]}
 >
-  <code className="text-sm">source-citation</code> is shipped: it installs as
-  source and the API may change in any release. It has had no accessibility
-  review and no clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -57,12 +55,12 @@ import { SourceCitation } from "@/components/ui/source-citation"
 
 <WhenToUse
   use={[
-    "Beside a health value whose provenance a reader needs to weigh it: a wearable estimate, a home device reading, a figure the reader typed.",
-    "To attribute and link a manufacturer's accuracy document or a study you have read, rather than restating its claim as the product's own.",
-    "Wherever a number's origin bounds what may be said about it, so the origin travels with the number at the point it is read.",
+    "Beside a health value whose provenance a reader needs to weigh it: a wearable estimate, a home device reading, a typed figure.",
+    "To attribute and link a manufacturer's accuracy document or a study you have read, rather than restating its claim as your own.",
+    "Wherever a number's origin bounds what may be said about it, so origin travels with the number where it is read.",
   ]}
   avoid={[
-    { case: "The message is a standing statement about what the whole product is and does, rather than the source of one value.", instead: "disclaimer-note" },
+    { case: "The message is a standing statement about the whole product, rather than the source of one value.", instead: "disclaimer-note" },
     { case: "You are saying when a reading was taken or synced, rather than where it came from.", instead: "relative-time" },
     { case: "You are explaining what a term means, rather than where a value came from.", instead: "term" },
     { case: "The note is information about the content with no source to attribute.", instead: "callout" },
@@ -71,13 +69,13 @@ import { SourceCitation } from "@/components/ui/source-citation"
 
 ## Clinical meaning
 
-**Asserts.** Where a health value came from, in the product's own plain words, with an optional checked date and a link to the fuller source. It holds no reading of its own.
+**Asserts.** Where a health value came from, in the product's own plain words, with an optional checked date and a link to the fuller source.
 
 **Never read as.** A guarantee that the source is right, current, or checked by anybody. `checkedOn` is the date the product recorded. A value old enough to doubt is wrapped in [RelativeTime](./relative-time.mdx) beside it.
 
-**Colour axis.** Neither. There is no `status` prop and no `category` prop, and a class from either axis raises a development warning. Origin is not a kind of measurement and not a level. See [The two colour axes](../health/two-colour-axes.mdx).
+**Colour axis.** Neither: no `status` prop and no `category` prop, and a class from either axis raises a development warning. See [The two colour axes](../health/two-colour-axes.mdx).
 
-**Thresholds.** None. No reference range, no threshold and no verdict, and no clinical number passes through the component.
+**Thresholds.** None. No reference range, no threshold, no verdict, and no clinical number passes through.
 
 **Who owns the words.** The product. [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx) sets ten rules, and this component carries two. Rule 2 puts provenance in plain words at the value. Rule 6 attributes a manufacturer's claim rather than restating it. The other eight stay the caller's, and it renders a wrong string as readily as a right one. opsinjs ships no source, no date, no DOI and no study. See [Evidence and references](../health/evidence-and-references.mdx).
 
@@ -97,7 +95,7 @@ Never restate a manufacturer's accuracy figure as your own, and never invent one
     },
     {
       name: "SourceCitation.Source",
-      describes: "The product's plain words for where the value came from. With nothing supplied it prints one line saying so.",
+      describes: "The product's plain words for where the value came from. Given nothing, it prints one line saying so.",
       prop: "source",
     },
     {
@@ -107,7 +105,7 @@ Never restate a manufacturer's accuracy figure as your own, and never invent one
     },
     {
       name: "SourceCitation.Link",
-      describes: "The fuller citation. Label and destination arrive together, on its own line, keeping the target floor an inline link sheds.",
+      describes: "The fuller citation. Label and destination arrive together, on its own line, keeping the full target size.",
       prop: "more",
     },
   ]}
@@ -117,45 +115,43 @@ Never restate a manufacturer's accuracy figure as your own, and never invent one
 
 ### A device estimate naming its own method
 
-The provenance names the device, the inputs and the class of the figure, so it reads as an estimate. `more` points at where the fuller accuracy document would live.
+The provenance names the device and the class of the figure, so it reads as an estimate. `more` points at the fuller accuracy document.
 
 <ComponentPreview name="source-citation-a-device-estimate" kind="example" align="start" />
 
 ### When nobody said where it came from
 
-With no `source`, the citation prints an admission rather than rendering empty, because an empty one passes every gate here. A source wrapped in your own markup is taken at its word.
+With no `source`, the citation prints an admission rather than rendering empty. Markup you wrap a source in is taken at its word.
 
 <ComponentPreview name="source-citation-no-source-supplied" kind="example" align="start" />
 
 ## Content guidelines
 
-Name the concrete thing rather than the brand's marketing, and say the class of the figure: an estimate is called an estimate. Name the link for where it goes, because a screen reader can list links with no sentence around them. A vague label raises a development warning in English only.
+Name the concrete thing rather than the brand's marketing, and say the class of the figure: an estimate is called an estimate. Name the link for where it goes, since a screen reader may list it alone. A vague label raises a development warning in English only.
 
 <DoDont>
   <DoDont.Do>
     **"Estimated by your watch from movement and heart rate."** Names the device, the inputs and the class of the figure.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Powered by clinically validated technology."** Names no device and no method, and leaves the reader nothing to check.
+    **"Powered by clinically validated technology."** Names no device and no method.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+This component was audited against WCAG 2.2 AA in two passes, one over the source and one over the rendered output. The audit is author-run, not independent, and clinical review is still pending. Both passes were clean: no axe violations, target sizes met, focus visible, and no loss at 320px reflow.
 
 - No `px` type size. Both lines are set at `text-opsin-footnote`, a rem from the generated ramp.
 - No raw colour literal and no ramp step. The source ink is `--foreground` and the date ink is `--muted-foreground`.
-- No banned word in the one reader-facing string this component owns, and no shipped threshold.
-
-**Argued from the source, not measured.**
-
-- The source takes the readable foreground ink, not a pale grey that meets rule 2 in letter only.
-- `more` carries the label and the href together, so a link cannot be added without a label. A vague label warns in development and still renders.
+- `more` carries the label and the href together, so a link cannot be added without a label. An external href adds an off-screen "opens in a new tab".
 - The link is not inside a sentence, so it re-adds `--opsin-target-minimum` on both axes. See [Target size and motor](../accessibility/target-size-and-motor.mdx).
 - It reflows at 200% text: no fixed height, `min-w-0` with `wrap-break-word`, so a long device name breaks.
 
-**Not checked by any gate.** Whether the provenance reaches a screen-reader user who arrives at the value alone, and the measured contrast of both inks.
+**Residual, left for you to weigh.**
+
+- The source line, the last-checked time and the fuller-citation link render as loose siblings with no programmatic group binding them into one citation. Reading order keeps the association, so this is not an AA failure.
+- The "Last checked on" chrome is always English while the date follows the caller's `locale`; when they differ, the localized date carries no `lang` seam yet, per ADR 0005.
 
 <KeyboardTable
   name="source-citation"
@@ -178,7 +174,7 @@ Name the concrete thing rather than the brand's marketing, and say the class of 
     {
       keys: "Space",
       action: "Scrolls the page, as it does anywhere else",
-      notes: "Nothing here captures Space, and nothing activates on it.",
+      notes: "Nothing here captures Space or activates on it.",
     },
   ]}
 />
@@ -189,11 +185,11 @@ Name the concrete thing rather than the brand's marketing, and say the class of 
 
 <PropsTable name="SourceCitationProps" />
 
-`source` is typed optional and is required by the contract, so the missing state can render at all. `checkedOn` is a strict `YYYY-MM-DD` string or epoch milliseconds, both pinned to UTC. A value that is not a real calendar date is refused rather than rendered as a plausible wrong one.
+`source` is typed optional but required by the contract, so the missing state can render. `checkedOn` is a strict `YYYY-MM-DD` string or epoch milliseconds, both pinned to UTC. A value that is not a real calendar date is refused, not rendered as a plausible wrong one.
 
 ## Related
 
-- [DisclaimerNote](./disclaimer-note.mdx) is the standing statement about the whole product. A citation is about one value.
-- [RelativeTime](./relative-time.mdx) says when a reading was taken or synced, not where it came from.
-- [Callout](./callout.mdx) is information about the content with no source to attribute.
-- [Term](./term.mdx) explains what a word means, rather than where a value came from.
+- [DisclaimerNote](./disclaimer-note.mdx): the standing statement about the whole product, not one value.
+- [RelativeTime](./relative-time.mdx): when a reading was taken or synced, not where it came from.
+- [Callout](./callout.mdx): information about the content with no source to attribute.
+- [Term](./term.mdx): what a word means, rather than where a value came from.

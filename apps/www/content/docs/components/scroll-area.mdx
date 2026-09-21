@@ -18,9 +18,7 @@ reviewer: engineering
     "Behaviour at 200% text and under browser zoom is untested, and a height ceiling that clips is the exact failure this component exists to avoid.",
   ]}
 >
-  <code className="text-sm">scroll-area</code> is shipped: it installs as source
-  and the API may change in any release. It has had no accessibility review and
-  no clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -150,25 +148,22 @@ only the card body overflow and scroll.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+This component was audited against WCAG 2.2 AA in a source pass and a rendered
+pass. The audit is author-run, not an independent review, and clinical review is
+still pending.
 
-- No status colour, no colour literal, no ramp step. The region draws only
-  neutral chrome and carries no `data-status`.
-- No `px` type size and no oversized radius, so the chrome scales with the text.
+The audit found one serious defect and fixed it. The viewport was not a reliable
+keyboard tab stop and carried no accessible name, so a screen reader that reached
+it met an unnamed stop. It now holds a tab stop and takes a name through `label`
+or `labelledBy`, and the default demo and both examples name their region, one by
+pointing `labelledBy` at its on-screen heading.
 
-**Argued from the source, not measured.**
-
-- Base UI gives the viewport `overflow: scroll` and a tab stop when there is
-  more to see, so a keyboard reader reaches it.
-- Nothing traps focus. The viewport is one ordinary tab stop, and its focus ring
-  shows which region the reader entered.
-- `overscroll-contain` hands the scroll back to the page at the region's end, so
-  a reader is never stuck inside it.
-- A rem-based `maxHeight` grows with the reader's text; a pixel-based one clips.
-
-**Not checked by any gate.** The thumb's contrast, what the rail draws under
-`forced-colors: active`, and whether the fade-in leaves a switch user a handle to
-aim at.
+The rendered pass found nothing else to change: no colour-axis, token, `px`, or
+colour-literal issue, and reflow and target size passed. Two items stay open. In
+the card example the rounded corners can partly clip the focus ring at the flush
+bottom edge, though the indicator stays perceivable. The thumb's contrast and the
+pairs below are not measured in source, so the report below stands as its own
+record.
 
 <KeyboardTable
   name="scroll-area"

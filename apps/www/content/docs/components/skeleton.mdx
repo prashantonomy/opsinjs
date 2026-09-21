@@ -18,9 +18,7 @@ usedIn: [choose-a-component, daily-log-screen, empty-and-first-use, offline-and-
     "Shimmer defaults to on because a motionless rectangle can read as stalled content, and nobody has watched an anxious reader look at either state.",
   ]}
 >
-  <code className="text-sm">skeleton</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -139,6 +137,12 @@ answer.
 
 ## Accessibility
 
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
+author-run, not an independent review, and clinical review is still pending.
+The rendered pass found no violation, no target-size hit, no missing
+focus-visible state and no reflow failure at 320px. The source pass found no
+defect to fix, so this audit made no change to the component.
+
 **Checked by `pnpm run check:a11y` on every commit.** No status colour can
 reach a skeleton, every colour is a theme role (`bg-placeholder-fill` and
 `border-placeholder-line`), and no type size is in `px`.
@@ -150,17 +154,22 @@ as advisory.
 
 **Argued from the source, not measured.**
 
-- The root is `aria-hidden` and the component mounts no live region. One
-  `role="status"` on the region, one message, mounted by the caller.
+- The root is `aria-hidden` and mounts no live region on purpose. A list of
+  many skeletons should be announced once, not once per block, so the caller
+  owns one `role="status"` message beside the region rather than inside it.
+  Both examples on this page already show that pattern.
 - The shimmer is declared inside a `prefers-reduced-motion: no-preference`
   query, so under reduce it never runs and the static tint remains.
 - The shimmer runs two cycles, about 3.2 seconds, then stops on the static
   tint, so SC 2.2.2 does not engage. The appearance delay is never suppressed.
 - Nothing is focusable or interactive, and the root is `print:hidden`.
+- There is no `forced-colors` or `prefers-contrast` override. The root is
+  decorative and `aria-hidden`, so forced-colors mode has no information here
+  that an override would need to preserve.
 
 **Not checked by any gate.** The 200% and 1.3x layout claims, what a screen
-reader announces, the dark-theme boundary on its own fill, `prefers-contrast`
-and `forced-colors`, and the text rhythm on a browser without the `lh` unit.
+reader announces, the dark-theme boundary on its own fill, and the text
+rhythm on a browser without the `lh` unit.
 
 <KeyboardTable
   name="skeleton"

@@ -19,9 +19,7 @@ reviewer: engineering
     "No gate stops a product composing a streak counter beside the ring, which undoes the refusal to reward a streak that the code keeps.",
   ]}
 >
-  <code className="text-sm">goal-ring</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -69,26 +67,23 @@ import { GoalRing } from "@/components/ui/goal-ring"
 ## Clinical meaning
 
 **Asserts.** One thing: this value is this far towards a goal the product set.
-The fraction is arithmetic over the two numbers supplied, and the readout prints
-both in the [reader's locale](../health/numbers-units-precision.mdx) with the
-unit after. The fill is drawn where the reading sits, and
+The fraction is arithmetic over the two values, and the readout prints both in
+the [reader's locale](../health/numbers-units-precision.mdx), unit after. The
+fill is drawn where the reading sits, and
 [nothing sweeps](../health/motion-in-health-ui.mdx) on first paint.
 
 **Never read as.** A diagnosis, a verdict on the reader, or a target opsinjs
 chose. A full ring means the product's goal was met, never that the reader is
-well, and an open ring never means something is wrong. It rewards no streak and
-stages no celebration, and "normal" and "abnormal" appear in
+well, and an open ring never means something is wrong. It rewards no streak, and
+"normal" and "abnormal" appear in
 [no state it draws](../health/reference-ranges.mdx).
 
 **Colour axis.** [Category only](../health/two-colour-axes.mdx). The fill takes
 the [identity tint](../health/category-identity.mdx) of what the ring counts,
-the track stays neutral, and no element carries `data-status`. Given no
-category, the fill draws in the neutral foreground rather than a borrowed colour.
+the track stays neutral, and no element carries `data-status`.
 
-**Thresholds.** None. The product owns the goal, the label and the unit, and
-GoalRing ships no default goal and no clinical vocabulary of any kind. A goal
-inside a component library would be a clinical decision shipped to every product
-that installed it.
+**Thresholds.** None. The product owns the goal, the label and the unit;
+GoalRing ships no default goal and no clinical vocabulary.
 
 ## Anatomy
 
@@ -130,16 +125,16 @@ that installed it.
 
 ### Progress towards a goal
 
-A synthetic step count part-way towards a step goal the product set.
-`category="activity"` tints the fill, the track stays neutral, and the sentence
-beneath names the progress without praise.
+A synthetic step count part-way towards a goal the product set.
+`category="activity"` tints the fill and the sentence beneath names the progress
+without praise.
 
 <ComponentPreview name="goal-ring-progress-to-a-goal" kind="example" align="start" />
 
 ### No reading yet
 
-`value={null}` draws an empty ring and words that say nothing has been measured.
-It is never rendered as a zero, because zero is a real reading.
+`value={null}` draws an empty ring and words that say nothing has been measured,
+never a zero.
 
 <ComponentPreview name="goal-ring-no-reading-yet" kind="example" align="start" />
 
@@ -147,8 +142,8 @@ It is never rendered as a zero, because zero is a real reading.
 
 Write the label as the reader's own name for what the ring counts: "Steps
 today", not a metric code. Keep the unit in their words too. Never phrase the
-copy around it as a challenge, and never put a streak counter or a celebration
-beside it. When the goal is met the ring says so and stops.
+copy as a challenge, and never put a streak counter or celebration beside it.
+When the goal is met the ring says so and stops.
 
 <DoDont>
   <DoDont.Do>
@@ -167,16 +162,22 @@ beside it. When the goal is met the ring says so and stops.
 - No raw colour literal and no ramp step. The track is the neutral border role and the fill a category `-accent` role.
 - No type size in pixels: label, readout and sentence are the `subheadline`, `title2` and `footnote` steps.
 
-**Argued from the source, not measured.**
+**Audited against WCAG 2.2 AA.** A source pass and a rendered pass both ran and
+found nothing to change in the source. This is an author audit, not an
+independent review, and clinical review is still pending. The graphic is
+`role="img"` with an accessible name that speaks the label, the value against the
+goal and the progress sentence, all repeated in the visible words beside it.
+Nothing takes focus or animates on first paint, so there is no keyboard contract.
+Three states stay three: a finite value draws a fill, null says "no reading yet",
+a broken value says "not available". Under forced colours the track maps to
+CanvasText and the fill to Highlight.
 
-- The graphic is `role="img"` with an accessible name that repeats the label, readout and progress sentence, all visible beside it.
-- Nothing takes focus, answers a key, or animates on first paint. It is a static picture with no keyboard contract.
-- Three states stay three: a finite value draws a fill, null says "no reading yet", a broken value says "not available".
-- Under forced colours the track maps to CanvasText and the fill to Highlight, so the two stay distinct.
-
-**Not checked by any gate.** Every contrast pair, how the ring and its text twin
-sound in a screen reader, and the forced-colours rendering on a real high
-contrast theme.
+**Residual.** No contrast pair is measured, so the page prints the contrast pairs
+as unmeasured rather than as a pass. The arc and track repeat every fact in the
+visible text and the accessible name, so under 1.4.11 they are not graphical
+objects required to understand the content. A read-only display carries no live
+region, so a screen reader is not told when the value changes over time; the
+product owns whether to wrap the ring in a live region.
 
 <KeyboardTable
   name="goal-ring"
@@ -184,17 +185,17 @@ contrast theme.
     {
       keys: "Tab",
       action: "Skips the whole component",
-      notes: "A labelled image, not a control. Nothing here is focusable.",
+      notes: "A labelled image, not a control.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the whole component",
-      notes: "Same in reverse. A GoalRing is never in the focus order.",
+      notes: "Never in the focus order.",
     },
     {
       keys: "Arrow keys",
       action: "Nothing",
-      notes: "There is nothing to select, move or change.",
+      notes: "Nothing to select or change.",
     },
   ]}
 />
@@ -231,6 +232,6 @@ neutral.
 
 ## Related
 
-- [ScoreDial](./score-dial.mdx) is a composite number against a scale with named bands. A ring has no bands.
+- [ScoreDial](./score-dial.mdx) is a composite number against a scale with named bands.
 - [MetricTile](./metric-tile.mdx) is one reading on its own, with no goal to measure it against.
 - [RangeBar](./range-bar.mdx) is a reading against a reference range, where the band it lands in is the meaning.

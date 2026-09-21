@@ -36,9 +36,13 @@ that is any use to you yet. There is no npm package and there never will be one,
 because opsinjs is copied in as source through the shadcn CLI. And
 `opsinjs.pensievelabs.org`, the canonical host, is not serving, so `@opsinjs`
 resolves only against a registry you point it at yourself. A `shipped` API may
-change in any release, and no opsinjs component has had an accessibility review
-or a clinical review, so none of it belongs in front of a patient.
-[Release phases](../project/release-phases.mdx) defines what each status promises.
+change in any release. Every component has been audited against WCAG 2.2 AA, but
+that audit was run by the people who wrote the component rather than an
+independent reviewer, and no component has had a clinical review, so none of it
+belongs in front of a patient yet.
+[Release phases](../project/release-phases.mdx) defines what each status promises,
+and [ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx) records
+what the audit did and did not cover.
 
 ### Is it free, and can I use the guidance without the code?
 

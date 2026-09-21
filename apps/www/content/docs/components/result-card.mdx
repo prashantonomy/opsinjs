@@ -20,9 +20,7 @@ reviewer: engineering
     "The not-medical-advice note is not on this card, and whether products will place it is open.",
   ]}
 >
-  <code className="text-sm">result-card</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -186,22 +184,28 @@ what a reading is worth and does not raise the alarm.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+**Audited against WCAG 2.2 AA.** A source pass and a rendered browser pass were both
+clean: zero axe violations, no target below the 44px floor, no focus-visible gap. It
+found nothing to fix, is author-run rather than an independent review, and leaves
+clinical review pending.
 
-- No element carries both `data-category` and `data-status`; this file stamps no `data-status`.
-- No shipped threshold, staleness boundary or unattributed interval, in the component or any example.
-- No type size in pixels and no raw colour literal.
+**What it confirmed.**
 
-**Argued from the source, not measured.**
+- The two colour axes stay separate: category tint reaches only the title, clinical
+  status only the [StatusPill](./status-pill.mdx), which carries a word and icon.
+- Units speak through [Value](./value.mdx) after each part of a compound reading, the
+  title is a real heading at the caller's level, and the card reflows at 320px and
+  200% without clipping.
 
-- The root is an `<article>` with `aria-label` from the title, so it is reachable by region.
-- Reading order matches visual order; the header wraps rather than re-ordering.
-- Units are spoken through [Value](./value.mdx), after every part of a compound reading.
-- Actions are real links and buttons on the 44pt floor, told apart by boundary and type step, never hue.
+**Documented, by design.**
 
-**Not checked by any gate.** Every contrast pair, print, reflow at 200% in both
-themes, `forced-colors`, `prefers-contrast`, and how often the card repeats its
-own name to a screen reader.
+- The root `<article>` takes `aria-label` from the title, not `aria-labelledby`. The
+  string matches the visible heading and the region is non-interactive, so there is no
+  name mismatch; a visible-heading reference is a future enhancement.
+- `className` merges onto the root, so a caller who passes `truncate` can clip a
+  reading. The component truncates nothing; the JSDoc warns of it.
+
+**Not checked by any gate.** Print, `forced-colors` and `prefers-contrast`.
 
 <KeyboardTable
   name="result-card"

@@ -41,9 +41,13 @@ consent it was describing the prose rather than anything you could install. The
 legend above counts `registry/catalogue.ts` live, so trust it over any number
 typed into a sentence.
 
-No opsinjs component has had an accessibility review or a clinical review.
-`shipped` means the source installs, and it does not mean either review has
-happened. Nothing here is for a production health surface.
+Every opsinjs component has been audited against WCAG 2.2 AA by its own authors,
+not by an independent reviewer, and no component has had a clinical review.
+`shipped` means the source installs and passed that author-run audit; it does
+not mean an independent accessibility review or a clinical review has happened.
+Nothing here is for a production health surface until a clinician signs it. See
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx) for what the
+audit covered and what it did not.
 
 ### For agents
 
@@ -58,7 +62,8 @@ being dangerous.
    visually-hidden sentence saying so, in both the HTML and the `.md` twin, and
    the marker is *absent* from `shipped`. At `shipped` there is real code and
    a real install command, and the honest caveats to pass on are that the API may
-   change in any release and that nothing has been reviewed.
+   change in any release, that the accessibility audit was run by the authors and
+   not independently reviewed, and that clinical review has not happened.
 2. **Every page has a markdown twin.** Append `.md` to any documentation URL and
    you get the processed markdown. That is JSX resolved into text, not raw MDX.
    The corpus is also published as `llms.txt` with per-pillar shards. See
@@ -139,7 +144,8 @@ You can read this site fluently if you can answer these without looking:
 1. **What does each status entitle you to?** `planned`: a
    specification, and no code, no working install command and no import path.
    `shipped`: code you can install, an API that may move under you in any
-   release, and no accessibility or clinical review behind it.
+   release, an author-run WCAG 2.2 AA audit rather than an independent
+   accessibility review, and no clinical review behind it.
 2. **Where does a number in a table come from?** A generator, named on the page.
    If a table renders the `<NoDataYet>` placeholder, its source is
    empty and the page is telling you so rather than inventing a value.

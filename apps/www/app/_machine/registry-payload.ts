@@ -122,10 +122,11 @@ export function componentIndexUrl(): string | undefined {
  * was the whole of the warning and which said nothing at all once `stable`
  * left the vocabulary. The sentence is now flat, and what it states is the
  * thing the reader most needs and is least likely to find on their own: the
- * code the CLI has just written into their project has been through no
- * accessibility review and no clinical review. This is the only carrier of
- * that sentence that reaches somebody who never opened the site, so do not
- * shorten it here to match a shorter one elsewhere.
+ * code the CLI has just written into their project has been audited against
+ * WCAG 2.2 AA by its own authors, has had no independent accessibility review,
+ * and has had no clinical review. This is the only carrier of that sentence
+ * that reaches somebody who never opened the site, so do not shorten it here to
+ * match a shorter one elsewhere.
  */
 function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
   const url = componentDocsUrl(row.name) ?? componentIndexUrl() ?? SITE_URL
@@ -170,8 +171,9 @@ function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
      about how much they may rely on it. */
   if (files.length > 0) {
     return [
-      `${row.title} installs real source. It has had no accessibility review and no`,
-      `clinical review, so it is not for a production health surface.`,
+      `${row.title} installs real source. It has been audited against WCAG 2.2 AA by its`,
+      `authors, not independently reviewed, and has had no clinical review, so it is not`,
+      `for a production health surface.`,
       `Read the page at ${url} before you depend on it; it names the clinical contract`,
       `and the accessibility bar this component has to clear.`,
     ].join(" ")

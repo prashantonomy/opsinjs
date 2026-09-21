@@ -20,9 +20,7 @@ reviewer: engineering
     "The component mounts no live region, and nobody who depends on speech has checked that effectText arrives in time.",
   ]}
 >
-  <code className="text-sm">reading-input</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -64,30 +62,28 @@ import { ReadingInput } from "@/components/ui/reading-input"
 <WhenToUse
   use={[
     "Anywhere a person types a measurement of themselves: weight, blood pressure, glucose, temperature.",
-    "Entry where the unit is part of the value, so the wrong unit changes it.",
-    "Entry where the product wants to call a number unlikely without stopping anybody.",
+    "Entry where the unit is part of the value.",
+    "Entry where the product flags an unlikely number without stopping anybody.",
   ]}
   avoid={[
     { case: "A quantity, a count or a code, not a measurement of a person.", instead: "number-field" },
     { case: "The value is best chosen from a small set rather than typed.", instead: "segmented-control" },
     { case: "The reader estimates the value, such as a pain score, not measures it.", instead: "scale-input" },
     { case: "You are displaying a reading, not collecting one.", instead: "value" },
-    { case: "Several related measurements are captured together in one interaction.", instead: "log-sheet" },
+    { case: "Several related measurements captured in one interaction.", instead: "log-sheet" },
   ]}
 />
 
 ## Clinical meaning
 
 **Asserts.** That the reader typed this number, in this unit, as a measurement of
-themselves. The component cannot mark a reading as anything but self-reported.
+themselves. It is always self-reported.
 
-**Never read as.** A validated measurement, a device reading or an assessed value. A
-reading nobody warned about is a reading nobody checked.
+**Never read as.** A validated measurement, a device reading or an assessed value.
 
-**Colour axis.** Neither. There is no `data-status` and no category class. The advisory
-is ordinary foreground, because a field turning amber during entry is a verdict.
+**Colour axis.** Neither; the advisory is ordinary foreground.
 
-**Thresholds.** None. The component holds no bound and compares nothing. The product
+**Thresholds.** None. The component holds no bound. The product
 supplies the finished `warning`, which never sets `aria-invalid`, moves focus or blocks
 submission. Staleness belongs to
 [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx).
@@ -99,8 +95,8 @@ so that switch clears the entry and says so. See
 [Numbers, units and precision](../health/numbers-units-precision.mdx).
 
 <SafetyCallout severity="attention" evidence="opinion">
-Changing the unit must never silently change the stored value or silently keep the typed
-digits. Whichever it does, it must say so on screen.
+Changing the unit must never silently change the stored value or keep the typed digits
+without saying so on screen.
 </SafetyCallout>
 
 ## Anatomy
@@ -119,7 +115,7 @@ digits. Whichever it does, it must say so on screen.
     },
     {
       name: "ReadingInput.Legend",
-      describes: "Compound only: the measurement's name, as a real legend.",
+      describes: "Compound only: the measurement's name, as a legend.",
       prop: "label",
     },
     {
@@ -157,22 +153,19 @@ digits. Whichever it does, it must say so on screen.
 
 ### Two numbers that are one measurement
 
-`segments` turns the field into a real `<fieldset>` with a `<legend>` and one box per
-part.
+`segments` turns the field into a `<fieldset>` with a `<legend>`, one box per part.
 
 <ComponentPreview name="reading-input-a-compound-reading" kind="example" align="start" />
 
 ### Switching the unit, and the sentence that follows it
 
-Switch the unit and watch the line underneath. `precision` sets the decimal places a
-conversion rounds to.
+`precision` sets the decimal places a conversion rounds to.
 
 <ComponentPreview name="reading-input-switching-the-unit" kind="example" align="start" />
 
 ### A sentence the product wrote
 
-`warning` shows the product's sentence without comparing anything. Nothing is marked
-invalid and focus has not moved.
+`warning` shows the product's sentence without comparing anything.
 
 <ComponentPreview name="reading-input-a-warning-the-product-owns" kind="example" align="start" />
 
@@ -193,22 +186,26 @@ bound. Advisories ask a question and offer the likely fix.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No shipped threshold and no
-unowned interval. No status colour without a glyph, no pixel type size, no banned word.
+**Audited against WCAG 2.2 AA** in a source pass and a rendered pass, and
+`pnpm run check:a11y` runs on every commit. The author ran the audit, so it is not
+independent, and clinical review is pending.
 
-**Argued from the source, not measured.**
+**Fixed in this pass.** `autoComplete` is now a prop reaching `Field.Control`, defaulting
+to `"off"`, because a self-reported reading has no WCAG autofill token and the component
+invents none (1.3.5).
 
-- `Field` renders a real `<label for>`. A compound reading is a `<fieldset>` of one
-  `Field` per part.
-- The unit's spoken form joins the box's description, and each option carries its plural
-  on `aria-label`.
-- The box is `type="text"` with `inputMode` defaulting to `decimal`. Nothing is rejected
-  or rewritten under the cursor.
-- The advisory and the effect line are descriptions: no `aria-invalid`, no focus move,
-  no live region.
+**From the source.** `Field` renders a real `<label for>`, and a compound reading is a
+`<fieldset>` of one `Field` per part. The unit's spoken form joins the box's description,
+each option carries its plural on `aria-label`, and the box is `type="text"` with
+`inputMode` defaulting to `decimal`. The advisory and the effect line are descriptions:
+no `aria-invalid` and no focus move.
 
-**Not checked by any gate.** Nobody has listened to it and no hit area is measured. The
-boundary inherits `--border` without a gated pair, and its sentences are English only.
+**Left to the product.** The effect line reporting a switch sits in no live region, so a
+product must wire `effectText` to a polite announcer. Without that, a non-sighted reader
+hears the new unit but not that the number changed.
+
+**Not gated.** No hit area is measured, and the boundary inherits `--border` without a
+gated pair.
 
 <KeyboardTable
   name="reading-input"
@@ -266,7 +263,7 @@ boundary inherits `--border` without a gated pair, and its sentences are English
     {
       attribute: "data-opsinjs-value",
       condition: "On every ReadingInput.Segment, always",
-      value: "The number in that box, read off the box not the prop.",
+      value: "The number in that box, read off the box not the prop",
     },
     {
       attribute: "data-status, data-category",

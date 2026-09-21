@@ -16,10 +16,14 @@ aliases: [what exists, is it ready, production ready, current state]
 of design tokens, and sixty React components you can install as registry
 source. Every catalogue row is implemented and installable. No component
 ships as an npm package and none is meant to. Distribution is registry copy-in, decided in
-[ADR 0002](./decisions/0002-shadcn-registry-distribution.mdx). No opsinjs
-component has had an accessibility review or a clinical review. `shipped` means
-the source installs, and it does not mean either review has happened. Nothing
-here is for a production health surface.**
+[ADR 0002](./decisions/0002-shadcn-registry-distribution.mdx). Every opsinjs
+component has been audited against WCAG 2.2 AA by its own authors, in a static
+source pass and a rendered pass, with the findings fixed in the same change.
+That audit is author-run, so it is not an independent review, and no component
+has had a clinical review. `shipped` means the source installs, and it does not
+mean an independent review or a clinical review has happened. Nothing here is
+for a production health surface until a clinician signs it. The record is
+[ADR 0025](./decisions/0025-the-audit-is-author-run.mdx).**
 
 That paragraph is the first thing on this page because almost every other page on
 this site is written as though the whole system were finished. A component page
@@ -39,11 +43,11 @@ This page is where the plain version of that lives.
 | Design tokens (`tokens/*.json`) | Authored: two colour axes, six material rungs, spring easings, type, space and shape scales | **Yes**, as values. Names may change before 1.0 |
 | Generated tables and measured contrast | Produced by scripts from those tokens; empty wherever the source is empty | **Yes**, for the presets described. Not for a theme you derived |
 | Component pages (60) | Written as specifications; for all sixty they now also describe shipped code | **Yes** to design against, and to review an implementation against |
-| React components | **60, all `shipped`**, under `registry/bases/base/`, so every catalogue id resolves to built code | **Yes** to prototype and evaluate, knowing a `shipped` API may move in any release and that none has been reviewed. **No** for a production health surface |
+| React components | **60, all `shipped`**, under `registry/bases/base/`, so every catalogue id resolves to built code | **Yes** to prototype and evaluate, knowing a `shipped` API may move in any release, that its WCAG 2.2 AA audit was author-run rather than independently reviewed, and that clinical review is still pending. **No** for a production health surface |
 | `@opsinjs/*` npm packages | **None published** | No |
 | Registry endpoints under `/r` | Serve the catalogue, and the full source of all sixty implemented items | **Yes.** The item shape follows the upstream shadcn specification and moves with it |
 | CLI | Does not exist and is not planned first, because `npx shadcn` already does the job | Not applicable |
-| Accessibility conformance | No independent audit has taken place | No. See [Accessibility statement](../accessibility/accessibility-statement.mdx) |
+| Accessibility conformance | Audited against WCAG 2.2 AA by the authors; no independent audit has taken place | No, not until an independent review and a clinical sign-off. See [Accessibility statement](../accessibility/accessibility-statement.mdx) |
 
 ## What is safe to build on, in order
 
@@ -69,8 +73,9 @@ asserts, what it must never be read as, its anatomy and API, and the
 accessibility bar it has to clear. All sixty pages describe code you can install
 and read, and the page is the right place
 to check an implementation against. Read `status` rather than inferring how far a
-component has settled: `shipped` means the API may change in any release and that
-nobody has reviewed it. It
+component has settled: `shipped` means the API may change in any release, and its
+WCAG 2.2 AA audit was author-run rather than independently reviewed, with clinical
+review still pending. It
 is in the frontmatter, in the `.md` twin and in `/r/index.json`, so a program
 never has to guess.
 
@@ -87,7 +92,9 @@ never has to guess.
 
 ## What is not measured, and therefore not claimed
 
-No independent accessibility audit. No cross-browser test matrix running in CI.
+No independent accessibility audit. The WCAG 2.2 AA audit on record was run by the
+components' own authors, not an outside reviewer, and no component has had a clinical
+review. No cross-browser test matrix running in CI.
 No performance budget enforced against a real bundle, because there is no bundle.
 No usability research with patients. The research citations on health pages are
 other people's published work, read and cited, not studies this project ran.

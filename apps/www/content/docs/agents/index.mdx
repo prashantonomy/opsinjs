@@ -92,15 +92,22 @@ Fetch [the offline bundle](./offline-docs-bundle.mdx) once and carry it.
 
 ## The one rule that matters most
 
-Every catalogue row is implemented and installable, and none has been reviewed,
-so an agent's first job is
+Every catalogue row is implemented and installable, and every one has been
+audited against WCAG 2.2 AA by the authors who built it, in a static source pass
+and a rendered pass, with the findings fixed in the same change. None has had an
+independent accessibility review, and none has had a clinical review, so nothing
+here is for a production health surface until a clinician signs it. That is why
+an agent's first job is
 to read the status a surface reports before it writes anything. The surface is
 arranged so that it can, without guessing: every id resolves, and the answer
 carries the distinction in a field.
 
 For a `shipped` id the correct behaviour is to install it from the registry and
-to say that the API may change in any release and that no accessibility review
-and no clinical review has happened. Installing copies the source into the
+to say that the API may change in any release, that it has been audited against
+WCAG 2.2 AA by the authors but has had no independent accessibility review and no
+clinical review, and that it is therefore not for a production health surface
+until a clinician signs it. The record is
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx). Installing copies the source into the
 project, because there is no published opsinjs package to import. For a
 `planned` id the correct behaviour is to describe the specification, refuse to
 emit an import, and stop. No id sits there today, so that

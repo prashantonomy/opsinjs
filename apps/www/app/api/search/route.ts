@@ -35,7 +35,7 @@
  * one. It used to read `Release status: ${status}. Not implemented.` for
  * everything that was not `stable`, which indexed every built component as
  * unbuilt on the surface an agent queries first. The site was telling a machine
- * to hand-write a clinical status pill rather than install the reviewed one.
+ * to hand-write a clinical status pill rather than install the built one.
  * Implementation is not a phase: it is whether `registry/__index__.ts` has
  * source behind the id, which is what `implementedComponents()` answers and
  * what `/r/index.json` publishes. So the claim is made only on a component
@@ -46,10 +46,12 @@
  * AND THE STABILITY HALF IS NO LONGER CONDITIONAL, because there is no phase
  * left for it to be conditional on. `stable` is gone from the vocabulary, and
  * the three that remain say whether there is code and whether it is on its way
- * out. Nothing in the catalogue has had an accessibility review or a clinical
- * review, so the installable branch says that flat rather than hedging it as
- * "the API is not stable yet", which was the smaller of the two warnings and
- * the only one an agent was being given.
+ * out. Every component in the catalogue has been audited against WCAG 2.2 AA by its
+ * own authors, but none has had an independent accessibility review and none
+ * has had a clinical review, so the installable branch says exactly that
+ * rather than hedging it as "the API is not stable yet", which was the smaller
+ * of the warnings and the only one an agent was being given. The record is
+ * ADR 0025 (./project/decisions/0025-the-audit-is-author-run).
  *
  * A page with no phase at all gets no release sentence. That is every page in the
  * pages, and a doctrine page indexed with a phase word was always indexing a

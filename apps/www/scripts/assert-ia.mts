@@ -1161,19 +1161,20 @@ function headingCandidates(heading: string): string[] {
  */
 const SAFE001_MESSAGE =
   "this component page does not say inside <StubNotice>, in authored MDX, " +
-  "that it has had no accessibility review and no clinical review and is " +
-  "not for a production health surface. Write both halves. `shipped` means " +
-  "the source installs and means nothing about either review, and no " +
-  "component in this catalogue has had either, so the phase word cannot " +
-  "carry this and the page has to. It belongs in the MDX body rather than " +
-  "in the React component because app/_machine/corpus.ts builds every .md " +
-  "twin from getText(\"processed\"), which keeps a JSX tag and the children " +
-  "an author wrote and never what the component renders at runtime. A " +
-  "sentence moved into chrome reaches a human on the rendered page and " +
-  "disappears from all 60 twins, from every llms-*.txt shard, from " +
-  "/r/docs.json and from the offline bundle, which is where an agent reads " +
-  "this page. Take it out in the same commit as the first review that " +
-  "lands, and not before."
+  "that it was audited against WCAG 2.2 AA and that clinical review is still " +
+  "pending. Write both halves: the line is \"Audited against WCAG 2.2 AA. " +
+  "Clinical review pending.\" The audit is author-run and is not an " +
+  "independent review, and no component has had a clinical review, so the " +
+  "phase word `shipped` cannot carry either fact and the page has to. It " +
+  "belongs in the MDX body rather than in the React component because " +
+  "app/_machine/corpus.ts builds every .md twin from getText(\"processed\"), " +
+  "which keeps a JSX tag and the children an author wrote and never what the " +
+  "component renders at runtime. A sentence moved into chrome reaches a human " +
+  "on the rendered page and disappears from all 60 twins, from every " +
+  "llms-*.txt shard, from /r/docs.json and from the offline bundle, which is " +
+  "where an agent reads this page. Change it only when the review it names " +
+  "changes: an independent accessibility audit, or a clinical sign-off, and " +
+  "not before."
 
 function checkOutline(
   page: ParsedPage,
@@ -1376,23 +1377,26 @@ function checkOutline(
          Collapsing the phase vocabulary to three words took away the only
          gradient a reader had between "this works" and "somebody checked
          this", and `shipped` answers the first question and is silent on the
-         second. The sentence below is what replaced the gradient. It is
-         carried on six surfaces and this is the only one a build can hold,
-         because the other five are single strings in TypeScript.
+         second. The sentence below is what answers the second: every component
+         has now been audited against WCAG 2.2 AA, that audit was run by the
+         authors rather than by an independent party, and clinical review has
+         not happened. It is carried on several surfaces and this is the only
+         one a build can hold, because the others are single strings in
+         TypeScript.
 
          The rule is per page and it is not keyed on the phase. A `planned`
-         page has had no review either, and a `deprecated` one is the page a
-         reader is most likely to reach through a stale link. Keying the floor
-         to `shipped` would have made the two quiet phases the loud exception,
-         which is backwards.
+         page states the same floor about a specification, and a `deprecated`
+         one is the page a reader is most likely to reach through a stale link.
+         Keying the floor to `shipped` would have made the two quiet phases the
+         loud exception, which is backwards.
 
          Matching is done on the normalised text of the whole element, so the
          sentence may wrap wherever the prose reads best; `metric-tile` wraps
-         it across two lines and a naive line grep found 31 of 60 pages that
-         carry it. Both halves are required, because either half alone is a
-         half-truth: "no review" without "not for production" reads as a
-         caveat, and "not for production" without "no review" reads as a
-         maturity note.
+         it across two lines. Both halves are required, because either half
+         alone is a half-truth: "audited against WCAG 2.2 AA" without the
+         clinical line reads as a clean bill of health a clinician never wrote,
+         and "clinical review pending" without the audit line reads as though
+         nothing at all has been checked.
 
          JSX COMMENTS ARE CUT OUT BEFORE THE MATCH, and that is not tidiness.
          A JSX comment, the brace-slash-star form MDX allows in a body,
@@ -1410,8 +1414,8 @@ function checkOutline(
         .split(/\s+/)
         .join(" ")
       if (
-        !/no accessibility review and no clinical review/i.test(block) ||
-        !/not for a production health surface/i.test(block)
+        !/audited against wcag 2\.2 aa/i.test(block) ||
+        !/clinical review pending|no clinical review/i.test(block)
       ) {
         fail("SAFE001", file, SAFE001_MESSAGE)
       }

@@ -19,9 +19,7 @@ reviewer: engineering
     "No contrast pair has been measured, so whether the soft chip and the outline chip read at the text and non-text floors is argued from the roles alone.",
   ]}
 >
-  <code className="text-sm">badge</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -102,6 +100,18 @@ the level readable.
 
 ## Accessibility
 
+**Audited against WCAG 2.2 AA**, in a source pass and a rendered pass. The
+audit is author-run, not an independent review, and clinical review is still
+pending.
+
+The source pass found one real defect and fixed it: `srLabel` set `aria-label`
+on a bare `span`, whose implicit role is generic and does not reliably carry
+an author-supplied name to assistive technology, so a caller's count risked
+being silently dropped in favour of the visible digit. The badge now pairs
+`aria-label` with `role="img"` whenever `srLabel` is a non-empty string, the
+same pairing already used on [Avatar](./avatar.mdx). Nothing else about the
+markup, the props or the rendered output changed.
+
 **Checked by `pnpm run check:a11y` on every commit.** The badge draws only the
 neutral chrome roles, carries no `data-status`, and sets its text at the
 `caption1` semantic step rather than a `px` size.
@@ -110,16 +120,22 @@ neutral chrome roles, carries no `data-status`, and sets its text at the
 
 - `srLabel=""` sets `aria-hidden`, so a count already spoken beside the badge is
   not read twice.
-- `srLabel` with text sets `aria-label`, so a bare count is named rather than
-  heard as a lone number.
+- `srLabel` with text sets `aria-label` and `role="img"` together, so a bare
+  count is named reliably rather than risking a lone number.
 - Nothing takes focus, answers a key or animates, so there is no keyboard
   contract and nothing for `prefers-reduced-motion` to reduce.
-- At 200% text the chip grows with the text, because the pill is sized from the
-  type step and padded in space tokens.
+- At 200% text and under a wider text-spacing override the chip grows with the
+  text rather than clipping it, because nothing fixes its height or hides its
+  overflow.
 
-**Not checked by any gate.** Every contrast pair in both weights, what the chip
-draws under `forced-colors: active`, and whether a screen reader speaks an
-`srLabel` usefully.
+**Residual, disclosed rather than fixed.** No contrast pair in either weight
+has been measured against real token values, so the numbers below are
+whatever the generator has produced so far. Nothing in the component checks
+that a caller's `srLabel` textually contains the visible content, so a caller
+who ignores the guidance in Content guidelines could still write a disjoint
+label; that stays a documented usage contract rather than enforced behaviour.
+Whether a screen reader speaks a labelled badge usefully in the flow of its
+host still has not been listened to, only reasoned about from the roles.
 
 <KeyboardTable
   name="badge"

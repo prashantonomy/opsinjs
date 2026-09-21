@@ -19,9 +19,7 @@ reviewer: engineering
     "No contrast pair has been measured, and forced-colors, prefers-contrast: more and the panel's reduced-motion mount are untested beyond the product stylesheet.",
   ]}
 >
-  <code className="text-sm">accordion</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -135,23 +133,21 @@ import { Accordion } from "@/components/ui/accordion"
 
 ### A frequently asked list
 
-The reader scans three headers as an index, then opens one. Every question and
-answer is fictional app copy.
+Three headers form an index; the reader opens one. Fictional copy.
 
 <ComponentPreview name="accordion-frequently-asked" kind="example" align="start" />
 
 ### One section open at a time
 
-With `multiple` left off, which is the default, opening the third section closes
-the first on its own.
+With `multiple` off (the default), opening one section closes the last.
 
 <ComponentPreview name="accordion-one-open-at-a-time" kind="example" align="start" />
 
 ## Content guidelines
 
 Write headers as a scannable index: a question, a noun phrase or a setting name,
-in sentence case, without terminal punctuation. Never fold a warning or a step the
-reader must take into a panel that starts closed. It belongs in a
+in sentence case, without terminal punctuation. Never fold a warning or a required
+step into a panel that starts closed. It belongs in a
 [Callout](./callout.mdx) that stays open.
 
 <DoDont>
@@ -167,21 +163,25 @@ reader must take into a panel that starts closed. It belongs in a
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Only neutral chrome roles,
-no colour literal, a 44pt target in rem and no `px` type size.
+**Audited against WCAG 2.2 AA in a source pass and a rendered pass.** It is
+author-run, not independent, and clinical review is pending. The rendered pass
+(axe, target size, focus visible, 320px reflow) was clean.
 
-**Argued from the source, not measured.**
+**One defect was fixed.** The trigger's focus ring was drawn outside the trigger,
+where the root's `overflow-hidden` clipped it (2.4.7). It now renders inside,
+whole on every straight edge, with a small notch still clipped at the first and
+last sections' outer corners, a known residual.
 
-- Base UI renders each header as an `h3` with a `button`, and wires
-  `aria-expanded` and `aria-controls` between trigger and panel.
-- The chevron is `aria-hidden`. A reader relies on `aria-expanded`, not the glyph.
-- The chevron turns over `--opsin-duration-fast`, which the product stylesheet
-  collapses under `prefers-reduced-motion`.
-- Base UI unmounts a closed panel, so its content leaves the tab order and the
-  accessibility tree.
+- Base UI renders each header as an `h3` with a `button`, wires `aria-expanded`
+  and `aria-controls` between trigger and panel, and hides the chevron with
+  `aria-hidden`, so a reader relies on `aria-expanded`, not the glyph.
+- The chevron's turn uses `--opsin-duration-fast`, collapsed under
+  `prefers-reduced-motion`. A closed panel is unmounted, leaving the tab order.
 
-**Not checked by any gate.** Every contrast pair against the card surface, and
-whether the open section reads as open under `forced-colors: active`.
+**Still unmeasured.** The rendered pass does not compute contrast, so every pair
+against the card surface is unmeasured, not known-failing. That no must-see
+content may sit in a closed panel stays a docs contract the wrapper cannot
+enforce.
 
 <KeyboardTable
   name="accordion"
@@ -244,8 +244,8 @@ whether the open section reads as open under `forced-colors: active`.
 <PropsTable name="AccordionProps" />
 
 `multiple` defaults to `false`. `value` without `onValueChange` fixes the open
-sections exactly as given. An empty `items` array renders nothing and raises a
-development warning, and so does a duplicated `value`.
+sections as given. An empty `items` array renders nothing and warns in
+development, as does a duplicated `value`.
 
 ## Related
 

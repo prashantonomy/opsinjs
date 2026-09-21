@@ -55,10 +55,15 @@ match the sidebar's sixteen groups.
 
 A component page's status is included too, and it is the most load-bearing field
 in the file. Sixty component ids are built, and a built id has source in the
-registry item and an API that may change in any release. No opsinjs component has
-had an accessibility review or a clinical review. `shipped` means the source
-installs, and it does not mean either review has happened. An index that did not
-carry the field at all would be an invitation to import a specification. Each
+registry item and an API that may change in any release. Every one of the sixty
+has been audited against WCAG 2.2 AA, but that audit was run by the authors of
+the components, not by an independent reviewer, and no component has had a
+clinical review; see
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx) for the
+record. `shipped` means the source installs and passed that author-run audit,
+and it does not mean either an independent or a clinical review has happened.
+An index that did not carry the field at all would be an invitation to import a
+specification. Each
 entry is one line, and the tail in brackets carries the status where there is
 one, the kind and the aliases:
 

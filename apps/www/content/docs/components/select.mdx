@@ -19,9 +19,7 @@ reviewer: engineering
     "Whether the popup's one shadow rung still separates the list under forced colours is untested, and no prefers-contrast rule exists.",
   ]}
 >
-  <code className="text-sm">select</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -62,12 +60,12 @@ import { Select } from "@/components/ui/select"
 <WhenToUse
   use={[
     "Choosing one value from a list too long to lay flat, such as a timezone.",
-    "A single choice on a dense form, where a closed trigger stops a long list pushing the fields down.",
-    "A setting the reader changes rarely, so opening the list is a cost paid seldom.",
+    "A single choice on a dense form, where a closed trigger keeps a long list from pushing fields down.",
+    "A setting the reader changes rarely, so opening the list costs little.",
   ]}
   avoid={[
-    { case: "There are fewer than about seven options, so a flat set scanned at a glance is easier.", instead: "radio-group" },
-    { case: "The choice is a clinical value with a range and a verdict, needing a control that formats it.", instead: "reading-input" },
+    { case: "Fewer than about seven options, easier scanned flat.", instead: "radio-group" },
+    { case: "A clinical value with a range and a verdict, needing a control that formats it.", instead: "reading-input" },
     { case: "The options open different views, so choosing one swaps what the reader sees.", instead: "tabs" },
   ]}
 />
@@ -79,7 +77,7 @@ import { Select } from "@/components/ui/select"
   parts={[
     {
       name: "Select",
-      describes: "The root, rendered as the trigger button: the one tab stop.",
+      describes: "The root, rendered as the trigger button, the one tab stop.",
       prop: "label",
     },
     {
@@ -89,20 +87,20 @@ import { Select } from "@/components/ui/select"
     },
     {
       name: "Select.Icon",
-      describes: "The open indicator, a lucide ChevronsUpDown, muted and aria-hidden.",
+      describes: "The open indicator, a lucide ChevronsUpDown, aria-hidden.",
     },
     {
       name: "Select.Popup",
-      describes: "The floating list, portalled past overflow clipping. A raised card, trigger width.",
+      describes: "The floating list, portalled past clipping, a raised card at trigger width.",
     },
     {
       name: "Select.Item",
-      describes: "One option row, role=option with aria-selected. The highlight is neutral state-hover.",
+      describes: "One option row, role=option with aria-selected, neutral state-hover.",
       prop: "options",
     },
     {
       name: "Select.ItemIndicator",
-      describes: "The tick on the chosen option, a lucide Check: selection without colour.",
+      describes: "The tick on the chosen option, a lucide Check, selection without colour.",
     },
   ]}
 />
@@ -142,21 +140,21 @@ import { Select } from "@/components/ui/select"
 ### Choosing from a list
 
 `options` drives the list, here a set of fictional timezones. A tick and a
-neutral highlight carry the selection, never a colour.
+neutral highlight carry the selection, not a colour.
 
 <ComponentPreview name="select-choosing-from-a-list" kind="example" align="start" />
 
 ### With a placeholder
 
-`placeholder` fills the trigger before anything is chosen. It is a prompt, not
-a value, and never appears in the list.
+`placeholder` fills the trigger before anything is chosen: a prompt, not a
+value, and it never appears in the list.
 
 <ComponentPreview name="select-with-a-placeholder" kind="example" align="start" />
 
 ## Content guidelines
 
 Keep option labels short, parallel and in sentence case, naming the value each
-one sets. Order them the way the reader thinks, not the way the data is stored.
+sets, ordered the way the reader thinks rather than how the data is stored.
 Write the placeholder as a prompt, never as a plausible value.
 
 <DoDont>
@@ -170,22 +168,21 @@ Write the placeholder as a prompt, never as a plausible value.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a neutral
-chrome role, no type size is in `px`, and targets floor at
-`--opsin-target-minimum`.
+Audited against WCAG 2.2 AA in a source pass and a rendered pass, author-run
+rather than independent, with clinical review still pending.
 
-**Argued from the source, not measured.**
+Base UI supplies a combobox trigger, a listbox popup and `aria-selected`
+options; icons are `aria-hidden`, and selection is shown by a Check glyph and
+`aria-selected`, not colour. The focus ring, the `--opsin-target-minimum` hit
+area, neutral chrome colours and non-`px` type sizes all hold.
 
-- Base UI gives a combobox trigger, a listbox popup and `aria-selected` options,
-  so the keyboard is the standard one.
-- `label` is required and becomes the trigger's `aria-label`; an empty one warns
-  in development.
-- Selection is not told by colour alone: a Check glyph and `aria-selected` carry it.
-- The focus ring rides in the trigger's own class list, so it survives without
-  the stylesheet.
+Two gaps remain. The required `label` becomes the trigger's `aria-label`, so
+once a value fills the trigger a reader can lose its programmatic name, a gap
+shared by several wrappers and waiting on one system-wide repair. At 200%
+text a long value truncates in the trigger, with no loss of function since
+the full label stays readable in the open list.
 
-**Not checked by any gate.** Every contrast pair, what the popup draws under
-`forced-colors: active`, and whether type-to-find fights a screen reader's own.
+Contrast pairs and the popup under `forced-colors: active` are still unmeasured.
 
 <KeyboardTable
   name="select"
@@ -193,12 +190,12 @@ chrome role, no type size is in `px`, and targets floor at
     {
       keys: "Tab",
       action: "Moves focus onto the trigger",
-      notes: "One tab stop. Disabled selects are skipped.",
+      notes: "One tab stop; disabled selects are skipped.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back off the trigger",
-      notes: "Focus leaves the control, never entering the list.",
+      notes: "Never enters the list.",
     },
     {
       keys: "Enter, Space, Arrow Down, Arrow Up",
@@ -213,7 +210,7 @@ chrome role, no type size is in `px`, and targets floor at
     {
       keys: "Home, End",
       action: "Moves the highlight to the first or last option",
-      notes: "Bound by the listbox. Both skip disabled options.",
+      notes: "Both skip disabled options.",
     },
     {
       keys: "Enter",
@@ -240,11 +237,11 @@ chrome role, no type size is in `px`, and targets floor at
 <PropsTable name="SelectProps" />
 
 `value` and `onValueChange` make this controlled: no internal selection state,
-and a value matching no option shows the placeholder. `label` is required,
-because a combobox without an accessible name is a defect.
+and a value matching no option shows the placeholder. `label` is required, so
+the trigger always has an accessible name.
 
 ## Related
 
-- [RadioGroup](./radio-group.mdx) shows every option at once, better under about seven options.
-- [SegmentedControl](./segmented-control.mdx) sets a parameter of one view from a small flat set.
-- [ReadingInput](./reading-input.mdx) is for a clinical value with a range and a meaning.
+- [RadioGroup](./radio-group.mdx): every option at once, better under about seven options.
+- [SegmentedControl](./segmented-control.mdx): sets a parameter of one view from a small flat set.
+- [ReadingInput](./reading-input.mdx): for a clinical value with a range and a meaning.

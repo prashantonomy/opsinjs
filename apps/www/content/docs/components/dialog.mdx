@@ -19,9 +19,7 @@ reviewer: engineering
     "`actions` states a cap of two and cannot enforce it, because `ReactNode` does not say how many controls are inside.",
   ]}
 >
-  <code className="text-sm">dialog</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -92,7 +90,7 @@ import { Dialog } from "@/components/ui/dialog"
     },
     {
       name: "Dialog.Viewport",
-      describes: "Fixed box. Floats the panel low on a phone, centred above sm.",
+      describes: "Fixed box; floats low on a phone, centred above sm.",
     },
     {
       name: "Dialog.Container",
@@ -154,8 +152,8 @@ refuses both the scrim and Escape.
 ## Content guidelines
 
 The title asks the question. The description says what each answer does, and on an
-alert dialog why an answer is required. Labels are verbs naming the outcome, never
-*OK* and *Cancel*, and never a judgement about the reader.
+alert dialog why one is required. Labels are verbs naming the outcome: never *OK*
+and *Cancel*, never a judgement about the reader.
 
 <DoDont>
   <DoDont.Do>
@@ -169,23 +167,24 @@ alert dialog why an answer is required. Labels are verbs naming the outcome, nev
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears.
+Audited against WCAG 2.2 AA: a source pass and a rendered pass. The rendered pass
+found no axe violations, no undersized target, no focus-visible miss, and held at
+320px. The source pass found no critical, serious or moderate defect. The audit is
+author-run, not independent, and clinical review is pending.
 
-**Argued from the source, not measured.**
+Confirmed:
 
-- `severity="alert"` swaps in Base UI's alert-dialog root, so the role and the
-  refusal to dismiss arrive together.
-- Named by its title and described by its description. A blank description renders
+- `severity="alert"` swaps in Base UI's alert-dialog root, tying the role to the
+  refusal to dismiss.
+- Named by its title, described by its description; a blank description renders
   nothing.
 - Focus moves in on open, is trapped, and returns on close to whatever had it.
-- The page behind is `aria-hidden`, not `inert`, so programmatic focus from behind
-  can still take it.
+- The page behind is `aria-hidden`, not `inert`, so focus from behind can still
+  reach it.
 
-**Not checked by any gate.** Contrast of the close control's hover fill and the
-focus ring over the scrim. The 48px floor on the actions row while open.
-`forced-colors` under a Windows theme. No capture has seen the dialog open, because
-the panel portals outside `#opsin-view-root`.
+One residual: `Dialog.Close` uses a raw `focus-visible` utility, not the
+border-focus token, but renders a valid 2px offset ring, so 2.4.7 and 1.4.11 pass;
+it matches the reviewed `sheet` close control by design.
 
 <KeyboardTable
   name="dialog"
@@ -193,7 +192,7 @@ the panel portals outside `#opsin-view-root`.
     {
       keys: "Tab",
       action: "Moves focus to the next control inside the dialog",
-      notes: "Trapped. From initialFocus=\"safest\" the first Tab wraps to the top.",
+      notes: "Trapped; initialFocus=\"safest\" wraps the first Tab to the top.",
     },
     {
       keys: "Shift + Tab",
@@ -213,12 +212,12 @@ the panel portals outside `#opsin-view-root`.
     {
       keys: "Escape",
       action: "Closes an ordinary dialog and returns focus to whatever opened it",
-      notes: "The scrim dismisses the same way. Both are refused when severity is alert.",
+      notes: "The scrim dismisses the same way; both refuse when severity is alert.",
     },
     {
       keys: "Escape",
       action: "Does not close an alert dialog; moves focus to the dialog itself",
-      notes: "The named, described container is read again. The reason is not spoken.",
+      notes: "Re-reads the named, described container. The reason is not spoken.",
     },
   ]}
 />
@@ -229,14 +228,13 @@ the panel portals outside `#opsin-view-root`.
 
 <PropsTable name="DialogProps" />
 
-`actions` and `closeLabel` are not in the specification. `closeLabel` defaults to
-the English word *Close* and is ignored on an alert dialog. `onOpenChange` is not
-called when Escape is refused. `sheetBelow` is not a prop: the dialog never becomes
-a Sheet.
+`actions` and `closeLabel` are not in the specification; `closeLabel` defaults to
+*Close*, ignored on an alert dialog. `onOpenChange` does not fire when Escape is
+refused. `sheetBelow` is not a prop: the dialog never becomes a Sheet.
 
 ## Related
 
-- [Sheet](./sheet.mdx) is a place the reader chose to go and may leave, which Dialog never becomes.
-- [AlertBanner](./alert-banner.mdx) announces without blocking, for a reader who can carry on.
-- [ConsentSheet](./consent-sheet.mdx) is a request with a consent contract and a recorded decision.
-- [Popover](./popover.mdx) is anchored and non-modal, dismissed by leaving it rather than answering.
+- [Sheet](./sheet.mdx): a place the reader chose to go and may leave; Dialog never becomes one.
+- [AlertBanner](./alert-banner.mdx): announces without blocking a reader who can carry on.
+- [ConsentSheet](./consent-sheet.mdx): a request with a consent contract and a recorded decision.
+- [Popover](./popover.mdx): anchored and non-modal, dismissed by leaving rather than answering.

@@ -51,9 +51,13 @@ type Status =
 ```
 
 `shipped` covers every component id today. It means installable source and a
-changing API, and it makes no claim about accessibility or clinical safety,
-because no opsinjs component has had a review of either kind. `planned` is a
-specification you may read and must not generate against. Handle all three
+changing API, and it makes no claim about clinical safety, because no opsinjs
+component has had a clinical review. Every shipped component has been audited
+against WCAG 2.2 AA by its own authors, in a static source pass and a rendered
+pass, with findings fixed in the same change; that is not an independent
+accessibility review, so `status` still makes no claim of accessibility
+conformance. See [the audit is author-run](../project/decisions/0025-the-audit-is-author-run.mdx).
+`planned` is a specification you may read and must not generate against. Handle all three
 anyway: the vocabulary is closed, not fixed, and a client that only knows the
 values it saw once will misread the day one of them moves.
 
@@ -73,9 +77,11 @@ alongside the four has already got it wrong.
 
 `registry/catalogue.ts` is the single source of truth for component identity:
 id, title, plain-English description, category, status, `since`, aliases and the
-reviewing discipline. It records no accessibility review date and has no field for
-one, because no component has had a review to record. Every id in it resolves
-somewhere. That
+reviewing discipline. It has no field for an independent accessibility review
+date or a clinical review date, because neither has happened; the WCAG 2.2 AA
+audit that has happened was run by the authors and is recorded in
+[the audit is author-run](../project/decisions/0025-the-audit-is-author-run.mdx),
+not in this file. Every id in it resolves somewhere. That
 rule is enforced by `scripts/assert-ia.mts` rather than by convention.
 
 It is also the sole owner of the **alias namespace**. Aliases are search
@@ -110,8 +116,10 @@ model.
 
 ### Check `status` and `implemented` on every read
 
-Every catalogue row is implemented and installable, and none has been reviewed.
-`status` tells you whether code exists, not whether it is safe; `implemented`
+Every catalogue row is implemented and installable, and every one has been
+audited against WCAG 2.2 AA by its own authors and none has had an independent
+accessibility review or a clinical review. `status` tells you whether code
+exists, not whether it is safe; `implemented`
 tells you whether there is source to install, which is the question
 most tools are actually asking. A tool that ignores either will behave, next
 year, as though a specification were a component, or it will refuse to install

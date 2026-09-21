@@ -59,18 +59,21 @@ components above it sharpened.
 
 What is next is not an ordered list, and inventing one would be the dated promise
 this page opens by refusing. The honest statement is what has *not* been done: no
-screen specimen has been built, and no component has been through an
-accessibility or a clinical review. Every catalogue row is implemented and
-installable. See [Release phases](./release-phases.mdx) for what `shipped`
-obliges us to and, more to the point, what it does not.
+screen specimen has been built, and while every component has now been audited
+against WCAG 2.2 AA by its own authors (see [ADR 0025](./decisions/0025-the-audit-is-author-run.mdx)),
+none has had an independent accessibility review or a clinical review. Every
+catalogue row is implemented and installable. See [Release phases](./release-phases.mdx)
+for what `shipped` obliges us to and, more to the point, what it does not.
 
 ## Blockers
 
-**Components exist; measurements of them do not.** Bundle sizes, per-component
-accessibility audits and the keyboard reference are generated pages whose sources
-are still empty, and not one of the sixty catalogue rows records an accessibility
-review. Those pages are not missing, they are waiting on numbers nobody has
-produced. An empty audit table is not a passing one.
+**Some measurements still do not exist.** Bundle sizes and the keyboard reference
+are generated pages whose sources are still empty. All sixty catalogue rows now
+record a WCAG 2.2 AA audit, run by the components' own authors and recorded in
+[ADR 0025](./decisions/0025-the-audit-is-author-run.mdx), but none records an
+independent accessibility review. Those pages are not missing, they are waiting
+on numbers nobody independent has produced. An audit table filled in by the
+people who wrote the code is not a passing one.
 
 **Colour-independence and the never-mix rule need a lint rule, not a document.**
 The rule is written, and a rule that is only written is a rule that survives
@@ -78,11 +81,14 @@ until the first deadline. Until the ESLint and Stylelint plugins described in
 [Tooling](../handbook/tooling/index.mdx) exist, this is enforced by review, which
 is to say weakly.
 
-**Accessibility conformance cannot be claimed without an audit**, and none has
-been run. There is now code an auditor could be pointed at, so the reason is no
-longer that there is nothing to audit; it is the ordinary one, that nobody
-independent has looked. The [accessibility statement](../accessibility/accessibility-statement.mdx)
-lists what is unknown today rather than implying it is fine.
+**Accessibility conformance cannot be claimed without an independent audit**,
+and none has been run. Every component has now been audited against WCAG 2.2 AA
+by the people who wrote it, and the findings from that pass were fixed in the
+same change (see [ADR 0025](./decisions/0025-the-audit-is-author-run.mdx)); that
+is not the same claim as conformance. The reason independent conformance still
+cannot be claimed is the ordinary one, that nobody independent has looked. The
+[accessibility statement](../accessibility/accessibility-statement.mdx) lists
+what is unknown today rather than implying it is fine.
 
 **The `[lang]` segment is not blocked, it is deferred**, with the exact retrofit
 recipe recorded in [ADR 0005](./decisions/0005-no-lang-segment-yet.mdx). Unit

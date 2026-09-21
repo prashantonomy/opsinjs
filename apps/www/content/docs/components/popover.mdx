@@ -18,9 +18,7 @@ reviewer: engineering
     "Under forced-colors: active the shadow drops and the arrow takes the platform's own pair, and no high-contrast reader has seen it.",
   ]}
 >
-  <code className="text-sm">popover</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -55,14 +53,14 @@ import { Popover } from "@/components/ui/popover"
 
 <WhenToUse
   use={[
-    "A short aside anchored to a control, such as a note explaining a label, that the reader opens, reads and dismisses.",
-    "A couple of options or a small form fragment, such as renaming a list, that is not worth a whole screen.",
-    "Anywhere dismissing without acting is always a valid outcome, because the page behind stays live.",
+    "A short aside anchored to a control, such as a note explaining a label.",
+    "A couple of options or a small form fragment, such as renaming a list.",
+    "Anywhere dismissing without acting is a valid outcome, because the page behind stays live.",
   ]}
   avoid={[
-    { case: "The reader must answer before they carry on, so dismissing the surface would leave the product guessing.", instead: "dialog" },
-    { case: "The content is a large form, or needs its own scroll and a docked layout under a thumb on a phone.", instead: "sheet" },
-    { case: "You only want a short passive label that explains a word, with nothing to open or dismiss.", instead: "term" },
+    { case: "The reader must answer before they carry on, so dismissing would leave the product guessing.", instead: "dialog" },
+    { case: "The content is a large form, or needs its own scroll and a docked layout.", instead: "sheet" },
+    { case: "You only want a short passive label, nothing to open or dismiss.", instead: "term" },
   ]}
 />
 
@@ -73,27 +71,27 @@ import { Popover } from "@/components/ui/popover"
   parts={[
     {
       name: "Popover",
-      describes: "Base UI's Popover.Root. Owns the open state, uncontrolled unless open and onOpenChange are passed. Renders no element.",
+      describes: "Base UI's Popover.Root. Owns the open state, uncontrolled unless open is passed.",
       prop: "open",
     },
     {
       name: "Popover.Trigger",
-      describes: "The button this component supplies, with its target floor, focus ring and aria-expanded. Echoes the open state.",
+      describes: "The supplied button, with its target floor, focus ring and aria-expanded.",
       prop: "trigger",
     },
     {
       name: "Popover.Popup",
-      describes: "The floating panel, a role=\"dialog\" rendered through a portal. A raised card capped at a readable measure.",
+      describes: "The floating panel, a role=\"dialog\" through a portal, capped at a readable measure.",
       prop: "children",
     },
     {
       name: "Popover.Title",
-      describes: "The heading, rendered when title is passed and wired to the panel's aria-labelledby.",
+      describes: "The heading, rendered when title is passed and wired to aria-labelledby.",
       prop: "title",
     },
     {
       name: "Popover.Arrow",
-      describes: "A card-coloured diamond pointing back to the trigger, bordered on the two outward edges. Decorative and aria-hidden.",
+      describes: "A card-coloured diamond pointing to the trigger, bordered on the outward edges.",
     },
   ]}
 />
@@ -104,7 +102,7 @@ import { Popover } from "@/components/ui/popover"
     {
       part: "Popover",
       cardinality: "1",
-      note: "Base UI Popover.Root, renders no element",
+      note: "renders no element",
       children: [
         {
           part: "Popover.Trigger",
@@ -137,53 +135,54 @@ import { Popover } from "@/components/ui/popover"
 
 ### Anchored to a button
 
-A short note anchored to a button, left uncontrolled. A press outside or Escape
-closes it and focus returns to the button.
+A short note anchored to a button, left uncontrolled. Escape or an outside press
+closes it and returns focus.
 
 <ComponentPreview name="popover-anchored-to-a-button" kind="example" align="start" />
 
 ### With a form fragment
 
 A labelled input and a save button. `open` and `onOpenChange` take the state over,
-because a control inside the panel has to close it.
+since a control inside closes it.
 
 <ComponentPreview name="popover-with-a-form-fragment" kind="example" align="start" />
 
 ## Content guidelines
 
-Give every popover a `title`: the panel is a `role="dialog"`, and the title is
-the name a screen reader announces. Name it for what it holds, keep the body to a
-sentence or two, and never put a clinical reading or verdict loose inside one.
+Give every popover a `title`: the panel is a `role="dialog"`, and the title is the
+name a screen reader announces. Keep the body to a sentence or two, and never put a
+clinical reading or verdict loose inside one.
 
 <DoDont>
   <DoDont.Do>
-    **"How readings are grouped"** over one sentence: titled, short, easily dismissed.
+    **"How readings are grouped"**, titled, short, easily dismissed.
   </DoDont.Do>
   <DoDont.Dont>
-    **A blood pressure reading and its status** in an untitled panel: no name, no range, wrong surface.
+    **A blood pressure reading and its status**, untitled: no name, no range, wrong surface.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+Audited against WCAG 2.2 AA on `/view/base/base-lyra/component/popover`, in a source
+pass and a rendered pass. Author-run, not independent; clinical review is pending.
 
-- No status colour, no colour literal, no ramp step: only neutral chrome and the
-  `overlay` shadow token.
-- No `px` type size. The body is the `body` step, the title the `headline` step.
-- The trigger's hit area is floored at `--opsin-target-minimum` in rem.
+**Fixed.** The trigger's hit area was floored on height alone, so an icon-only
+trigger could clear the AA 24px minimum while still missing the house width floor.
+A matching `min-w` at `--opsin-target-minimum` now floors it too, following the
+`icon-button` pattern.
 
-**Argued from the source, not measured.**
+**Confirmed.**
 
-- The panel is a `role="dialog"` named by `aria-labelledby`. A missing title
-  raises a development warning.
+- The panel is `role="dialog"`, named by `aria-labelledby`; a missing title warns.
 - Focus moves into the panel on open and back to the trigger on close, by Base UI.
-- The arrow is `aria-hidden`.
-- Under `prefers-reduced-motion` the scale is pinned and only the opacity crossfades.
+- The arrow is `aria-hidden`; under `prefers-reduced-motion` only opacity crossfades.
+- No status colour, literal, ramp step or `px` size: neutral chrome, the `overlay`
+  shadow token, and the `body` and `headline` steps only.
 
-**Not checked by any gate.** Every contrast pair, the rendering under
-`forced-colors: active`, and whether the arrow's bordered edges still face outward
-after a collision flip or in right-to-left.
+**Residual.** The wrapper takes no `aria-label` prop, so an icon-only trigger needs
+a name from the caller's trigger node; every shipped trigger already uses named text.
+Contrast pairs remain unmeasured, below.
 
 <KeyboardTable
   name="popover"
@@ -191,22 +190,22 @@ after a collision flip or in right-to-left.
     {
       keys: "Tab",
       action: "Moves focus to the trigger",
-      notes: "One tab stop. The panel joins the tab order only when open.",
+      notes: "One tab stop; the panel joins the tab order only when open.",
     },
     {
       keys: "Enter, Space",
       action: "Opens the panel from the trigger",
-      notes: "Focus moves into the panel, onto its first focusable content.",
+      notes: "Focus moves onto its first focusable content.",
     },
     {
       keys: "Escape",
       action: "Closes the panel",
-      notes: "Focus returns to the trigger. The page behind was never blocked.",
+      notes: "Focus returns to the trigger.",
     },
     {
       keys: "Tab, Shift + Tab",
       action: "Moves through the focusable content in the panel",
-      notes: "Focus is not trapped. Past the last control it leaves the panel.",
+      notes: "Focus is not trapped; past the last control it leaves the panel.",
     },
   ]}
 />
@@ -217,14 +216,13 @@ after a collision flip or in right-to-left.
 
 <PropsTable name="PopoverProps" />
 
-`trigger` is the button's visible content, not a control of your own; a button
-passed here would nest inside another. `side` defaults to `bottom` and is a
-preference the primitive overrides on a collision. `className` merges onto the
-panel and must resolve neither colour axis.
+`trigger` is the button's visible content; a button here would nest inside another.
+`side` defaults to `bottom`, a preference the primitive overrides on collision.
+`className` merges onto the panel and must resolve neither colour axis.
 
 ## Related
 
-- [Dialog](./dialog.mdx) blocks the page and holds the reader until they answer.
-- [Sheet](./sheet.mdx) docks to an edge and is built for touch and larger forms.
-- [Tooltip](./tooltip.mdx) is a passive hover label, and a phone has no hover.
-- [Term](./term.mdx) shows a word's everyday meaning inline, with nothing to open.
+- [Dialog](./dialog.mdx) blocks the page until the reader answers.
+- [Sheet](./sheet.mdx) docks to an edge, built for touch and larger forms.
+- [Tooltip](./tooltip.mdx) is a passive hover label; a phone has no hover.
+- [Term](./term.mdx) shows a word's everyday meaning inline, nothing to open.

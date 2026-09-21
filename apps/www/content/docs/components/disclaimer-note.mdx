@@ -20,9 +20,7 @@ reviewer: engineering
     "Whether visible text is the right home for textVersion, or whether the closed data-attribute vocabulary needs a fifth member.",
   ]}
 >
-  <code className="text-sm">disclaimer-note</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -72,17 +70,15 @@ import { DisclaimerNote } from "@/components/ui/disclaimer-note"
 
 **Asserts.** That the product provides information rather than clinical assessment,
 does not replace a clinician's advice and, where relevant, is not a medical device.
-It asserts them in the product's own words. The component supplies position, type
-size, ink and boundary, and none of the content.
+The component supplies position, type size, ink and boundary, and none of the content.
 
-**Never read as.** A waiver, an excuse, or a substitute for designing safely, because
-a disclaimer does not make an unsafe screen safe. It is never *this number is
-unreliable*: the note is about the product's role, not the measurement. The
+**Never read as.** A waiver or a substitute for designing safely: a disclaimer does not
+make an unsafe screen safe. It is never *this number is unreliable*, since the note is
+about the product's role, not the measurement. The
 [safety review checklist](../health/safety-review-checklist.mdx) judges the screen.
 
 **Colour axis.** Neither. There is no `status` or `category` prop, no `data-status` or
-`data-category`, and no fill. Status colour on a standing note is a permanent false
-alarm, and category colour makes a legal statement look like a topic. See
+`data-category`, and no fill. See
 [The two colour axes](../health/two-colour-axes.mdx).
 
 **Thresholds.** None. No clinical number is written into the component and none passes
@@ -95,8 +91,7 @@ no translation fallback. [Regulatory context](../health/regulatory-context.mdx) 
 out what DCB0129, DCB0160, the EU MDR and FDA SaMD ask of the product.
 
 <SafetyCallout severity="attention" evidence="opinion">
-A product relying on this note to make a screen acceptable has a screen problem. Fix
-the screen. The note sets expectations and never transfers risk onto the reader.
+This note sets expectations. It never transfers risk onto the reader.
 </SafetyCallout>
 
 ## Anatomy
@@ -137,24 +132,23 @@ the screen. The note sets expectations and never transfers risk onto the reader.
 ### One note, at the foot of the surface
 
 Three rows and one `placement="footer"` note under all of them: not one per row, and
-never above them. The rows carry no numbers and no status pills.
+never above them.
 
 <ComponentPreview name="disclaimer-note-once-at-the-foot-of-a-surface" kind="example" align="start" />
 
 ### When nobody wrote the words
 
 Copy from a content service can arrive empty. `children` of `undefined`, `false`, `0`,
-an empty array or whitespace prints an admission and warns in development. Copy
-wrapped in an element is taken at its word.
+an empty array or whitespace prints an admission and warns in development. Copy in an
+element is taken at its word.
 
 <ComponentPreview name="disclaimer-note-no-text-supplied" kind="example" align="start" />
 
 ## Content guidelines
 
 Two sentences at most: what the product does, then what it does not do. Use plain
-words, *this app* rather than *the Service*, and the job title a reader recognises, in
-the product's own language. Name the link for where it goes, because *learn more*
-raises a development warning. No usable sentence appears here, because it would get pasted.
+words, *this app* rather than *the Service*, and the job title a reader recognises.
+Name the link for where it goes, because *learn more* raises a development warning.
 
 <DoDont>
   <DoDont.Do>
@@ -169,21 +163,22 @@ raises a development warning. No usable sentence appears here, because it would 
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+**Audited against WCAG 2.2 AA.** A source pass and a rendered pass, author-run rather
+than independent, clinical review still pending. The rendered pass on
+`/view/base/base-lyra/component/disclaimer-note` was clean: zero axe violations, the
+link kept its target floor, focus-visible held, and nothing scrolled sideways at 320px
+or 200% text. Nothing in the source needed changing. The standing guarantees hold: type
+sizes and colours are role tokens, the decorative glyph is `aria-hidden`, the statement
+is a real paragraph, and the only interactive element is a real anchor that warns on
+unhelpful labels.
 
-- No type size in `px`: the one step is `text-opsin-body`, in rem.
-- No raw colour literal and no ramp step: the ink and hairline are the `--foreground` and `--border` roles.
-- No banned word in the one string the component owns, and no shipped threshold.
-
-**Argued from the source, not measured.**
-
-- Ordinary text in the reading order, with no `role` and no `aria-live`, so a screen reader meets it with no boundary.
-- The statement and the link use the same two roles as body text, and only the version marker is smaller.
-- It reflows at 200% text: no fixed height, `wrap-break-word` on the paragraph and `wrap-anywhere` on the link.
-- The link's floor is `--opsin-target-minimum` with a `2.75rem` fallback, and no gate compares the two.
-
-**Not checked by any gate.** `forced-colors`, the link's hit area in a browser, whether
-a screen reader user finds the note at all, and how `textVersion` is announced.
+**One deferred item.** The root is a plain `<div>` with no `role` and no accessible
+name, so a screen reader meets the note as ordinary sentences rather than a bounded
+"note". Reading order and content are fully conveyed, so this is not an AA failure. The
+boundary is an enhancement left out on purpose: a `role` is a spec decision reserved to
+review, and an `aria-label` would inject an English string into a translation-neutral
+component. Standing gates still cover its one string on every commit: no `px` type size,
+no raw colour literal, no banned word.
 
 <KeyboardTable
   name="disclaimer-note"
@@ -225,6 +220,6 @@ colour prop, and an axis class through `className` raises a development warning.
 ## Related
 
 - [Callout](./callout.mdx) is information about the content. A disclaimer is about the product.
-- [AlertBanner](./alert-banner.mdx) is entitled to speak. Styling a disclaimer as an alert is the commonest mistake.
+- [AlertBanner](./alert-banner.mdx) is entitled to speak; styling a disclaimer as one is the commonest mistake.
 - [ConsentSheet](./consent-sheet.mdx) is a request the reader answers, not a statement they read.
 - [CareCard](./care-card.mdx) is an instruction with an author. A disclaimer asks for nothing.

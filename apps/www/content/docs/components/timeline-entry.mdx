@@ -20,9 +20,7 @@ usedIn: ["daily-log-screen", diabetes-medicines-app]
     "No locale is forwarded to the composed RelativeTime, so the recorded time takes the runtime default and a server render can disagree with a browser.",
   ]}
 >
-  <code className="text-sm">timeline-entry</code> is shipped: it installs as
-  source and the API may change in any release. It has had no accessibility
-  review and no clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -64,10 +62,10 @@ import { TimelineEntry } from "@/components/ui/timeline-entry"
   use={[
     "Showing one recorded event in a history the product lays out: a prescription issued, a test booked, a note added.",
     "Placing a single dated entry on a vertical rail, where the product owns the list around it.",
-    "A row that needs the recorded time written the way people say it, with an optional status beside the event.",
+    "A row that needs the recorded time in words, with an optional status beside the event.",
   ]}
   avoid={[
-    { case: "You want one component to own the whole history, its ordering and its data model. Build the list yourself.", instead: "card" },
+    { case: "You want one component to own the whole history, its ordering and its data model.", instead: "card" },
     { case: "You are charting one reading as it moves over time rather than listing distinct events.", instead: "trend-sparkline" },
     { case: "You only need to say when a single thing happened, with no rail, marker or event around it.", instead: "relative-time" },
     { case: "You are recording medicine doses taken and missed, which has its own shape.", instead: "dose-tracker" },
@@ -92,21 +90,21 @@ the status axis with a word and a glyph. See
 **Thresholds.** The product owns them all. The entry holds no threshold, no
 staleness boundary and no event text.
 [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
-is why it never guesses whether a recorded time is now too old to trust, and
-[Trends and change](../health/trends-and-change.mdx) is why one entry is one
-event rather than a direction.
+covers why it never guesses whether a recorded time is too old to trust, and
+[Trends and change](../health/trends-and-change.mdx) covers why one entry is one
+event, not a direction.
 
 ## Anatomy
 
 <Anatomy
   name="timeline-entry"
   parts={[
-    { name: "TimelineEntry", describes: "The root, a single list item. It takes colour from neither axis and holds no fixed height.", prop: "when" },
+    { name: "TimelineEntry", describes: "The root, a single list item. It takes colour from neither axis.", prop: "when" },
     { name: "TimelineEntry.Rail", describes: "The neutral column holding the marker and, unless this is the last entry, the connector.", prop: "isLast" },
     { name: "TimelineEntry.Marker", describes: "The dot on the rail: a muted fill and a hairline. Never a status colour." },
     { name: "TimelineEntry.Time", describes: "The recorded time, drawn by RelativeTime with the event word fixed at recorded.", prop: "now" },
     { name: "TimelineEntry.Title", describes: "What happened, in the reader's words, with any status pill beside it.", prop: "title" },
-    { name: "StatusPill", describes: "The level the product assigned, at size sm. The only part carrying an axis colour.", prop: "status" },
+    { name: "StatusPill", describes: "The level the product assigned, at size sm. The only part with an axis colour.", prop: "status" },
     { name: "TimelineEntry.Body", describes: "The product's own detail beneath the title, in muted text.", prop: "children" },
   ]}
 />
@@ -119,10 +117,10 @@ event rather than a direction.
       cardinality: "1",
       note: "A li element. Neither data-status nor data-category.",
       children: [
-        { part: "TimelineEntry.Rail", cardinality: "1", note: "aria-hidden. Holds the marker and the connector.", children: [
-          { part: "TimelineEntry.Marker", cardinality: "1", note: "Neutral muted fill and hairline." },
+        { part: "TimelineEntry.Rail", cardinality: "1", note: "aria-hidden.", children: [
+          { part: "TimelineEntry.Marker", cardinality: "1" },
         ] },
-        { part: "TimelineEntry.Time", cardinality: "1", note: "Wraps a RelativeTime with event fixed at recorded." },
+        { part: "TimelineEntry.Time", cardinality: "1", note: "Wraps a RelativeTime." },
         { part: "TimelineEntry.Title", cardinality: "1", children: [
           { part: "StatusPill", cardinality: "0..1", note: "Stamps data-status. Absent when no status was supplied." },
         ] },
@@ -136,23 +134,23 @@ event rather than a direction.
 
 ### A history on one rail
 
-Every row names its event and dates it, the connector runs to the last entry and
-stops there, and one row carries a status the product assigned.
+Every row names and dates its event, the connector runs to the last entry and
+stops, and one row carries a status the product assigned.
 
 <ComponentPreview name="timeline-entry-in-a-history" kind="example" align="start" />
 
 ### The status rides the pill
 
-Two entries alike but for `status`. The rail, the marker and the entry stay the
-same neutral chrome, and the status changes only the pill beside the title.
+Two entries alike but for `status`. The rail, the marker and the entry stay
+neutral, and status changes only the pill beside the title.
 
 <ComponentPreview name="timeline-entry-with-a-status" kind="example" align="start" />
 
 ## Content guidelines
 
 Name the event in the title as something that happened: `Repeat prescription
-issued`, `Blood test booked`. A bare noun leaves the reader guessing whether the
-thing was done, is due, or was cancelled. Let any status stay on the pill.
+issued`, `Blood test booked`. A bare noun leaves the reader guessing whether it
+was done, due, or cancelled. Let any status stay on the pill.
 
 <DoDont>
   <DoDont.Do>
@@ -165,23 +163,26 @@ thing was done, is due, or was cancelled. Let any status stay on the pill.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears anywhere.
-
-**Argued from the source, not measured.**
+**Audited against WCAG 2.2 AA in a source pass and a rendered pass.** The
+rendered pass (axe, target size, focus visible, reflow at 320px) and the source
+pass against the rubric were both clean. This audit is author run, not an
+independent review.
 
 - The rail and the marker carry `aria-hidden`, so a screen reader meets the
   time, the title, any status word and the body in reading order.
-- The recorded time is the system RelativeTime, so the exact date and time stay
-  in the accessibility tree even when only the phrase is on screen.
-- A status rides a StatusPill that carries its own word and glyph, so the level
-  survives greyscale.
-- Nothing in the entry is focusable, because nothing in it is a control. The
-  root is a list item, so supply the `ol` or `ul` around it.
+- The recorded time is the system RelativeTime, a semantic `time` element, so
+  the exact instant stays in the accessibility tree when only the phrase shows.
+- Nothing in the entry is focusable, so keyboard, focus and target size do not
+  apply.
 
-**Not checked by any gate.** No contrast pair has been measured, marker
-alignment at 200 percent text is unchecked, and no screen reader has met the
-component.
+**Read this before you rely on it.**
+
+- The marker and the connector are decorative chrome under `aria-hidden`, so
+  they are exempt from Non-text Contrast (1.4.11). They use role tokens anyway.
+- The root renders a bare `li`, so the product must supply the `ol` or `ul`
+  around it for list semantics to hold. On Safari with VoiceOver a
+  `list-style: none` list can drop its list role, a platform quirk shared by
+  every list based component here rather than a fault in this one.
 
 <KeyboardTable
   name="timeline-entry"
@@ -197,14 +198,14 @@ component.
 
 <PropsTable name="TimelineEntryProps" />
 
-`when` is ISO 8601 with an offset, the same contract RelativeTime enforces on
-its `at`. `now` is required because this component never reads the clock, so
-read the clock once per screen and pass one value to every entry. The event word
-is fixed and no `locale` is forwarded, so a product needing either composes
+`when` is ISO 8601 with an offset, the contract RelativeTime enforces on its
+`at`. `now` is required because this component never reads the clock, so read
+the clock once per screen and pass one value to every entry. The event word is
+fixed and no `locale` is forwarded, so a product needing either composes
 RelativeTime directly.
 
 ## Related
 
-- [RelativeTime](./relative-time.mdx) is the recorded time alone, with no event and no rail around it.
-- [Card](./card.mdx) is a bounded block around related content, and an entry can sit inside one.
+- [RelativeTime](./relative-time.mdx) is the recorded time alone, with no event or rail around it.
+- [Card](./card.mdx) is a bounded block around related content; an entry can sit inside one.
 - [TrendSparkline](./trend-sparkline.mdx) is one reading moving over time, where this lists distinct events.

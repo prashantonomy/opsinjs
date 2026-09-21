@@ -19,9 +19,7 @@ reviewer: engineering
     "No contrast pair is measured and forced colours are unhandled, so the hairline, popup, highlight and tick are argued to survive rather than checked.",
   ]}
 >
-  <code className="text-sm">combobox</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -142,23 +140,23 @@ import { Combobox } from "@/components/ui/combobox"
 ### Filtering a list
 
 `items` supplies a fictional set of cities and typing narrows it. `value` starts
-on one city, so the input is filled and the list shows a tick.
+on one city, so the input is filled and the tick is shown.
 
 <ComponentPreview name="combobox-filtering-a-list" kind="example" align="start" />
 
 ### No match
 
 Type something the list does not contain, such as "xyz". `emptyMessage` fills the
-popup with a useful line, and Base UI announces it politely.
+popup, announced politely.
 
 <ComponentPreview name="combobox-no-match" kind="example" align="start" />
 
 ## Content guidelines
 
-Name the field for the thing chosen: `label` reads "Medication", not "Search",
-because a screen-reader user hears the name before the role. Write `emptyMessage`
-to help: "No matches. Check the spelling." says what to try next. Spell item
-labels as the product's list spells them.
+Name the field for the thing chosen, "Medication" rather than "Search", since a
+screen-reader user hears the name before the role. Write `emptyMessage` to help,
+such as "No matches. Check the spelling." Spell item labels as the product's list
+spells them.
 
 <DoDont>
   <DoDont.Do>
@@ -173,22 +171,25 @@ labels as the product's list spells them.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a neutral
-chrome role and no type size is in `px`.
+**Audited against WCAG 2.2 AA** in a source pass and a rendered pass, author-run
+rather than independent. Clinical review is pending.
 
-**Argued from the source, not measured.**
+The audit fixed two defects in the source: the trigger button now takes an
+`aria-label` built from the field's label, and the input's stray `outline-none`
+no longer hides the keyboard focus ring.
 
 - Base UI renders `role="combobox"` on the input, `role="listbox"` on the popup
   and `role="option"` with `aria-selected` on each match.
-- The input is the single tab stop, and the Arrow keys move a highlight through
-  the popup.
+- The input is the single tab stop; Arrow keys move a highlight through the popup.
 - The selection is a lucide Check and the highlight a neutral surface under
   `data-highlighted`, so both survive greyscale.
 - The input and the trigger floor a 44pt target in rem and carry their own
   focus ring.
 
-**Not checked by any gate.** Every contrast pair, `forced-colors: active`, and
-whether a screen reader hears the list narrow or the empty line.
+**Known gaps.** The label reaches a screen reader as `aria-label`, not a visible
+label element; a shared repair across the other input wrappers is still open.
+The live match count is not announced as the reader filters. No contrast pair is
+measured, so the report below stands in.
 
 <KeyboardTable
   name="combobox"
@@ -234,11 +235,11 @@ whether a screen reader hears the list narrow or the empty line.
 
 `value` and `onValueChange` make this controlled, with no selection state of its
 own. A `value` matching no item renders nothing chosen and raises a development
-warning. `label` is required. `items` comes from the product: opsinjs ships no
-vocabulary. Omitted, `emptyMessage` falls back to a plain line.
+warning. `label` is required, and `items` comes from the product. Omitted,
+`emptyMessage` falls back to a plain line.
 
 ## Related
 
 - [Select](./select.mdx) opens a closed menu of a fixed list with no text filter.
-- [RadioGroup](./radio-group.mdx) shows two to five options side by side to compare.
-- [Field](./field.mdx) is the labelled wrapper a Combobox sits inside, giving the visible label and error.
+- [RadioGroup](./radio-group.mdx) shows two to five options side by side.
+- [Field](./field.mdx) is the labelled wrapper a Combobox sits inside.

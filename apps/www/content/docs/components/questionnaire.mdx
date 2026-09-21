@@ -19,9 +19,7 @@ reviewer: engineering
     "The refusal to score binds only the shell: nothing stops a product wiring a running total into its own controls, and no lint on consumer code catches it.",
   ]}
 >
-  <code className="text-sm">questionnaire</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -70,13 +68,13 @@ import { Questionnaire } from "@/components/ui/questionnaire"
 
 ## Clinical meaning
 
-**Asserts.** Two things, both about the form and not the person: these questions, in this order, and how far through them you are. The progress count is an ordinal of position, drawn as plain text.
+**Asserts.** Two things about the form, not the person: these questions, in this order, and how far through them you are. The progress count is an ordinal of position, drawn as plain text.
 
-**Never read as.** A score, a screening result, a diagnosis or triage. A questionnaire on screen means the product has asked, not that it has assessed. The shell draws whatever wording it is handed, so a product that edits or misgrades a licensed instrument owns that hazard in full. [Regulatory context](../health/regulatory-context.mdx) draws that line around a presentation layer.
+**Never read as.** A score, a screening result, a diagnosis or triage. A questionnaire on screen means the product has asked, not that it has assessed. The shell draws whatever wording it is handed, so a product that edits or misgrades a licensed instrument owns that hazard. [Regulatory context](../health/regulatory-context.mdx) draws that line around a presentation layer.
 
-**Colour axis.** Neither. The shell states no level and names no category, so it carries neither `data-status` nor `data-category`. A computed result is a status surface on the product's own screen, never tinted into this form. [The two colour axes](../health/two-colour-axes.mdx) forbids the mix.
+**Colour axis.** Neither. The shell states no level and names no category, so it carries neither `data-status` nor `data-category`. [The two colour axes](../health/two-colour-axes.mdx) forbids the mix.
 
-**Thresholds.** The product, always. opsinjs ships no instrument, no default question, no option, no threshold and no interpretation text. Scoring happens off this component: the shell reads no answer and holds no code path that could grade one. [Evidence and references](../health/evidence-and-references.mdx) is why an instrument's wording and scoring stay with its licensee.
+**Thresholds.** The product, always. opsinjs ships no instrument, no default question, no option, no threshold and no interpretation text. [Evidence and references](../health/evidence-and-references.mdx) is why an instrument's wording and scoring stay with its licensee.
 
 ## Anatomy
 
@@ -157,7 +155,7 @@ import { Questionnaire } from "@/components/ui/questionnaire"
 
 ### A set of questions
 
-Three invented questions read as one group under a single title, each with a control the product composed. The `questions` array is the whole of the content.
+Three invented questions under one title, each with a control the product composed.
 
 <ComponentPreview name="questionnaire-a-set-of-questions" kind="example" align="start" />
 
@@ -169,7 +167,7 @@ Three invented questions read as one group under a single title, each with a con
 
 ## Content guidelines
 
-Write every question and option in the reader's own words. Render a licensed instrument's wording exactly as licensed, because the shell cannot tell an edited item from the original. Keep the title a short name for the set, not an instruction.
+Write every question and option in the reader's own words. Render a licensed instrument exactly as licensed, because the shell cannot tell an edited item from the original. Keep the title a short name, not an instruction.
 
 <DoDont>
   <DoDont.Do>
@@ -182,19 +180,25 @@ Write every question and option in the reader's own words. Render a licensed ins
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+**Audited against WCAG 2.2 AA, in a source pass and a rendered pass.** The audit is author-run, not independent, and clinical review is pending.
 
-- No status colour, no category colour, no colour literal and no ramp step: neutral chrome roles only.
+**Fixed in this pass.**
+
+- Every prompt carries a stable id, and each control sits in a `role="group"` named by that prompt through `aria-labelledby`.
+- The default demo's free-text control gained an `aria-label`, so it is no longer unnamed.
+
+**Neutral chrome, checked on every commit.**
+
+- No status colour, no category colour, no colour literal and no ramp step.
 - No `px` type size. Title, prompts and readout are semantic type steps.
 
-**Argued from the source, not measured.**
+**Known and deferred.**
 
-- The title is the form's `aria-labelledby`, and the progress line is `aria-live="polite"`, announced as focus moves.
-- The shell adds no tab stop and steals no key. Every arrow, space and Return belongs to the control it lands in.
-- The one event the shell owns is submit, cancelled so a stray Return cannot reload a half-answered form.
-- At 200% text the questions stack and wrap, and nothing is truncated.
+- The shell cannot name a product's own control node, so a product that passes a bare input still labels it, with the per-question group supplying context.
+- The title is the form's `aria-labelledby`, drawn as a styled div, because the shell cannot know the host page's heading level. A visible heading on the product's side is recommended.
+- The progress line is `aria-live="polite"`, announced as focus moves. It may read as chatty, which is a tuning question for the product.
 
-**Not checked by any gate.** Every contrast pair against the host ground, how the aria-live readout plays for a screen reader user, and `forced-colors: active`.
+**Not measured.** Every contrast pair against the host ground, and `forced-colors: active`.
 
 <KeyboardTable
   name="questionnaire"
@@ -251,5 +255,5 @@ Write every question and option in the reader's own words. Render a licensed ins
 ## Related
 
 - [Field](./field.mdx) is one question with one answer. A set of one needs no shell.
-- [SymptomPicker](./symptom-picker.mdx) collects symptoms as a multi-select grid, not a sequence of separate questions.
-- [LogSheet](./log-sheet.mdx) records repeated readings over time. A questionnaire gathers a one-off set and keeps no history.
+- [SymptomPicker](./symptom-picker.mdx) collects symptoms as a multi-select grid, not a sequence.
+- [LogSheet](./log-sheet.mdx) records repeated readings over time. A questionnaire gathers a one-off set and keeps none.

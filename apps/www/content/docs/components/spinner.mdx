@@ -18,9 +18,7 @@ aliases: ["loader", "busy indicator", "activity indicator"]
     "Forced colours are unhandled, because the SVG stroke is left where the author set it, and whether the ring stays visible there is untested.",
   ]}
 >
-  <code className="text-sm">spinner</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -119,21 +117,26 @@ wrong indicator.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+Audited against WCAG 2.2 AA in a source pass over the component and its
+examples and a rendered pass covering axe, target size, focus visibility and
+reflow at 320px wide. The audit is author run, not an independent review, and
+clinical review is still pending.
 
-- No status colour, no colour literal and no ramp step. The ring draws only in `currentColor`.
-- No `px` size. The ring is set in `em` and the caption in a semantic type step.
+The source pass found nothing that needed changing. The root already carries
+a required `aria-label` plus a visually hidden text twin, the SVG ring is
+`aria-hidden` so the decorative motion stays out of the accessibility tree,
+sizing is em based throughout with no `px` type step, and the ring draws only
+in `currentColor` with no status colour or category colour of its own. The
+rendered pass came back clean: no axe violation, no target size finding and
+no horizontal scroll at 320px.
 
-**Argued from the source, not measured.**
-
-- The root is a `role="status"` live region carrying `label` as its `aria-label` and as a visually hidden copy.
-- The SVG ring is `aria-hidden`, so the decorative motion stays out of the accessibility tree.
-- `label` is required. A missing or empty one raises a development warning rather than rendering an unnamed region.
-- `motion-reduce:animate-none` holds the ring still, and the wait is still carried by the live region and the hidden text.
-
-**Not checked by any gate.** Contrast of the ring against either theme's
-surfaces, what it draws under `forced-colors: active`, and whether a screen
-reader speaks the wait once.
+Two points stay open. The ring's contrast against either theme's surfaces
+cannot be verified or hardened from source, because the ring takes whatever
+ink colour the caller's context supplies rather than a colour the component
+sets itself, so that gap belongs to the ContrastReport below rather than to
+this file. And the development only missing label warning does not stop a
+production caller from passing an empty or whitespace `label`, which matches
+the same convention already used by `divider` and `segmented-control`.
 
 <KeyboardTable
   name="spinner"

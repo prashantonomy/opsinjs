@@ -19,9 +19,7 @@ reviewer: engineering
     "On a status tint an action link takes a per-level boundary colour the caller supplies, and that colour has not been measured against the four tints in either theme.",
   ]}
 >
-  <code className="text-sm">link</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -123,23 +121,35 @@ says so in its own text; opsinjs does not add that word.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+**Audited against WCAG 2.2 AA** in a source pass and a rendered pass. The audit
+is author-run, so it is not an independent review, and clinical review is still
+pending. `pnpm run check:a11y` also runs on every commit: every colour is a role
 token, no type size is in `px`, and no banned word appears anywhere.
 
-**Argued from the source, not measured.**
+Two moderate gaps were fixed in this pass:
 
-- A real anchor with an `href`, so it is keyboard reachable, opens in a new tab
-  and appears in a screen reader's list of links.
-- Every emphasis carries its own focus ring in its class list, so a project
-  installed without the product stylesheet keeps it.
-- `action` and `secondary` floor the target at `--opsin-target-minimum` in both
-  axes. `inline` does not, because SC 2.5.8 exempts an inline target.
-- `inline` carries `wrap-anywhere` and an em-based underline offset, so a long
-  label reflows and the rule stays clear of descenders at 200% text.
+- A `target="_blank"` link now defaults `rel` to `noopener noreferrer`, keeping
+  any `rel` the caller supplied, and appends an `sr-only` "(opens in a new tab)"
+  tail so the change of destination is spoken (2.4.4).
+- The `inline` focus ring now reads `--opsin-border-focus`, so it grows when a
+  low-vision consumer raises that token instead of staying flat at 2px. It still
+  defaults to 2px, so nothing changes visually (2.4.7, 1.4.11).
 
-**Not checked by any gate.** Contrast for the three emphases and for the
-per-level boundary on a status tint. Whether the ladder holds in greyscale, and
-whether a router element passed as `render` doubles or drops the focus ring.
+Two items a reader should know are honestly left as they are:
+
+- The new-tab cue is spoken only through `sr-only` text, not a visible marker,
+  to preserve the visual design. A caller who wants a visible external cue adds
+  their own.
+- `inline` sits below the 24px target floor by design, because SC 2.5.8 exempts
+  an inline target inside a sentence and a full floor would inflate the line
+  box. `action` and `secondary` keep the `--opsin-target-minimum` floor in both
+  axes.
+
+Contrast for the three emphases and for the per-level boundary on a status tint
+is not yet measured, and whether the ladder holds in greyscale is argued rather
+than tested.
+
+<ContrastReport component="link" />
 
 <ContrastReport component="link" />
 

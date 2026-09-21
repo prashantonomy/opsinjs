@@ -19,9 +19,7 @@ reviewer: engineering
     "Base UI defaults type to button, so a form's submit control has to say type=\"submit\"; whether to restore the platform default is open.",
   ]}
 >
-  <code className="text-sm">button</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -103,7 +101,7 @@ import { Button } from "@/components/ui/button"
 ### One primary per surface
 
 One filled button answers *what should I do here?*. Everything else is secondary
-or quiet, and the row is spaced by `--opsin-target-separation`.
+or quiet.
 
 <ComponentPreview name="button-one-primary-per-surface" kind="example" align="start" />
 
@@ -111,8 +109,7 @@ or quiet, and the row is spaced by `--opsin-target-separation`.
 
 `busy` keeps the label, blocks activation and shows the indicator in the icon's
 seat. `busyLabel="Saving"` gives the state a word, and `fullWidth` stops the control
-growing when that word appears. The submit control says `type="submit"`, because
-the default here is `button`.
+growing when it appears.
 
 <ComponentPreview name="button-busy-at-the-foot-of-a-form" kind="example" align="start" />
 
@@ -120,7 +117,7 @@ the default here is `button`.
 
 A label is a verb that names its own outcome, in sentence case, with no full stop:
 *Save reading*, *Delete this reading*. Never *OK*, *Submit*, *Yes* or *Click here*,
-because each sends the reader back up the page to reconstruct the question.
+each of which sends the reader back up the page to reconstruct the question.
 
 <DoDont>
   <DoDont.Do>
@@ -133,24 +130,24 @@ because each sends the reader back up the page to reconstruct the question.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears anywhere.
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
+author-run, not an independent review, and clinical review is still pending. The
+rendered pass on the isolated view was clean, with no axe, target-size, focus-visible
+or reflow failure. The source met every check, so the audit changed nothing.
 
-**Argued from the source, not measured.**
+It confirmed the load-bearing behaviour: a real `button` with the platform role and
+keys, the visible label as the accessible name with the icon `aria-hidden`, `busy`
+handled through `aria-busy` and `aria-disabled` so the control keeps its tab stop,
+and the outline focus ring that never shifts layout.
 
-- A real `button` element, so Return, Space and the role come from the platform.
-  `render` and `nativeButton` are pinned, so nothing can change the tag.
-- The visible label is the accessible name and the icon is `aria-hidden`. A label
-  that renders no text raises a development warning.
-- `busy` sets `aria-busy` and `aria-disabled`, never the native `disabled`, so the
-  control keeps its tab stop and its name.
-- The focus ring is an outline outside the box, so it never moves layout. An
-  ancestor that clips will clip it.
-
-**Not checked by any gate.** Contrast for every variant in both themes, the 44 by
-44 target and the 8pt separation, whether `destructive` reads as different from
-`secondary`, `forced-colors` beyond `primary`, and whether a screen reader speaks
-the busy state.
+**Residual items to know.** No live region is mounted, by design: `busy` reaches the
+tree on the focused control as `aria-busy` plus `aria-disabled`, and `busyLabel`
+carries a word there, but with no `busyLabel` it is not otherwise announced. Because
+the ring is an outline with offset, an ancestor set to clip can hide it. `Button.Target` raises the hit area to the 44px floor under the SC 2.5.8
+inline exception, so a project without the product stylesheet owes
+`--opsin-target-separation`. In dark mode the quiet and primary labels clear the
+WCAG 4.5:1 floor but fall under the stricter APCA figure, which sits outside WCAG
+2.2 AA and belongs to the theme token layer.
 
 <KeyboardTable
   name="button"
@@ -203,16 +200,15 @@ the busy state.
 <PropsTable name="ButtonProps" />
 
 `type` defaults to `button`, not `submit`, so a form's submit control has to say
-`type="submit"`. There is no `disabled` convenience prop; the native attribute is
-the whole of it, and passing `busy` and `disabled` together raises a development
-warning. `className` and `style` are merged caller last and must never resolve a
-`--opsin-status-*` or `--opsin-category-*` role, because a Button carries no
-clinical axis.
+`type="submit"`. There is no `disabled` convenience prop: the native attribute is
+the whole of it, and passing `busy` and `disabled` together warns in development.
+`className` and `style` merge caller last and must never resolve a `--opsin-status-*`
+or `--opsin-category-*` role, because a Button carries no clinical axis.
 
 ## Related
 
-- [Link](./link.mdx) is for navigation. A button does something and a link goes
-  somewhere, which is why this component cannot render an anchor.
+- [Link](./link.mdx) is for navigation. A button acts and a link goes somewhere,
+  which is why this component cannot render an anchor.
 - [IconButton](./icon-button.mdx) is icon-only.
 - [Switch](./switch.mdx) covers an immediate on or off with no confirmation step.
 - [SegmentedControl](./segmented-control.mdx) covers choosing among options rather than acting.

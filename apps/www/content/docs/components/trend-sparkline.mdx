@@ -20,9 +20,7 @@ usedIn: [choose-a-component, sharing-with-a-clinician, trend-review, trend-with-
     "minimumPoints is required with no default, so the copied demo carries a threshold-shaped number A11Y014 cannot see.",
   ]}
 >
-  <code className="text-sm">trend-sparkline</code> is shipped: it installs as source
-  and the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -200,25 +198,23 @@ the runtime's.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
+author-run, not an independent review, and clinical review is still pending.
 
-- A11Y014 refuses a threshold-shaped numeric literal. A11Y015 refuses two bounds with
-  no `source`.
-- No raw colour, no ramp step and no `px` type size.
-- No element takes both colour axes.
+**What the audit found.** Nothing to change. The rendered pass was clean, with no serious
+axe, target-size or focus breach at 320px, and the source pass
+confirmed every check: the two colour axes stay apart, and status is carried by the
+caption [StatusPill](./status-pill.mdx), never by colour alone. The committed
+`check:a11y` gate reruns the literal, bound, colour and axis rules.
 
-**Argued from the source, not measured.**
+**Residual and deferred.**
 
-- The plot is `role="img"` with a composed name, never `slider`, `meter` or
-  `progressbar`.
-- No prop removes the caption, but `className` hides it, unchecked by any gate.
-- No `yAxisMin` exists, so the axis includes zero. A range missing a source or a bound
-  draws nothing.
-- `preserveAspectRatio="none"` stretches the viewBox, so apparent slope follows column
-  width and text size.
-
-**Not checked by any gate.** Caption contrast on the caller's surface, 200% text, forced
-colours, print, right to left, greyscale.
+- No per-point data table twin. The text alternative is the `role="img"` name plus the
+  visible caption. A full table is an enhancement, not an AA requirement.
+- `className` merges onto the whole subtree, so an `sr-only` variant can hide the
+  caption, the only text carrier. A documented API risk; keep it visible.
+- Under forced colours the line drops its category tint to `CanvasText`. Category is
+  identity only, so nothing else is lost, and this is intentional.
 
 <KeyboardTable
   name="trend-sparkline"
@@ -276,9 +272,8 @@ colours, print, right to left, greyscale.
 <PropsTable name="TrendSparklineProps" />
 
 `precision`, `series` and `minimumPoints` are required with no default, because none is a
-number opsinjs could supply. `TrendPoint` and `ReferenceRange` come from
-`@/lib/opsinjs`, so no second copy can drift. `TrendDirection` also exports `unsettled`,
-which the component itself never produces.
+number opsinjs could supply. `TrendPoint` and `ReferenceRange` come from `@/lib/opsinjs`,
+so no second copy can drift.
 
 ## Related
 

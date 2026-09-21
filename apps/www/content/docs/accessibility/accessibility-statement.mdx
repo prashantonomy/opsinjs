@@ -20,12 +20,15 @@ system and its documentation site. It does not cover any product built with them
 opsinjs makes **no conformance claim** against WCAG 2.2 or any other
 accessibility standard, at any level.
 
-That is not modesty. It is the accurate description of a project in which no
-assistive technology has been used against the code and no evaluation of any
-kind has been performed. Every catalogue row is implemented and installable,
-which changes what *could* be evaluated and nothing
-about what has been: a conformance claim requires evaluation evidence, and there
-is none.
+That is not modesty. Every one of the sixty catalogue components has now been
+audited against WCAG 2.2 AA, in a static source pass and a rendered pass, and the
+findings were fixed in the same change. That audit was run by the authors of the
+components, not by an independent reviewer, so it cannot ground a conformance
+claim: a conformance claim requires independent evaluation evidence, and there is
+none. What may be said is what was done, that the catalogue was audited against
+WCAG 2.2 AA by its own authors, and no more. See
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx) for how the
+audit was run and why it is not independent.
 
 ### What we do claim
 
@@ -46,7 +49,7 @@ Three narrower things, each of which is checkable:
 | --- | --- |
 | The opsinjs token layer and stylesheets | Any product built with opsinjs |
 | The documentation site at this domain | Third-party sites linked from it |
-| The component specifications and the sixty implementations | The runtime behaviour of any rendered component, which no evaluation has yet measured |
+| The component specifications and the sixty implementations, audited against WCAG 2.2 AA by their authors | An independent review of that audit, and a clinical review, neither of which has happened |
 
 ## What you own
 
@@ -67,13 +70,15 @@ repository:
 
 <Steps>
 
-### Verify the "no evaluation" claim
+### Verify the audit claim
 
 Open [Components](../components/index.mdx) and pick any component.
-Its catalogue row records no accessibility review, and neither does any of the
-other fifty-nine. The status matrix on that page prints the same finding as a
-sentence above the table rather than as a column of sixty identical cells.
-Nothing here has been through a review and nothing claims it has.
+Its catalogue row records an author-run WCAG 2.2 AA audit and no independent
+accessibility review, and so does each of the other fifty-nine. The status matrix
+on that page prints the same finding as a sentence above the table rather than as
+a column of sixty identical cells. Every component here was audited by its own
+authors, none has been independently reviewed, and none has had a clinical
+review.
 
 ### Verify the "generated numbers" claim
 
@@ -107,7 +112,9 @@ of the run that produced them.
   script="scripts/capture-registry.mts"
   what="A measured result for any rendered component"
 >
-Nothing that renders has been measured. The two scripts that would do it are
+No figure has yet been captured for anything that renders. The rendered audit
+pass checked components against WCAG 2.2 AA by hand rather than by capturing a
+number, and the two scripts that would publish one are
 `scripts/check-a11y.mts --layout` and `scripts/capture-registry.mts`. Both need
 Playwright, which is deliberately in no `package.json`, so they run only in the
 nightly workflow and neither publishes a figure here.
@@ -117,8 +124,14 @@ nightly workflow and neither publishes a figure here.
 
 Stated plainly, because a statement without this section is not a statement.
 
-- **No conformance evaluation of any kind has been performed.** There has been
-  no third-party audit, no internal audit, no expert review.
+- **No independent accessibility review has been performed.** The sixty
+  components were audited against WCAG 2.2 AA by their own authors, in a source
+  pass and a rendered pass, and the findings were fixed; an author auditing their
+  own work is a floor raised, not a verdict delivered. There has been no
+  third-party audit and no independent expert review. See
+  [ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx).
+- **No clinical review has taken place.** Nothing in the catalogue is for a
+  production health surface until a clinician signs it.
 - **No assistive technology has been used against this codebase.** Every cell of
   the tested matrix on [Screen readers](./screen-readers.mdx) says *Not tested*.
 - **`forced-colors` is unimplemented, and `prefers-contrast` is answered in one

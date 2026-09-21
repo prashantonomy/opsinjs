@@ -14,8 +14,11 @@
  * used to publish a bare `status` word per row and nothing else, so an agent
  * that read only this endpoint learned that sixty components were `beta` and
  * learned nothing about what `beta` was a promise of. It was a promise of
- * nothing: no component in this catalogue has had an accessibility review or
- * a clinical review. The row-level string is the short form, because it is
+ * very little: every component in this catalogue has now been audited against
+ * WCAG 2.2 AA by its own authors, and none has had an independent
+ * accessibility review or a clinical review (ADR 0025 records that the audit
+ * is author-run, not an independent one). The row-level string is the short
+ * form, because it is
  * repeated sixty times; the root-level one is the full invariant sentence,
  * because it is written once and is the first thing a parser reaches. Both
  * are flat text rather than derived from `status`, which is the whole point:
@@ -95,7 +98,7 @@ export function GET(): Response {
        other carrier in this file. Every other machine route keeps the
        provenance wording, which now names the review floor too. */
     notice:
-      "No opsinjs component has had an accessibility review or a clinical review. `shipped` means the source installs, and it does not mean either review has happened. Nothing here is for a production health surface.",
+      "Every opsinjs component has been audited against WCAG 2.2 AA by its own authors. None has had an independent accessibility review, and none has had a clinical review, which is still pending. `shipped` means the source installs, and it does not mean an independent review or a clinical review has happened. Nothing here is for a production health surface.",
     matrix: {
       bases: [...KNOWN_BASES],
       styles: [...KNOWN_STYLES],

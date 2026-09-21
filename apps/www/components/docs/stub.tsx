@@ -199,15 +199,15 @@ function issueHref(issue: string): string | null {
  * same machine-readable marker as <NotBuiltYet>. Once there is code it drops
  * the marker and changes what it says.
  *
- * WHAT IT SAYS ONCE THERE IS CODE IS "Installable. Not reviewed." It used to
- * read "This is not stable yet", which was a sentence about a gradient: alpha,
- * beta, stable, and the reader's job was to work out how far along that line
- * they were. There is no gradient any more. A component either installs or it
- * does not, and none of them has been through an accessibility review or a
- * clinical review. "Not stable yet" would now be the only thing left on the
- * page implying a ladder that was taken down, and it names the smaller of the
- * two risks: an API that moves costs a developer an afternoon, and an
- * unreviewed health component costs somebody else something worse.
+ * WHAT IT SAYS ONCE THERE IS CODE IS "Audited for accessibility. Clinical
+ * review pending." It used to read "This is not stable yet", which was a
+ * sentence about a gradient: alpha, beta, stable, and the reader's job was to
+ * work out how far along that line they were. There is no gradient any more. A
+ * component installs, it has been audited against WCAG 2.2 AA by the authors
+ * rather than by an independent party, and it has not had a clinical review.
+ * The header names the review a reader most needs to know is missing, because a
+ * component that installs and passes an author audit can still be the wrong
+ * thing to put on a production health surface until a clinician has signed it.
  *
  * The questions list survives promotion. A component page with no open safety
  * questions is either finished or has not been thought about, and shipping is
@@ -265,7 +265,7 @@ export function StubNotice({
         >
           {isPlanned
             ? "Specification only. Nothing is implemented"
-            : "Installable. Not reviewed."}
+            : "Audited for accessibility. Clinical review pending."}
         </h2>
         <StatusBadge status={status} plain className="ml-auto" />
       </div>

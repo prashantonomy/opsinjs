@@ -19,9 +19,7 @@ reviewer: engineering
     "Nothing here is dismissible, and a dismiss control would need a name, a 44pt target and a memory that outlives the render, none of them designed.",
   ]}
 >
-  <code className="text-sm">callout</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -123,19 +121,11 @@ Keep it to a short paragraph in the same voice as the surrounding text. The box 
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+This component was audited against WCAG 2.2 AA in a source pass and a rendered pass on `/view/base/base-lyra/component/callout`. The audit is author-run and is not an independent review. Clinical review is still pending.
 
-- The source cannot paint a colour from either axis, and no status word appears as a whole string literal.
-- Every colour is a role token, no class resolves only in the docs chrome, and no type size is in `px`.
+**What the audit found.** Nothing in the source needed to change. It is a server component with no interactive elements, so the keyboard, focus and control criteria do not apply; `role="note"` gives it a start and end boundary, and a title supplies the accessible name through `aria-label`. It paints no colour from either axis and carries no clinical status, so greyscale and `forced-colors` take away nothing. Type sizes and colours are role tokens, the icon is sized in em, and the body reflows at 200% through `min-w-0` and `wrap-break-word` rather than scrolling.
 
-**Argued from the source, not measured.**
-
-- The root is `role="note"`, named by its title, with no `aria-live` and no tab stop.
-- All three variants share one fill, ink and boundary, so greyscale takes away nothing.
-- The title is styled text, not a heading, so it never enters the page outline.
-- No fixed height and `min-w-0` with `wrap-break-word` on the body, so 200% text reflows instead of scrolling.
-
-**Not checked by any gate.** How the note sounds in a screen reader, the four contrast pairs it paints, print in either theme, `forced-colors`, and how many callouts are too many.
+**What a reader should still know.** The variant glyph is `aria-hidden`, so the note, tip and caveat distinction reaches sighted readers alone. This is deliberate: announcing the glyph name would not convey the sense either, so the copy is required to carry it, and both examples do. The title renders as styled text rather than an `h1` to `h6`, because the component cannot know its nesting level, but it stays exposed to assistive technology as the accessible name. The four contrast pairs this component paints are not yet measured, and the report below says so rather than printing numbers nobody produced.
 
 <KeyboardTable
   name="callout"

@@ -46,10 +46,12 @@
  * enforcement.
  *
  * THREE PHASES, AND THEY ANSWER ONE QUESTION: is there code, and is it on its
- * way out. They say nothing about whether the code has been reviewed, because
- * none of it has. `REVIEW_FLOOR_NOTICE` below is that fact as one string, and
+ * way out. They say nothing about review. Every component has since been
+ * audited against WCAG 2.2 AA and its findings fixed, but by the authors and
+ * not by an independent party, and none has had a clinical review.
+ * `REVIEW_FLOOR_NOTICE` below is that whole floor as one string, and
  * `STATUS_META.shipped.summary` ends with it, so every chip on the site
- * carries it.
+ * carries it. ADR 0025 is the record of the audit and of what it is not.
  *
  * THE OLD CARRIER LIST NAMED SIX PLACES AND THE SENTENCE LIVES IN MORE THAN
  * TEN. Counting them was the mistake. An editor who revised the six that were
@@ -59,11 +61,10 @@
  * `STATUS_META.shipped` and the `unreviewed` field in
  * `app/r/index.json/route.ts`, and `app/api/search/route.ts` composes it into
  * a longer indexed line. The rest cannot reuse it, because they are
- * mid-paragraph in prose written for a reader: "none of them has had an
- * accessibility review" and "none of it has been through an independent
- * accessibility review" are the same floor in the grammar each paragraph
- * needs. Those are restatements on purpose. To find every one of them before
- * you change the floor, run
+ * mid-paragraph in prose written for a reader: "no independent accessibility
+ * review" and "audited by the authors, not independently reviewed" are the
+ * same floor in the grammar each paragraph needs. Those are restatements on
+ * purpose. To find every one of them before you change the floor, run
  * `grep -rn "accessibility review" app lib components scripts content`, which
  * stays accurate in a way a list in this comment does not. SAFE001 in
  * `scripts/assert-ia.mts` holds the per-page copy, in authored MDX, on all 60
@@ -113,24 +114,27 @@ export interface StatusMeta {
 /**
  * THE REVIEW FLOOR, AS ONE STRING.
  *
- * `shipped` means the source installs. It means nothing about whether anybody
- * checked the source, and nobody has: no component in this catalogue has had
- * an accessibility review and none has had a clinical review. This sentence is
- * the whole of what replaced the old alpha-to-beta gradient, so it can be
- * moved and it cannot be softened away.
+ * `shipped` means the source installs. Every component has since been audited
+ * against WCAG 2.2 AA and its findings fixed, but that audit was run by the
+ * authors and not by an independent party, and no component has had a clinical
+ * review. So the floor now records three things at once: the audit that
+ * happened, the independent review that did not, and the clinical review that
+ * did not. ADR 0025 is the record. This sentence is the machine-readable form
+ * of that floor, so it can be moved and it cannot be softened away.
  *
- * Both halves are load-bearing and neither survives alone. "No review" without
- * "not for production" reads as a caveat somebody will weigh against a
- * deadline, and "not for production" without "no review" reads as a maturity
- * note about the API. SAFE001 in `scripts/assert-ia.mts` requires both halves
- * on every component page for the same reason.
+ * Every clause is load-bearing. "Audited against WCAG 2.2 AA" without the rest
+ * reads as a clean bill of health nobody signed; "no independent accessibility
+ * review" alone reads as though nothing was checked; and dropping "not for a
+ * production health surface" lets a reader weigh an unreviewed health component
+ * against a deadline. SAFE001 in `scripts/assert-ia.mts` holds the shorter
+ * per-page form of the same floor on every component page.
  *
  * It is a plain string because that is the only shape this module allows: no
  * imports, no JSX, no non-erasable syntax, since `scripts/*.mts` run under
  * plain node and import this file directly.
  */
 export const REVIEW_FLOOR_NOTICE =
-  "No accessibility review and no clinical review. Not for a production health surface."
+  "Audited against WCAG 2.2 AA. No independent accessibility review and no clinical review, so not for a production health surface."
 
 export const STATUS_META: Record<Status, StatusMeta> = {
   planned: {

@@ -29,8 +29,10 @@ because that copies a clinical contract onto something it does not govern.
 
 There is no `## Status` heading. `<StubNotice status="shipped">` sits above `## Preview`,
 first after the definition, and carries at most three open safety questions, one sentence
-each. SAFE001 requires its two sentences in authored MDX, never a generated string: no
-accessibility review and no clinical review, and not for a production health surface.
+each. SAFE001 requires its sentences in authored MDX, never a generated string: audited
+against WCAG 2.2 AA by the authors and not independently reviewed, clinical review still
+pending, and not for a production health surface until a clinician signs it. See
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx) for the record.
 C6001 fails the build when the notice is missing or sits below a heading. The H1 and the
 definition come from `title` and `description`, never from MDX.
 

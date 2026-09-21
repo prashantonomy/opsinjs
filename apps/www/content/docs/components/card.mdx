@@ -19,9 +19,7 @@ reviewer: engineering
     "A link card's accessible name is its whole text content; whether Card should offer a way to name the link is open.",
   ]}
 >
-  <code className="text-sm">card</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -47,7 +45,7 @@ import { Card } from "@/components/ui/card"
 ```tsx
 <Card>
   <Card.Header title={<h3>Recent readings</h3>} />
-  <Card.Body>Everything the card holds</Card.Body>
+  <Card.Body>Card content</Card.Body>
 </Card>
 ```
 
@@ -55,16 +53,16 @@ import { Card } from "@/components/ui/card"
 
 <WhenToUse
   use={[
-    "Grouping content that belongs together and needs a visible boundary from what is around it.",
-    "Giving a block of content its own padding, radius and rung so it reads as one thing rather than as a region of the page.",
-    "As the base for a purpose-built card with its own contract, the way ResultCard and CareCard are built.",
+    "Grouping content that belongs together and needs a visible boundary.",
+    "Giving a block its own padding, radius and rung so it reads as one thing, not a region of the page.",
+    "As the base for a purpose-built card with its own contract, the way ResultCard and CareCard are.",
   ]}
   avoid={[
-    { case: "The content is a health result with a value, a range, a status and a meaning.", instead: "result-card" },
-    { case: "The content is an instruction the reader is being asked to act on.", instead: "care-card" },
-    { case: "The content is a single measurement in a dashboard grid.", instead: "metric-tile" },
-    { case: "You need a layer that sits over scrolling content and must stay readable.", instead: "surface" },
-    { case: "You want a border for a piece of advisory prose.", instead: "callout" },
+    { case: "The content is a health result with a value, range, status and meaning.", instead: "result-card" },
+    { case: "The content is an instruction the reader must act on.", instead: "care-card" },
+    { case: "The content is one measurement in a dashboard grid.", instead: "metric-tile" },
+    { case: "You need a layer over scrolling content that must stay readable.", instead: "surface" },
+    { case: "You want a border for advisory prose.", instead: "callout" },
   ]}
 />
 
@@ -75,30 +73,30 @@ import { Card } from "@/components/ui/card"
   parts={[
     {
       name: "Card",
-      describes: "The root: a div, or an anchor when href is set. Carries the corner and the print boundary.",
+      describes: "The root: a div, or an anchor when href is set. Carries the corner and print boundary.",
       prop: "href",
     },
     {
       name: "Card.Header",
-      describes: "Optional. An exported part; the consumer supplies its content.",
+      describes: "Optional. An exported part the consumer fills.",
     },
     {
       name: "Card.Title",
-      describes: "Holds the caller's own heading element and resets its font and margin.",
+      describes: "Holds the caller's heading element and resets its font and margin.",
       prop: "title",
     },
     {
       name: "Card.Description",
-      describes: "Optional supporting line under the title. A paragraph, so inline content only.",
+      describes: "Optional line under the title. A paragraph, so inline content only.",
       prop: "description",
     },
     {
       name: "Card.Body",
-      describes: "Optional. The content, with no contract of its own.",
+      describes: "Optional. The content, no contract of its own.",
     },
     {
       name: "Card.Footer",
-      describes: "Optional. Actions or metadata in a wrapping row, separated by the target minimum.",
+      describes: "Optional. Actions or metadata in a wrapping row, split by the target minimum.",
     },
   ]}
 />
@@ -148,24 +146,23 @@ import { Card } from "@/components/ui/card"
 
 ### The whole card as one link
 
-`href` makes the card one anchor and one tab stop. The chevron marks it at
-rest, the title underlines on hover, and it holds no buttons.
+`href` makes the card one anchor and one tab stop. A chevron marks it at rest,
+the title underlines on hover, and it holds no buttons.
 
 <ComponentPreview name="card-as-a-link" kind="example" align="start" />
 
 ### Cards on a sheet, and the rung that stays put
 
 The sheet is the layer; the cards on it stay on the `card` rung, since a
-translucent rung never contains another.
+translucent rung never contains one.
 
 <ComponentPreview name="card-on-a-sheet" kind="example" align="start" />
 
 ## Content guidelines
 
-A card holds one idea. If the title needs *and* in it, it is two cards. Titles
-are noun phrases in sentence case. Card ships no copy, so every word inside is
-the product's, checked against
-[Plain-English A to Z](../content/plain-english-a-z.mdx).
+A card holds one idea. If the title needs *and*, it is two cards. Titles are
+noun phrases in sentence case. Card ships no copy, so every word inside is the
+product's, held to [Plain-English A to Z](../content/plain-english-a-z.mdx).
 
 <DoDont>
   <DoDont.Do>
@@ -179,23 +176,25 @@ the product's, checked against
 
 ## Accessibility
 
+Audited against WCAG 2.2 AA across a source pass and a rendered pass. The audit
+is author-run, not an independent review, and clinical review is still pending.
+
 **Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
 token, no type size is in `px`, and no banned word appears.
 
-**Argued from the source, not measured.**
+**What the audit changed.** The link card's `focus-visible` ring used a
+hardcoded 2px outline instead of the house tokens. It now reads
+`--opsin-border-focus` and `--opsin-border-focus-offset`, so a product
+raising those gets a wider ring here; the default stays 2px. The rendered
+pass found no axe violation and no 320px reflow.
 
-- A card is not a landmark or a region: no role and no name unless it is a
-  link.
-- The heading level is the page's; the title slot resets font and margin, so
-  the level is outline only.
-- A link card is one control, with a rem floor of `--opsin-target-minimum` on
-  both axes and its own `focus-visible` ring.
-- The edge survives greyscale, `forced-colors` and print, where a real border
-  appears.
-
-**Not checked by any gate.** The 44px floor, the footer separation, the
-description and focus ring contrast pairs, the `href` exclusion, and reader
-stylesheets.
+**What it left standing.** A link card is one anchor, so its accessible name is
+all its text at once, a verbosity to weigh before putting `href` on a long
+card. The resting chevron is `aria-hidden`, backed by the title underline and
+anchor as redundant cues. A card otherwise takes no role or name
+unless it is a link, carries the page's heading level in a title slot that resets
+font and margin, floors a link target at `--opsin-target-minimum`, and keeps its
+edge under greyscale, `forced-colors` and print.
 
 <KeyboardTable
   name="card"
@@ -230,8 +229,8 @@ stylesheets.
 <PropsTable name="CardProps" />
 
 `rung` defaults to `card`, not `raised`, and never goes above `raised`: a
-translucent rung warns in development and renders. `render` takes the router's
-link element itself, not a function, and does nothing without `href`. There is
+translucent rung warns in development and renders. `render` takes the
+router's link element, not a function, and does nothing without `href`. There is
 no `status`, `variant`, `color` or `category`.
 
 <PropsTable name="CardHeaderProps" />
@@ -242,8 +241,8 @@ no `status`, `variant`, `color` or `category`.
 
 ## Related
 
-- [ResultCard](./result-card.mdx) is a Card with a clinical contract, and any card holding a health value.
+- [ResultCard](./result-card.mdx) is a Card with a clinical contract, any card holding a health value.
 - [CareCard](./care-card.mdx) is a Card whose subject is an authored instruction.
-- [MetricTile](./metric-tile.mdx) has a fixed grid contract; it is not a small Card.
+- [MetricTile](./metric-tile.mdx) has a fixed grid contract, not a small Card.
 - [Surface](./surface.mdx) is the layer beneath; Card is a Surface with padding and a boundary.
 - [Callout](./callout.mdx) is bounded advisory prose, not grouped content.

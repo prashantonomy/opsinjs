@@ -19,9 +19,7 @@ reviewer: engineering
     "Forced colours and `prefers-contrast: more` are unhandled, so whether the selected segment still reads as selected in those modes is untested.",
   ]}
 >
-  <code className="text-sm">segmented-control</code> is shipped: it installs as
-  source and the API may change in any release. It has had no accessibility
-  review and no clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -119,8 +117,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control"
 ### Switching a chart window
 
 The three options set the window of one chart rather than swapping between three
-charts, which is why it is a radiogroup. The chart is a placeholder with no
-reading in it.
+charts, which is why it is a radiogroup. The chart is a placeholder.
 
 <ComponentPreview name="segmented-control-switching-a-chart-window" kind="example" align="start" />
 
@@ -144,22 +141,26 @@ thinks, shortest to longest, and keep one wording across screens.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token and no type size is in `px`.
+**Audited against WCAG 2.2 AA**, in a source pass over the full rubric and a
+rendered pass in the browser. The audit is author-run, not an independent
+review, and clinical review is still pending.
 
-**Argued from the source, not measured.**
+A radio group, so the row is one tab stop with a roving focus, with
+`radiogroup` plus `radio` and `aria-checked` per segment for name, role and
+value. Selection is carried three ways and never by colour alone: `aria-checked`,
+the card surface lifting the segment off the track, and a hairline.
 
-- A radio group, so the row is one tab stop with a roving focus rather than one
-  stop per option.
-- `label` is required and applied as the group's `aria-label`. A missing one
-  raises a development warning rather than rendering an unnamed group.
-- Selection is carried three ways: `aria-checked`, the card surface lifting the
-  segment off the track, and a hairline.
-- The focus ring sits in the segment's own classes, and each segment floors its
-  target at `--opsin-target-minimum` in rem.
+**What the audit changed here.** The 44px hit-area floor sat on the height axis
+only, so a single-character label or the `sm` size could shrink a segment below
+the house minimum. The floor now sits on both axes, matching `scale-input` and
+`tab-bar`.
 
-**Not checked by any gate.** No contrast pair measured, no screen reader run,
-Home and End unbound, and no `forced-colors` or `prefers-contrast: more` rule.
+**What a reader should still know.** `label` is applied only as the group's
+`aria-label`, so there is no persistent visible group heading. Every option
+carries visible text, so the choices are seen, but a visible group label is a
+recommended enhancement, deferred as one repair across the wrappers that share
+this pattern. No contrast pair has been measured, so greyscale legibility of the
+selected segment is argued, not confirmed.
 
 <KeyboardTable
   name="segmented-control"
@@ -210,14 +211,13 @@ Home and End unbound, and no `forced-colors` or `prefers-contrast: more` rule.
 
 `value` and `onValueChange` make this controlled, with no internal selection
 state. A `value` matching no option renders the row with nothing chosen and
-raises a development warning. `label` is required, because a radiogroup with no
+raises a development warning. `label` is required: a radiogroup with no
 accessible name is a defect the type system cannot otherwise prevent.
 
 ## Related
 
 - [Tabs](./tabs.mdx) swap between distinct panels of content. This control sets a
-  parameter of one view that stays.
+  parameter of one view.
 - [Field](./field.mdx) with a select is the control for a choice too large or too
   wordy for one row.
-- [Button](./button.mdx) performs an action rather than setting a value, and
-  every button in a row is its own tab stop.
+- [Button](./button.mdx) performs an action rather than setting a value.

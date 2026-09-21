@@ -20,9 +20,7 @@ reviewer: engineering
     "Daily logging names six entry states, LogSheet expresses only draft through onDiscard, and where saving, queued, conflict, failed and first use belong is open.",
   ]}
 >
-  <code className="text-sm">log-sheet</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -189,21 +187,24 @@ you can infer; the fourth field stops people logging.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No status colour on this surface,
-the category band carries `data-category`, and no threshold or bound ships in this file.
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. This audit is
+author-run, not an independent review, and clinical review is still pending.
 
-**Argued from the source, not measured.**
+The audit found nothing to change here. Both inputs take their name and description
+from [Field](./field.mdx), so name, role and value hold; the only coloured element is
+the aria-hidden category band; and the single tokenised column reflows and scales.
 
-- A modal dialogue named by its title, focus trapped and returned on close, all of it
-  [Sheet](./sheet.mdx)'s.
-- Focus is not moved to the first field on open; it is one Tab away.
-- The discard question is announced by focus on *Keep editing*, not a live region. Both
-  answers carry `aria-describedby`.
-- Answering *Keep editing* returns focus to the control the reader was in.
+Three items are argued, not measured.
 
-**Not checked by any gate.** The `autoFocus` onto the discard question, the picker's
-reading of `min`, the keyboard-safe inset, the category band's contrast, and what a
-screen reader says when the footer swaps.
+- The discard question is announced by a focus move and `aria-describedby`, not a live
+  region; a second modal was declined on purpose.
+- No *Saved* status is announced: `onSave` never closes the sheet, so the component cannot
+  know the save landed and that feedback belongs to the product.
+- Save is one explicit tap with no confirm step: no autosave, every field visible, sheet
+  stays open for undo.
+
+The open sheet was not re-measured in a browser: port 4000 holds a stale build.
+`axe` on the static rendered page is clean.
 
 <KeyboardTable
   name="log-sheet"

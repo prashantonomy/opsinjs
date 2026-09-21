@@ -33,9 +33,15 @@ three describe our software. The collision is unfortunate and it is why the
 
 ## What `shipped` does not mean
 
-No opsinjs component has had an accessibility review or a clinical review.
-`shipped` means the source installs, and it does not mean either review has
-happened. Nothing here is for a production health surface.
+Every opsinjs component has been audited against WCAG 2.2 AA by its authors,
+in a static source pass and a rendered pass, and the findings were fixed in the
+same change. No component has had an independent accessibility review, and none
+has had a clinical review. `shipped` means the source installs and that its
+authors have run that audit. It does not mean an independent reviewer or a
+clinician has signed anything. Nothing here is for a production health surface
+until a clinician does. The [author-run audit
+decision](./decisions/0025-the-audit-is-author-run.mdx) records what the audit
+covered and what it did not.
 
 This is the whole reason there is no fourth word between `shipped` and
 `deprecated`. A phase ladder with a rung above `shipped` would have implied that

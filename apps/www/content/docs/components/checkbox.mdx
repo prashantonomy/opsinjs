@@ -19,9 +19,7 @@ reviewer: engineering
     "Forced colours are unhandled: the fill and the hairline both become the platform pair, and whether ticked, unticked and mixed stay distinct is untested.",
   ]}
 >
-  <code className="text-sm">checkbox</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -162,22 +160,22 @@ Phrase the label so a tick means yes. Keep it to a short line and put what ticki
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Only the action role and
-neutral chrome are drawn, no `data-status` is carried, and no type size is in `px`.
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
+author-run, not an independent review, and clinical review is still pending.
 
-**Argued from the source, not measured.**
+**What was fixed.** Base UI draws the box as a `span` with `role="checkbox"`, and
+the wrapping `label` named only the hidden input, so the box had no accessible name
+(WCAG 4.1.2). The visible label carries an `id` and the box points at it
+with `aria-labelledby`, so the name is the visible words verbatim (WCAG 2.5.3).
+The fix reaches the demo and both examples.
 
-- Base UI owns the keyboard contract: Tab focuses, Space toggles, and the mixed
-  state is exposed as `aria-checked="mixed"`.
-- The label wraps the box, so its words are the accessible name and the whole
-  row is the pointer target. An empty `label` warns in development.
-- The description is tied to the box with `aria-describedby`, so it is read
-  after the name.
-- The box is sized in rem and the words are type steps, so the control grows
-  with text size.
+**What holds.** The description is tied with `aria-describedby`, colour is never
+the sole state carrier because fill, border and the Check against Minus glyph all
+move together, and sizes are rem.
 
-**Not checked by any gate.** Every contrast pair on the component's own
-surfaces, and what the box draws under `forced-colors: active`.
+**Residual.** The rendered probe measured the inner box at 20 by
+20, under SC 2.5.8, but the pointer target is the 44px label row that toggles
+anywhere along it, so it clears the house floor. The colour transition moves no transform and needs no reduced-motion guard. Contrast pairs are not yet measured.
 
 <KeyboardTable
   name="checkbox"

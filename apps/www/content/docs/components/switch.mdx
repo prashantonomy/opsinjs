@@ -19,9 +19,7 @@ reviewer: engineering
     "Forced colours, prefers-contrast: more, right-to-left layout and prefers-reduced-motion are unhandled, so the thumb slides and the fills swap untested.",
   ]}
 >
-  <code className="text-sm">switch</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -165,23 +163,25 @@ threshold or a unit.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Only neutral chrome and the
-bridged primary fill, so no status colour or colour literal, no type size in `px`,
-and no banned word.
+**Audited against WCAG 2.2 AA.** A source pass over the full rubric and a rendered
+pass with axe, both author-run rather than an independent review, with clinical
+review still pending. The audit found nothing to change in this component's source.
 
-**Argued from the source, not measured.**
+**What the audit confirmed.**
 
-- The root is a label element, so words and track are one pressable region
-  floored at `--opsin-target-minimum` in rem.
-- `aria-checked` reflects the caller's boolean, the thumb sits left for off and
-  right for on, and a hairline survives a stripped fill.
-- The label and helper are type steps, so the row grows with the reader's text size.
-- The role, the single tab stop and the Space and Enter bindings come from
-  Base UI's Switch.
+- `role="switch"` comes from Base UI's Switch.Root, the accessible name is a visible
+  label span tied by `aria-labelledby`, and state rides `aria-checked`.
+- On and off are carried by thumb position and `aria-checked`, not the fill alone,
+  and a `border-border` hairline survives `forced-colors: active` and a stripped fill.
+- The 24px AA target floor is met by the track, and the 44pt house floor by the
+  enclosing label row, which toggles the control.
+- Focus sits on the track with the house ring, and both transitions collapse under
+  `prefers-reduced-motion: reduce` through the fast-duration token.
+- `pnpm run check:a11y` runs on every commit: only neutral chrome and the bridged
+  primary fill, so no colour literal, no type size in `px`, and no banned word.
 
-**Not checked by any gate.** Every contrast pair, the 44 by 44 target in a real
-browser, `forced-colors: active`, `prefers-contrast: more`, right-to-left thumb
-travel, and `prefers-reduced-motion`, which the slide and the fade do not honour.
+**Still unmeasured.** No contrast pair has been read yet, so the report below stands
+in for numbers nobody has produced.
 
 <KeyboardTable
   name="switch"

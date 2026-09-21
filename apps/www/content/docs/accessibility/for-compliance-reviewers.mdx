@@ -17,15 +17,21 @@ marketing. This page is the opposite of that: a fixed route through the evidence
 with the conclusion stated first so that you can stop reading whenever you have
 what you need.
 
-**The conclusion, first.** opsinjs is a design system in early build. **Every
-catalogue row is implemented and installable, but
-no conformance evaluation has been performed, and no assistive technology testing
-has taken place.** Nothing in this documentation should be read as a conformance
-claim. The
+**The conclusion, first.** opsinjs is a design system in early build. **Every one
+of the sixty catalogue rows is implemented and installable, and every one has been
+audited against WCAG 2.2 AA by the authors of the components, in a static source
+pass and a rendered pass, with the findings fixed in the same change. That audit is
+author-run, so it is not an independent review, and no clinical review has taken
+place.** Nothing in this documentation should be read as a conformance claim: an
+author auditing their own work raises a floor, it does not deliver a verdict, and
+until a clinician signs a component it is not for a production health surface. See
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx) for the record.
+The
 [accessibility statement](./accessibility-statement.mdx) says the same thing in
 the form your file probably needs, and the
-[conformance report](./conformance-report.mdx) is a complete ACR skeleton in
-which every criterion is marked *Not Evaluated*.
+[conformance report](./conformance-report.mdx) is an ACR skeleton in which every
+criterion is still marked *Not Evaluated*, because a formal conformance evaluation
+is exactly the independent assessment that has not happened.
 
 What we do guarantee is the shape of the evidence you will be given when there is
 some:
@@ -96,9 +102,11 @@ method and its date, or the row is unsupported.
 ### The measured evidence (minutes 12 to 16)
 
 Open [Contrast conformance](./contrast-conformance.mdx). This is the one property
-of the system that is measured today: token pairs, not components. Check that the
-numbers carry a generation date and a script name, that both APCA Lc and WCAG 2.2
-ratios are given, and that failures are shown rather than filtered out.
+of the system that a committed script measures today: token pairs. Component
+accessibility was audited against WCAG 2.2 AA by the authors, but that is a fixed
+set of findings rather than a generated number. Check that the contrast numbers
+carry a generation date and a script name, that both APCA Lc and WCAG 2.2 ratios
+are given, and that failures are shown rather than filtered out.
 
 ### The honesty test (minutes 16 to 20)
 
@@ -115,23 +123,33 @@ documentation is trustworthy.
 
 <NoDataYet what="The conformance evaluation record" script="scripts/build-registry.mts">
 Nothing generates a conformance number on this site. No row of
-`registry/catalogue.ts` records an accessibility review, and `<A11yReport>` takes
-its counts as props rather than reading a measurement, so there is no evaluation to publish and
-none is invented here.
+`registry/catalogue.ts` records an independent review, and `<A11yReport>` takes
+its counts as props rather than reading a measurement, so there is no generated
+evaluation table to publish and none is invented here. The author-run WCAG 2.2 AA
+audit is recorded in
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx), not as a
+generated dataset.
 </NoDataYet>
 
-Nothing has been evaluated against a success criterion. The one measurement this
-project does produce is token-pair contrast: it is generated, committed, and
-published on [Contrast conformance](./contrast-conformance.mdx).
+Every component has been audited against WCAG 2.2 AA by its authors, but nothing
+has been through an independent evaluation against a success criterion, and no
+clinical review has taken place. The one number a script produces is token-pair
+contrast: it is generated, committed, and published on
+[Contrast conformance](./contrast-conformance.mdx).
 
 ## Known gaps
 
-- **No conformance evaluation of any kind has been performed.** No third-party
-  audit, no internal audit, no assistive technology testing.
-- **No component-level conformance data exists.** Sixty components ship and not
-  one of them has been evaluated. No
-  catalogue row records a review. Code existing is not evidence, and
-  nothing here treats it as evidence.
+- **No independent conformance evaluation has been performed.** There has been no
+  third-party audit and no assistive technology testing. The WCAG 2.2 AA audit on
+  record was run by the authors of the components, which raises a floor rather than
+  delivering a verdict.
+- **No clinical review has taken place, and it is still pending.** Until a
+  clinician signs a component it is not for a production health surface.
+- **No generated component-level conformance data exists.** Sixty components ship
+  and every one has been audited against WCAG 2.2 AA by its authors, but not one
+  has been independently reviewed, and no catalogue row records an independent
+  review. Author-run findings are a floor, not third-party evidence, and nothing
+  here treats installable code as evidence of conformance.
 - **`prefers-contrast` is unimplemented,** which is a real gap against
   SC 1.4.11-adjacent expectations in high-contrast operating-system modes; see
   [Increased contrast](./increased-contrast.mdx).

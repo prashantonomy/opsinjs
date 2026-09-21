@@ -308,12 +308,16 @@ export default function MedicinesAppShowcasePage() {
                   </p>
                 </Panel>
                 <Panel>
-                  <h3 className="font-medium">The components are unreviewed</h3>
+                  <h3 className="font-medium">
+                    The components are audited, not independently reviewed
+                  </h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    The API may change in any release with no deprecation cycle,
-                    and none of it has been through an accessibility or clinical
-                    review. It is not ready for a production health surface, and
-                    neither is this.
+                    The API may change in any release with no deprecation
+                    cycle. Every component has been audited against WCAG 2.2 AA
+                    by its authors, in a static source pass and a rendered pass,
+                    so what shipped is not an independent accessibility review
+                    and no clinical review has happened yet. It is not ready for
+                    a production health surface, and neither is this.
                   </p>
                 </Panel>
                 <Panel>

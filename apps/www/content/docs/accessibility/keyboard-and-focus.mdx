@@ -121,14 +121,20 @@ than a measurement, and aggregating the tables would not make it one.
 
 ## Known gaps
 
-- **No keyboard behaviour has been verified.** It has been implemented: `Dialog`
-  and `Sheet` sit on Base UI and add their own handling of <Kbd>Esc</Kbd>. That
-  handling is a dismissal that can be refused, and it returns focus to the
-  trigger. `Button` warns in development when it is handed the positive
-  `tabIndex` the table above bans. None of it has been walked with a keyboard
-  by anyone, no automated check presses a key, and no accessibility review is
-  recorded for any component in the catalogue. The table above is the contract every component must
-  meet, and it is still not a report of tested behaviour.
+- **No keyboard behaviour has been independently verified.** It has been
+  implemented: `Dialog` and `Sheet` sit on Base UI and add their own handling
+  of <Kbd>Esc</Kbd>. That handling is a dismissal that can be refused, and it
+  returns focus to the trigger. `Button` warns in development when it is
+  handed the positive `tabIndex` the table above bans. Every component in the
+  catalogue has now been audited against WCAG 2.2 AA, in a static source pass
+  and a rendered pass, and the findings were fixed in the same change. That
+  audit was run by the authors of the components, not by an independent
+  party, so no independent accessibility review is recorded for any
+  component; see [ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx)
+  for the record. No automated check presses a key, and no clinical review
+  has happened for any component. The table above is the contract every
+  component must meet, and it is still not a report of independently tested
+  behaviour.
 - **There is no shipped skip link or landmark helper.**
 - **Focus-restoration behaviour after destructive actions is specified in prose
   only** and has no tested implementation.

@@ -19,9 +19,7 @@ reviewer: engineering
     "Whether the pill's surface and boundary hold up under prefers-contrast: more and in forced colours; neither response lives in the token layer today.",
   ]}
 >
-  <code className="text-sm">status-pill</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -145,6 +143,11 @@ A banned word passed as `label` raises OPSIN-0006 in development;
 
 ## Accessibility
 
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
+author-run, it is not an independent review, and clinical review is still pending.
+The rendered pass reported no axe violations, no target-size hits, no focus problems
+and no reflow break at 320px, and found nothing to change.
+
 **Checked by `pnpm run check:a11y` on every commit.**
 
 - No file paints a status colour without reading `CLINICAL_STATUS_META` and a glyph,
@@ -154,23 +157,29 @@ A banned word passed as `label` raises OPSIN-0006 in development;
 - The status words are read from `CLINICAL_STATUS_META[level].word`, never written as
   a literal.
 
-**Measured by `pnpm run contrast`.** Ink on surface and line on surface, for all four
-levels in both themes. Fill against the page is not measured.
+**Argued from the source.**
 
-**Argued from the source, not measured.**
-
+- Status is a visible word plus one of four distinct glyph shapes plus colour, never
+  colour alone. The icon is `aria-hidden` and sized in `em`, so the word carries the
+  meaning and the glyph grows with it.
 - With `describes`, the pill announces as *Needs attention, Second example
   measurement*. Omit it when the subject is visible text in the same reading unit.
-- The icon is `aria-hidden` and sized in `em`, so the word carries the meaning and
-  the glyph grows with it.
+  When the pill floats free of its subject, in a table cell reached by column
+  navigation or a card corner, the consuming product must pass `describes`, because
+  the component cannot know the reading context. That is by design, and the prop
+  JSDoc records it.
 - The pill is a `span`, not focusable and not in the tab order. A pill made into a
   filter is a Button and owes a Button's target and name.
+- No live region is mounted, on purpose. The pill is a static read-only label rather
+  than a message, so a `role="status"` announcement would be wrong here.
 - At 200% text the pill grows and wraps; the word is never truncated and never
   replaced by the icon alone.
 
-**Not checked by any gate.** Whether four glyph names draw four distinct shapes at pill
-size, contrast under `prefers-contrast: more` and forced colours, and announcement of a
-level change.
+**Not yet measured.** The rendered pass ran in the light theme and reported no
+contrast violation, so light-mode text contrast passes. Dark-mode text contrast,
+forced colours, and the non-text contrast of the boundary and glyph against the
+surface were not measured. Those pairs arrive through role tokens
+and live in the token layer and the report below, not in this source.
 
 <KeyboardTable
   name="status-pill"

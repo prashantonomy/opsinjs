@@ -18,9 +18,7 @@ reviewer: engineering
     "Under forced colours the muted track and the primary fill are both replaced by the platform's pair, and whether the fill stays distinct from the track is untested.",
   ]}
 >
-  <code className="text-sm">progress</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -163,23 +161,26 @@ task has not reached.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token on neither clinical axis, and no type size is in `px`.
+**Checked by `pnpm run check:a11y` on every commit.** Colour is a role token
+on neither axis; no type size is in `px`.
 
-**Argued from the source, not measured.**
+**Audited against WCAG 2.2 AA**, source and rendered, author-run rather than
+independent, with clinical review still pending. Three fixes landed: a plain
+`aria-label` on the root so the name survives a first paint before Base UI's
+own wiring runs, a sibling status region announcing "{label} complete." at
+max, and `aria-hidden` on the indeterminate branch's text to match the
+determinate readout.
 
-- The amount done is written as text and exposed as `aria-valuenow`, with the
-  label, minimum and maximum.
-- Nothing takes focus or answers a key or a pointer, so the bar costs no tab
-  stop.
-- The width transition and the pulse are both dropped under
-  `prefers-reduced-motion`, and the words carry the state.
-- The type steps and the `em` track height scale together, so at 200% text the
-  bar grows rather than clipping.
+- `aria-valuenow` carries the amount done, with the label, minimum and
+  maximum.
+- Nothing takes focus, so the bar costs no tab stop.
+- The transition and pulse drop under `prefers-reduced-motion`; words carry
+  the state.
+- Type steps and the `em` track height scale together, so 200% text grows
+  the bar rather than clipping it.
 
-**Not checked by any gate.** Contrast of the primary fill against the muted
-track, the bar under `forced-colors: active`, and whether the indeterminate
-state reads as running without its pulse.
+**Still open.** Fill contrast against the track, carried below until
+measured. Wrap for a long label and print output were not checked.
 
 <KeyboardTable
   name="progress"

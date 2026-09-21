@@ -31,8 +31,9 @@
  * WAS. It returns null the moment `registry/__index__.ts` has source behind
  * the id, which is all 60 component pages today, so on exactly the pages
  * where a warning matters most it emits nothing. The fact that must not be
- * missed on those pages is a different fact: that the code installs and has
- * had no accessibility review and no clinical review. It lives in the MDX
+ * missed on those pages is a different fact: that the code installs, that it
+ * has been audited against WCAG 2.2 AA by its own authors, and that it has had
+ * no independent accessibility review and no clinical review. It lives in the MDX
  * children an author wrote inside `<StubNotice>`, which is the one part of a
  * documentation component that `getText("processed")` keeps, and SAFE001 in
  * `scripts/assert-ia.mts` is what holds it there. So the twin does carry it,
@@ -615,8 +616,9 @@ const STUB_NOTICE_ELEMENT = /<StubNotice[\s/>]/
  * generated-table elements and are the exact opposite of true here: the
  * children of `<StubNotice>` are authored prose, they survive
  * `getText("processed")`, and they are where all 60 component pages state
- * that the code installs and has had no accessibility review and no clinical
- * review. An agent that took the first paragraph at its word would skip the
+ * that the code installs, that it has been audited against WCAG 2.2 AA by its
+ * own authors, and that it has had no independent accessibility review and no
+ * clinical review. An agent that took the first paragraph at its word would skip the
  * one element on the page it must not skip.
  */
 export function jsxNotice(body: string): string | null {

@@ -205,15 +205,22 @@ export function siteSummary(): string {
     ...remainder,
     /* SAFETY CARRIER 3, AND THE FIRST FILE A MODEL READS. This is not a
        hedge and it is not conditional on anything, because the fact it states
-       is not conditional on anything: no opsinjs component has been through
-       either review, and collapsing the release phases into `shipped` took
-       away the only gradient that used to hint at it. An unconditional
+       is not conditional on anything: no opsinjs component has had an
+       independent accessibility review or a clinical review, the WCAG 2.2 AA
+       audit that has happened was run by the authors of the components, and
+       collapsing the release phases into `shipped` took away the only
+       gradient that used to hint at it. An unconditional
        sentence is also the only kind that cannot be argued into silence by a
        later promotion. Five other surfaces carry the same sentence; the list
        is at the top of lib/status.ts. Do not shorten this one on its own. */
-    "No opsinjs component has had an accessibility review or a clinical review.",
-    "`shipped` means the source installs, and it does not mean either review",
-    "has happened. Do not put one on a production health surface.",
+    "Every opsinjs component has been audited against WCAG 2.2 AA by its own",
+    "authors, in a static source pass and a rendered pass, with the findings",
+    "fixed in the same change. That audit is author-run and is not an",
+    "independent review, and no component has had a clinical review.",
+    "`shipped` means the source installs and its accessibility was audited by",
+    "the authors, and it does not mean an independent accessibility review or",
+    "a clinical review has happened. Do not put one on a production health",
+    "surface. The record of the audit is ADR 0025.",
     "Pages carry a machine-readable status, and `/r/index.json` carries",
     "`implemented` per id. Do not generate code against a proposed API and do",
     "not describe an unimplemented component as shipping. The tokens, the",
@@ -321,7 +328,7 @@ export function provenance(): {
     notice:
       count === 0
         ? "No opsinjs component is implemented yet. Every entry is a specification. Do not generate code against a proposed API."
-        : `${count} opsinjs component${count === 1 ? " is" : "s are"} implemented, and none of them has had an accessibility review or a clinical review, so none of them is for a production health surface. Every other entry is a specification or a reserved name, not code. Check \`implemented\` on the roster row, or \`meta.opsinjs.implemented\` on the item, before you assume a component exists, and never generate code against a proposed API.`,
+        : `${count} opsinjs component${count === 1 ? " is" : "s are"} implemented, each has been audited against WCAG 2.2 AA by its authors, none of them has had an independent accessibility review or a clinical review, so none of them is for a production health surface. Every other entry is a specification or a reserved name, not code. Check \`implemented\` on the roster row, or \`meta.opsinjs.implemented\` on the item, before you assume a component exists, and never generate code against a proposed API.`,
   }
 }
 

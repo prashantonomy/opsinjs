@@ -19,9 +19,7 @@ reviewer: engineering
     "Nobody has listened to this in a screen reader, so whether the filter's changing result count is announced as rows appear and disappear is unheard.",
   ]}
 >
-  <code className="text-sm">symptom-picker</code> is shipped: it installs as
-  source and the API may change in any release. It has had no accessibility
-  review and no clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -184,20 +182,23 @@ for](../health/who-this-is-for.mdx) sets the register.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+**Audited against WCAG 2.2 AA, in a source pass and a rendered pass.** The audit
+is author-run, not an independent review, and clinical review is pending.
 
-- No status colour, no colour literal and no ramp step: the picker draws only neutral chrome roles.
-- The ticked state is the check shape inside the box, never colour alone.
-- No `px` type size, so a raised text size gives a larger picker.
+**What the audit fixed.** With `searchable` on, typing filters the rows and can
+empty the list, but that count change sat in no live region, so a screen reader
+never heard the result count or that nothing matched (SC 4.1.3 Status Messages). A
+persistent visually hidden `role="status"` region now announces the filtered count.
 
-**Argued from the source, not measured.**
+**What the audit confirmed.** Each option is a real checkbox with its icon
+`aria-hidden`, the pressable row floors at `--opsin-target-minimum` in rem, and
+the rendered pass, run with axe, target-size and 320px reflow, was clean.
+`forced-colors` stays unchecked.
 
-- Each option is a real checkbox: `role="checkbox"` with `aria-checked`, its label the accessible name, its box `aria-hidden`.
-- The whole row is the target and floors at `--opsin-target-minimum` in rem, so it grows with text size.
-- Filtering changes what is shown, not what is chosen. Ticked values stay untouched.
-
-**Not checked by any gate.** Every contrast pair, whether the group reads
-usefully in a screen reader, and what the picker draws under `forced-colors`.
+**One residual, deferred.** The group and filter names are forwarded only as
+`aria-label`, with no persistent visible label. A required `label` prop keeps the
+group from being nameless, but a visible label is a recommended enhancement, held
+for one repair across the whole set.
 
 <KeyboardTable
   name="symptom-picker"

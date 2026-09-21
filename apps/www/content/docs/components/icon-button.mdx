@@ -19,9 +19,7 @@ reviewer: engineering
     "Forced colours and prefers-contrast are unhandled, inherited from Button, and a quiet icon button carrying only ink may not survive a palette that replaces author ink.",
   ]}
 >
-  <code className="text-sm">icon-button</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -63,9 +61,9 @@ import { Search } from "lucide-react"
     "A secondary control beside a labelled primary, where the reader has already taken in the row's context.",
   ]}
   avoid={[
-    { case: "There is room for a word. A short verb is clearer than a glyph, so a labelled button is safer almost everywhere.", instead: "button" },
-    { case: "The control turns something on or off, where a glyph reads as a state to interpret rather than an action.", instead: "switch" },
-    { case: "You were about to supply the icon's meaning through a hover tooltip. A tooltip supplements a name, and there is no hover on a phone.", instead: "tooltip" },
+    { case: "There is room for a word. A short verb beats a glyph almost everywhere.", instead: "button" },
+    { case: "The control turns something on or off, where a glyph reads as a state rather than an action.", instead: "switch" },
+    { case: "You were about to explain the icon through a hover tooltip. There is no hover on a phone.", instead: "tooltip" },
   ]}
 />
 
@@ -138,20 +136,24 @@ agree: a magnifier means search, a cross means close.
 **Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
 token, no type size is in `px`, and no banned word appears anywhere.
 
-**Argued from the source, not measured.**
+**Audited against WCAG 2.2 AA, source and rendered passes, author-run and not
+independent.** Clinical review is pending. The audit found no critical, serious
+or moderate defect in the source.
 
-- A real `button` element through [Button](./button.mdx), so Return, Space,
-  the role and the tab stop come from the platform.
-- The name is `aria-label` on the button and a visually hidden text node inside
-  it. A missing or whitespace-only `label` raises a development warning.
-- The glyph is `aria-hidden`, so it is never announced as a second, pictorial
-  name.
-- The target is a 44pt square in rem, with horizontal padding removed.
-  Separation between neighbours is the caller's, at `--opsin-target-separation`.
+- A real `button` element through [Button](./button.mdx) supplies Return, Space,
+  the role and the tab stop.
+- The name is `aria-label` plus a visually hidden text node; a missing or
+  whitespace-only `label` raises a development warning.
+- The glyph is `aria-hidden`, never announced as a second, pictorial name.
+- The target is a 44pt square in rem, with horizontal padding removed and
+  separation left to the caller's `--opsin-target-separation`.
 
-**Not checked by any gate.** Contrast on every variant and the focus ring, the
-44pt square and its separation, the doubled name in a screen reader, and forced
-colours.
+**Icon-only by design.** With no visible text, `aria-label` plus the hidden
+text node is the correct and complete name route rather than a persistent
+visible label. The docblock warns in development on a missing `label`.
+
+**Not measured.** Contrast on every variant, the focus ring, and forced
+colours, all inherited from Button.
 
 <KeyboardTable
   name="icon-button"
@@ -185,17 +187,15 @@ colours.
 
 <PropsTable name="IconButtonProps" />
 
-`icon` and `label` are both required. `variant` defaults to `secondary`, not
-`quiet`, because a bordered control is easier to recognise without a word inside
+`icon` and `label` are both required. `variant` defaults to `secondary` over
+`quiet`, since a bordered control is easier to recognise without a word inside
 it. There is no `busy`, `busyLabel`, `fullWidth`, `iconPosition` or `type`.
 `className` must never resolve a `--opsin-status-*` or `--opsin-category-*`
-role, because an IconButton carries no clinical axis.
+role; an IconButton carries no clinical axis.
 
 ## Related
 
-- [Button](./button.mdx) is the labelled control this one defers to. The guess
-  it saves the reader usually outweighs the space.
-- [Switch](./switch.mdx) turns something on or off. An icon button acts and does
-  not hold a setting.
-- [Tooltip](./tooltip.mdx) supplements a name and is never the name itself, and
-  there is no hover on a phone.
+- [Button](./button.mdx) is the labelled control this one defers to.
+- [Switch](./switch.mdx) turns something on or off; an icon button acts and
+  does not hold a setting.
+- [Tooltip](./tooltip.mdx) supplements a name and is never the name itself.

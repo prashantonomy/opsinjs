@@ -39,9 +39,13 @@ Every component arrives the same way:
   and the accessibility bar. Still no code. No id sits at `planned` today,
   because every catalogue row is implemented and installable.
 - **`shipped`** means code exists, it installs, and the API may change in any
-  release. No opsinjs component has had an accessibility review or a clinical
-  review. `shipped` means the source installs, and it does not mean either review
-  has happened. Nothing here is for a production health surface.
+  release. Every component has been audited against WCAG 2.2 AA by its own
+  authors, in a static source pass and a rendered pass, so it is audited but
+  not independently reviewed, and no component has had a clinical review.
+  `shipped` means the source installs and the authors audited it, and it does
+  not mean an independent reviewer or a clinician signed it. Nothing here is
+  for a production health surface until a clinician signs it. See [ADR
+  0025](../../project/decisions/0025-the-audit-is-author-run.mdx).
 - **`deprecated`** means the code still installs, a replacement is named, and a
   removal version is named.
 

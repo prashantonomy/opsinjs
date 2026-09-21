@@ -78,15 +78,28 @@ export default function ShowcasePage() {
             No entries from other teams yet.
           </p>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            opsinjs has no published packages, and every component that is
-            implemented is unreviewed: the API may change in any release
-            without a deprecation cycle, none of it has been through an
-            accessibility review or a clinical review, and none of it is ready
-            for a production health surface. Nothing can have shipped to real readers on that, so an
-            entry on this page today would be a fiction. It would be a fiction
-            on the page whose entire purpose is evidence.
+            opsinjs has no published packages, and every implemented component
+            has been audited against WCAG 2.2 AA by its own authors rather than
+            independently reviewed: the API may change in any release without a
+            deprecation cycle, neither an independent accessibility review nor a
+            clinical review has taken place, and none of it is ready for a
+            production health surface until a clinician signs it. Nothing can
+            have shipped to real readers on that, so an entry on this page today
+            would be a fiction. It would be a fiction on the page whose entire
+            purpose is evidence.
           </p>
           <p className="mt-5 text-sm">
+            <Link
+              className="underline underline-offset-4"
+              href={routes.docs(
+                "project",
+                "decisions",
+                "0025-the-audit-is-author-run",
+              )}
+            >
+              Why the audit is author-run, not independent
+            </Link>{" "}
+            &middot;{" "}
             <Link
               className="underline underline-offset-4"
               href={routes.docs("project", "roadmap")}

@@ -20,9 +20,7 @@ reviewer: engineering
     "`steady` is legal for de-escalation, yet a banner that can say nothing needs attention is one products will reach for to be noticed.",
   ]}
 >
-  <code className="text-sm">alert-banner</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -178,24 +176,27 @@ No `actions`, because only `attention` and `urgent` require one.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No status word is restated, every
-colour is a status role token, no type size is in `px`, and no number ships in the file.
+**Audited against WCAG 2.2 AA** in a source pass and a rendered pass. This is an author-run
+audit, not an independent review, and clinical review is still pending. The rendered pass
+was clean, with no axe violation and no target-size or focus-visible gap. The source pass
+found nothing to change.
 
-**Measured by `pnpm run contrast`.** The level's ink and line on its surface, four levels,
-both themes: all pass.
+Confirmed: colour never carries meaning alone, because the word and glyph come from the
+composed [StatusPill](./status-pill.mdx) and shape and position separate the levels. The
+live region wraps the heading and body only, `role="alert"` at `urgent` and
+`aria-live="polite"` with `aria-atomic` at `attention`. Focus is never moved and every
+control clears the 44pt floor.
 
-**Argued from the source, not measured.**
+Two residuals. At `steady` and `watch` the component mounts no live region, so a
+de-escalation banner inserted after a condition resolves is not announced to a reader
+already on the page. That is a deliberate departure from
+[Clinical status semantics](../health/clinical-status-semantics.mdx) rule 6 on
+alarm-fatigue grounds, a doctrine call left for a human reviewer. Escalating in place also
+relies on the caller passing `key={status}` to remount, which the component cannot
+enforce.
 
-- The live region is an inner wrapper around the heading and body only: `role="alert"` at
-  `urgent`, `aria-live="polite"` at `attention`, nothing below.
-- Escalate by remounting with `key={status}`, because a role patched onto a registered node
-  commonly announces nothing.
-- The heading is a real `h2` to `h6` with the level's word first.
-- Reading order is the DOM order, focus is never moved, and every control clears the 44pt
-  floor.
-
-**Not checked by any gate.** Any screen reader, hover and press fills and the focus ring
-on status tints, `forced-colors`, 200% text, and the root's missing accessible name.
+Still ungated: any real screen reader, `forced-colors`, and the root's missing accessible
+name.
 
 <KeyboardTable
   name="alert-banner"

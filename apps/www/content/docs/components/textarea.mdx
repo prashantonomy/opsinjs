@@ -19,9 +19,7 @@ reviewer: engineering
     "Whether a standalone invalid box is noticeable with only aria-invalid and the neutral border, before Field places a visible message, has not been tested with a reader.",
   ]}
 >
-  <code className="text-sm">textarea</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -101,20 +99,33 @@ the ceiling rather than up from zero.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** The box draws only neutral chrome
-roles, so no status colour, colour literal or ramp step reaches it, and the type is the
-`body` step rather than a pixel size.
+**Audited against WCAG 2.2 AA in a source pass and a rendered pass.** The audit is
+author-run and is not an independent review, and clinical review is still pending. The
+rendered pass on the component view was clean: no axe violations, no target-size hit, no
+focus-visible failure, and no reflow at 320px. The source pass confirmed the same, so the
+audit found nothing to change and no fix was applied.
 
-**Argued from the source, not measured.**
+The box draws only neutral chrome roles, so no status colour, colour literal or ramp step
+reaches it, and the type is the `body` step rather than a pixel size.
 
-- The box needs an accessible name and invents none. A Field label, an `aria-label`,
-  or an `id` with a real `<label htmlFor>` gives it one.
-- With none of `aria-label`, `id` or `name` present, a development warning names the
-  gap rather than shipping an unnamed box.
+- The box needs an accessible name and invents none. A Field label, an `aria-label`, or
+  an `id` with a real `<label htmlFor>` gives it one, and the default export models the
+  visible-label path.
+- With none of `aria-label`, `id` or `name` present, a development warning names the gap
+  rather than shipping an unnamed box.
 - `invalid` sets `aria-invalid` and leaves the border neutral, because a form error is
-  not a clinical status. The message is [Field](./field.mdx)'s to place.
+  not a clinical status. The message is [Field](./field.mdx)'s to place, so standalone
+  the box cannot associate an external message id.
 - The focus ring rides in the box's own classes, so a project without the product
-  stylesheet keeps it. Height floors at `--opsin-target-minimum`.
+  stylesheet keeps it. Height floors at the house target.
+
+Known residual items a reader should weigh. The box accepts an `aria-label` on its own,
+and a persistent visible label is the recommended enhancement rather than a requirement,
+which is why the default export uses one. `maxLength` is forwarded but the box renders no
+visible counter and no live remaining-count region, so pair the limit with a visible count
+near the box as the Content guidelines say. Disabled state uses a muted fill rather than an
+opacity wash so the text stays legible, and WCAG exempts disabled controls from the contrast
+floor.
 
 **Not checked by any gate.** Every contrast pair, and what the box draws under
 `forced-colors: active` and `prefers-contrast: more`, including the browser's own

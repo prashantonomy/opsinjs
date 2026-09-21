@@ -19,9 +19,7 @@ reviewer: engineering
     "A stepper disabled at a bound is drawn in muted ink alone, and whether reaching a bound is announced to assistive technology has not been tested.",
   ]}
 >
-  <code className="text-sm">number-field</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -169,23 +167,23 @@ exist. A count with no upper limit takes no `max`.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No status colour, colour
-literal or ramp step, no `px` type size, and a 44px target floor on each stepper.
+**Audited against WCAG 2.2 AA, source and rendered.** The audit is author-run,
+not independent, and clinical review is pending. The rendered
+pass was clean: no axe violations, focus visible, a 44px target floor, no loss at
+320px reflow. The source pass confirmed icons are `aria-hidden`, neither colour
+axis nor a colour-only state, role tokens with no `px` type, and Base UI’s own keyboard and names.
 
-**Argued from the source, not measured.**
+**What the audit fixed.** The input could be named only through `aria-label`. The
+wrapper now also forwards `id` and `aria-labelledby`, suppressing the redundant
+`aria-label` when a visible label is wired so it wins the name and Label in Name
+holds. `label` stays the required default, so the change is additive.
 
-- The input is a spinbutton on one tab stop, stepped by arrows, Page keys,
-  Home and End.
-- Each stepper carries an `aria-label`, Increase or Decrease, and an
-  `aria-controls` pointing at the input. Each disables itself at its bound.
-- `label` is applied as the input's `aria-label`. A missing or empty `label`
-  raises a development warning.
-- The focus ring is in each button's and the input's own class list, so a
-  project without the product stylesheet keeps it.
-
-**Not checked by any gate.** Every contrast pair, including the muted disabled
-ink at a bound, is unmeasured. The `forced-colors: active` rendering and whether
-a screen reader announces reaching a bound are untested.
+**Residual.** The default still names the input through `aria-label`; a
+persistent visible label is a recommended enhancement, deferred to one central
+repair across the input wrappers. Base UI hard-codes `autoComplete="off"`,
+acceptable for a count with no WCAG token, and surfaces no error text, since it
+clamps to bounds and owns validation. Every contrast pair, including the disabled
+ink at a bound, is unmeasured, so the report below stands in.
 
 <KeyboardTable
   name="number-field"

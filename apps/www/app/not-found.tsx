@@ -60,8 +60,10 @@ export default function NotFound() {
             <h2>You asked for a component that does not exist at all.</h2>
             <p>
               Every component in the catalogue is implemented and installable
-              from this origin&rsquo;s registry, and none of them has had an
-              accessibility review or a clinical review. An id that names none
+              from this origin&rsquo;s registry. Every one has been audited
+              against WCAG 2.2 AA by its own authors, but none has had an
+              independent accessibility review or a clinical review, so none
+              is for a production health surface yet. An id that names none
               of them has no page, no specification and no roadmap entry. If an
               assistant told you such a component exists and sent you here, the
               honest answer is that it does not. The machine-readable catalogue

@@ -18,9 +18,7 @@ reviewer: engineering
     "Initials are taken by code point, not grapheme cluster, so a first character with a combining mark can lose the mark.",
   ]}
 >
-  <code className="text-sm">avatar</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -122,7 +120,15 @@ moderate a `src`.
 **Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
 token, no type size is in `px`, and no banned word appears anywhere.
 
-**Argued from the source, not measured.**
+**Audited against WCAG 2.2 AA**, in a source pass over the component code and a
+rendered pass with axe-core, target-size, focus-visible and reflow checks. The audit
+is author-run, not an independent review, and clinical review is still pending.
+
+The audit found one defect worth fixing: a picture with a missing or blank name
+rendered with an empty `alt`, so a screen reader announced nothing while a sighted
+reader still saw a face. The picture tier now requires a usable name too, so a
+nameless avatar falls through to the neutral person glyph instead, matching the
+fallback chain this page already promises.
 
 - The avatar takes no focus and is not a tab stop. Inside a button or a link, that
   control owns the focus and the name.
@@ -133,8 +139,11 @@ token, no type size is in `px`, and no banned word appears anywhere.
 - An empty name warns in development, draws the person glyph and leaves the circle
   unlabelled, because the component cannot invent a label.
 
-**Not checked by any gate.** Contrast of the initials and the glyph on the muted fill,
-and whether a screen reader speaks the name once through `role="img"`.
+**Left open by the audit.** Contrast of the initials and the glyph on the muted fill
+comes from shared role tokens, not a literal colour here; the rendered pass found no
+violation, but no ContrastReport data exists yet for this pair. Initials are still
+taken by code point rather than grapheme cluster, so a combining mark can be lost, as
+the notice above already states.
 
 <KeyboardTable
   name="avatar"

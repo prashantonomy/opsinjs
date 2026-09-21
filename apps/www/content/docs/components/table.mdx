@@ -19,9 +19,7 @@ reviewer: engineering
     "Whether the bare focus stop on the scroll container should be a labelled region, or a stop at all when the table fits, is unresolved.",
   ]}
 >
-  <code className="text-sm">table</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -66,10 +64,10 @@ import { Table } from "@/components/ui/table"
   ]}
   avoid={[
     { case: "One reading with a label, a time and a surface of its own.", instead: "metric-tile" },
-    { case: "A trend the reader reads as a shape rather than as figures.", instead: "trend-sparkline" },
+    { case: "A trend read as a shape rather than as figures.", instead: "trend-sparkline" },
     { case: "The data has not arrived and you are holding the layout open.", instead: "skeleton" },
     { case: "There are no rows, because the result is genuinely empty.", instead: "empty-state" },
-    { case: "An interactive data grid with sorting, row selection and virtualised scrolling.", instead: "card" },
+    { case: "An interactive grid with sorting, selection and virtualised scrolling.", instead: "card" },
   ]}
 />
 
@@ -79,10 +77,10 @@ import { Table } from "@/components/ui/table"
   name="table"
   parts={[
     { name: "Table", describes: "The focusable scroll container and the table it wraps.", prop: "className" },
-    { name: "Table.Caption", describes: "The required caption. captionHidden hides it on screen, never in the markup.", prop: "caption" },
-    { name: "Table.Head", describes: "One th per column, scope col, muted so headers read as labels.", prop: "columns" },
-    { name: "Table.Row", describes: "One row per entry, hairline between. No hover fill and no selected fill.", prop: "rows" },
-    { name: "Table.Cell", describes: "One cell per column. A numeric column right-aligns in tabular figures.", prop: "columns" },
+    { name: "Table.Caption", describes: "The required caption. captionHidden hides it on screen only.", prop: "caption" },
+    { name: "Table.Head", describes: "One th per column, scope col, muted to read as labels.", prop: "columns" },
+    { name: "Table.Row", describes: "One row per entry, hairline between. No hover or selected fill.", prop: "rows" },
+    { name: "Table.Cell", describes: "One cell per column. A numeric column right-aligns.", prop: "columns" },
   ]}
 />
 
@@ -120,51 +118,54 @@ import { Table } from "@/components/ui/table"
 
 ### The readable twin of a chart
 
-The chart draws the shape and the table carries the figures. `captionHidden`
-hides the caption the heading above already supplies.
+The chart draws the shape; the table carries the figures. `captionHidden` hides
+the caption the heading above already supplies.
 
 <ComponentPreview name="table-a-chart-twin" kind="example" align="start" />
 
 ### Numeric columns line up on their digits
 
 `numeric` right-aligns two columns in tabular figures while the first column
-labels each row. The figures are nested Values.
+labels each row.
 
 <ComponentPreview name="table-numeric-columns" kind="example" align="start" />
 
 ## Content guidelines
 
-Write a caption naming the rows and the columns, so the table stands on its
-own. Where a heading already names the data, keep the caption and set
+Write a caption naming the rows and columns, so the table stands on its own.
+Where a heading already names the data, keep the caption and set
 `captionHidden`.
 
 <DoDont>
   <DoDont.Do>
-    **"Weekly figures for the example account, in the example unit"** names the rows and what the columns measure.
+    **"Weekly figures for the example account, in the example unit"** names rows and columns.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Table"**, or an empty caption, leaves a grid of numbers counting nothing.
+    **"Table"**, or an empty caption, leaves numbers counting nothing.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a neutral
-role token, no type size is in `px`, and no banned word or clinical threshold
-appears.
+Audited against WCAG 2.2 AA in a source pass and a rendered pass on
+`/view/base/base-lyra/component/table`. The audit is author-run, not
+independent, and clinical review is pending.
 
-**Argued from the source, not measured.**
+The audit found nothing to change in the source. The rendered pass is clean: no
+axe violations, no target-size failures, no focus-visible gaps, no sideways page
+scroll at 320px. A real `<caption>` always renders, headers carry `scope="col"`,
+and the first body cell carries `scope="row"` when `rowHeader` is on. The
+`overflow-x-auto` container is `tabIndex=0`, reachable and scrollable by
+keyboard. Padding-based spacing and no fixed cell heights keep text-spacing
+overrides from clipping. No colour prop, no `data-status`, no `data-category`,
+no transition.
 
-- `caption` is a required `string`, and `captionHidden` uses sr-only rather
-  than removing it.
-- Every header is `scope="col"`, and the first cell of a row is `scope="row"`
-  while `rowHeader` is on.
-- The container is `overflow-x-auto` and focusable, so a wide table scrolls in
-  its own box within reach of a keyboard.
-- No colour prop, no `data-status`, no `data-category` and no transition.
+Two items remain open. An empty `caption` renders an empty `<caption>`, warning
+only in development. The scroll container has no `role` and no accessible name;
+adding `role="region"` would require one, left to the consuming page.
 
-**Not checked by any gate.** The measured contrast of the header ink, the
-caption ink and the hairlines, the screen reader read, and 200% text.
+Contrast for the header ink, caption ink and hairlines has not been measured;
+the report below stands in its place.
 
 <KeyboardTable
   name="table"
@@ -177,17 +178,17 @@ caption ink and the hairlines, the screen reader read, and 200% text.
     {
       keys: "Shift + Tab",
       action: "Moves back out of the table",
-      notes: "Cells are never focus stops. A table is read, not tabbed.",
+      notes: "Cells are never focus stops.",
     },
     {
       keys: "Left, Right",
       action: "Scroll the table sideways when the container has focus",
-      notes: "Native to a focusable scroll region. Nothing captures these keys.",
+      notes: "Native to a focusable scroll region.",
     },
     {
       keys: "Space",
       action: "Scrolls the page, as anywhere else",
-      notes: "Nothing captures Space, and there is no control to activate.",
+      notes: "No control here captures it.",
     },
   ]}
 />
@@ -207,7 +208,7 @@ caption ink and the hairlines, the screen reader read, and 200% text.
     {
       attribute: "data-opsinjs-value",
       condition: "On a td in a numeric column",
-      value: "The empty string, deliberately: the tabular-figures hook, never a magnitude",
+      value: "The empty string, deliberately: a tabular-figures hook, not a magnitude",
     },
   ]}
 />
@@ -216,13 +217,13 @@ caption ink and the hairlines, the screen reader read, and 200% text.
 
 <PropsTable name="TableProps" />
 
-`caption` is a required `string`, because there is no honest caption this
-component can invent. `rowHeader` defaults to true, so the first cell of each
-row is a `th`. There is no `onSort`, no `selectedRows` and no `virtualized`.
+`caption` is a required `string`. `rowHeader` defaults to true, so the first
+cell of each row is a `th`. There is no `onSort`, no `selectedRows` and no
+`virtualized`.
 
 ## Related
 
 - [MetricTile](./metric-tile.mdx) is one labelled reading on its own surface.
-- [TrendSparkline](./trend-sparkline.mdx) draws a series as a shape, where a table gives the figures.
+- [TrendSparkline](./trend-sparkline.mdx) draws a series as a shape.
 - [Card](./card.mdx) is a surface for one record laid out freely.
-- [ResultCard](./result-card.mdx) places one result with its explanation, not many side by side.
+- [ResultCard](./result-card.mdx) places one result with its explanation.

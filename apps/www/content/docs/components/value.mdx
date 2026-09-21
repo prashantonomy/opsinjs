@@ -20,9 +20,7 @@ usedIn: [ask-users-for/height-and-weight, choose-a-component, daily-log-screen, 
     "Whether the muted absence at the display size clears contrast, and how the value behaves at 200% text, since neither has been looked at in either theme.",
   ]}
 >
-  <code className="text-sm">value</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -67,16 +65,13 @@ import { Value } from "@/components/ui/value"
 ## Clinical meaning
 
 **Asserts.** That this quantity has this magnitude in this unit, to this
-precision. `1000.2` and `1000.20` say different things about how the
-measurement was made.
+precision. `1000.2` and `1000.20` claim different things.
 
-**Never read as.** A judgement. Value carries no status and no band, and a
-number on its own means nothing without the context the surface around it
-supplies.
+**Never read as.** A judgement. Value carries no status and no band; a bare
+number means nothing without the context its surface supplies.
 
 **Colour axis.** Neither. A reading inherits the text colour of its context. An
-absence at `display` takes the muted theme role, which is chrome rather than
-status or category.
+absence at `display` takes the muted theme role.
 
 **Thresholds.** None here, and none in `tokens/units.json`, which holds no
 reference range, no plausibility bound and no default precision. Precision
@@ -84,10 +79,9 @@ belongs to the metric, so `precision` is required. See
 [Numbers, units and precision](../health/numbers-units-precision.mdx) and
 [Reference ranges](../health/reference-ranges.mdx).
 
-**Masking.** [On-screen privacy](../health/on-screen-privacy.mdx) names this
-component among the ones that implement a fixed-width mask. Value has no
-`masked` prop and reserves no width, so a product masking a reading today makes
-the layout move.
+**Masking.** [On-screen privacy](../health/on-screen-privacy.mdx) lists this
+among the components that implement a fixed-width mask. Value has no `masked`
+prop and reserves no width, so masking a reading today moves the layout.
 
 <SafetyCallout severity="attention" evidence="opinion" title="The unit table says what a number is measured in. It never says what a number should be.">
 `mmol/L` to `mg/dL` is refused, because the factor is a property of the analyte
@@ -133,31 +127,30 @@ substituted default. See [Unit systems](../health/unit-systems.mdx).
 ### Zero is a reading. Absence is not.
 
 Three rows share a unit and a precision and differ only in the reading: a
-number, a `null`, and a number that arrived broken. Rule 13 keeps the three
-apart.
+number, a `null`, and a number that arrived broken. Rule 13 keeps them apart.
 
 <ComponentPreview name="value-zero-is-not-absence" kind="example" align="start" />
 
 ### One precision makes a column comparable
 
 Four readings of one metric at one `precision`, aligned by the layout and by
-tabular figures. Nothing splits the number from its unit to achieve it.
+tabular figures.
 
 <ComponentPreview name="value-aligned-in-a-column" kind="example" align="start" />
 
 ### What a screen reader is actually given
 
-One magnitude with six units, and beside each the phrase that reaches speech.
-This is what `unit` buys, and it is invisible in a screenshot.
+One magnitude with six units, and beside each the phrase that reaches speech,
+which a screenshot cannot show.
 
 <ComponentPreview name="value-spoken-units" kind="example" align="start" />
 
 ## Content guidelines
 
-A caller's `absenceLabel` is rendered exactly as passed, with no check and no
-warning, so run your own absence copy past the banned-word list. Write a unit
-symbol exactly as `tokens/units.json` spells it, case included. A number that
-has no unit by design takes `null`, never an omitted prop.
+A caller's `absenceLabel` is rendered exactly as passed, with no check, so run
+your own absence copy past the banned-word list. Write a unit symbol exactly as
+`tokens/units.json` spells it, case included. A number with no unit by design
+takes `null`, never an omitted prop.
 
 <DoDont>
   <DoDont.Do>
@@ -172,24 +165,25 @@ has no unit by design takes `null`, never an omitted prop.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No `px` type size and no
-hard-coded colour, and the absence copy this component ships goes through the
-banned-word list.
+**Audited against WCAG 2.2 AA** in a source pass and a rendered pass on
+`/view/base/base-lyra/component/value`. The audit is author-run, not an
+independent review, and clinical review is still pending.
 
-**Argued from the source, not measured.**
+It changed nothing in source. The unit symbol is `aria-hidden` only when a
+spoken form exists and the words follow it, so an English reader hears *1000.2
+kilograms* as one phrase. Absence is spoken in words, never drawn at hero
+weight, and carries no decorative glyph. The component imposes no truncation, no
+fixed height and no `whitespace-nowrap`. The rendered pass returned empty axe,
+target-size, focus-visible and 320px reflow results.
 
-- The symbol is `aria-hidden` and the words sit straight after it, so an English
-  reader hears *1000.2 kilograms* as one phrase.
-- Absence is announced in words, with no decorative glyph for speech synthesis
-  to skip or to read out as punctuation.
-- Digits follow the reader's locale, checked by hand against `de-DE` and
-  `ar-EG`. `select-none` keeps the spoken words off the clipboard.
-- A Value cannot be the only thing naming a control. Symbol and spoken words
-  share no substring, which is WCAG 2.2 SC 2.5.3.
-
-**Not checked by any gate.** Contrast for the muted absence at `display`,
-behaviour at 200% text, whether a screen reader honours `lang` on a hidden span,
-and masking.
+Three items sit outside this source. A Value must never be the sole accessible
+name of a tappable control, because the visible symbol and the spoken words
+share no substring, so the control owes its own name carrying the symbol (WCAG
+2.2 SC 2.5.3). The only path to a clipped reading is a caller passing a
+truncating class through `className`, which `twMerge` lets win, so truncation is
+a caller responsibility documented on `ValueProps.className`. The spoken span
+uses `select-none` to keep the words off the clipboard while leaving them in the
+accessibility tree, untested by a copy test.
 
 <KeyboardTable
   name="value"
@@ -231,11 +225,10 @@ and masking.
 
 <PropsTable name="ValueProps" />
 
-`precision` is required and nothing is defaulted in its place, because precision
-belongs to the metric rather than to the unit. `unit={null}` declares a
-dimensionless number. Omitting `unit` raises OPSIN-0003 instead. Under server
-rendering, pass `locale` explicitly, or the server's own ICU default formats the
-first paint and hydration reformats it.
+`precision` is required and nothing is defaulted in its place. `unit={null}`
+declares a dimensionless number. Omitting `unit` raises OPSIN-0003 instead.
+Under server rendering, pass `locale` explicitly, or the server's own ICU
+default formats the first paint and hydration reformats it.
 
 ## Related
 

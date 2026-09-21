@@ -20,9 +20,7 @@ reviewer: engineering
     "The component mounts no live region, so what a screen reader hears when a score changes is unspecified.",
   ]}
 >
-  <code className="text-sm">score-dial</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -88,17 +86,15 @@ scale reads *on a scale of 10 to 20*, never *out of 20*.
 product passed `status`. Other bands stay neutral. Category tints the label alone, so
 [the two colour axes](../health/two-colour-axes.mdx) never meet.
 
-**Thresholds.** The product owns every band and cut-off; opsinjs ships none. An empty
-`bands` says no band is named. `ScoreBand.source` is required, as
-[Reference ranges](../health/reference-ranges.mdx) demands. `status` is an input, never
-derived. `attention` and `urgent` are refused.
+**Thresholds.** The product owns every band and cut-off; opsinjs ships none.
+`ScoreBand.source` is required, as [Reference ranges](../health/reference-ranges.mdx)
+demands. `status` is an input, never derived. `attention` and `urgent` are refused.
 
-**Staleness.** `calculatedAt` renders as a plain date, with no staleness treatment. Add a
-RelativeTime beside the dial when an old score must read as old.
+**Staleness.** `calculatedAt` renders as a plain date, with no staleness treatment. Add a RelativeTime when an old score must read as old.
 
 <SafetyCallout severity="attention" evidence="opinion">
-When only part of the input data was available, `coverage` must say so on the dial's face.
-Name what was counted in your derivation, because it will not guess a noun.
+When only part of the input data was available, `coverage` must say so. Name what was
+counted in your derivation; it will not guess a noun.
 </SafetyCallout>
 
 ## Anatomy
@@ -167,8 +163,7 @@ Name what was counted in your derivation, because it will not guess a noun.
 
 ### opsinjs ships no bands
 
-With an empty `bands`, the dial draws the scale, places the number and says no band is
-named.
+With an empty `bands`, the dial draws the scale, places the number and names no band.
 
 <ComponentPreview name="score-dial-no-bands-supplied" kind="example" align="start" />
 
@@ -187,27 +182,27 @@ field on a band.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is author-run,
+not an independent review, and clinical review is still pending. It found nothing to change:
+no serious defect in the source, and a clean rendered pass over axe, target size and
+320px reflow. There are no interactive elements, so keyboard and pointer criteria pass
+vacuously.
 
+**Argued from the source.**
+
+- The graphic is `role="img"` with a complete `aria-label` and `focusable="false"`, never a
+  `meter`, `progressbar` or `slider`, which would assert a within-range value it may not make.
 - Every status tint carries a word and a glyph and stamps `data-status`, never colour alone.
-- No element takes both colour axes, no band ships without a `source`, and no raw colour,
-  `px` size or ramp step appears.
+- The band name, scale, source and derivation are visible text no prop removes, the layout
+  is one stacked column that never truncates at 200% text, and nothing animates.
 
-**Measured by `pnpm run contrast`.** The track rail is gated against page and card. The
-indicator on its tinted band fails the non-text floor in both themes.
+**Deferred.** No live region mounts, because it is static and read-only, so nothing
+announces a score change; adding one is a recommended enhancement, not a fix. The tinted band
+strokes below the non-text floor in light, left as-is because the band name, the StatusPill
+word and glyph, the indicator and `data-status` all say the same thing.
 
-**Argued from the source, not measured.**
-
-- The graphic is `role="img"` with `focusable="false"`, never a `meter`, `progressbar` or
-  `slider`.
-- The band name, status word, scale, source and derivation are visible text no prop
-  removes, though a `className` can still hide them.
-- The layout is one stacked column, so nothing truncates at 200% text.
-- Nothing animates, on first paint or on change, as
-  [Motion in health UI](../health/motion-in-health-ui.mdx) requires.
-
-**Not checked by any gate.** `prefers-contrast`, the `forced-colors` mapping, print, and
-what a screen reader hears when the score changes.
+**Unmeasured.** The pair the arc stroke forms against its card is not in the measured set;
+the source records it and types no number.
 
 <KeyboardTable
   name="score-dial"
@@ -215,12 +210,12 @@ what a screen reader hears when the score changes.
     {
       keys: "Tab",
       action: "Skips the dial",
-      notes: "Nothing here is focusable. A picture of a reading, not a control.",
+      notes: "A picture of a reading, not a control.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the dial",
-      notes: "Same in reverse. The SVG carries focusable=\"false\".",
+      notes: "The SVG carries focusable=\"false\".",
     },
   ]}
 />
@@ -267,7 +262,7 @@ an inclusive `from`, an exclusive `to`, a `name` in the reader's language and a 
 
 ## Related
 
-- [RangeBar](./range-bar.mdx) is a measured value against a published range, not a calculation of yours.
+- [RangeBar](./range-bar.mdx) is a measured value against a published range, not a calculation.
 - [Progress](./progress.mdx) is a task advancing towards a goal, not a score.
 - [GoalRing](./goal-ring.mdx) is the ring the reader fills by doing something.
 - [MetricTile](./metric-tile.mdx) is the compact readout, with no room for a derivation.

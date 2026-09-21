@@ -18,9 +18,7 @@ reviewer: engineering
     "Field mounts no live region, so an error is silent until focus reaches it. Whether Field exposes its generated ids to an error summary is open.",
   ]}
 >
-  <code className="text-sm">field</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -189,23 +187,25 @@ without blame.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token and no type size is in `px`. No banned word appears in a string literal,
-in JSX text or an identifier.
+Audited against WCAG 2.2 AA in a source pass and a rendered pass on
+`/view/base/base-lyra/component/field`. The audit is author-run, not an
+independent review, and clinical review is pending. The rendered pass was clean:
+no axe violations, targets met `--opsin-target-minimum`, focus visible, no
+reflow at 320px.
 
-**Argued from the source, not measured.**
+**Fixed here.** The error now carries a live region, so it is announced on
+submit while focus is on Save, where it was silent before.
 
-- A real `label` element against a generated id, and descriptions that leave
-  `aria-describedby` on unmount.
-- `aria-invalid` lands on the control rather than the wrapper.
-- Errors carry no colour. A glyph, the words and the left rule mark the state, a
-  border forced colours keeps.
-- The control reads `--opsin-target-minimum` on both axes. Nothing truncates at
-  200% text.
+**From source.** A native `label` against a generated id; `aria-describedby`
+survives unmount; `aria-invalid` sits on the control; the invalid state is a
+glyph and a left rule, never colour. `pnpm run check:a11y` guards role tokens
+and non-`px` sizes.
 
-**Not checked by any gate.** Announcing an error while focus is elsewhere, the
-hint and error text roles, `forced-colors` on Windows, `autocomplete`, and
-whether `children` contains a control.
+**Limits.** The required and optional word is English only and untranslatable by
+prop. The focus ring lives in `product.css`, so a `shadcn add` copy without it
+shows no ring until you add one. The invalid shadow drops
+under forced colours and print, where the glyph, words and rule still carry the
+state.
 
 <KeyboardTable
   name="field"

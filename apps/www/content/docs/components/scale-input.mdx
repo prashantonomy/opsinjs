@@ -19,9 +19,7 @@ reviewer: engineering
     "No named reviewer has signed this page off, so read every claim here as unattributed.",
   ]}
 >
-  <code className="text-sm">scale-input</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -76,13 +74,13 @@ goes back through `onValueChange`, with no total, band, verdict or
 interpretation added.
 
 **Never read as.** A score, a measurement or a result opsinjs derived. A far point is
-a high self-report. Whether it matters is a clinical judgement this component does not
-make and must not appear to make. It never diagnoses, triages or advises. See
+a high self-report, and whether it matters is a clinical judgement this component does
+not make. It never diagnoses, triages or advises. See
 [Who this is for](../health/who-this-is-for.mdx).
 
 **Colour axis.** Neither. The scale writes neither `data-status` nor `data-category`,
-and the chosen point takes the neutral primary fill. Never tint the point the reader
-pressed. A product that decides a rating matters says so on its own status surface. See
+and the chosen point takes the neutral primary fill. A product that decides a rating
+matters says so on its own status surface. See
 [The two colour axes](../health/two-colour-axes.mdx).
 
 **Thresholds.** None. The point count arrives through `points` and the end words
@@ -116,7 +114,7 @@ and [Numbers, units and precision](../health/numbers-units-precision.mdx).
     },
     {
       name: "ScaleInput.Anchor",
-      describes: "One end word, under the first or last point in muted ink, folded into that point's accessible name.",
+      describes: "One end word under the first or last point, folded into that point's accessible name.",
       prop: "minLabel",
     },
   ]}
@@ -136,7 +134,7 @@ and [Numbers, units and precision](../health/numbers-units-precision.mdx).
             {
               part: "ScaleInput.Point",
               cardinality: "2..n",
-              note: "role radio, aria-checked; one per point, numbered 1 to points.",
+              note: "One per point, numbered 1 to points.",
               children: [
                 {
                   part: "ScaleInput.PointLabel",
@@ -160,15 +158,14 @@ and [Numbers, units and precision](../health/numbers-units-precision.mdx).
 
 ### A rating with end words
 
-Ten points with a word at each end. `label`, `points`, `minLabel` and `maxLabel`
-arrive as props.
+Ten points with a word at each end, from `label`, `points`, `minLabel` and `maxLabel`.
 
 <ComponentPreview name="scale-input-rating-with-anchors" kind="example" align="start" />
 
 ### No answer yet
 
 `value` is `null`, so the scale draws with no point chosen rather than defaulting to
-a middle point the reader never picked.
+a middle the reader never picked.
 
 <ComponentPreview name="scale-input-no-answer-yet" kind="example" align="start" />
 
@@ -177,7 +174,7 @@ a middle point the reader never picked.
 Write `label` as the thing being rated in the reader's words, "Comfort right now"
 rather than "1 to 10". It is the accessible name and the only place the question is
 stated. Take the end words from the product's instrument, short and opposite, never
-a verdict. Keep the point count fixed across the product.
+a verdict. Keep the point count fixed.
 
 <DoDont>
   <DoDont.Do>
@@ -190,23 +187,23 @@ a verdict. Keep the point count fixed across the product.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+**Audited against WCAG 2.2 AA, in a source pass and a rendered pass.** The audit is
+author-run, not an independent review, and clinical review is pending.
 
 - One tab stop with a roving focus: `role="radiogroup"` on the root, `role="radio"`
   and `aria-checked` on each point, and selection follows focus.
-- No element takes colour from both axes. This file writes neither.
-- No shipped scale, and every colour is a semantic token role.
-
-**Argued from the source, not measured.**
-
 - Every point floors its hit area at `--opsin-target-minimum` in rem, and the row
-  wraps rather than shrinking a point.
-- The focus ring is in the point's own classes, so a project without the product
-  stylesheet keeps it.
-- The first and last point's accessible names fold in `minLabel` and `maxLabel`.
+  wraps rather than shrinking a point below its target.
 
-**Not checked by any gate.** Every contrast pair on the host's ground, how the row
-plays in a screen reader, and whether the scale owes Home and End.
+**Fixed in this pass.** In forced colours the chosen point now repaints to the system
+Highlight pair with a Highlight border and `forced-color-adjust-none`, so selection
+stays distinct.
+
+**Deferred, and named.** The question reaches the radiogroup only as an `aria-label`,
+weaker than a visible label, the recommended enhancement, a decision shared
+with combobox. In normal mode the selection carries no glyph, so luminance inversion
+and the border carry it without hue. Every contrast pair on the host's ground is
+unmeasured, and the report below prints only what has been measured.
 
 <KeyboardTable
   name="scale-input"
@@ -219,7 +216,7 @@ plays in a screen reader, and whether the scale owes Home and End.
     {
       keys: "Shift + Tab",
       action: "Moves focus back out of the scale",
-      notes: "A single stop in reverse too, so focus leaves the scale.",
+      notes: "A single stop in reverse too.",
     },
     {
       keys: "Arrow Right, Arrow Down",
@@ -270,12 +267,12 @@ plays in a screen reader, and whether the scale owes Home and End.
 
 `points` has no default, and fewer than two renders nothing with a development
 warning. `value` is `number | null`: `null` draws nothing chosen, and a number
-outside 1 to `points` renders nothing chosen and warns. `label` is required: a
+outside 1 to `points` does the same and warns. `label` is required: a
 radiogroup with no accessible name is a defect the types cannot prevent.
 
 ## Related
 
-- [RadioGroup](./radio-group.mdx) is for a fixed set of labelled choices with no low end and no high end.
-- [Textarea](./textarea.mdx) is for an answer in the reader's own words, which a scale cannot hold.
+- [RadioGroup](./radio-group.mdx) is for a fixed set of labelled choices with no ordered ends.
+- [Textarea](./textarea.mdx) is for an answer in the reader's own words.
 - [Questionnaire](./questionnaire.mdx) is the name recorded for a multi-question instrument opsinjs does not ship.
 - [Field](./field.mdx) is the wrapper each rated item of a multi-question instrument sits in.

@@ -64,9 +64,13 @@ one search finds both.
 
 ## Not this
 
-- **Do not treat the plugins as sufficient.** They enforce shape. The clinical
-  review, the accessibility review and the content review are still the things
-  that catch the failures that matter most.
+- **Do not treat the plugins as sufficient.** They enforce shape. Every
+  component has been audited against WCAG 2.2 AA, but that audit was run by
+  the authors, not an independent reviewer; see
+  [ADR 0025](../../project/decisions/0025-the-audit-is-author-run.mdx) for the
+  record. The independent accessibility review, the clinical review and the
+  content review are still the things that catch the failures that matter
+  most.
 - **Do not add project rules to the `opsinjs/` namespace.** Use your own; the
   namespace is versioned.
 - **Do not run the plugins on generated output.** `.source/`, `lib/generated/`

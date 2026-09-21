@@ -41,10 +41,13 @@ See [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
 ## What you need
 
 The seven components this surface composes are `shipped`: the code exists and
-installs, and each may change its API in any release. No opsinjs component has
-had an accessibility review or a clinical review, so nothing here is for a
-production health surface. The per-item toggles in the last row, `switch` and
-`checkbox`, install as source too, and you wire their state.
+installs, and each may change its API in any release. Every opsinjs component has
+been audited against WCAG 2.2 AA by its own authors, not by an independent
+reviewer, and no component has had a clinical review, so nothing here is for a
+production health surface until a clinician signs it. See
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx). The per-item
+toggles in the last row, `switch` and `checkbox`, install as source too, and you
+wire their state.
 
 | Part | Component | Status | What it does here |
 | --- | --- | --- | --- |

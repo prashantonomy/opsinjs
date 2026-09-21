@@ -19,9 +19,7 @@ reviewer: engineering
     "The deliberately non-realistic silhouette has not been reviewed for whether it reads as neutral to every reader, and no user research backs the choice yet.",
   ]}
 >
-  <code className="text-sm">body-map</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -161,23 +159,33 @@ selection.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears anywhere.
+**Audited against WCAG 2.2 AA, in a source pass and a rendered pass.** This audit
+is author-run. It is not an independent review, and a clinical review is still
+pending. `pnpm run check:a11y` runs on every commit: every colour is a role token,
+no type size is in `px`, and no banned word appears anywhere.
 
-**Argued from the source, not measured.**
+**What the audit fixed.** The region markers are `rem`-sized so they grow with the
+reader's text size, but the figure box was pinned in `px`. At 200% text the markers
+outgrew the fixed box and collided, which lost the ability to tap them separately
+under 1.4.4 and 1.4.10. The box now scales in `rem` in lockstep with the markers, so
+the spacing ratio holds at every text size and the default view is unchanged.
+
+**What the audit confirmed.**
 
 - A real `button` per region, named by its label, with `aria-pressed` for its
   state. The map is a group named by `label`.
 - Selected is a muted fill, a hairline and a tick, and unselected shows a plus.
   The difference survives greyscale, and `aria-pressed` is the carrier.
-- Each marker meets the 44 by 44 floor on both axes, carried in `rem` so it grows
-  with the reader's text size.
+- Each marker meets the 44 by 44 floor on both axes, carried in `rem`.
 - Left and right are the subject's own sides, so the `left-arm` marker sits on the
   viewer's right, matching clinical convention.
 
-**Not checked by any gate.** Screen-reader output, the nine-stop tab sequence,
-increased contrast and forced colours, and whether a spatial control shuts out
-readers who cannot point at a target.
+**What a reader should still know.** The Front and Back captions render as `<p>`
+rather than headings, a deliberate choice so the component does not hardcode a
+heading level into a host document of unknown depth; each figure still carries a
+named `role="group"`. Screen-reader output across VoiceOver, NVDA and TalkBack, the
+nine-stop tab sequence, and forced colours are not gated, and the paired checkbox
+list stays the primary path for readers who cannot point at a target.
 
 <KeyboardTable
   name="body-map"

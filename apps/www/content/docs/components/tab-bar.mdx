@@ -19,9 +19,7 @@ reviewer: engineering
     "Forced colours and prefers-contrast: more are unhandled, and whether the current destination survives a palette that replaces both carriers has not been tested.",
   ]}
 >
-  <code className="text-sm">tab-bar</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -165,23 +163,24 @@ and keep any safety relevant action on a visible surface instead.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears anywhere.
+**Audited against WCAG 2.2 AA in a source pass and a rendered pass.** The audit is
+author-run, so it is not an independent review, and clinical review is still
+pending. The rendered pass was clean, with no axe violation, target-size breach,
+focus gap, or reflow break at 320px, and the source pass found every top risk
+already handled, so the audit changed nothing here.
 
-**Argued from the source, not measured.**
+Confirmed: a real `nav` landmark named by `label`; the current destination marked
+three non-colour ways, `aria-current="page"`, a heavier label, and a top
+indicator, so no cue rides on colour; every target floored at the 44pt minimum in
+rem; and icons `aria-hidden` with the label as the accessible name.
 
-- A `nav` landmark named by `label`. An empty `label` raises a development
-  warning rather than rendering an unnamed landmark.
-- Every destination is its own tab stop, unlike a segmented control's single
-  roving stop, because each one should be reachable directly.
-- The current state has three carriers: `aria-current="page"`, a heavier label
-  in the foreground ink, and a top indicator bar.
-- Each destination floors its target at `--opsin-target-minimum` in rem, so
-  44pt survives and grows with the reader's text size.
-
-**Not checked by any gate.** Contrast for the current treatment on the overlay
-material, screen-reader behaviour, and the safe-area padding on real hardware.
-Nor `forced-colors`, `prefers-contrast: more`, or bar height at 200% text.
+Recorded residuals: the colour and opacity fades carry no `prefers-reduced-motion`
+guard, which still meets AA since that guard is an AAA item;
+a `forced-colors` repaint may flatten the indicator bar, but `font-weight` and
+`aria-current` keep the current state legible; and a bottom-fixed bar can obscure
+focused content, but this component owns no position, so SC 2.4.11 is the
+product's concern. Contrast for the current treatment on the overlay
+material is still unmeasured; see below.
 
 <KeyboardTable
   name="tab-bar"

@@ -17,7 +17,12 @@ superseded by [ADR 0024](./0024-the-component-page-is-lean.mdx), which shortened
 everything else here stands. `STATUSES` in `lib/status.ts` and the mirrored enum in
 `source.config.ts` hold three values. All sixty rows in `registry/catalogue.ts` read
 `shipped`. Every documentation page that is not `kind: component` carries no `status`
-field at all.
+field at all. [ADR 0025](./0025-the-audit-is-author-run.mdx) records what changed
+after this was accepted: every one of the sixty has since been audited against
+WCAG 2.2 AA by its authors, in a static source pass and a rendered pass, with the
+findings fixed in the same change. The independent accessibility review and the
+clinical review are both still pending, so the catalogue is still not for a
+production health surface.
 
 ## Context
 
@@ -100,8 +105,8 @@ hold an estimate presented as a measurement.
 `alpha` and `beta` removed the only signal a reader had between "this works" and
 "somebody checked this", so the replacement had to be at least as visible. Every
 `kind: component` page renders `<StubNotice status="shipped">` whose text states that
-the component has had no accessibility review and no clinical review and is not for a
-production health surface. It is authored MDX rather than rendered chrome because
+the component has had no independent accessibility review and no clinical review and is
+not for a production health surface. It is authored MDX rather than rendered chrome because
 `app/_machine/corpus.ts` builds every `.md` twin from the processed page text: a
 sentence moved into a React component reaches a human on the rendered page and
 disappears from all sixty twins, from every `llms-*.txt` shard, from `/r/docs.json` and

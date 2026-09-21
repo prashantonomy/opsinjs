@@ -20,9 +20,7 @@ reviewer: engineering
     "The muted stale treatment is unmeasured against the muted fill, the tinted grounds it may share, and under increased contrast, and no preview renders it.",
   ]}
 >
-  <code className="text-sm">relative-time</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -74,17 +72,14 @@ import { RelativeTime } from "@/components/ui/relative-time"
 **Asserts.** That the named event happened at that instant and, past `staleAfterHours`,
 that the product no longer considers the value current. It does not
 know what was measured. The phrase rounds down at every rung except the minute floor.
-The staleness verdict is computed from the exact elapsed time, never from the phrase, as
-[Numbers, units and precision](../health/numbers-units-precision.mdx) requires of
-threshold comparisons.
+The staleness verdict is computed from the exact elapsed time, not the phrase, as
+[Numbers, units and precision](../health/numbers-units-precision.mdx) requires.
 
 **Never read as.** Freshness of the data. *Synced 5 minutes ago* means the app spoke to
-a server, not that the readings are five minutes old. That is why `event` is required,
-never inferred.
+a server, not that the readings are that new. That is why `event` is required.
 
 **Colour axis.** Neither. The stale treatment is muted text carried by the
-words *may be out of date*, never an amber tint that puts a status onto a fact about the
-clock.
+words *may be out of date*, never a status tint on a fact about the clock.
 
 **Thresholds.** Staleness belongs to the product: no default, no per-event default and
 nothing derived from `event`. Omit `staleAfterHours` and no stale treatment renders.
@@ -92,7 +87,7 @@ Supply it and the words appear past the boundary, or wherever it could not be ap
 [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) asks.
 
 **Staleness boundary.** The muted treatment reaches the `time` element only. A surface
-embedding it still owes the value's de-emphasis and a route to refresh it.
+embedding it still owes the value's de-emphasis and a route to refresh.
 
 <SafetyCallout severity="attention" evidence="opinion">
 Never put a sync time where a measurement time belongs. *Synced 2 minutes ago* above a
@@ -137,25 +132,22 @@ each with its event word.
 
 ### A column of entries
 
-Every row names its `event`, and an age reads faster down a column than four dates
-side by side. No row passes `staleAfterHours`, because a number in a worked example is
-read as a recommendation.
+Every row names its `event`, and an age reads faster down a column than dates side by
+side. No row passes `staleAfterHours`.
 
 <ComponentPreview name="relative-time-in-a-log-list" kind="example" align="start" />
 
 ### Measured and synced are two different facts
 
-Both lines are true. A reader who meets the second without the first carries its
-reassurance onto a reading taken eleven days earlier. The `event` prefix is what keeps
-them apart.
+Both lines are true. The `event` prefix keeps a sync time from lending its reassurance
+to a reading taken eleven days earlier.
 
 <ComponentPreview name="relative-time-measured-and-synced" kind="example" align="start" />
 
 ## Content guidelines
 
-Always name the event: *Measured 3 days ago* is a fact, *3 days ago* is a fragment. The
-five words each name a different actor, so pick the true one. On a result,
-show *received* beside *issued*, never instead of it. It never says *just now*,
+Always name the event: *Measured 3 days ago* is a fact, *3 days ago* is a fragment. On a
+result, show *received* beside *issued*, never instead of it. It never says *just now*,
 *up to date* or *yesterday*, and its smallest phrase is *1 minute ago*.
 
 <DoDont>
@@ -171,23 +163,28 @@ show *received* beside *issued*, never instead of it. It never says *just now*,
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No type size is in `px`, every
-colour is a role token, and no banned word appears anywhere.
+**Audited against WCAG 2.2 AA** in a source pass and a rendered pass. This audit is
+author-run, not an independent review, and clinical review is still pending.
 
-**Argued from the source, not measured.**
+The rendered pass found no axe violations, no target-size hits, no focus-visible issue
+and no reflow at 320px. The source pass found one moderate item: the log-list example
+rendered its rows in a `<ul>` styled `list-none`, which drops list semantics under
+Safari with VoiceOver, so the rows read as generic text. A `role="list"` restores the
+role with no visual or API change. The component's own source held no critical or
+serious defect.
 
 - The exact date is always in the accessibility tree and in print, never behind hover,
   focus or a disclosure. `showAbsolute` moves it on screen only.
 - Staleness is stated in words, never by the muted tone alone, and the words stay at the
   surrounding foreground while the phrase recedes.
-- It mounts no live region and owns no timer, so it never announces itself. A product
-  re-rendering it should not add one.
+- It mounts no live region and owns no timer. Nothing changes at runtime to announce, so
+  a product re-rendering it should add no `aria-live`.
 - No `"use client"`, no effect and no clock read, so hydration is safe by determinism.
   Pass an explicit `locale` or server and browser may differ.
 
-**Not checked by any gate.** The muted treatment against the muted fill, tinted grounds
-and increased contrast, print output in a real preview, and screen readers in any
-language other than English.
+Two items remain open. The muted stale treatment's contrast against the muted or tinted
+grounds it may sit on is unmeasured, and no shipped preview renders the stale state.
+Screen readers in a language other than English are also unverified.
 
 <KeyboardTable
   name="relative-time"
@@ -214,14 +211,13 @@ language other than English.
 `at`, `event` and `now` are required with no defaults. An `at` without an offset, or an
 `event` outside the five, renders nothing and warns in development. An unparseable `now`
 renders the date alone. `absoluteAfterDays` defaults to `1`; `0` shows the
-date at every age. `TimeEvent` is exported. Re-render with a fresh
-`now` when a surface outlives its boundary.
+date at every age. `TimeEvent` is exported.
 
 ## Related
 
 - [Value](./value.mdx) covers quantities rather than instants, and renders an explicit
   absence where this component renders nothing.
-- [MetricTile](./metric-tile.mdx) embeds a RelativeTime but still owes the de-emphasis of
-  the value and a route to refresh it.
+- [MetricTile](./metric-tile.mdx) embeds a RelativeTime and still owes the value's
+  de-emphasis and a route to refresh it.
 - [ResultCard](./result-card.mdx) is where *measured* and *received* both apply and only
   one is relevant.

@@ -92,11 +92,17 @@ copy-in, decided in
 [ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx). Every
 installation page says so at the top.
 
-Everything built is still pre-release. No opsinjs component has had an
-accessibility review or a clinical review. `shipped` means the source installs,
-and it does not mean either review has happened. Nothing here is for a production
-health surface. The API of a `shipped` component may change in any release, and
-every change carries a changelog entry.
+Everything built is still pre-release. Every opsinjs component has been
+audited against WCAG 2.2 AA by its own authors, in a static source pass and a
+rendered pass, and the findings were fixed in the same change. That is an
+author-run audit, not an independent review, and no component has had a clinical
+review, which is still pending. The record is
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx). `shipped`
+means the source installs and that the author audit ran, and it does not mean an
+independent accessibility review or a clinical review has happened. Nothing here
+is for a production health surface until a clinician signs it. The API of a
+`shipped` component may change in any release, and every change carries a
+changelog entry.
 
 The useful consequence is that both layers are reviewable *now*, while they are
 still cheap to change. If an API looks wrong to you, that is the most valuable

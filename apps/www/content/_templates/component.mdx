@@ -32,8 +32,9 @@ usedIn: [read-a-lab-result]
   for `## API reference`, and the two never both appear.
 
   There is no ## Status heading. <StubNotice> opens the page, above the first
-  H2, and it must say in authored MDX that the component has had no
-  accessibility review and no clinical review and is not for a production
+  H2, and it must say in authored MDX that the component was audited against
+  WCAG 2.2 AA by its own authors, that an independent accessibility review and
+  a clinical review are both still pending, and that it is not for a production
   health surface; assert-ia rule SAFE001 fails the build otherwise.
 
   The H1 and the one-sentence definition under it come from `title` and
@@ -57,8 +58,10 @@ usedIn: [read-a-lab-result]
   ]}
 >
   <code className="text-sm">component-name</code> is a specification. There is
-  no code, so do not generate against it. It has had no accessibility review
-  and no clinical review, so it is not for a production health surface.
+  no code, so do not generate against it. Audited against WCAG 2.2 AA. Clinical
+  review pending. That audit was run by the authors and not by an independent
+  reviewer, and no clinician has signed it, so it is not for a production health
+  surface. See [ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx).
 </StubNotice>
 
 ## Preview

@@ -19,9 +19,7 @@ reviewer: engineering
     "A view that becomes empty should be announced once, but this component mounts no live region and nothing says what the region does.",
   ]}
 >
-  <code className="text-sm">empty-state</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -162,22 +160,22 @@ missing. See
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No banned word in copy or
-identifiers, no `px` type size, every colour a bridged role.
+Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
+author-run, not an independent review, and clinical review is pending.
 
-**Argued from the source, not measured.**
+Both passes found nothing to change. Neither colour axis is used, so nothing can
+mix. `titleLevel` renders a real `h2` to `h6`, default `2`; check it against the outline. The `could-not-load` flag carries its meaning in a word beside an
+`aria-hidden` icon, not colour. The `href` action is an anchor floored at
+`var(--opsin-target-minimum, 2.75rem)` on both axes.
 
-- Neither colour axis is used, so there is nothing to mix.
-- `titleLevel` renders a real `h2` to `h6`, default `2`. Check it against the
-  page outline.
-- The `href` action is an anchor floored at `var(--opsin-target-minimum, 2.75rem)`
-  on both axes.
-- It mounts no live region. The emptied region announces once and moves focus,
-  as the filter example does.
+No live region is mounted, by design. On a stateless, read-only render a live region
+could only mis-fire, since it announces only changes made after first paint. The
+announcement belongs to whatever region changed, which the caller owns, as the
+filter example shows.
 
-**Not checked by any gate.** Contrast of title, body and both actions against the
-card surface. Also the 44 by 44 hit area, 1.3x and 200% text, `prefers-contrast`,
-`forced-colors`, the print drop and the 17rem container drop.
+The rendered pass measured the default preview on `/view` and returned clean; the
+three example files were audited from source. Contrast against the card surface is
+unmeasured; the report below carries it.
 
 <KeyboardTable
   name="empty-state"
@@ -223,8 +221,8 @@ warn once. A `secondary` with no `action` also warns.
 
 ## Related
 
-- [Skeleton](./skeleton.mdx) is for content that is coming. An empty state
-  shown while loading is the worst confusion.
+- [Skeleton](./skeleton.mdx) is for content that is coming, not content that is
+  absent.
 - [AlertBanner](./alert-banner.mdx) speaks for the whole view. `could-not-load`
   reports one surface's failure in place.
 - [Callout](./callout.mdx) is a note beside content that exists.

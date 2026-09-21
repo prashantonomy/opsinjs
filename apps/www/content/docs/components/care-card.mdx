@@ -20,9 +20,7 @@ reviewer: engineering
     "An urgent card may say ring for help, yet a tel: action is a plain link with no number and no emergency mode.",
   ]}
 >
-  <code className="text-sm">care-card</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -75,14 +73,14 @@ import { CareCard } from "@/components/ui/care-card"
 date, for a stated reason.
 
 **Never read as.** Advice from a clinician who has assessed this reader, unless the card
-says so. `attribution` is required, and an empty one says nobody is named.
+says so. `attribution` is required.
 
-**Colour axis.** Status only, and only on the embedded [StatusPill](./status-pill.mdx).
-The category axis never appears, and surface, boundary and heading take none. See
+**Colour axis.** Status only, on the embedded [StatusPill](./status-pill.mdx). Surface,
+boundary and heading take no category colour. See
 [The two colour axes](../health/two-colour-axes.mdx).
 
-**Thresholds.** None. `urgency` says when to act and `status` says how much attention the
-reading needs. Neither is derived from the other, and all fifteen pairs render. See
+**Thresholds.** None. `urgency` says when to act, `status` says how much attention the
+reading needs, neither is derived from the other, and all fifteen pairs render. See
 [Clinical status semantics](../health/clinical-status-semantics.mdx),
 [Alarm fatigue](../health/alarm-fatigue.mdx) and
 [Emergency and escalation](../health/emergency-and-escalation.mdx).
@@ -92,9 +90,8 @@ boolean. See
 [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
 
 <SafetyCallout severity="urgent" evidence="opinion">
-At most one `urgent` surface per screen, counted on the status axis. An urgent card names
-a step the reader can take now. If that step is ringing for help, give the number: the
-component ships none.
+At most one `urgent` surface per screen, counted on the status axis. If the step is ringing
+for help, give the number: the component ships none.
 </SafetyCallout>
 
 ## Anatomy
@@ -180,15 +177,14 @@ component ships none.
 
 ### A steady card that still asks for something
 
-`status="steady"` with `urgency="when-convenient"` is the routine follow-up, not a
-contradiction.
+`status="steady"` with `urgency="when-convenient"` is the routine follow-up.
 
 <ComponentPreview name="care-card-steady-and-still-asking" kind="example" align="start" />
 
 ### A deadline the reader is already behind
 
 `dueBy` renders as a written date and `overdue` is a product-supplied boolean. No
-`urgency` is set, because the date is the timing.
+`urgency` is set; the date is the timing.
 
 <ComponentPreview name="care-card-a-deadline-that-has-passed" kind="example" align="start" />
 
@@ -203,7 +199,7 @@ The same instruction with and without `attribution`. Without one, the card says 
 Start with a verb and let the card supply timing. Name the author in the reader's words:
 *your GP asks*. Never write *you must*, *you need to*, *failure to* or *it is important
 that you*. A telephone action carries the number in its label. Do not compare a reading to
-a range the card does not show. See [reference ranges](../health/reference-ranges.mdx).
+a range the card does not show; see [reference ranges](../health/reference-ranges.mdx).
 
 <DoDont>
   <DoDont.Do>
@@ -217,21 +213,22 @@ a range the card does not show. See [reference ranges](../health/reference-range
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No status colour, no `px` type
-size, no raw colour, and no banned word in copy or in an identifier.
+**Audited against WCAG 2.2 AA.** A source pass covered the rubric and a rendered pass ran
+axe, target size, focus visibility and reflow at 320px. The audit is author-run, not
+independent, and clinical review is pending.
 
-**Argued from the source, not measured.**
+Confirmed:
 
-- The card is a `section` named by `aria-label` from its heading, so entering speaks the
+- The card is a `section` named by `aria-label` from its heading, so entering it speaks the
   instruction.
-- Urgency is text in the heading, with no glyph, colour or rule, so greyscale loses
-  nothing.
-- The card takes no tab stop. Actions carry the 44pt floor from `--opsin-target-minimum`.
-- With two actions, the recommended one carries a visually hidden qualifier.
+- Urgency is text with no glyph or colour, and status is carried by
+  [StatusPill](./status-pill.mdx) as word, glyph and tint, never colour alone.
+- The card takes no tab stop. Of two actions, the recommended one is set apart by a
+  bordered shape and a hidden qualifier, not by colour.
 
-**Not checked by any gate.** Contrast for the action tones and the timing phrase, and
-forced colours beyond the Card edge. Also the `tel:` action, how "region, then heading"
-sounds, and the English-only phrases.
+Not confirmed in a browser: the `sm` quiet button and secondary quiet link variants, which
+inherit the 44px target floor but were not exercised. Contrast for the action tones and the
+timing phrase stays unmeasured, as the report below records.
 
 <KeyboardTable
   name="care-card"
@@ -239,12 +236,12 @@ sounds, and the English-only phrases.
     {
       keys: "Tab",
       action: "Moves to the first action, then to the second",
-      notes: "The card is not a tab stop.",
+      notes: "The card is not focusable.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves back through the actions, then out of the card",
-      notes: "Actions keep DOM order whichever is recommended.",
+      notes: "Actions keep DOM order.",
     },
     {
       keys: "Enter",
@@ -264,7 +261,7 @@ sounds, and the English-only phrases.
     {
       keys: "Escape",
       action: "Nothing",
-      notes: "Not an overlay, nothing to leave.",
+      notes: "Not an overlay.",
     },
   ]}
 />

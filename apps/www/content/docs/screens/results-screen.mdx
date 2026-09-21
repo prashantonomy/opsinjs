@@ -195,9 +195,12 @@ Everything on this page renders. Nothing here is a new component: the preview ab
 arranges parts that already ship into the composition this page specifies, so the
 three screen-level checks have something real to run against. What is unproven is
 the composition rather than the components. The arrangement, its refusals and its
-accessibility bar are a proposal, the questions below are still open, and no
-opsinjs component has had an accessibility review or a clinical review. Do not put
-this screen in front of a patient. Do copy its refusals, because those are the part
+accessibility bar are a proposal, and the questions below are still open. Every
+opsinjs component has now been audited against WCAG 2.2 AA by its authors, in a
+static source pass and a rendered pass, but that audit is not an independent
+review, and no component has had a clinical review yet
+([ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx) records the
+reach and the limits of it). Do not put this screen in front of a patient. Do copy its refusals, because those are the part
 worth carrying into product code. The specimen lives under `registry/screens/` and
 is not served from `/r`, so there is no `shadcn add` for it.
 </StubNotice>

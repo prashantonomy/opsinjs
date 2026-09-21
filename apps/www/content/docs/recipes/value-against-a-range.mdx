@@ -39,9 +39,12 @@ it is the single most common defect in consumer health interfaces.
 
 The ten components this recipe composes are all built, installable and
 `shipped`: the code exists and installs, and the API may change in any release.
-No opsinjs component has had an accessibility review or a clinical review.
-`shipped` means the source installs, and it does not mean either review has
-happened. Nothing here is for a production health surface.
+Every opsinjs component has been audited against WCAG 2.2 AA by its own authors;
+see [ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx). None has had
+an independent accessibility review, and none has had a clinical review.
+`shipped` means the source installs and passed that author-run audit, and it does
+not mean either independent review has happened. Nothing here is for a production
+health surface until a clinician signs it.
 
 | Part | Component | Status | What it does here |
 | --- | --- | --- | --- |

@@ -125,9 +125,12 @@ same text and two at different versions may not even be the same pages.
 <Callout>
 The most important field on a component page in this bundle is `status`. A built
 component reads `shipped` and the source is in its registry item, and today that
-covers every component. No opsinjs component has had an accessibility review or a
-clinical review. `shipped` means the source installs, and it does not mean either
-review has happened. Nothing here is for a production health surface. An agent
+covers every component. Every opsinjs component has been audited against WCAG 2.2
+AA by its own authors (see [ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx)),
+which is not an independent accessibility review, and no component has had a
+clinical review. `shipped` means the source installs, and it does not mean an
+independent review or a clinical review has happened. Nothing here is for a
+production health surface until a clinician signs it. An agent
 working from a stale bundle a year from now must be able to discover that the
 world has moved. The docs version is how it finds out, and `status` is what will
 have changed.

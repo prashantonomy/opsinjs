@@ -20,9 +20,7 @@ reviewer: engineering
     "No contrast pair has been measured. Each marker is a neutral hairline chip on whatever ground the host provides, so the floors are argued rather than checked.",
   ]}
 >
-  <code className="text-sm">dose-tracker</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -180,19 +178,21 @@ Write each medicine name in the words the reader already knows it by. Keep `note
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+**Audited against WCAG 2.2 AA, in a source pass and a rendered pass.** This is an author-run audit, not an independent review, and clinical review is pending. The rendered pass on `/view/base/base-lyra/component/dose-tracker` was clean, and the source pass found no defect, so nothing was changed.
 
-- No status colour, no category colour and no colour literal: every marker draws only the neutral chrome roles.
-- The state is never colour alone. Each marker reads a word and a distinct lucide shape from a fixed table.
-- No `px` type size, and no schedule, dose or threshold written into the component or its examples.
+**What the audit confirmed.**
 
-**Argued from the source, not measured.**
+- Each marker shape carries `aria-hidden` beside a visible word (1.1.1), and a real `ul`/`li` carries the list semantics (1.3.1).
+- No status colour, category colour or colour literal: each state is told by a word and a distinct lucide shape.
+- Icons are em-sized, so at 200% text they grow with the step and the times wrap rather than clip. No `px` type size.
 
-- Each marker shape carries `aria-hidden`, so a screen reader meets the name, the state word and the time.
-- Nothing takes focus, answers a key or animates, so there is no keyboard contract and no motion to reduce.
-- At 200% text the markers grow with the type step and the times wrap rather than clip.
+**What a reader should still know.**
 
-**Not checked by any gate.** Every contrast pair of hairline and muted ink against the host ground. How the list plays for a screen reader user, and what the markers draw under `forced-colors: active`.
+- The list's accessible name is offered only through `label`, as an `aria-label`. Every example supplies one, but a persistent visible label is a recommended enhancement.
+- No `aria-live` region is announced: this static read-only log renders once and never updates in place, so 4.1.3 owes no status message.
+- With no interactive element, target size (2.5.8), focus visibility and keyboard operation do not apply.
+
+**Not measured.** Every contrast pair of hairline and muted ink against the host ground, and the markers under `forced-colors: active`.
 
 <KeyboardTable
   name="dose-tracker"

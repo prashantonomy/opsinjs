@@ -44,9 +44,13 @@ Every catalogue row is implemented and installable. That changes what these
 commitments cover, though less than it sounds. They cover the token layer, the
 CSS in `app/globals.css` and `app/product.css`, and the page contracts every
 component specification must satisfy. For all sixty, they also cover
-whatever `pnpm run check:a11y` can prove by reading a component source. What
-they do not yet cover is any *rendered* component: nothing built here has met a
-screen reader, and no accessibility review is recorded for any of the sixty.
+whatever `pnpm run check:a11y` can prove by reading a component source. Every one
+of the sixty has now been audited against WCAG 2.2 AA (author-run), in a source
+pass and a rendered pass, and the findings were fixed in that same change. That
+audit was run by the authors of the components, so it is not an independent
+review, and no clinician has reviewed any of the sixty. Read
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx) for what the
+audit was and what it was not.
 </Callout>
 
 ## What you own
@@ -127,8 +131,9 @@ would carry those numbers say so in words rather than filling the gap.
 These are real, and they are listed here rather than in an internal tracker
 because a conformance claim with no gaps section is not a conformance claim.
 
-- **No component has been tested with a screen reader.** Sixty are built
-  and not one of them has been listened to.
+- **No component has been tested with a screen reader.** All sixty were audited
+  against WCAG 2.2 AA by their authors, in a source pass and a rendered pass, but
+  that rendered pass never put one of them in front of a screen reader.
   [Screen readers](./screen-readers.mdx) states the intended tested matrix and
   marks every cell untested.
 - **`prefers-contrast` is not answered in the token layer.** `app/globals.css`
@@ -147,9 +152,10 @@ because a conformance claim with no gaps section is not a conformance claim.
   measures three things: hit area, survival at 1.3x, and 200% with no truncated
   value. Neither half is an axe pass, neither has met a screen reader, and
   neither looks at this documentation site.
-- **No conformance evaluation has been performed.** The
-  [conformance report](./conformance-report.mdx) is a complete ACR skeleton in
-  which every criterion is marked *Not Evaluated*, which is the honest state.
+- **No independent conformance evaluation has been performed.** The author-run
+  audit against WCAG 2.2 AA is not an ACR, and the
+  [conformance report](./conformance-report.mdx) is still a complete ACR skeleton
+  in which every criterion is marked *Not Evaluated*, which is the honest state.
 - **Cognitive accessibility guidance is not yet backed by user research.**
   [Cognitive accessibility](./cognitive-accessibility.mdx) is marked as opinion
   throughout.

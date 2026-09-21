@@ -46,13 +46,15 @@ export default function NotFound() {
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               {builtComponentCount()} components are implemented and
-              installable from this origin&rsquo;s registry. None of them has
-              had an accessibility review or a clinical review. An id that names
-              none of them has no page, no specification and no roadmap entry.
-              If an assistant told you such a component exists and sent you
-              here, the honest answer is that it does not. The machine-readable
-              catalogue at the foot of this page, not the assistant, is the
-              authority on which names exist.
+              installable from this origin&rsquo;s registry. Every one of them
+              has been audited against WCAG 2.2 AA, by its own authors rather
+              than an independent reviewer, and none has had a clinical
+              review, so none is for a production health surface yet. An id
+              that names none of them has no page, no specification and no
+              roadmap entry. If an assistant told you such a component exists
+              and sent you here, the honest answer is that it does not. The
+              machine-readable catalogue at the foot of this page, not the
+              assistant, is the authority on which names exist.
             </p>
             <p className="mt-2 text-sm">
               <Link
@@ -67,6 +69,17 @@ export default function NotFound() {
                 href={routes.docs("project", "state-of-the-system")}
               >
                 State of the system
+              </Link>
+              <span className="text-muted-foreground"> · </span>
+              <Link
+                className="underline underline-offset-4"
+                href={routes.docs(
+                  "project",
+                  "decisions",
+                  "0025-the-audit-is-author-run"
+                )}
+              >
+                ADR 0025
               </Link>
             </p>
           </li>

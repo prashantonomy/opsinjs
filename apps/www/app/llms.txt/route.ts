@@ -101,7 +101,7 @@ export function GET(): Response {
     "## Reading this site as a machine",
     "",
     "- Append `.md` to any documentation URL to get that page as processed markdown, with its frontmatter: imports stripped, headings with explicit ids, code and tables as markdown. Documentation components are NOT rendered to prose. For most of them the attributes are the content and the values behind them are published separately at `/r/index.json` and under Reference.",
-    "- `<StubNotice>` is the exception, and on a component page it is the element to read. It is a paired element, never self-closing, and the prose between its opening and closing tags is text an author wrote which survives into the `.md` twin word for word. That prose is where the page states whether the component has been reviewed. Every component page carries one, and every one of them says the source installs and has had no accessibility review and no clinical review.",
+    "- `<StubNotice>` is the exception, and on a component page it is the element to read. It is a paired element, never self-closing, and the prose between its opening and closing tags is text an author wrote which survives into the `.md` twin word for word. That prose is where the page states whether the component has been reviewed. Every component page carries one, and every one of them says the source installs, has been audited against WCAG 2.2 AA by the authors rather than independently reviewed, and has had no clinical review.",
     `- [The whole corpus in one file](${absoluteUrl("/llms-full.txt")}) is size-capped, and it names every page it had to drop. ${shardCoverage}`,
     ...Object.values(SHARDS).map(
       (shard) =>

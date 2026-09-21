@@ -18,9 +18,7 @@ aliases: ["hover label"]
     "Nothing stops a caller putting the one fact a control cannot be used without behind a hover a phone reader never triggers; no lint catches it.",
   ]}
 >
-  <code className="text-sm">tooltip</code> is shipped: it installs as source and
-  the API may change in any release. It has had no accessibility review and no
-  clinical review, so it is not for a production health surface.
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
 ## Preview
@@ -52,14 +50,14 @@ import { Tooltip } from "@/components/ui/tooltip"
 
 <WhenToUse
   use={[
-    "Expanding an icon-only control's name for a pointer or keyboard reader, where the control already carries it through aria-label.",
-    "Adding a short optional note beside a label that already stands on its own, such as what a setting affects.",
-    "Surfacing a value's full form on demand, such as an abbreviation's expansion, where the reading is already on screen.",
+    "Expanding an icon-only control's name, already carried through aria-label.",
+    "Adding a short optional note beside a label that already stands on its own.",
+    "Surfacing a value's full form on demand, where the reading is already on screen.",
   ]}
   avoid={[
-    { case: "The label carries something a touch reader needs to use the control. A phone has no hover, so the tooltip never opens for them.", instead: "callout" },
-    { case: "You are explaining what a clinical word means. A definition belongs inline in the sentence and in the accessibility tree.", instead: "term" },
-    { case: "You are attaching a hint to a form control, such as a date format. A field hint is always visible and read with the control.", instead: "field" },
+    { case: "The label carries something a touch reader needs. A phone has no hover, so the tooltip never opens for them.", instead: "callout" },
+    { case: "You are explaining what a clinical word means. That belongs inline, in the accessibility tree.", instead: "term" },
+    { case: "You are attaching a hint to a form control, such as a date format. A field hint is always visible.", instead: "field" },
   ]}
 />
 
@@ -70,22 +68,22 @@ import { Tooltip } from "@/components/ui/tooltip"
   parts={[
     {
       name: "Tooltip",
-      describes: "The root. Owns the open state, the delay and the portal, and draws neutral chrome only.",
+      describes: "The root. Owns open state, delay and portal.",
       prop: "content",
     },
     {
       name: "Tooltip.Trigger",
-      describes: "The caller's own element, rendered in place. It must be focusable and keep its own aria-label.",
+      describes: "The caller's own focusable element, keeping its own aria-label.",
       prop: "children",
     },
     {
       name: "Tooltip.Popup",
-      describes: "A small raised card at the footnote step, portalled and positioned against the preferred side.",
+      describes: "A raised card at the footnote step, portalled against the preferred side.",
       prop: "side",
     },
     {
       name: "Tooltip.Arrow",
-      describes: "A rotated square in the popup's card fill, with no hairline of its own.",
+      describes: "A rotated square in the popup's card fill.",
     },
   ]}
 />
@@ -96,12 +94,12 @@ import { Tooltip } from "@/components/ui/tooltip"
     {
       part: "Tooltip",
       cardinality: "1",
-      note: "Provider plus root; owns the open state and the portal",
+      note: "Provider plus root",
       children: [
         {
           part: "Tooltip.Trigger",
           cardinality: "1",
-          note: "data-slot=\"tooltip-trigger\", the caller's own focusable control",
+          note: "data-slot=\"tooltip-trigger\"",
         },
         {
           part: "Tooltip.Popup",
@@ -111,7 +109,7 @@ import { Tooltip } from "@/components/ui/tooltip"
             {
               part: "Tooltip.Arrow",
               cardinality: "1",
-              note: "data-slot=\"tooltip-arrow\", placed and flipped by Base UI",
+              note: "data-slot=\"tooltip-arrow\"",
             },
           ],
         },
@@ -124,29 +122,28 @@ import { Tooltip } from "@/components/ui/tooltip"
 
 ### On an icon button
 
-Each icon button carries its own name through `aria-label`, and `content` repeats
-it visibly for a pointer or keyboard reader. The labels name fictional actions,
-never a reading.
+Each icon button carries its own name through `aria-label`; `content` repeats it
+visibly. The labels name fictional actions.
 
 <ComponentPreview name="tooltip-on-an-icon-button" kind="example" align="start" />
 
 ### A supplementary hint
 
-The setting is named in plain words on the surface, so a touch reader needs no
-hover, and `content` adds one optional sentence for a reader who wants it.
+The setting is named in plain words, so a touch reader needs no hover, and
+`content` adds one optional sentence.
 
 <ComponentPreview name="tooltip-a-supplementary-hint" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep a tooltip to a phrase, in sentence case, with no terminal punctuation unless
-it is a full sentence. Write what the control does or what the value means, never
-an instruction that only appears on hover.
+Keep a tooltip to a phrase in sentence case, with no terminal punctuation unless
+it is a full sentence. Write what the control does or means, never an
+instruction that only appears on hover.
 
 <DoDont>
   <DoDont.Do>
     **"Reminders wait until the morning during the hours you set here"** beside a
-    setting already labelled on the surface.
+    labelled setting.
   </DoDont.Do>
   <DoDont.Dont>
     **The only label on an icon-only control, shown on hover alone.** A touch
@@ -156,23 +153,29 @@ an instruction that only appears on hover.
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.**
+Audited against WCAG 2.2 AA: a source pass over the whole rubric, and a rendered
+pass over the measured findings. Author-run, not independent; clinical review
+is still pending. The rendered pass found no axe violation, no target-size
+breach, no focus-visible gap and no clipping at 320px. The source pass found
+nothing to change in `tooltip.tsx`.
 
-- No status colour, no colour literal and no ramp step, so the component sits on
-  neither colour axis.
-- No `px` type size: the label is the `footnote` step.
-
-**Argued from the source, not measured.**
+What holds:
 
 - Base UI wires the popup through `aria-describedby`, so the label is a
-  description announced after the control's own name, never a replacement.
-- Focus opens the tooltip, Escape dismisses it, and focus never leaves the
-  trigger.
-- At 200% text the popup grows with the label, capped at the tight measure so it
-  wraps rather than clips.
+  description, never a replacement for the control's own name.
+- Focus opens the tooltip, Escape dismisses it without moving focus, and the
+  label follows focus off the trigger.
+- No status colour, no colour literal, no ramp step: `footnote` step, no `px`
+  size, neither colour axis.
 
-**Not checked by any gate.** Every contrast pair, and what the popup and arrow
-draw under `forced-colors: active` and `prefers-contrast: more` on each side.
+Open:
+
+- A tooltip is unreachable on a hover-less touch device, so `content` stays
+  supplementary.
+- The popup's non-text contrast (SC 1.4.11) is the shared `border-border` role
+  token, reasoned rather than measured.
+- The popup staying hoverable across the gap (SC 1.4.13) is a Base UI 1.7.0
+  default, not a manual trace.
 
 <KeyboardTable
   name="tooltip"
@@ -180,22 +183,22 @@ draw under `forced-colors: active` and `prefers-contrast: more` on each side.
     {
       keys: "Tab",
       action: "Moves focus onto the trigger and shows the tooltip",
-      notes: "No open delay on focus; the keyboard is the only path without a pointer.",
+      notes: "No open delay on focus.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus off the trigger and hides the tooltip",
-      notes: "The label follows focus, so leaving in either direction closes it.",
+      notes: "The label follows focus.",
     },
     {
       keys: "Escape",
       action: "Dismisses the tooltip",
-      notes: "Focus stays on the trigger. It reopens on the next focus or pointer rest.",
+      notes: "Focus stays on the trigger and reopens it on the next pointer rest.",
     },
     {
       keys: "Enter, Space",
       action: "Activates the underlying control",
-      notes: "The tooltip binds neither key; the trigger's own behaviour is unchanged.",
+      notes: "The tooltip binds neither key.",
     },
   ]}
 />
@@ -207,12 +210,12 @@ draw under `forced-colors: active` and `prefers-contrast: more` on each side.
 <PropsTable name="TooltipProps" />
 
 `content` is required; an empty one raises a development warning. `children`
-must be focusable, so a bare span gets no tooltip on the keyboard. `side` defaults
-to `top` and Base UI flips it at the screen edge. `delay` defaults to 600 and
-governs the pointer only; focus opens the tooltip at once.
+must be focusable. `side` defaults to `top` and Base UI flips it at the screen
+edge. `delay` defaults to 600 and governs the pointer only; focus opens the
+tooltip at once.
 
 ## Related
 
-- [Term](./term.mdx) attaches a plain-English meaning to a clinical word inline, and never removes it from the accessibility tree.
+- [Term](./term.mdx) attaches a plain-English meaning to a clinical word inline.
 - [Field](./field.mdx) carries a hint that is part of a form control and always visible.
-- [Callout](./callout.mdx) sets essential information apart on the surface, where every reader meets it.
+- [Callout](./callout.mdx) sets essential information apart on the surface.

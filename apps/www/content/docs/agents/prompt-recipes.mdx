@@ -25,12 +25,17 @@ it, prepend the six rules from
 [Rules for agents](./rules-for-agents.mdx) to each one.
 
 <Callout>
-Every catalogue row is implemented and installable, and none has been reviewed.
+Every catalogue row is implemented and installable, and every one has been
+audited against WCAG 2.2 AA by the authors who built it, which is not an
+independent review; see
+[ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx). No component
+has had a clinical review.
 So the correct outcome of every
 recipe below depends on the status of the id it lands on. For a `shipped` id the
 assistant may install the component and write against it, provided it also says
-that the API may change in any release and that no accessibility review and no
-clinical review has happened. For a `planned` id it should describe the
+that the API may change in any release, that the accessibility audit was run by
+the authors rather than independently, and that no clinical review has
+happened. For a `planned` id it should describe the
 specification and refuse to emit an import, because code produced for a
 specification is fiction however plausible
 it looks. Checking the status before reading the code is the cheapest way to
