@@ -954,6 +954,35 @@ async function loadCatalogue(): Promise<{
  * Checks                                                              *
  * ================================================================== */
 
+/**
+ * SEO002. THE DESCRIPTION IS THE SEARCH SNIPPET, SO IT HAS TO FIT IN ONE.
+ *
+ * Google renders roughly 155 to 160 characters of a description on desktop and
+ * fewer on a phone, and cuts the rest mid-word. Ninety-six pages here were over
+ * that, seven of them past 200, and the clause that got cut was reliably the one
+ * carrying the hedge: what the component refuses to do, who owns the threshold,
+ * what the system does not claim. On a corpus whose whole argument is that the
+ * qualification matters more than the claim, losing the qualification to a
+ * truncation is the worst possible place to lose it.
+ *
+ * WHY A CEILING AND NOT A TARGET. This field is read by five things: the search
+ * snippet, the social card, `llms.txt`, `/r/index.json` and the search index. A
+ * description that fits the snippet fits all five. A description that does not
+ * fit the snippet is still truncated in the snippet, so the extra words buy
+ * nothing anywhere and cost the sentence its ending in one place.
+ *
+ * 160 is the ceiling rather than 155, because the exact cut is pixel width
+ * rather than a character count and a fixed number can only ever approximate it.
+ * Anything at or under this is safe at any width Google has used.
+ *
+ * THIS REPLACES FM013, which warned above 240 characters. A warning nobody has
+ * to clear is a note, and 240 was not a threshold anything downstream cares
+ * about: it was wide enough that ninety-five of the ninety-six over-long
+ * descriptions passed it silently. One page tripped it, and it had been
+ * tripping it for as long as the rule had existed.
+ */
+const DESCRIPTION_LIMIT = 160
+
 function checkFrontmatter(
   page: ParsedPage,
   schema: FrontmatterSchema | undefined
@@ -967,6 +996,28 @@ function checkFrontmatter(
   const front = page.frontmatter
   const kind = asText(front.kind)
   const status = asText(front.status)
+
+  /* SEO002. Checked before the schema is consulted, because the schema makes
+     `description` optional and this rule does not: a page with no description
+     ships a search result with no snippet, and Google writes one out of the
+     first prose it finds, which on this corpus is frequently a safety notice
+     read out of context. */
+  const description = asText(front.description)
+  if (!description) {
+    fail(
+      "SEO002",
+      file,
+      "frontmatter is missing `description`. It is the search snippet, the social card, the llms.txt line and the /r/index.json row, and every one of them falls back to something worse.",
+      1
+    )
+  } else if (description.length > DESCRIPTION_LIMIT) {
+    fail(
+      "SEO002",
+      file,
+      `\`description\` is ${description.length} characters and the ceiling is ${DESCRIPTION_LIMIT}. Google cuts the snippet around there, mid-word, and the clause that goes is the last one. Rewrite it rather than trimming the ending off.`,
+      1
+    )
+  }
 
   /* No schema file means the JSON contract could not be read, so only the two
      things this function knows without it are checked. `status` is NOT one of
@@ -1073,15 +1124,6 @@ function checkFrontmatter(
     fail("FM012", file, `\`reviewed: ${reviewedValue}\` is not an ISO date (YYYY-MM-DD)`, 1)
   }
 
-  const description = asText(front.description)
-  if (description !== undefined && description.length > 240) {
-    warn(
-      "FM013",
-      file,
-      `the description is ${description.length} characters. It is the search snippet and the card subtitle - one sentence.`,
-      1
-    )
-  }
 
   if (kind === "health") {
     if (asText(front.evidence) === undefined) {
