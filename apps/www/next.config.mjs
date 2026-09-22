@@ -40,6 +40,45 @@ const config = {
       { source: "/:path*.md", destination: "/llms.mdx/:path*" },
     ]
   },
+  /**
+   * `X-Robots-Tag: noindex` on the machine surfaces, and on nothing else.
+   *
+   * These paths are advertised, linked from the footer and from the Agents
+   * section, and deliberately crawlable: an assistant fetching `/r/index.json`
+   * or `/llms-health.txt` should get it, and `app/robots.ts` disallows nothing
+   * for exactly that reason. Crawlable is not the same as indexable. Each of
+   * them is a second representation of prose that already has a canonical home
+   * on a documentation page, and a search result whose title is `/r/docs.json`
+   * helps nobody and competes with the page it was built from.
+   *
+   * `noindex` is the right instrument rather than a `Disallow`, because a
+   * crawler has to be allowed to fetch a URL in order to read the directive
+   * that keeps it out of the index. Blocking the fetch is what produces the
+   * bare URL-only result; permitting it and answering `noindex` is what
+   * removes it. `follow` is left at its default, so the links inside
+   * `llms.txt` still lead a crawler to the real pages.
+   *
+   * THE `.md` TWINS ARE NOT IN THIS LIST. They are an alternate representation
+   * of one specific page rather than a machine index of the whole site, so they
+   * get the treatment Google prescribes for that case: a `Link: rel="canonical"`
+   * header naming the HTML page, set per request in the route handler because
+   * only the handler knows which page it is serving. See
+   * `app/llms.mdx/[[...slug]]/route.ts`.
+   *
+   * These literals are config, evaluated before any module of ours loads, which
+   * is why they are written out here rather than built from `lib/routes.ts`.
+   * They are the same allowlisted exception the rewrite sources above are.
+   */
+  async headers() {
+    const noindex = [{ key: "x-robots-tag", value: "noindex" }]
+    return [
+      { source: "/llms.txt", headers: noindex },
+      { source: "/llms-:shard.txt", headers: noindex },
+      { source: "/r/:path*", headers: noindex },
+      { source: "/api/:path*", headers: noindex },
+      { source: "/rss.xml", headers: noindex },
+    ]
+  },
 }
 
 const withMDX = createMDX()

@@ -27,6 +27,20 @@
  * It also carries `x-opsinjs-status` and, on a page that documents a component
  * or a screen, that subject's own `x-opsinjs-implemented`, so a HEAD request
  * answers about this page rather than about the system.
+ *
+ * AND IT CARRIES A CANONICAL HEADER. This is the same text as the HTML page,
+ * at its own URL, four hundred times over. The rewrite means the HTML URL is
+ * untouched, which was always true and was never the whole story: a crawler
+ * that follows the `<link rel="alternate" type="text/markdown">` the page
+ * advertises, or simply guesses the convention, arrives at a document with no
+ * indication that it is a second copy of something. Keeping the twins out of
+ * the sitemap withholds an invitation; it does not answer the question.
+ *
+ * `Link: <...>; rel="canonical"` is the answer, and it is the one Google
+ * documents for an alternate representation that lives at its own URL: the
+ * element form works only in HTML, so a markdown document has to say it in a
+ * header. The twins stay fetchable, which is the entire point of them, and the
+ * signals consolidate onto the page a reader should land on.
  */
 
 import { SITE_URL, provenance, text } from "@/app/_machine/contracts"
@@ -87,6 +101,12 @@ export async function GET(
      the system answer on the same response. */
   return text(await renderPage(page), {
     contentType: MARKDOWN,
-    headers: pageHeaders(page),
+    headers: {
+      ...pageHeaders(page),
+      /* `page.url` is the HTML page this file is a twin of, built by fumadocs
+         from the same `baseUrl` every other link on the site uses, so the
+         canonical cannot drift from the route it names. */
+      link: `<${SITE_URL}${page.url}>; rel="canonical"`,
+    },
   })
 }

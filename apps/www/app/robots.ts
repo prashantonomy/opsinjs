@@ -5,29 +5,44 @@ import { site } from "@/lib/routes"
 /**
  * robots.txt.
  *
- * ONE path is disallowed: `/view`. Everything else on this site is meant to be
- * read, by people and by machines, and the machine surfaces are advertised
- * rather than hidden.
+ * NOTHING IS DISALLOWED, and that is a change rather than an oversight.
  *
- * Why `/view` and nothing else. `/view/[base]/[style]/[kind]/[name]` is the
- * chrome-less preview shell that `<ComponentPreview>` and `<IframePreview>`
- * embed. Every one of those URLs is a duplicate of content that already has a
- * canonical home on a documentation page, rendered without navigation, without
- * headings and without the safety prose that gives it meaning. Indexed, they
- * would compete with the pages they belong to and would show a health component
- * stripped of the guidance that makes it safe to copy. They are also the
- * Playwright screenshot target, so their number grows with the base × style
- * matrix rather than with the corpus.
+ * `/view` used to be. `/view/[base]/[style]/[kind]/[name]` is the chrome-less
+ * preview shell that `<ComponentPreview>` and `<IframePreview>` embed, every
+ * one of those URLs duplicates content that already has a canonical home on a
+ * documentation page, and the number of them grows with the base by style
+ * matrix rather than with the corpus. All of that is still true. Disallowing
+ * them was still the wrong instrument, for a reason that is easy to miss and
+ * produces exactly the outcome the rule was written to prevent.
  *
- * `/playground`, `/colors`, `/tokens`, `/icons`, `/showcase` and `/official` are
- * deliberately NOT disallowed. They are real destinations with real content, and
- * `/official` in particular has to be indexable: an anti-impersonation page
- * nobody can find is decoration.
+ * A DISALLOWED URL CANNOT BE READ, INCLUDING ITS `noindex`. The preview route
+ * already answers `robots: { index: false, follow: false }` in its own
+ * metadata, which is the directive that actually keeps a page out of an index.
+ * A crawler forbidden from fetching the URL never sees that tag. What it does
+ * instead, when something links to the URL, is index the address on its own:
+ * no title, no description, the URL as the headline. Every `<ComponentPreview>`
+ * caption links its preview with `target="_blank"`, so those links exist, and
+ * the pairing was producing bare `/view/...` rows rather than suppressing them.
  *
- * The `.md` twins of documentation pages are likewise not disallowed. An agent
- * fetching `/docs/health/alarm-fatigue.md` should get it. They are kept out of
- * the sitemap instead, so they are reachable without being advertised as a
- * second copy of the corpus.
+ * Google says the same thing in the other direction about canonicalisation: do
+ * not use robots.txt for it. The tools that consolidate a duplicate are
+ * `noindex` on a page and `rel="canonical"` on an alternate representation, and
+ * both require the crawler to be allowed to read the thing first.
+ *
+ * So the whole site is crawlable and the directives that matter are carried
+ * where a crawler can see them:
+ *
+ *   - `/view/**` carries `noindex, nofollow` in its own page metadata.
+ *   - The machine surfaces (`/r/**`, the `llms-*.txt` shards, `/api/**` and the
+ *     feed) carry `X-Robots-Tag: noindex` from `next.config.mjs`.
+ *   - The `.md` twin of a documentation page carries a `Link: rel="canonical"`
+ *     header pointing at the HTML page it is a twin of, which is what Google
+ *     asks for on an alternate representation at its own URL.
+ *
+ * `/playground`, `/colors`, `/tokens`, `/icons`, `/showcase` and `/official`
+ * were never disallowed and still are not. They are real destinations with real
+ * content, and `/official` in particular has to be indexable: an
+ * anti-impersonation page nobody can find is decoration.
  *
  * AI crawlers get an explicit allow rather than being left to the wildcard. This
  * site is written to be read by assistants: the whole `llms.txt` shard scheme,
@@ -47,14 +62,11 @@ import { site } from "@/lib/routes"
  * footer, `/official` and the Agents section of the documentation link to it.
  */
 export default function robots(): MetadataRoute.Robots {
-  const disallow = ["/view"]
-
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow,
       },
       {
         userAgent: [
@@ -74,7 +86,6 @@ export default function robots(): MetadataRoute.Robots {
           "cohere-ai",
         ],
         allow: "/",
-        disallow,
       },
     ],
     sitemap: `${site.url}/sitemap.xml`,
