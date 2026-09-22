@@ -269,6 +269,7 @@ export const agentRoutes = {
   llmsComponents: () => "/llms-components.txt",
   llmsHealth: () => "/llms-health.txt",
   llmsFoundations: () => "/llms-foundations.txt",
+  llmsReference: () => "/llms-reference.txt",
   /** The processed-markdown twin route. `/docs/:path*.md` rewrites to it. */
   processedMarkdown: (...slugs: string[]) => joinPath("llms.mdx", ...slugs),
 }

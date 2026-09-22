@@ -213,10 +213,29 @@ export const SHARDS = {
   },
   foundations: {
     file: "/llms-foundations.txt",
-    title: "Foundations, theming and generated reference",
-    sections: ["foundations", "theming", "reference"],
+    title: "Foundations and theming",
+    sections: ["foundations", "theming"],
     blurb:
-      "What each token means, how to change it, and the generated list of every one.",
+      "What each token means and how to change it. The generated list of every one is the reference shard.",
+  },
+  /**
+   * REFERENCE IS ITS OWN SHARD, AND IT IS WHY THE SPLIT HAPPENED.
+   *
+   * It used to ride with Foundations and Theming. Those three together are
+   * 1.48 MB, of which Reference is 899 kB and eight generated table pages are
+   * 800 kB of that, so the combined shard spent its budget on tables and
+   * truncated before it reached the doctrine it was named after. Foundations
+   * says what a token means, Theming says how to change it, and Reference is
+   * the measured list of every one: three homes for one subject, which is the
+   * arrangement that lets a reader find out what a variable is FOR without
+   * reading six hundred rows. The shards now cut where the corpus already does.
+   */
+  reference: {
+    file: "/llms-reference.txt",
+    title: "Generated reference",
+    sections: ["reference"],
+    blurb:
+      "Every token, CSS variable, measured contrast pair, defined term and exported type, generated from the same sources the build uses.",
   },
 } as const
 
@@ -722,10 +741,37 @@ export function jsxPreamble(): string {
  * enough for a "capped" llms-full.txt to ship 880 kB against a 879 kB cap and
  * warn on every run. Counting what the transport counts makes the cap true.
  */
+/**
+ * THE SHARD BUDGET IS NOW BIG ENOUGH FOR THE BIGGEST SHARD, AND THAT IS THE
+ * POINT OF IT RATHER THAN A CONCESSION.
+ *
+ * At 400 kB the three shards carried 65%, 46% and 32% of their own sections.
+ * A shard is the file an agent fetches INSTEAD of the whole corpus, so a shard
+ * that drops two thirds of its sections is not a smaller answer, it is a
+ * quieter wrong one: the reader asked for the health doctrine and got half of
+ * it, with no way to know which half. `agents/llms-txt.mdx` says a shard at its
+ * budget is a signal that it needs splitting rather than trimming, and
+ * splitting is what happened. Reference left the foundations shard and became a
+ * shard of its own. The four shards are 599, 630, 576 and 899 kB, so this
+ * ceiling leaves the smallest of them room to roughly double.
+ *
+ * `full` DID NOT MOVE, and that is also deliberate. `/llms-full.txt` is capped
+ * by published design: the whole corpus is 3.8 MB, which is more context than
+ * most readers of that file have, and the cap is what makes the file usable at
+ * all. It truncates at a page boundary, prints what it dropped, and names the
+ * four shards that carry those pages whole. That is a documented answer to a
+ * real constraint rather than an unmet budget, which is why `check-llms` now
+ * fails on a truncated SHARD and only reports a truncated `llms-full.txt`.
+ *
+ * `bundle` was raised for the reason the shards were. `/r/docs.json` is the
+ * OFFLINE bundle, the one file whose whole purpose is that its reader cannot
+ * fetch anything else afterwards, and it was carrying 2 MB of a 4.1 MB corpus.
+ * Half of what an offline agent needed was behind a network it did not have.
+ */
 export const BUDGETS = {
   full: 900_000,
-  shard: 400_000,
-  bundle: 2_000_000,
+  shard: 1_200_000,
+  bundle: 5_000_000,
 } as const
 
 export interface Assembled {
@@ -891,7 +937,7 @@ export async function buildCorpusFile(options: {
      `/r/index.json` reports.
 
      It speaks about the SYSTEM rather than about "the pages below", because
-     this header is shared: `llms-health.txt` and `llms-foundations.txt` carry
+     this header is shared: `llms-health.txt` and `llms-reference.txt` carry
      no component page at all, and a sentence about "every component page below"
      is false by reference in both. The count is constant for a given build, so
      it does not disturb the byte reservation underneath. */

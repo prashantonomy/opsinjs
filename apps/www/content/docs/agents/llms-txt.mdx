@@ -1,6 +1,6 @@
 ---
 title: llms.txt and the shards
-description: The curated index a model should read first, the three topic shards that exist because context windows are finite, and the size budget that governs all of them.
+description: The curated index a model should read first, the four topic shards that exist because context windows are finite, and the size budget that governs them.
 kind: guide
 aliases: [llms.txt, llms-full.txt, shards, context budget]
 reviewed: 2026-09-20
@@ -14,15 +14,15 @@ reviewer: engineering
 [`llms.txt`](https://llmstxt.org/) is a convention: a single markdown file at the
 root of a site that tells a model what the site contains and where to find it,
 in a form that fits in a prompt. opsinjs publishes one, plus a full corpus dump,
-plus three topic shards.
+plus four topic shards.
 
-The reason for five files rather than one is arithmetic. This corpus is large
+The reason for six files rather than one is arithmetic. This corpus is large
 enough that pasting all of it into a prompt wastes most of a context window on
 pages irrelevant to the task, and a model that has read everything about
 typography and nothing about clinical status will still get the status wrong.
 Shards let a caller spend context where it changes the answer.
 
-## The five files
+## The six files
 
 | Path | Contains | Use it when |
 | --- | --- | --- |
@@ -30,13 +30,14 @@ Shards let a caller spend context where it changes the answer.
 | [`/llms-full.txt`](/llms-full.txt) | The whole corpus as one document, size-capped | You have a large window and a broad task |
 | [`/llms-components.txt`](/llms-components.txt) | Component specifications and screens | Generating or reviewing UI code |
 | [`/llms-health.txt`](/llms-health.txt) | Health doctrine, accessibility and content guidance | Anything with a clinical or copy dimension |
-| [`/llms-foundations.txt`](/llms-foundations.txt) | Foundations, theming and the generated reference | Theming, tokens, contrast, motion |
+| [`/llms-foundations.txt`](/llms-foundations.txt) | Foundations and theming: what a token means and how to change it | Theming, contrast, motion, spacing |
+| [`/llms-reference.txt`](/llms-reference.txt) | The generated reference: every token, CSS variable, measured pair, term and exported type | Resolving a name to a value |
 
 Every URL in every one of these files is absolute. A relative URL in an index is
 useless to a client that fetched the file from somewhere else and no longer
 knows where it came from. That is the normal case for a model.
 
-The three topic shards do not cover the whole tree, so "use the shards" misleads
+The four topic shards do not cover the whole tree, so "use the shards" misleads
 for the half they miss. Between them they carry eight of the sixteen sections:
 Components, Screens, Health, Accessibility, Content & language,
 Foundations, Theming & tokens and Reference. Start here, Recipes, Patterns,
@@ -92,29 +93,29 @@ whole corpus so the reservation can never be an underestimate. That costs a few
 per cent of the cap, in exchange for a file that never drops a page without
 naming it.
 
-**Every shard is capped independently, and the cap trims rather than fails.** A
-shard at its budget is a signal that it needs splitting, and all three are at
-their cap today, dropping their overflow the way `/llms-full.txt` does. Each
-shard has its own header count and its own `## Truncated` block. The drop is no
-longer silent: run against a server, `check:llms` reads the `Pages: N of M.`
-line out of every corpus file and warns with the number dropped and the coverage
-percentage, and warns separately when an implemented component is missing from
-`/llms-components.txt`. That second check matters more than it sounds, because
-truncation drops pages in corpus order, which is alphabetical, so the components
-that fall off are the ones at the end of the alphabet rather than a random
-sample.
+**Every shard carries its sections whole, and a shard that does not fails the
+build.** That was not true until recently. At a 400 kB cap the three shards
+carried 65%, 46% and 32% of their own sections, which is not a smaller answer
+but a quieter wrong one: ask for the health doctrine, get half of it, with no
+way to know which half. A shard at its budget is a signal that it needs
+splitting rather than trimming, so it was split. Reference left the foundations
+shard and became a shard of its own, because Reference is 899 kB of which eight
+generated table pages are 800 kB, and a combined shard therefore spent its whole
+budget on tables and truncated before it reached the doctrine it was named for.
+The four shards are now 599, 630, 576 and 899 kB against a 1.2 MB cap.
 
-Those are warnings and not failures, deliberately. Splitting the shards is a
-design change nobody has made, and every corpus file drops pages today, so
-failing the build would leave two exits. One is to raise the budgets and the
-other is to delete the check, and both are the silent degradation the warning
-exists to prevent.
+Run against a server, `check:llms` reads the `Pages: N of M.` line out of every
+corpus file, and a shard that dropped even one page is a build failure naming
+the count and the coverage. It fails separately when an implemented component is
+missing from `/llms-components.txt`. That second check matters more than it
+sounds, because truncation drops pages in corpus order, so the components that
+fall off are the ones at the end rather than a random sample.
 
-<Todo owner="agents">Split the three shards so that each fits its budget whole,
-then raise the coverage warning in `scripts/check-llms.mts` to a failure. Until
-that happens the warnings tell you how much is missing but nothing stops it
-growing, so treat a shard as a sample of its sections rather than all of
-them.</Todo>
+`/llms-full.txt` is the exception and is reported rather than failed. It is
+capped on purpose: the whole corpus is 3.8 MB, which is more context than most
+readers of that file have, so the cap is what makes the file usable at all. It
+still names every page it dropped, and `check:llms` fails if it ever drops one
+without printing that manifest.
 
 If you need a specific page rather than a shard, fetch its markdown twin. See
 [Raw markdown API](./raw-markdown-api.mdx). Fetching one page is almost always
@@ -139,7 +140,7 @@ the index and the router disagree and `check:llms` should have caught it.
 
 ### The shards partition the corpus
 
-The three topic shards plus the pages that are in none of them should account
+The four topic shards plus the pages that are in none of them should account
 for every page in the tree. `check:llms` asserts this; a page that belongs to no
 shard is usually a page in a group nobody assigned.
 

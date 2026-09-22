@@ -48,7 +48,7 @@ import { fileURLToPath } from "node:url"
    base cannot leave this file probing a prefix that no longer exists. That is
    what it did before: it predicted `/docs/<slug>.md` for all 404 twins and
    reported every one of them as a 404 of the site's rather than of its own. */
-import { docsMarkdownPath, docsPath } from "../lib/routes.ts"
+import { componentPath, docsMarkdownPath, docsPath } from "../lib/routes.ts"
 
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const DOCS_DIR = join(APP_DIR, "content", "docs")
@@ -64,7 +64,8 @@ const REQUIRED_ROUTES = [
   { path: "llms-full.txt", purpose: "the whole corpus, size-capped, pointing at the shards" },
   { path: "llms-components.txt", purpose: "shard: component and screen specifications" },
   { path: "llms-health.txt", purpose: "shard: health, accessibility and content doctrine" },
-  { path: "llms-foundations.txt", purpose: "shard: foundations, theming and generated reference" },
+  { path: "llms-foundations.txt", purpose: "shard: foundations and theming" },
+  { path: "llms-reference.txt", purpose: "shard: the generated reference tables" },
   { path: "llms.mdx", purpose: "the processed-markdown twin behind the /:path*.md rewrite" },
   { path: join("r", "docs.json"), purpose: "the offline agent bundle" },
   { path: join("r", "registry.json"), purpose: "the catalog the shadcn MCP server requires" },
@@ -79,7 +80,8 @@ const REQUIRED_ROUTES = [
 const SHARDS: Record<string, string[]> = {
   "llms-components.txt": ["components", "screens"],
   "llms-health.txt": ["health", "accessibility", "content"],
-  "llms-foundations.txt": ["foundations", "theming", "reference"],
+  "llms-foundations.txt": ["foundations", "theming"],
+  "llms-reference.txt": ["reference"],
 }
 
 /** Above this, llms-full.txt is doing the shards' job badly. Bytes. */
@@ -110,6 +112,15 @@ interface Finding {
 const findings: Finding[] = []
 const fail = (message: string) => findings.push({ level: "error", message })
 const warn = (message: string) => findings.push({ level: "warn", message })
+/**
+ * Neither a failure nor a warning: a number worth printing.
+ *
+ * `llms-full.txt` dropping pages at its cap is the case this exists for. It is
+ * the documented behaviour of that file rather than a defect, and it is still
+ * the number somebody running this check wants to see, so it is printed where
+ * it cannot be mistaken for something to clear.
+ */
+const note = (message: string) => console.log(`  note: ${message}`)
 
 /* ------------------------------------------------------------------ *
  * Helpers                                                             *
@@ -291,9 +302,9 @@ function checkShardPartition(slugs: string[]): void {
 
   const unsharded = [...sections].filter((section) => !assigned.has(section)).sort()
   if (unsharded.length > 0) {
-    console.log(
-      `  note: ${unsharded.join(", ")} ${unsharded.length === 1 ? "is" : "are"} carried only by ` +
-        `llms.txt and llms-full.txt. That is by design - the shards exist for the three heaviest ` +
+    note(
+      `${unsharded.join(", ")} ${unsharded.length === 1 ? "is" : "are"} carried only by ` +
+        `llms.txt and llms-full.txt. That is by design - the shards exist for the heaviest ` +
         `pillars - but it is worth knowing which sections an agent only sees in the full corpus.`,
     )
   }
@@ -406,7 +417,7 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     )
   }
 
-  /* THE SHARDS AND THE FULL CORPUS.
+  /* THE SHARDS AND THE FULL CORPUS, WHICH ARE NOW JUDGED DIFFERENTLY.
      Byte size was the only thing this loop used to look at, and byte size is
      the half of the budget that cannot go wrong: assemble() stops adding pages
      at the cap, so a corpus file is under budget by construction and the size
@@ -416,14 +427,23 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
      be read, and reading it is the difference between a shard that is small and
      a shard that has quietly stopped carrying two thirds of its section.
 
-     WARN, NOT FAIL, AND WHY. agents/llms-txt.mdx says an over-budget shard "is
-     a signal that it needs splitting, not trimming. That is a build failure,
-     not a silent degradation." Splitting the shards is a design change nobody
-     has made, and every corpus file drops pages today, so failing here would
-     put the build in a state whose only exits are raising BUDGETS or deleting
-     this check - both of which are the silent degradation the page forbids.
-     A warning that names the dropped count is what makes the state visible
-     while the decision is taken. Raise it to fail() once the shards are split. */
+     A TRUNCATED SHARD IS NOW A FAILURE. This used to warn, and the comment here
+     said to raise it to fail() once the shards were split, because failing
+     while all three were over budget would have left only two exits and both
+     were the silent degradation agents/llms-txt.mdx forbids. They are split:
+     Reference became a shard of its own, the budget was raised to fit the
+     largest of the four, and every shard now carries its sections whole. So the
+     rule can be what the published contract always said it was. A shard is the
+     file somebody fetches INSTEAD of the corpus, and one that drops pages
+     answers a question it was not asked.
+
+     `/llms-full.txt` IS DIFFERENT AND IS REPORTED RATHER THAN FAILED. It is
+     capped by design: the corpus is 3.8 MB, the cap is what keeps the file
+     usable, and the file truncates at a page boundary, prints what it dropped
+     and names the shards that carry those pages whole. That is the documented
+     behaviour, so counting it as a defect would be this check disagreeing with
+     the contract it exists to enforce. What IS checked is that it stays inside
+     its cap and says what it left out. */
   const corpusBodies = new Map<string, string>()
   for (const shard of ["llms-full.txt", ...Object.keys(SHARDS)]) {
     const response = await fetchText(`${base}/${shard}`)
@@ -442,24 +462,57 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
       )
     }
 
-    const coverage = /^Pages:\s*(\d+) of (\d+)/m.exec(response.body)
+    /* TWO SHAPES, BECAUSE A COMPLETE FILE DOES NOT SAY "OF".
+       `corpusHeader` writes "Pages: 69 of 402." when it dropped something and
+       "Pages: 69." when it did not, which is the right line for a human to read
+       in both cases. This check only understood the first, so the moment the
+       shards were split and started carrying their sections whole, all four
+       reported a missing header instead of full coverage: a check that fails
+       when the thing it guards is fixed. The second group is optional, and its
+       absence means included equals total. */
+    const coverage = /^Pages:\s*(\d+)(?: of (\d+))?\./m.exec(response.body)
     if (!coverage) {
       warn(
-        `${shard} carries no "Pages: N of M." line, so nothing here can tell how much of ` +
+        `${shard} carries no "Pages: N." line, so nothing here can tell how much of ` +
           "the corpus it dropped. That header is what makes truncation measurable; restore it " +
           "in app/_machine/corpus.ts.",
       )
       continue
     }
     const included = Number(coverage[1])
-    const total = Number(coverage[2])
+    const total = coverage[2] === undefined ? included : Number(coverage[2])
     const omitted = total - included
+
+    if (shard === "llms-full.txt") {
+      /* Capped by design. Reported so the number stays visible, and checked for
+         the one thing that would make the cap dishonest: dropping pages without
+         printing the manifest that says which. */
+      if (omitted > 0) {
+        note(
+          `llms-full.txt carries ${included} of ${total} pages (${Math.round(
+            (included / total) * 100,
+          )}%), the rest dropped at its ${Math.round(FULL_SIZE_WARNING / 1024)} kB cap. ` +
+            "That is the documented behaviour: the corpus does not fit in one usable file. " +
+            "The four shards carry every section whole.",
+        )
+        if (!/^##\s+Truncated/m.test(response.body)) {
+          fail(
+            "llms-full.txt dropped pages and printed no `## Truncated` manifest. The cap is only " +
+              "honest while the file names what it left out; without the manifest it is a corpus " +
+              "that silently stops.",
+          )
+        }
+      }
+      continue
+    }
+
     if (omitted > 0) {
-      warn(
+      fail(
         `${shard} carries ${included} of ${total} pages - ${omitted} dropped at the byte budget ` +
-          `(${Math.round((included / total) * 100)}% coverage). An agent reading this file cannot ` +
-          "see the missing pages and is not told which they are beyond the file's own Truncated " +
-          "list. Split the section rather than trimming it.",
+          `(${Math.round((included / total) * 100)}% coverage). A shard is the file an agent ` +
+          "fetches instead of the whole corpus, so one that drops pages answers a question it " +
+          "was not asked. Split the section into another shard, or raise BUDGETS.shard in " +
+          "app/_machine/corpus.ts to fit it whole.",
       )
     }
   }
@@ -483,7 +536,18 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     if (components !== undefined && implemented.length > 0) {
       const absent = implemented
         .map((item) => item.name as string)
-        .filter((name) => !new RegExp(`/docs/components/${name}(?![a-z0-9-])`).test(components))
+        /* BUILT THROUGH `componentPath`, NOT WRITTEN OUT. This line used to
+           test for `/docs/components/<id>`, and the corpus is rooted: a
+           component page is at `/components/<id>` and has been since
+           `DOCS_BASE` emptied. The pattern matched nothing, so every built
+           component looked absent from the shard that carries it, and the
+           check reported the whole roster missing on every live run. That is
+           the same bug this file's header describes finding in the twin
+           probe, in the one place the fix did not reach. */
+        .filter(
+          (name) =>
+            !new RegExp(`${componentPath(name)}(?![a-z0-9-])`).test(components)
+        )
       if (absent.length > 0) {
         warn(
           `${absent.length} implemented component${absent.length === 1 ? "" : "s"} ` +

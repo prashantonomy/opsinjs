@@ -49,7 +49,7 @@ free to move.
 | `/**.md` | Contract | Processed markdown twin of any docs page |
 | `/llms.txt` | Contract | Curated index with absolute URLs and section headers |
 | `/llms-full.txt` | Contract | The whole corpus, size-capped |
-| `/llms-components.txt`, `/llms-health.txt`, `/llms-foundations.txt` | Contract | Shards, for context windows that cannot take the whole thing |
+| `/llms-components.txt`, `/llms-health.txt`, `/llms-foundations.txt`, `/llms-reference.txt` | Contract | Shards, for context windows that cannot take the whole thing. Each carries its sections whole |
 | `/r/registry.json` | Contract | The shadcn-spec catalog. Required by the MCP server |
 | `/r/index.json` | Contract | Name, type, status, category, links and aliases per item |
 | `/r/<name>.json` | Contract | One registry item at the default base and style |
@@ -165,7 +165,7 @@ the source the registry serves, so an invented prop is a generation failure and
 not a gap in the page. See [Evals](./evals.mdx).
 
 **`/llms-full.txt` is truncated.** It is size-capped on purpose, and "use the
-shards" is only half an answer, because the three shards cover eight of the
+shards" is only half an answer, because the four shards cover eight of the
 sixteen sections and no more: Components, Screens, Health, Accessibility,
 Content & language, Foundations, Theming & tokens and Reference. Start here,
 Recipes, Patterns, Handbook, Agents, Registry & distribution and Project have no
