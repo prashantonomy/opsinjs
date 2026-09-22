@@ -781,9 +781,30 @@ interface ExportedSymbol {
   kindWord: string
   /** Path relative to apps/www. */
   file: string
-  /** First sentence of the JSDoc above it, when there is one. */
+  /**
+   * First sentence of the JSDoc above it, when there is one. This is the
+   * frontmatter description, so it has to stand alone and stay under the
+   * 160-character ceiling SEO002 enforces.
+   */
   summary?: string
-  /** The declaration line, trimmed. */
+  /**
+   * The whole JSDoc, which is what the page body carries.
+   *
+   * The body used to carry `summary` too, so a symbol whose doc comment ran to
+   * a paragraph published its opening line and discarded the rest. The
+   * paragraph is the part worth reading, and on a reference page it is the only
+   * prose there is.
+   */
+  detail?: string
+  /**
+   * The whole declaration, not just its opening line.
+   *
+   * It used to be the opening line alone, and for a type alias that was the
+   * declaration. For an interface it was the word `export`, the word
+   * `interface` and the name, which is the one part of an interface a reader
+   * already knows from the page title. Twenty-four pages said nothing their own
+   * heading had not already said.
+   */
   signature: string
 }
 
@@ -803,6 +824,66 @@ function walkFiles(dir: string, out: string[]): void {
     }
     if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) out.push(full)
   }
+}
+
+/**
+ * The whole declaration, from its opening line to wherever it ends.
+ *
+ * THREE SHAPES, because TypeScript declarations end three ways and guessing
+ * wrong truncates the only unique content on the page.
+ *
+ *   1. A braced body (`interface X {`, `class X {`, `type X = {`). Ends at the
+ *      matching close brace, found by counting rather than by looking for a `}`
+ *      in the first column, because a nested object type would end it early.
+ *   2. A union or intersection carried over several lines. Ends at the last
+ *      line that still begins with `|` or `&`.
+ *   3. Everything else, which is one line.
+ *
+ * INNER COMMENTS ARE STRIPPED. A field's doc comment is prose, some of it many
+ * lines of it, and this is a code block. Keeping them would put a paragraph
+ * inside a signature and make the shape of the type harder to see, which is the
+ * one thing the block is for. The prose is not lost: it is in the source, at
+ * the path the table above names.
+ */
+function captureDeclaration(lines: string[], start: number): string {
+  const first = lines[start] ?? ""
+  const collected: string[] = [first]
+
+  if (first.trimEnd().endsWith("{")) {
+    let depth = 0
+    for (let i = start; i < lines.length; i += 1) {
+      const line = lines[i] ?? ""
+      depth += (line.match(/\{/g) ?? []).length
+      depth -= (line.match(/\}/g) ?? []).length
+      if (i > start) collected.push(line)
+      if (depth <= 0 && i > start) break
+    }
+  } else {
+    for (let i = start + 1; i < lines.length; i += 1) {
+      const text = (lines[i] ?? "").trim()
+      if (!text.startsWith("|") && !text.startsWith("&")) break
+      collected.push(lines[i] ?? "")
+    }
+  }
+
+  const body = collected.filter((line) => {
+    const text = line.trim()
+    if (text.startsWith("/**") || text.startsWith("/*")) return false
+    if (text.startsWith("*")) return false
+    if (text.startsWith("//")) return false
+    return true
+  })
+
+  /* A stripped comment leaves a blank line where a paragraph was. Collapse any
+     run of them so the block does not open with the hole a doc comment left. */
+  const tidied: string[] = []
+  for (const line of body) {
+    if (line.trim() === "" && (tidied.at(-1) ?? "").trim() === "") continue
+    tidied.push(line)
+  }
+  while (tidied.length > 0 && (tidied.at(-1) ?? "").trim() === "") tidied.pop()
+
+  return tidied.join("\n").replace(/\n\s*\n/g, "\n").trimEnd()
 }
 
 function extractSymbols(): ExportedSymbol[] {
@@ -826,12 +907,12 @@ function extractSymbols(): ExportedSymbol[] {
 
       /* Walk back over a JSDoc block for the first sentence. Both the one-line
          form and the multi-line form are common in this codebase. */
-      let summary: string | undefined
+      let detail: string | undefined
       const previous = (lines[index - 1] ?? "").trim()
       const oneLine = /^\/\*\*(.*)\*\/$/.exec(previous)
       if (oneLine) {
         const text = (oneLine[1] ?? "").trim()
-        if (text.length > 0) summary = text
+        if (text.length > 0) detail = text
       } else if (previous === "*/") {
         const collected: string[] = []
         for (let back = index - 2; back >= 0; back -= 1) {
@@ -840,11 +921,66 @@ function extractSymbols(): ExportedSymbol[] {
           if (text.startsWith("@")) continue
           collected.unshift(text.replace(/^\*\s?/, ""))
         }
-        const joined = collected.join(" ").replace(/\s+/g, " ").trim()
-        if (joined.length > 0) {
-          const stop = joined.indexOf(". ")
-          summary = stop === -1 ? joined : joined.slice(0, stop + 1)
+        /* PARAGRAPHS SURVIVE, AND SO DOES A LIST.
+           Joining every line with a space turned a comment written as three
+           paragraphs into one block of four hundred words, on the page where
+           that block is the only prose. So a blank line in a doc comment is a
+           paragraph break and is reproduced as one, and the lines within a
+           paragraph are rewrapped, because a comment is wrapped to the source
+           file's column width and a page is not.
+
+           An INDENTED run is the other thing a comment uses its line breaks
+           for. `OpsinErrorSeverity` lists its three severities one per line, and
+           rewrapping them produced a sentence that ran the three definitions
+           together with no boundary between them. A run of indented lines is
+           therefore emitted as a markdown list, which is what it already was
+           in everything but syntax. Indentation is what marks it, because the
+           lines have been through `.trim()` and then had their leading `* `
+           removed, so anything left in front is the author's own. */
+        const blocks: string[] = []
+        let paragraph: string[] = []
+        let list: string[] = []
+
+        const flush = (): void => {
+          if (paragraph.length > 0) {
+            blocks.push(paragraph.join(" ").replace(/\s+/g, " ").trim())
+            paragraph = []
+          }
+          if (list.length > 0) {
+            blocks.push(
+              list.map((item) => `- ${item.replace(/\s+/g, " ").trim()}`).join("\n")
+            )
+            list = []
+          }
         }
+
+        for (const text of collected) {
+          if (text.trim() === "") {
+            flush()
+            continue
+          }
+          if (/^\s/.test(text)) {
+            if (paragraph.length > 0) flush()
+            list.push(text)
+            continue
+          }
+          if (list.length > 0) flush()
+          paragraph.push(text)
+        }
+        flush()
+
+        const joined = blocks.filter((block) => block.length > 0).join("\n\n")
+        if (joined.length > 0) detail = joined
+      }
+
+      /* The description is the first sentence; the body is all of it. Splitting
+         on ". " rather than "." keeps a decimal, an ellipsis and an abbreviation
+         from ending the sentence early. */
+      let summary: string | undefined
+      if (detail !== undefined) {
+        const opening = detail.split("\n\n")[0] ?? detail
+        const stop = opening.indexOf(". ")
+        summary = stop === -1 ? opening : opening.slice(0, stop + 1)
       }
 
       symbols.push({
@@ -852,7 +988,8 @@ function extractSymbols(): ExportedSymbol[] {
         kindWord: kindWord ?? "const",
         file: relative(APP_DIR, file),
         summary,
-        signature: line.replace(/\s*\{\s*$/, "").trim(),
+        detail,
+        signature: captureDeclaration(lines, index),
       })
     }
   }
@@ -880,7 +1017,17 @@ function typesPage(symbols: ExportedSymbol[]): PageSpec {
     hasOwnPage(symbol) ? `[\`${symbol.name}\`](../api/${symbol.name}.mdx)` : code(symbol.name),
     cell(symbol.kindWord),
     code(symbol.file),
-    cell(symbol.summary),
+    /* THE FIRST PARAGRAPH, WHICH IS USUALLY THE WHOLE COMMENT.
+       Not `summary`, the first sentence: this is a table of every export and
+       the cell is the only thing said about each one, so a sentence-level cut
+       threw away the second half of every two-sentence comment. Not the whole
+       comment either. Several of these run to three paragraphs of design
+       rationale, and putting all of it in a cell took this one generated page
+       from 29 kB to 70 kB, on a page that is already among the largest in the
+       corpus and is carried whole by a shard with a byte budget. The opening
+       paragraph is what a table row is for; the rest is on the symbol's own
+       page, which the name links to. */
+    cell(symbol.detail?.split("\n\n")[0]?.replace(/\s+/g, " ")),
   ])
 
   return {
@@ -915,6 +1062,58 @@ function typesPage(symbols: ExportedSymbol[]): PageSpec {
   }
 }
 
+/**
+ * A doc comment on its way into MDX.
+ *
+ * Every comment in `lib/` is plain prose with backticked code spans today, and
+ * this function is here for the one that is not. MDX reads a bare `<` as the
+ * start of a JSX tag and a bare `{` as the start of an expression, so a comment
+ * that mentions `Array<string>` without backticks would either fail the build or,
+ * worse, fail MDX001 as an undeclared tag in the closed vocabulary. Escaping is
+ * cheaper than discovering that from a red build months from now.
+ *
+ * Code spans are left exactly as they are, because inside a span MDX is not
+ * looking for either character.
+ */
+function escapeForMdx(text: string): string {
+  return text
+    .split(/(`[^`]*`)/)
+    .map((part) =>
+      part.startsWith("`") ? part : part.replace(/([<{}])/g, "\\$1")
+    )
+    .join("")
+}
+
+/**
+ * THE `description` ON A SYMBOL PAGE IS THE SYMBOL'S OWN FIRST SENTENCE, AND
+ * THIS IS THE ONE LINE OF THE HAND-WRITTEN HEADER THIS SCRIPT OWNS.
+ *
+ * Everything above the generated marker is otherwise preserved, which is how a
+ * page keeps its `reviewed` date and its aliases across a regeneration. That
+ * rule had a cost nobody was paying attention to. A page is only written from
+ * scratch once, so the description written on the day the page first appeared
+ * was the description it kept forever. Twenty-four pages still carried the
+ * placeholder their first run produced, of the form "The interface X, exported
+ * from lib/y.ts", which is the page's own title and file path rearranged into a
+ * sentence. As a search snippet it said nothing, and as a summary it was wrong
+ * the moment somebody wrote a doc comment.
+ *
+ * There is no second opinion to preserve here. The description of a type is the
+ * first sentence of its doc comment, and if that sentence is bad the repair is
+ * in the source rather than on the page. So this line tracks the comment, and
+ * `check:generated` now fails when the two drift.
+ *
+ * A symbol with no doc comment keeps whatever the page already says, because
+ * overwriting a real sentence with a generated placeholder would be a loss.
+ */
+function syncDescription(head: string, symbol: ExportedSymbol): string {
+  if (symbol.summary === undefined) return head
+  return head.replace(
+    /^description: .*$/m,
+    `description: ${yamlString(symbol.summary)}`
+  )
+}
+
 function apiPage(symbol: ExportedSymbol, file: string): string {
   /* Some of these pages are hand-written prose with a generated block inside.
      Splice into the block and leave everything above it alone; only write the
@@ -925,7 +1124,9 @@ function apiPage(symbol: ExportedSymbol, file: string): string {
   const generated = [
     `## ${symbol.name}`,
     "",
-    symbol.summary ?? "This symbol has no doc comment yet.",
+    symbol.detail === undefined
+      ? "This symbol has no doc comment yet."
+      : escapeForMdx(symbol.detail),
     "",
     table(["Kind", "Declared in"], [[cell(symbol.kindWord), code(symbol.file)]]),
     "",
@@ -936,7 +1137,7 @@ function apiPage(symbol: ExportedSymbol, file: string): string {
 
   if (current !== undefined && beginAt !== -1 && endAt !== -1 && endAt > beginAt) {
     const endMarkerEnd = current.indexOf("}", endAt) + 1
-    const head = current.slice(0, beginAt).trimEnd()
+    const head = syncDescription(current.slice(0, beginAt).trimEnd(), symbol)
     const tail = current.slice(endMarkerEnd).trimStart()
     return `${head}\n\n${[BEGIN, "", generated, "", END, ""].join("\n")}${
       tail.length > 0 ? `\n${tail}` : ""
@@ -970,9 +1171,14 @@ function apiPage(symbol: ExportedSymbol, file: string): string {
     `Source: \`${symbol.file}\`. Script: \`scripts/build-reference.mts\`. Command:`,
     "`pnpm run generate`.",
     "",
-    "One page per exported symbol, so that a type name mentioned anywhere in the",
-    "documentation has an address of its own. The summary is the symbol's doc comment;",
-    "the signature is its declaration line, copied rather than reconstructed.",
+    /* SHORT ON PURPOSE. This paragraph is byte-identical on every symbol page,
+       and it used to be longer than the unique content it sat above: fifty-six
+       pages opened with the same sixty words, and twenty-four of them had
+       nothing after it but a heading and a one-line declaration. The rationale
+       it used to carry is on the index, where it is written once. */
+    "Everything below is copied from the symbol, so a page is improved by improving",
+    "its doc comment. The [API index](./index.mdx) says why there is a page per",
+    "symbol and what these pages still do not carry.",
     "",
     BEGIN,
     "",

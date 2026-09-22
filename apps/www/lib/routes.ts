@@ -179,6 +179,10 @@ export const DEFAULT_STYLE = "base-lyra"
 /** What a `/view` route can render. */
 export type ViewKind = "component" | "example" | "screen"
 
+/**
+ * Everything a chrome-less preview URL can carry. Name and kind become path
+ * segments, and the rest become query parameters applied before first paint.
+ */
 export interface ViewParams {
   name: string
   kind?: ViewKind

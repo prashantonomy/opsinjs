@@ -14,9 +14,9 @@ kind: reference
 Source: `lib/opsinjs.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
@@ -24,12 +24,25 @@ the signature is its declaration line, copied rather than reconstructed.
 
 One unit: what it is called, what a reader sees, and how it is SPOKEN.
 
+The spoken form is the whole reason this table exists. A screen reader handed `mmHg` improvises a pronunciation, and "one twenty over eighty em em aitch gee" is a failure rather than a quirk.
+
+There is no reference range here, no threshold, no plausibility bound and no default precision. A unit table says what a number is measured in; it never says what a number should be. Decimal places belong to the MEASUREMENT and travel with it from the product - health/numbers-units-precision, rule 2.
+
+`joined` is typography, not a claim about a reading: it records that a symbol sits against the number with no space, as everyday English writes 98% and 36.8°C. Which symbols take it is settled by content/docs/content/grammar-and-mechanics.mdx, not by this table.
+
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/opsinjs.ts` |
 
 ```ts
-export interface Unit
+export interface Unit {
+  id: string
+  symbol: string
+  spoken: string
+  plural: string
+  measures: string
+  joined?: true
+}
 ```
 
 {/* opsinjs:generated:end */}

@@ -1,6 +1,6 @@
 ---
 title: "DeriveOptions"
-description: "The interface DeriveOptions, exported from lib/color/derive.ts."
+description: "The knobs on theme derivation."
 kind: reference
 ---
 
@@ -14,22 +14,26 @@ kind: reference
 Source: `lib/color/derive.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## DeriveOptions
 
-This symbol has no doc comment yet.
+The knobs on theme derivation. Every one of them has a default, so a brand colour on its own is already a complete input.
 
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/color/derive.ts` |
 
 ```ts
-export interface DeriveOptions
+export interface DeriveOptions {
+  neutralChroma?: number
+  gamut?: Gamut
+  maxSeedChroma?: number
+}
 ```
 
 {/* opsinjs:generated:end */}

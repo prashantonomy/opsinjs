@@ -77,8 +77,16 @@ export const WCAG_FLOOR = {
   largeAAA: 4.5,
 }
 
+/**
+ * Which WCAG 2.2 contrast threshold applies. Body text, large text and non-
+ * text content each have a different floor.
+ */
 export type WcagUse = "body" | "large" | "nonText"
 
+/**
+ * The result of one WCAG 2.2 contrast measurement, with the ratio, the floor
+ * for that use, and the success criterion it is measured against.
+ */
 export interface WcagVerdict {
   ratio: number
   use: WcagUse

@@ -1,6 +1,6 @@
 ---
 title: "RoleName"
-description: "The roles a derived theme guarantees. Components consume these and never a step."
+description: "The roles a derived theme guarantees."
 kind: reference
 ---
 
@@ -14,9 +14,9 @@ kind: reference
 Source: `lib/color/derive.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
@@ -30,6 +30,15 @@ The roles a derived theme guarantees. Components consume these and never a step.
 
 ```ts
 export type RoleName =
+  | "canvas"
+  | "surface"
+  | "ink"
+  | "muted-ink"
+  | "line"
+  | "control-line"
+  | "primary"
+  | "on-primary"
+  | "focus"
 ```
 
 {/* opsinjs:generated:end */}

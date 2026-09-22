@@ -135,6 +135,10 @@ export function findByAlias(alias: string): CatalogueEntry | undefined {
   return id ? getEntry(id) : undefined
 }
 
+/**
+ * One search synonym that cannot be used, either because two components
+ * claim it or because it collides with a component id.
+ */
 export interface AliasProblem {
   alias: string
   reason: "duplicate" | "collides-with-id"
@@ -215,6 +219,10 @@ export function unknownImplementsIds(ids: string[]): string[] {
 
 /* ── projections ────────────────────────────────────────────────────────── */
 
+/**
+ * One component as the light registry index publishes it, flattened to the
+ * fields a decision to install actually turns on.
+ */
 export interface CatalogueIndexRow {
   name: string
   title: string

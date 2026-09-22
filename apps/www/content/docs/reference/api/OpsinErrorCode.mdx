@@ -14,9 +14,9 @@ kind: reference
 Source: `lib/opsinjs.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
@@ -24,12 +24,35 @@ the signature is its declaration line, copied rather than reconstructed.
 
 Every warning code opsinjs can emit.
 
+Flat, allocated in sequence, and permanent: a code is never reused, never renumbered and never removed. The union is what makes `warnOnce("OPSIN-0004")` a compile error when the code does not exist, which is the difference between a stable code and a string somebody typed.
+
 | Kind | Declared in |
 | --- | --- |
 | type | `lib/opsinjs.ts` |
 
 ```ts
 export type OpsinErrorCode =
+  | "OPSIN-0001"
+  | "OPSIN-0002"
+  | "OPSIN-0003"
+  | "OPSIN-0004"
+  | "OPSIN-0005"
+  | "OPSIN-0006"
+  | "OPSIN-0007"
+  | "OPSIN-0008"
+  | "OPSIN-0009"
+  | "OPSIN-0010"
+  | "OPSIN-0011"
+  | "OPSIN-0012"
+  | "OPSIN-0013"
+  | "OPSIN-0014"
+  | "OPSIN-0015"
+  | "OPSIN-0016"
+  | "OPSIN-0017"
+  | "OPSIN-0018"
+  | "OPSIN-0019"
+  | "OPSIN-0020"
+  | "OPSIN-0021"
 ```
 
 {/* opsinjs:generated:end */}

@@ -1,6 +1,6 @@
 ---
 title: "ViewParams"
-description: "The interface ViewParams, exported from lib/routes.ts."
+description: "Everything a chrome-less preview URL can carry."
 kind: reference
 ---
 
@@ -14,22 +14,31 @@ kind: reference
 Source: `lib/routes.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## ViewParams
 
-This symbol has no doc comment yet.
+Everything a chrome-less preview URL can carry. Name and kind become path segments, and the rest become query parameters applied before first paint.
 
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/routes.ts` |
 
 ```ts
-export interface ViewParams
+export interface ViewParams {
+  name: string
+  kind?: ViewKind
+  base?: string
+  style?: string
+  mode?: "light" | "dark"
+  density?: "comfortable" | "compact"
+  text?: 100 | 125 | 150 | 200
+  theme?: string
+}
 ```
 
 {/* opsinjs:generated:end */}

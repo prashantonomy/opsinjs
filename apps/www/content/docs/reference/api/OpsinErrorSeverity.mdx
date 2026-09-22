@@ -1,6 +1,6 @@
 ---
 title: "OpsinErrorSeverity"
-description: "How bad a warning is."
+description: "How severe a warning is."
 kind: reference
 ---
 
@@ -14,15 +14,21 @@ kind: reference
 Source: `lib/opsinjs.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## OpsinErrorSeverity
 
 How severe a warning is.
+
+The three classes are declared in `tokens/errors.json`'s `policy.severity` block, which also carries the sentence that says what each one means:
+
+- safety - A defect that can mislead a reader about their own health. Treat as a bug, not as a lint warning.
+- correctness - The component will render something, but not what the author meant.
+- hygiene - Works today, will not survive an upgrade.
 
 | Kind | Declared in |
 | --- | --- |

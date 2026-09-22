@@ -14,15 +14,15 @@ kind: reference
 Source: `lib/status.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## Kind
 
-A page's kind.
+A page's kind. This is a contract, not a label: `kind` fully determines the page's headings, and `assert-ia.mts` fails the build on a missing or an unexpected one.
 
 | Kind | Declared in |
 | --- | --- |

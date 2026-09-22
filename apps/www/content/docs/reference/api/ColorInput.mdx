@@ -14,15 +14,17 @@ kind: reference
 Source: `lib/color/apca.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## ColorInput
 
 Anything the contrast functions accept: an sRGB triple, an OKLCH object, or a CSS colour string (`#0b6bcb`, `oklch(0.62 0.17 15)`, `rgb(11 107 203)`).
+
+The string form is here because the two callers that matter most are a route handler receiving JSON and a playground receiving a paste, and neither has a triple to hand. A string that cannot be parsed yields NaN rather than an exception or a silent black: NaN propagates visibly into the response and into any comparison, which is the behaviour you want from a number nobody managed to measure.
 
 | Kind | Declared in |
 | --- | --- |

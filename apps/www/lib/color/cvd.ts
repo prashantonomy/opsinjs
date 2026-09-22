@@ -149,6 +149,10 @@ export function simulateRgb255(
 
 /* ── the audit ──────────────────────────────────────────────────────────── */
 
+/**
+ * Two colours that stop being distinguishable under one kind of colour
+ * vision deficiency, and the Lc left between them once simulated.
+ */
 export interface CvdCollision {
   type: CvdType
   a: string

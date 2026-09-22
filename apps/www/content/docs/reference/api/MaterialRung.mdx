@@ -14,9 +14,9 @@ kind: reference
 Source: `lib/opsinjs.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
@@ -24,12 +24,20 @@ the signature is its declaration line, copied rather than reconstructed.
 
 A rung of the material ladder, meaning how a surface sits above what is behind it.
 
+These six names are the token names: every rung resolves a matching set of `--opsin-material-<rung>-*` custom properties for blur, tint, shadow and border. Where a specification page names a different set, the tokens win, because the tokens are what actually renders.
+
 | Kind | Declared in |
 | --- | --- |
 | type | `lib/opsinjs.ts` |
 
 ```ts
 export type MaterialRung =
+  | "canvas"
+  | "card"
+  | "raised"
+  | "sheet"
+  | "overlay"
+  | "scrim"
 ```
 
 {/* opsinjs:generated:end */}

@@ -50,6 +50,10 @@ export const RAMP_STEPS = [
   50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
 ] as const
 
+/**
+ * One rung of the lightness ladder, from 50 at the lightest to 950 at the
+ * darkest. The rungs are fixed, so two themes are comparable step by step.
+ */
 export type RampStep = (typeof RAMP_STEPS)[number]
 
 export const RAMP_LIGHTNESS: Record<RampStep, number> = {
@@ -84,6 +88,10 @@ export const CHROMA_ENVELOPE: Record<RampStep, number> = {
 /** How much more chroma Display-P3 is allowed to spend than sRGB at the same step. */
 export const P3_CHROMA_GAIN = 1.18
 
+/**
+ * One rung of a ramp, as the sRGB value that ships, the wide-gamut value
+ * where P3 has headroom, and whether sRGB had to clamp the chroma away.
+ */
 export interface RampStepValue {
   step: RampStep
   /** The shipped value: clamped into sRGB. */
@@ -95,8 +103,16 @@ export interface RampStepValue {
   css: { srgb: string; p3?: string }
 }
 
+/**
+ * One complete lightness ramp, as a value per step. The chromatic ramp and
+ * the neutral ramp of a derived theme are both this shape.
+ */
 export type Ramp = Record<RampStep, RampStepValue>
 
+/**
+ * The knobs on theme derivation. Every one of them has a default, so a brand
+ * colour on its own is already a complete input.
+ */
 export interface DeriveOptions {
   /** Chroma of the neutral ramp, which shares the brand's hue. 0 gives a dead grey; the default is a hint. */
   neutralChroma?: number
@@ -110,14 +126,26 @@ export interface DeriveOptions {
   maxSeedChroma?: number
 }
 
+/**
+ * How serious a derivation warning is. An `error` makes the theme unsound
+ * and stops it shipping, while a `warning` and a `note` are advisory.
+ */
 export type WarningLevel = "error" | "warning" | "note"
 
+/**
+ * One thing the derivation has to say about a theme, as a level, a stable
+ * code and a message.
+ */
 export interface DeriveWarning {
   level: WarningLevel
   code: string
   message: string
 }
 
+/**
+ * What a semantic role resolves to in one colour mode. The ramp step it came
+ * from, the OKLCH value, and the CSS it is written as.
+ */
 export interface RoleValue {
   /** The token this role resolves to, as `<rampName>-<step>` or a literal. */
   source: string
@@ -125,6 +153,11 @@ export interface RoleValue {
   css: string
 }
 
+/**
+ * One semantic role in both colour modes. Roles are derived as a pair,
+ * because a role that exists only in light mode is a role that breaks in
+ * dark.
+ */
 export interface RolePair {
   light: RoleValue
   dark: RoleValue
@@ -142,6 +175,10 @@ export type RoleName =
   | "on-primary"
   | "focus"
 
+/**
+ * One measured pair from a derived theme, carrying both the APCA Lc and the
+ * WCAG ratio, the use that fixes the floor, and whether it passed.
+ */
 export interface ContrastCheck {
   pair: string
   use: ContrastUse
@@ -162,6 +199,11 @@ export interface ContrastCheck {
   advisory?: boolean
 }
 
+/**
+ * Everything derivation produces from one brand colour. Both ramps, every
+ * role in light and dark, the contrast checks, the warnings, and whether it
+ * is sound.
+ */
 export interface DerivedTheme {
   /** The brand colour as parsed, before the ladder discarded its lightness. */
   brand: Oklch

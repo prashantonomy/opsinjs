@@ -14,9 +14,9 @@ kind: reference
 Source: `lib/opsinjs.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
@@ -24,12 +24,20 @@ the signature is its declaration line, copied rather than reconstructed.
 
 One banned word: the word a component's copy must not use, what to write in its place, and why the word is barred.
 
+The shape lives here, in the shipped substrate, rather than in lib/generated, because a component that reads this list has to compile inside a consumer's project. build-registry ships exactly two library files, this one and lib/status.ts, so a list a component imports can live in one of those two and nowhere else, and lib/generated is a documentation-site artefact that never leaves this repository.
+
+The rows themselves are generated rather than typed by hand. The space below is reserved and not yet filled. Once scripts/build-tokens.mts emits its banned-word region, the rows will arrive there from tokens/glossary.json, the single source for the banned list and the plain-language glossary alike, and `node scripts/build-tokens.mts --check` will then hold the generated copy and that source in step, failing the build the moment one drifts. Only the shape is stated here, so the generated region can carry data alone.
+
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/opsinjs.ts` |
 
 ```ts
-export interface GeneratedBannedWord
+export interface GeneratedBannedWord {
+  word: string
+  instead: string
+  reason: string
+}
 ```
 
 {/* opsinjs:generated:end */}

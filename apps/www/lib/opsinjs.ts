@@ -325,7 +325,7 @@ export type MaterialRung =
 /**
  * The state a data surface is in, named once so the surfaces converge on one vocabulary, though no component accepts it yet.
  *
- * These are the five states of ../content/docs/foundations/data-states.mdx,
+ * These are the five states the Data states foundation names, which are
  * loading, error, empty, partial and stale, plus the resolved case where the
  * value is real, current and simply rendered. The members are listed with the
  * five doctrine states first and resolved last; the order a surface actually

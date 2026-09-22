@@ -1,6 +1,6 @@
 ---
 title: "CatalogueIndexRow"
-description: "The interface CatalogueIndexRow, exported from lib/catalogue.ts."
+description: "One component as the light registry index publishes it, flattened to the fields a decision to install actually turns on."
 kind: reference
 ---
 
@@ -14,22 +14,35 @@ kind: reference
 Source: `lib/catalogue.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## CatalogueIndexRow
 
-This symbol has no doc comment yet.
+One component as the light registry index publishes it, flattened to the fields a decision to install actually turns on.
 
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/catalogue.ts` |
 
 ```ts
-export interface CatalogueIndexRow
+export interface CatalogueIndexRow {
+  name: string
+  title: string
+  description: string
+  type: "registry:ui"
+  category: CatalogueCategory
+  status: Status
+  since: string
+  aliases: string[]
+  implemented: boolean
+  docs: string | null
+  dependencies?: string[]
+  registryDependencies?: string[]
+}
 ```
 
 {/* opsinjs:generated:end */}

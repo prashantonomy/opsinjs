@@ -87,6 +87,10 @@ export function isStatus(value: unknown): value is Status {
   )
 }
 
+/**
+ * What a release phase shows on a badge. A label and one sentence a reader
+ * can act on, which is also the chip's title and its accessible name.
+ */
 export interface StatusMeta {
   /** The word shown on the badge. */
   label: string
@@ -237,8 +241,16 @@ export type ClinicalStatus = (typeof CLINICAL_STATUSES)[number]
  */
 export type UnknownStatus = "unknown"
 
+/**
+ * The four clinical statuses plus `unknown`. Unknown is the absence of an
+ * assertion rather than a fifth level of urgency.
+ */
 export type ClinicalStatusOrUnknown = ClinicalStatus | UnknownStatus
 
+/**
+ * Everything a clinical status carries besides its colour. The word, the
+ * example sentence, who may assign it, its icon and its place in the order.
+ */
 export interface ClinicalStatusMeta {
   /** The word rendered beside the colour and the icon. Never omitted. */
   word: string
@@ -337,6 +349,10 @@ export function isHealthCategory(value: unknown): value is HealthCategory {
   )
 }
 
+/**
+ * A refusal. It is what the system answers when a measurement category and a
+ * clinical status are asked to share one surface.
+ */
 export interface AxisConflict {
   code: "OPSIN-0001"
   category: HealthCategory

@@ -169,6 +169,10 @@ export function passesApca(lc: number, use: ContrastUse = "body"): boolean {
   return Math.abs(lc) >= APCA_FLOOR[use]
 }
 
+/**
+ * The result of one APCA measurement, with the signed Lc, its polarity, the
+ * floor for that use, and how far above or below the floor it landed.
+ */
 export interface ApcaVerdict {
   lc: number
   /** Absolute Lc, which is what a floor is compared against. */

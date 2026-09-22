@@ -1,6 +1,6 @@
 ---
 title: "Preset"
-description: "A theme as a person describes it. What `encodePreset` takes and `decodePreset` returns."
+description: "A theme as a person describes it."
 kind: reference
 ---
 
@@ -14,9 +14,9 @@ kind: reference
 Source: `lib/preset.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
@@ -29,7 +29,18 @@ A theme as a person describes it. What `encodePreset` takes and `decodePreset` r
 | interface | `lib/preset.ts` |
 
 ```ts
-export interface Preset
+export interface Preset {
+  hue: number
+  chroma: number
+  lightness: number
+  neutralChroma: number
+  radius: number
+  density: (typeof DENSITY_VALUES)[number]
+  gamut: (typeof GAMUT_VALUES)[number]
+  floor: (typeof FLOOR_VALUES)[number]
+  cornerShape: (typeof CORNER_SHAPE_VALUES)[number]
+  mode: (typeof MODE_VALUES)[number]
+}
 ```
 
 {/* opsinjs:generated:end */}

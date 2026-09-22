@@ -245,6 +245,10 @@ export function encodePreset(
   )
 }
 
+/**
+ * Why a preset code could not be read. The five reasons are kept distinct so
+ * that the sentence shown to a person can be a specific one.
+ */
 export type DecodeError =
   | "missing-prefix"
   | "wrong-length"
@@ -252,6 +256,10 @@ export type DecodeError =
   | "bad-characters"
   | "bad-checksum"
 
+/**
+ * The outcome of reading a preset code. Either the preset and its version,
+ * or an error and a sentence a person can act on.
+ */
 export interface DecodeResult {
   preset: Preset | null
   version: number | null

@@ -1,6 +1,6 @@
 ---
 title: "ApcaVerdict"
-description: "The interface ApcaVerdict, exported from lib/color/apca.ts."
+description: "The result of one APCA measurement, with the signed Lc, its polarity, the floor for that use, and how far above or below the floor it landed."
 kind: reference
 ---
 
@@ -14,22 +14,30 @@ kind: reference
 Source: `lib/color/apca.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## ApcaVerdict
 
-This symbol has no doc comment yet.
+The result of one APCA measurement, with the signed Lc, its polarity, the floor for that use, and how far above or below the floor it landed.
 
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/color/apca.ts` |
 
 ```ts
-export interface ApcaVerdict
+export interface ApcaVerdict {
+  lc: number
+  magnitude: number
+  polarity: "dark-on-light" | "light-on-dark" | "indistinguishable"
+  use: ContrastUse
+  floor: number
+  passes: boolean
+  headroom: number
+}
 ```
 
 {/* opsinjs:generated:end */}

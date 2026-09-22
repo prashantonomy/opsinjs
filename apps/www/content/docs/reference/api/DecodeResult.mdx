@@ -1,6 +1,6 @@
 ---
 title: "DecodeResult"
-description: "The interface DecodeResult, exported from lib/preset.ts."
+description: "The outcome of reading a preset code."
 kind: reference
 ---
 
@@ -14,22 +14,27 @@ kind: reference
 Source: `lib/preset.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## DecodeResult
 
-This symbol has no doc comment yet.
+The outcome of reading a preset code. Either the preset and its version, or an error and a sentence a person can act on.
 
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/preset.ts` |
 
 ```ts
-export interface DecodeResult
+export interface DecodeResult {
+  preset: Preset | null
+  version: number | null
+  error: DecodeError | null
+  message: string | null
+}
 ```
 
 {/* opsinjs:generated:end */}

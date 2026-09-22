@@ -58,10 +58,18 @@ would bury the symbols an `<ApiLink>` has to resolve to.
 ### What a symbol page contains
 
 Four things, and no more than a line scanner can honestly produce: the symbol's
-name, the first sentence of its doc comment, a table giving its kind and the
-file it is declared in, and the declaration line itself, copied from the source
-rather than reconstructed. Improve a page by improving its doc comment, because
-there is nowhere else the summary can come from.
+name, its doc comment in full, a table giving its kind and the file it is
+declared in, and its whole declaration, copied from the source rather than
+reconstructed. An interface shows its members and a union shows its cases,
+because for a type declared across twenty lines the opening line is the one part
+of it the page title has already told you. Field comments are stripped from that
+block, because a paragraph inside a signature hides the shape the block is there
+to show; the prose is in the source, at the path the table names.
+
+Improve a page by improving its doc comment. The first sentence of it is also
+the page's `description`, which is the search snippet and the card subtitle, so
+the generator writes that line rather than preserving it and a page's summary
+cannot drift from the symbol's.
 
 For the health types the page is only ever half the answer. The declaration says
 there are four status levels; only
@@ -71,18 +79,18 @@ carry. The two pages here that keep hand-written prose above their generated
 block, below, both do that linking by hand; for the rest, follow the symbol back
 to the doctrine pillar yourself.
 
-What a symbol page does not yet contain is the part such a page is usually
-judged on. Members are not expanded, so an interface page carries
-`export interface Oklch` and not its fields. Defaults are not listed. Nor is the
-set of components and functions that consume the symbol, which is the part a
-type reference usually omits and the part you usually need. All three need a
-type checker rather than the textual scan, and until the generator grows one the
-declaration and its file are what these pages promise.
+Two things a symbol page still does not contain, and both are the part such a
+page is usually judged on. Defaults are not listed, because a default lives in
+the function that applies the type rather than in the type. Nor is the set of
+components and functions that consume the symbol, which is the part a type
+reference usually omits and the part you usually need. Both need a type checker
+rather than a textual scan, and until the generator grows one, the declaration
+and its file are what these pages promise.
 
-<Todo owner="engineering">Expand members, defaults and consumers on the
-per-symbol pages. It needs `build-reference.mts` to read the declarations
-through a TypeScript program instead of a line regex, and until it does, an
-interface page shows its declaration line only.</Todo>
+<Todo owner="engineering">List defaults and consumers on the per-symbol pages.
+It needs `build-reference.mts` to read the declarations through a TypeScript
+program instead of a line scan. Members and unions are expanded already, by
+capturing the declaration to its closing brace or its last case.</Todo>
 
 ### What exists today
 

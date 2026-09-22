@@ -14,9 +14,9 @@ kind: reference
 Source: `lib/opsinjs.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
@@ -24,12 +24,21 @@ the signature is its declaration line, copied rather than reconstructed.
 
 The interval a reading is being compared against, and who says so.
 
+Both bounds are optional because a one-sided range is a real range: some measurements have a floor and no ceiling, and rendering a bound the product did not supply would invent a threshold. An omitted bound renders as an open end, never as zero and never as an assumed limit.
+
+`source` is required, and it is required because opsinjs does not own a single clinical number. A range arriving with no attribution is the consuming product asking this system to vouch for a threshold it has never seen, which is the one thing it must not do; a component handed a range with no `source` reports OPSIN-0004 rather than drawing it.
+
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/opsinjs.ts` |
 
 ```ts
-export interface ReferenceRange
+export interface ReferenceRange {
+  low?: number
+  high?: number
+  source: string
+  asOf?: string
+}
 ```
 
 {/* opsinjs:generated:end */}

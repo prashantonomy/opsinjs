@@ -80,45 +80,45 @@ shared substrate a copied component carries with it is listed under
 | `accessibilityPath` | function | `lib/routes.ts` | - |
 | `agentRoutes` | const | `lib/routes.ts` | - |
 | `aliasesFor` | function | `lib/catalogue.ts` | The exact array a page's `aliases` frontmatter must contain. |
-| `aliasIndex` | function | `lib/catalogue.ts` | alias → the id or page it resolves to. |
-| [`AliasProblem`](../api/AliasProblem.mdx) | interface | `lib/catalogue.ts` | - |
-| `apca` | const | `lib/color/apca.ts` | The short name, for callers that just want the number: `apca("#333", "#fff")`. |
-| `APCA_FLOOR` | const | `lib/color/apca.ts` | The published opsinjs APCA floor. |
-| `apcaContrast` | function | `lib/color/apca.ts` | Lc for text on a background. |
+| `aliasIndex` | function | `lib/catalogue.ts` | alias → the id or page it resolves to. Lower-cased, because a reader typing "Blood Pressure" and a reader typing "blood pressure" want the same page. |
+| [`AliasProblem`](../api/AliasProblem.mdx) | interface | `lib/catalogue.ts` | One search synonym that cannot be used, either because two components claim it or because it collides with a component id. |
+| `apca` | const | `lib/color/apca.ts` | The short name, for callers that just want the number: `apca("#333", "#fff")`. Identical to `apcaContrast`. |
+| `APCA_FLOOR` | const | `lib/color/apca.ts` | The published opsinjs APCA floor. These are the system's own commitments, chosen a little above the bare minimum because the audience is reading a number that matters to them on a phone, outdoors, often over 60. |
+| `apcaContrast` | function | `lib/color/apca.ts` | Lc for text on a background. Positive means dark-on-light, negative means light-on-dark, and the two arguments are not interchangeable. |
 | `apcaContrastOklch` | function | `lib/color/apca.ts` | The same, taking OKLCH. Both colours are clamped into sRGB first, because that is what a screen shows. |
 | `apcaVerdict` | function | `lib/color/apca.ts` | - |
-| [`ApcaVerdict`](../api/ApcaVerdict.mdx) | interface | `lib/color/apca.ts` | - |
+| [`ApcaVerdict`](../api/ApcaVerdict.mdx) | interface | `lib/color/apca.ts` | The result of one APCA measurement, with the signed Lc, its polarity, the floor for that use, and how far above or below the floor it landed. |
 | `apiRoutes` | const | `lib/routes.ts` | - |
 | `apiSymbolPath` | function | `lib/routes.ts` | A generated per-symbol API page. `\<ApiLink\>` resolves here, never to an anchor. |
 | `axisConflict` | function | `lib/status.ts` | THE NEVER-MIX RULE, as a function. |
-| [`AxisConflict`](../api/AxisConflict.mdx) | interface | `lib/status.ts` | - |
+| [`AxisConflict`](../api/AxisConflict.mdx) | interface | `lib/status.ts` | A refusal. It is what the system answers when a measurement category and a clinical status are asked to share one surface. |
 | `BANNED_WORDS` | const | `lib/opsinjs.ts` | Words a component's copy must not use, with the replacement and the reason. Generated from `tokens/glossary.json`. |
 | `baseOptions` | function | `lib/layout.shared.tsx` | THERE IS NO TOP NAVIGATION, AND THAT IS THE POINT. |
-| `baseStyleQuery` | function | `lib/routes.ts` | The `?base=&style=` query a docs page uses for the same switch. |
+| `baseStyleQuery` | function | `lib/routes.ts` | The `?base=&style=` query a docs page uses for the same switch. Returns an empty string at the defaults so the canonical URL stays clean. |
 | `builtComponentCount` | function | `lib/registry.ts` | How many distinct components have a real renderable behind them. |
 | `byNamespace` | function | `lib/tokens.ts` | - |
 | `byTier` | function | `lib/tokens.ts` | - |
-| [`CatalogueIndexRow`](../api/CatalogueIndexRow.mdx) | interface | `lib/catalogue.ts` | - |
-| `CATEGORY_GATED_SECTIONS` | const | `lib/status.ts` | Sections whose presence depends on the component's category rather than on its status. |
+| [`CatalogueIndexRow`](../api/CatalogueIndexRow.mdx) | interface | `lib/catalogue.ts` | One component as the light registry index publishes it, flattened to the fields a decision to install actually turns on. |
+| `CATEGORY_GATED_SECTIONS` | const | `lib/status.ts` | Sections whose presence depends on the component's category rather than on its status. Required when `category` starts with the prefix, and forbidden when it does not. |
 | `CHROMA_ENVELOPE` | const | `lib/color/derive.ts` | Chroma as a fraction of the seed's, per step. Mirrors `chromaEnvelope` in tokens/color.json. |
 | `CHROMA_STEP` | const | `lib/preset.ts` | The quantisation of chroma: 0.005 per step, so 63 steps reach 0.315. |
 | `clampToGamut` | function | `lib/color/oklch.ts` | Bring a colour into gamut by reducing chroma only. |
 | `CLINICAL_STATUS_META` | const | `lib/status.ts` | - |
 | `CLINICAL_STATUSES` | const | `lib/status.ts` | - |
 | [`ClinicalStatus`](../api/ClinicalStatus.mdx) | type | `lib/status.ts` | What a reading means and what, if anything, to do about it. |
-| [`ClinicalStatusMeta`](../api/ClinicalStatusMeta.mdx) | interface | `lib/status.ts` | - |
-| [`ClinicalStatusOrUnknown`](../api/ClinicalStatusOrUnknown.mdx) | type | `lib/status.ts` | - |
+| [`ClinicalStatusMeta`](../api/ClinicalStatusMeta.mdx) | interface | `lib/status.ts` | Everything a clinical status carries besides its colour. The word, the example sentence, who may assign it, its icon and its place in the order. |
+| [`ClinicalStatusOrUnknown`](../api/ClinicalStatusOrUnknown.mdx) | type | `lib/status.ts` | The four clinical statuses plus `unknown`. Unknown is the absence of an assertion rather than a fifth level of urgency. |
 | `cn` | function | `lib/utils.ts` | Join and de-duplicate class names, resolving Tailwind conflicts last-wins. |
 | `COLLAPSE_THRESHOLD` | const | `lib/color/cvd.ts` | The minimum Lc at which two swatches shown side by side are still telling two different colours apart. |
 | [`ColorInput`](../api/ColorInput.mdx) | type | `lib/color/apca.ts` | Anything the contrast functions accept: an sRGB triple, an OKLCH object, or a CSS colour string (`#0b6bcb`, `oklch(0.62 0.17 15)`, `rgb(11 107 203)`). |
 | `COMPONENT_OPTIONAL_SECTIONS` | const | `lib/status.ts` | The sections a component page may leave out. |
 | `COMPONENT_SECTIONS_BY_STATUS` | const | `lib/status.ts` | THE COMPONENT PAGE ANATOMY, status-gated. |
 | `componentPath` | function | `lib/routes.ts` | A component specification page, by catalogue id. |
-| `componentRequiredSections` | function | `lib/status.ts` | The sections a component page at this status and category must actually carry: the outline above with the optional five taken out. |
-| `componentSections` | function | `lib/status.ts` | The full ordered outline for a component page at a given status and category: the canonical order, and the set of headings the page is allowed to carry. |
+| `componentRequiredSections` | function | `lib/status.ts` | The sections a component page at this status and category must actually carry: the outline above with the optional five taken out. This is what an enforcer reports as missing, and it is deliberately a filter over `componentSections()` rather than a second hand-written table, so the two can never name a heading the other does not. |
+| `componentSections` | function | `lib/status.ts` | The full ordered outline for a component page at a given status and category: the canonical order, and the set of headings the page is allowed to carry. Some of what comes back is optional, so do not use this as the missing-heading check. `componentRequiredSections()` is that. |
 | `compositeOver` | function | `lib/color/oklch.ts` | Composite a translucent `foreground` at `alpha` over an opaque `backdrop`, source-over, and return the opaque colour a reader actually sees. |
 | `CONTRAST_USE_LABELS` | const | `lib/color/apca.ts` | - |
-| [`ContrastCheck`](../api/ContrastCheck.mdx) | interface | `lib/color/derive.ts` | - |
+| [`ContrastCheck`](../api/ContrastCheck.mdx) | interface | `lib/color/derive.ts` | One measured pair from a derived theme, carrying both the APCA Lc and the WCAG ratio, the use that fixes the floor, and whether it passed. |
 | `contrastRatio` | function | `lib/color/wcag.ts` | The contrast ratio, from 1 (identical) to 21 (black on white). |
 | `contrastRatioOklch` | function | `lib/color/wcag.ts` | - |
 | [`ContrastUse`](../api/ContrastUse.mdx) | type | `lib/color/apca.ts` | What a pair is being used for. Determines which floor applies. |
@@ -126,12 +126,12 @@ shared substrate a copied component carries with it is listed under
 | `CORNER_SHAPE_VALUES` | const | `lib/preset.ts` | - |
 | `CVD_LABELS` | const | `lib/color/cvd.ts` | - |
 | `CVD_TYPES` | const | `lib/color/cvd.ts` | - |
-| [`CvdCollision`](../api/CvdCollision.mdx) | interface | `lib/color/cvd.ts` | - |
+| [`CvdCollision`](../api/CvdCollision.mdx) | interface | `lib/color/cvd.ts` | Two colours that stop being distinguishable under one kind of colour vision deficiency, and the Lc left between them once simulated. |
 | [`CvdType`](../api/CvdType.mdx) | type | `lib/color/cvd.ts` | The three dichromacies, plus the achromatic check every specimen must also survive. |
 | [`DataState`](../api/DataState.mdx) | type | `lib/opsinjs.ts` | The state a data surface is in, named once so the surfaces converge on one vocabulary, though no component accepts it yet. |
-| [`DecodeError`](../api/DecodeError.mdx) | type | `lib/preset.ts` | - |
+| [`DecodeError`](../api/DecodeError.mdx) | type | `lib/preset.ts` | Why a preset code could not be read. The five reasons are kept distinct so that the sentence shown to a person can be a specific one. |
 | `decodePreset` | function | `lib/preset.ts` | Decode a preset code. |
-| [`DecodeResult`](../api/DecodeResult.mdx) | interface | `lib/preset.ts` | - |
+| [`DecodeResult`](../api/DecodeResult.mdx) | interface | `lib/preset.ts` | The outcome of reading a preset code. Either the preset and its version, or an error and a sentence a person can act on. |
 | `decodeTransfer` | function | `lib/color/oklch.ts` | sRGB gamma-encoded channel → light-linear. Also used for Display-P3, which shares sRGB's transfer curve. |
 | `DEFAULT_BASE` | const | `lib/registry.ts` | - |
 | `DEFAULT_BASE` | const | `lib/routes.ts` | - |
@@ -140,16 +140,16 @@ shared substrate a copied component carries with it is listed under
 | `DEFAULT_STYLE` | const | `lib/routes.ts` | - |
 | `DENSITY_VALUES` | const | `lib/preset.ts` | - |
 | `deprecatedTokens` | function | `lib/tokens.ts` | - |
-| [`DerivedTheme`](../api/DerivedTheme.mdx) | interface | `lib/color/derive.ts` | - |
-| [`DeriveOptions`](../api/DeriveOptions.mdx) | interface | `lib/color/derive.ts` | - |
+| [`DerivedTheme`](../api/DerivedTheme.mdx) | interface | `lib/color/derive.ts` | Everything derivation produces from one brand colour. Both ramps, every role in light and dark, the contrast checks, the warnings, and whether it is sound. |
+| [`DeriveOptions`](../api/DeriveOptions.mdx) | interface | `lib/color/derive.ts` | The knobs on theme derivation. Every one of them has a default, so a brand colour on its own is already a complete input. |
 | `deriveRamp` | function | `lib/color/derive.ts` | Build one ramp from a seed, clamping to sRGB and recording the P3 enhancement. |
 | `deriveTheme` | function | `lib/color/derive.ts` | Derive a complete, contrast-validated theme from one brand colour. |
-| [`DeriveWarning`](../api/DeriveWarning.mdx) | interface | `lib/color/derive.ts` | - |
+| [`DeriveWarning`](../api/DeriveWarning.mdx) | interface | `lib/color/derive.ts` | One thing the derivation has to say about a theme, as a level, a stable code and a message. |
 | [`Detent`](../api/Detent.mdx) | type | `lib/opsinjs.ts` | How far a sheet is open. |
 | `displayP3ToOklch` | function | `lib/color/oklch.ts` | Gamma-encoded Display-P3, 0 to 1 per channel → OKLCH. |
-| `DOCS_BASE` | const | `lib/routes.ts` | The docs base segment. |
+| `DOCS_BASE` | const | `lib/routes.ts` | The docs base segment. Everything else derives from it. |
 | `docsMarkdownPath` | function | `lib/routes.ts` | The same page as processed markdown: `/components/range-bar.md`. |
-| `docsPath` | function | `lib/routes.ts` | The URL of a docs page from its slug segments. |
+| `docsPath` | function | `lib/routes.ts` | The URL of a docs page from its slug segments. `docsPath()` is the docs index. This is the function a locale segment would be inserted into. |
 | `doctrinePath` | function | `lib/routes.ts` | A doctrine page reference as written in frontmatter, such as `two-colour-axes`, or `foundations/colour/contrast-and-apca` when it is not in Health. |
 | `editUrl` | function | `lib/routes.ts` | "Edit this page" on GitHub, from a source file path relative to the content root. |
 | `encodePreset` | function | `lib/preset.ts` | Encode a theme as a preset code. |
@@ -158,7 +158,7 @@ shared substrate a copied component carries with it is listed under
 | `explainUnresolved` | function | `lib/registry.ts` | Explain an empty lookup. |
 | `findAliasProblems` | function | `lib/catalogue.ts` | The uniqueness check, as a function rather than as a comment. |
 | `findByAlias` | function | `lib/catalogue.ts` | - |
-| `findCollisions` | function | `lib/color/cvd.ts` | Check that a set of named colours stays mutually distinguishable under every simulation. |
+| `findCollisions` | function | `lib/color/cvd.ts` | Check that a set of named colours stays mutually distinguishable under every simulation. This is the function that turns "status must survive grayscale" from doctrine into a build step. |
 | `findUnit` | function | `lib/opsinjs.ts` | The unit a symbol names, or `undefined` when this system has never heard of it. |
 | `fit` | function | `lib/color/derive.ts` | Fit an arbitrary colour into the shipped gamut without moving its hue or lightness. |
 | `FLOOR_VALUES` | const | `lib/preset.ts` | Which APCA floor the theme is validated against. `standard` is the published one. |
@@ -170,7 +170,7 @@ shared substrate a copied component carries with it is listed under
 | `formatToken` | function | `lib/tokens.ts` | Render a token in one of the copyable formats. |
 | `foundationsPath` | function | `lib/routes.ts` | - |
 | [`Gamut`](../api/Gamut.mdx) | type | `lib/color/oklch.ts` | The colour spaces this module can express a colour in. |
-| `GAMUT_EPSILON` | const | `lib/color/oklch.ts` | The tolerance a channel may exceed 0 or 1 by and still count as in gamut. |
+| `GAMUT_EPSILON` | const | `lib/color/oklch.ts` | The tolerance a channel may exceed 0 or 1 by and still count as in gamut. Half a unit at 8-bit precision: a value that rounds to a representable channel is in gamut for every purpose this system has. |
 | `GAMUT_VALUES` | const | `lib/preset.ts` | - |
 | [`GeneratedBannedWord`](../api/GeneratedBannedWord.mdx) | interface | `lib/opsinjs.ts` | One banned word: the word a component's copy must not use, what to write in its place, and why the word is barred. |
 | `getAllPages` | function | `lib/source.ts` | Every page in the corpus. The input to the sitemap, llms.txt and the shards. |
@@ -182,7 +182,7 @@ shared substrate a copied component carries with it is listed under
 | `getPagesInSection` | function | `lib/source.ts` | Pages under one top-level section, in tree order. |
 | `getPageTree` | function | `lib/source.ts` | The page tree the docs layout renders. |
 | `getRegistryEntry` | function | `lib/registry.ts` | Resolve one entry, or null. |
-| `getShipped` | function | `lib/catalogue.ts` | Every catalogue row. |
+| `getShipped` | function | `lib/catalogue.ts` | Every catalogue row. Not a claim about code. Read `implemented` in `/r/index.json`, or `toIndexRow`'s `isBuilt` argument, for that. |
 | `getToken` | function | `lib/tokens.ts` | - |
 | `getTokens` | function | `lib/tokens.ts` | - |
 | `grouped` | function | `lib/tokens.ts` | Tokens grouped for a table: namespace → group → tokens, in emit order. |
@@ -190,22 +190,22 @@ shared substrate a copied component carries with it is listed under
 | `hasComponentPage` | function | `lib/catalogue.ts` | True when `/docs/components/\<id\>` resolves to a page. |
 | `HEALTH_CATEGORIES` | const | `lib/status.ts` | - |
 | `HEALTH_CATEGORY_LABELS` | const | `lib/status.ts` | - |
-| [`HealthCategory`](../api/HealthCategory.mdx) | type | `lib/status.ts` | What a reading is ABOUT. |
+| [`HealthCategory`](../api/HealthCategory.mdx) | type | `lib/status.ts` | What a reading is ABOUT. Identity, never verdict. |
 | `healthPath` | function | `lib/routes.ts` | A health doctrine page, by the page id that `governedBy` and `implements` use. |
 | `inGamut` | function | `lib/color/oklch.ts` | - |
-| `isBuilt` | function | `lib/registry.ts` | True only when a base component for this name is on disk, which a catalogue row alone is not. |
+| `isBuilt` | function | `lib/registry.ts` | True only when a base component for this name is on disk, which a catalogue row alone is not. A specified-but-unbuilt id answers false, and so does a built id asked for at a base that does not carry it. |
 | `isClinicalStatus` | function | `lib/status.ts` | - |
 | `isDevelopment` | function | `lib/opsinjs.ts` | True in development, and false wherever that cannot be established. |
 | `isHealthCategory` | function | `lib/catalogue.ts` | True for the four `health-*` categories, which carry the extra clinical obligations. |
 | `isHealthCategory` | function | `lib/status.ts` | - |
 | `isKind` | function | `lib/status.ts` | - |
-| `isKnownId` | function | `lib/catalogue.ts` | Does this id exist at all, under any status? The question `/r` and the agent surfaces actually need. |
+| `isKnownId` | function | `lib/catalogue.ts` | Does this id exist at all, under any status? |
 | `isNotImplemented` | function | `lib/status.ts` | True when a page at this status must carry a not-implemented marker. |
 | `isResolvable` | function | `lib/registry.ts` | True when the id exists in the catalogue, whatever its status. Used to decide 404 from "no". |
 | `isStatus` | function | `lib/status.ts` | - |
 | `issueUrl` | function | `lib/routes.ts` | A prefilled docs issue. Used by `\<Feedback\>` when the feedback endpoint is unavailable. |
 | `joinPath` | function | `lib/routes.ts` | Join path segments into a root-relative path, dropping empties and stray slashes. |
-| [`Kind`](../api/Kind.mdx) | type | `lib/status.ts` | A page's kind. |
+| [`Kind`](../api/Kind.mdx) | type | `lib/status.ts` | A page's kind. This is a contract, not a label: `kind` fully determines the page's headings, and `assert-ia.mts` fails the build on a missing or an unexpected one. |
 | `KINDS` | const | `lib/status.ts` | - |
 | `LIGHTNESS_STEP` | const | `lib/preset.ts` | The quantisation of lightness: 1% per step. |
 | `linearP3ToLinearSrgb` | function | `lib/color/oklch.ts` | Light-linear Display-P3 → light-linear sRGB, through XYZ (D65). |
@@ -218,17 +218,17 @@ shared substrate a copied component carries with it is listed under
 | [`MaterialRung`](../api/MaterialRung.mdx) | type | `lib/opsinjs.ts` | A rung of the material ladder, meaning how a surface sits above what is behind it. |
 | `maxChroma` | function | `lib/color/oklch.ts` | The largest chroma that is still inside `gamut` at this lightness and hue. |
 | `minimumFontSize` | function | `lib/color/apca.ts` | The smallest font size, in px, at which this Lc is usable at the given weight, from a coarse reading of the APCA font-size guidance rather than from the full lookup table. |
-| `mixOklch` | function | `lib/color/oklch.ts` | Mix two OKLCH colours. |
+| `mixOklch` | function | `lib/color/oklch.ts` | Mix two OKLCH colours. Hue takes the shorter way round the circle, which is what CSS `color-mix` does and what anyone reading the result expects. |
 | `MODE_VALUES` | const | `lib/preset.ts` | The colour mode a theme opens in. `system` follows the reader's own setting. |
 | `NEUTRAL_CHROMA_VALUES` | const | `lib/preset.ts` | Chroma of the neutral ramp. Index 0 is a dead grey; the default is index 2. |
-| `ogUrl` | function | `lib/routes.ts` | The OG image service. |
+| `ogUrl` | function | `lib/routes.ts` | The OG image service. One endpoint for the whole site. There is no per-route opengraph-image. |
 | [`Oklab`](../api/Oklab.mdx) | interface | `lib/color/oklch.ts` | A colour in OKLab. |
 | `oklabToLinearSrgb` | function | `lib/color/oklch.ts` | OKLab → light-linear sRGB. Ottosson's inverse matrices. |
 | `oklabToOklch` | function | `lib/color/oklch.ts` | - |
 | [`Oklch`](../api/Oklch.mdx) | interface | `lib/color/oklch.ts` | A colour in OKLCH. `l` 0 to 1, `c` unbounded, `h` in degrees. |
 | `oklchToDisplayP3` | function | `lib/color/oklch.ts` | OKLCH → gamma-encoded Display-P3, 0 to 1 per channel. Not clamped. |
 | `oklchToOklab` | function | `lib/color/oklch.ts` | - |
-| `oklchToRgb255` | function | `lib/color/oklch.ts` | OKLCH → 0 to 255 sRGB integers, clamped. |
+| `oklchToRgb255` | function | `lib/color/oklch.ts` | OKLCH → 0 to 255 sRGB integers, clamped. The input for both contrast models. |
 | `oklchToSrgb` | function | `lib/color/oklch.ts` | OKLCH → gamma-encoded sRGB, 0 to 1 per channel. Not clamped. |
 | `OPSIN_ERRORS` | const | `lib/opsinjs.ts` | The table `warnOnce()` reads. Generated from `tokens/errors.json`. |
 | [`OpsinError`](../api/OpsinError.mdx) | interface | `lib/opsinjs.ts` | One warning code: what it is called, how severe it is, and the page that prevents it. |
@@ -236,44 +236,44 @@ shared substrate a copied component carries with it is listed under
 | [`OpsinErrorParams`](../api/OpsinErrorParams.mdx) | type | `lib/opsinjs.ts` | The values a message template asks for, keyed by placeholder name. |
 | [`OpsinErrorSeverity`](../api/OpsinErrorSeverity.mdx) | type | `lib/opsinjs.ts` | How severe a warning is. |
 | `ORPHAN_ALLOWLIST` | const | `lib/routes.ts` | Routes that exist but are not reachable from the top nav or the sidebar, and are allowed not to be. |
-| `OUTLINE_IS_EXACT` | const | `lib/status.ts` | `kind: project` is free-form and `kind: guide` has task sections between its fixed first and last headings, so for these two the outline is a REQUIRED SUBSET rather than the complete list. |
+| `OUTLINE_IS_EXACT` | const | `lib/status.ts` | `kind: project` is free-form and `kind: guide` has task sections between its fixed first and last headings, so for these two the outline is a REQUIRED SUBSET rather than the complete list. Everything else is exact. |
 | `P3_CHROMA_GAIN` | const | `lib/color/derive.ts` | How much more chroma Display-P3 is allowed to spend than sRGB at the same step. |
-| `parseColor` | function | `lib/color/oklch.ts` | Parse the colour syntaxes a person is likely to paste into the theme playground: `oklch(...)` with or without percentages, `#rrggbb`, and `rgb(r g b)` or `rgb(r, g, b)`. |
-| `parseHex` | function | `lib/color/oklch.ts` | `#rgb`, `#rrggbb` or `#rrggbbaa` → sRGB 0 to 1. |
+| `parseColor` | function | `lib/color/oklch.ts` | Parse the colour syntaxes a person is likely to paste into the theme playground: `oklch(...)` with or without percentages, `#rrggbb`, and `rgb(r g b)` or `rgb(r, g, b)`. Anything else returns null rather than guessing. A theme derived from a misparsed brand colour is worse than a refusal to derive one. |
+| `parseHex` | function | `lib/color/oklch.ts` | `#rgb`, `#rrggbb` or `#rrggbbaa` → sRGB 0 to 1. Returns null on anything else. |
 | `passesApca` | function | `lib/color/apca.ts` | - |
 | [`Preset`](../api/Preset.mdx) | interface | `lib/preset.ts` | A theme as a person describes it. What `encodePreset` takes and `decodePreset` returns. |
 | `PRESET_PREFIX` | const | `lib/preset.ts` | - |
 | `presetBrandColor` | function | `lib/preset.ts` | The brand colour a preset describes, as an `oklch()` string the colour engine can parse. |
 | `RADIUS_VALUES` | const | `lib/preset.ts` | `--opsin-radius-base` in px. Index 3 (14px) is the product default. |
-| [`Ramp`](../api/Ramp.mdx) | type | `lib/color/derive.ts` | - |
+| [`Ramp`](../api/Ramp.mdx) | type | `lib/color/derive.ts` | One complete lightness ramp, as a value per step. The chromatic ramp and the neutral ramp of a derived theme are both this shape. |
 | `RAMP_LIGHTNESS` | const | `lib/color/derive.ts` | - |
 | `RAMP_STEPS` | const | `lib/color/derive.ts` | The ramp steps, and the lightness of each. Mirrors `ladder` in tokens/color.json. |
-| [`RampStep`](../api/RampStep.mdx) | type | `lib/color/derive.ts` | - |
-| [`RampStepValue`](../api/RampStepValue.mdx) | interface | `lib/color/derive.ts` | - |
+| [`RampStep`](../api/RampStep.mdx) | type | `lib/color/derive.ts` | One rung of the lightness ladder, from 50 at the lightest to 950 at the darkest. The rungs are fixed, so two themes are comparable step by step. |
+| [`RampStepValue`](../api/RampStepValue.mdx) | interface | `lib/color/derive.ts` | One rung of a ramp, as the sRGB value that ships, the wide-gamut value where P3 has headroom, and whether sRGB had to clamp the chroma away. |
 | `referencePath` | function | `lib/routes.ts` | - |
 | [`ReferenceRange`](../api/ReferenceRange.mdx) | interface | `lib/opsinjs.ts` | The interval a reading is being compared against, and who says so. |
 | `REFUSED_CONVERSIONS` | const | `lib/opsinjs.ts` | Conversions this system refuses to publish, and why. Generated from `tokens/units.json`. |
 | [`RefusedConversion`](../api/RefusedConversion.mdx) | interface | `lib/opsinjs.ts` | A pair people expect to be arithmetic and is not, with the reason. |
 | `registryInstallUrl` | function | `lib/routes.ts` | What a consumer types to install an item. Rendered by `\<ComponentInstall\>`. |
 | [`RegistryLookup`](../api/RegistryLookup.mdx) | type | `lib/registry.ts` | Both call shapes are supported on purpose. |
-| `registryMeta` | function | `lib/registry.ts` | Provenance for the registry surfaces: when it was generated and from what. |
-| [`RegistryQuery`](../api/RegistryQuery.mdx) | interface | `lib/registry.ts` | - |
+| `registryMeta` | function | `lib/registry.ts` | Provenance for the registry surfaces: when it was generated and from what. `generatedAt: null` means the placeholder is still in place and `pnpm run generate` has not run. The registry pages say that out loud rather than rendering an empty table. |
+| [`RegistryQuery`](../api/RegistryQuery.mdx) | interface | `lib/registry.ts` | A request for one registry item, by id and optionally by base, style and kind. Anything left out falls back to the default. |
 | `registryRoutes` | const | `lib/routes.ts` | - |
 | `relativeLuminance` | function | `lib/color/wcag.ts` | WCAG 2.2 relative luminance, 0 for black and 1 for white. |
 | `REVIEW_FLOOR_NOTICE` | const | `lib/status.ts` | THE REVIEW FLOOR, AS ONE STRING. |
 | [`Rgb`](../api/Rgb.mdx) | interface | `lib/color/oklch.ts` | Red, green and blue, each 0 to 1, in whichever space the function says. |
 | [`Rgb255`](../api/Rgb255.mdx) | type | `lib/color/apca.ts` | A colour as 0 to 255 sRGB integers, which is what APCA is defined over. |
 | [`RoleName`](../api/RoleName.mdx) | type | `lib/color/derive.ts` | The roles a derived theme guarantees. Components consume these and never a step. |
-| [`RolePair`](../api/RolePair.mdx) | interface | `lib/color/derive.ts` | - |
-| [`RoleValue`](../api/RoleValue.mdx) | interface | `lib/color/derive.ts` | - |
+| [`RolePair`](../api/RolePair.mdx) | interface | `lib/color/derive.ts` | One semantic role in both colour modes. Roles are derived as a pair, because a role that exists only in light mode is a role that breaks in dark. |
+| [`RoleValue`](../api/RoleValue.mdx) | interface | `lib/color/derive.ts` | What a semantic role resolves to in one colour mode. The ramp step it came from, the OKLCH value, and the CSS it is written as. |
 | `routes` | const | `lib/routes.ts` | - |
-| `screenLuminance` | function | `lib/color/apca.ts` | Screen luminance Y for an sRGB triple, using APCA's own simple-exponent transfer rather than the piecewise sRGB curve. |
-| `searchCatalogue` | function | `lib/catalogue.ts` | The filter behind `\<StatusMatrix\>`: matches an id, a name, the description or any alias. |
+| `screenLuminance` | function | `lib/color/apca.ts` | Screen luminance Y for an sRGB triple, using APCA's own simple-exponent transfer rather than the piecewise sRGB curve. This is deliberate and is one of the places APCA and WCAG genuinely differ: APCA models the display, not the encoding. |
+| `searchCatalogue` | function | `lib/catalogue.ts` | The filter behind `\<StatusMatrix\>`: matches an id, a name, the description or any alias. Substring matching, because the reader typing "range" wants both RangeBar and the reference-range guidance and has no reason to know which word the system chose. |
 | `searchTokens` | function | `lib/tokens.ts` | Substring match over name, description and value. The `/tokens` browser's filter. |
-| `SECTION_OUTLINES` | const | `lib/status.ts` | The H2s a page must have, by `kind`. |
-| `SHIPPED_PRESETS` | const | `lib/preset.ts` | The shipped presets. |
-| `sidebarTree` | const | `lib/sidebar-tree.ts` | DELIBERATELY NOT ANNOTATED as `PageTreeTransformer`. |
-| `simulate` | function | `lib/color/cvd.ts` | Simulate a dichromacy. |
+| `SECTION_OUTLINES` | const | `lib/status.ts` | The H2s a page must have, by `kind`. This is the outline `content/_templates/*.mdx` implements, `\<PageTemplate\>` asserts and `assert-ia.mts` checks; all three read it from here so they cannot drift. |
+| `SHIPPED_PRESETS` | const | `lib/preset.ts` | The shipped presets. Names, not codes, are what the documentation refers to; the code is what a reader copies. `build-tokens.mts` materialises each into `/r/themes/\<code\>.json`. |
+| `sidebarTree` | const | `lib/sidebar-tree.ts` | DELIBERATELY NOT ANNOTATED as `PageTreeTransformer`. That type is generic over the content storage, and naming it here pins the generic to the default `PageData` rather than to the docs collection. `loader()` then infers its own output from the pinned transformer, and every caller of `page.data.status` elsewhere in the app stops compiling. Leaving the object structural lets the loader infer it at the call site, which is what the generic is for. |
+| `simulate` | function | `lib/color/cvd.ts` | Simulate a dichromacy. `severity` 0 returns the input unchanged and 1 returns full dichromacy; values between interpolate in linear light. |
 | `simulateOklch` | function | `lib/color/cvd.ts` | - |
 | `simulateRgb255` | function | `lib/color/cvd.ts` | - |
 | `site` | const | `lib/routes.ts` | - |
@@ -286,7 +286,7 @@ shared substrate a copied component carries with it is listed under
 | `STATUS_ORDER` | const | `lib/status.ts` | Statuses in display order. |
 | `statusCounts` | function | `lib/catalogue.ts` | Counts per status, in display order. The input to `\<SectionProgress\>`. |
 | `STATUSES` | const | `lib/status.ts` | A RELEASE PHASE IS NEVER PAINTED, AND THERE IS NOW NOTHING HERE TO PAINT IT WITH. |
-| [`StatusMeta`](../api/StatusMeta.mdx) | interface | `lib/status.ts` | - |
+| [`StatusMeta`](../api/StatusMeta.mdx) | interface | `lib/status.ts` | What a release phase shows on a badge. A label and one sentence a reader can act on, which is also the chip's title and its accessible name. |
 | `themeToCssVariables` | function | `lib/color/derive.ts` | Every custom property a derived theme emits, ready for a stylesheet or a copy button. |
 | `toGrayscale` | function | `lib/color/cvd.ts` | Grayscale by relative luminance rather than by an average of the channels. |
 | `toIndexRow` | function | `lib/catalogue.ts` | One row of `/r/index.json` and of the generated catalogue reference page. |
@@ -298,7 +298,7 @@ shared substrate a copied component carries with it is listed under
 | [`TokenFormat`](../api/TokenFormat.mdx) | type | `lib/tokens.ts` | The formats the `/tokens` and `/colors` browsers can copy a value in. |
 | `tokenMeta` | function | `lib/tokens.ts` | - |
 | `tokensAreGenerated` | function | `lib/tokens.ts` | Whether the generated layer has actually been produced. |
-| `tokensUsedBy` | function | `lib/tokens.ts` | Every token one component consumes. |
+| `tokensUsedBy` | function | `lib/tokens.ts` | Every token one component consumes. The query behind section 17 of a component page, and the reason `usedBy` is populated at generation time rather than inferred at render time. |
 | `toRgb255` | function | `lib/color/oklch.ts` | 0 to 1 sRGB → 0 to 255 integers, clamped. |
 | `toRgb255Input` | function | `lib/color/apca.ts` | Coerce any accepted colour form to an sRGB triple. |
 | [`TrendPoint`](../api/TrendPoint.mdx) | interface | `lib/opsinjs.ts` | One reading in a series, for the components that draw change over time. |
@@ -308,18 +308,18 @@ shared substrate a copied component carries with it is listed under
 | [`UnitConversion`](../api/UnitConversion.mdx) | interface | `lib/opsinjs.ts` | An exact conversion between two units of the same kind. |
 | `UNITS` | const | `lib/opsinjs.ts` | Every unit this system can speak, sorted by id. Generated from `tokens/units.json`. |
 | `UNITS_BY_SYMBOL` | const | `lib/opsinjs.ts` | The lookup `findUnit()` reads, derived from `UNITS` rather than emitted twice. |
-| `unknownImplementsIds` | function | `lib/catalogue.ts` | Validate a doctrine page's `implements` list. |
+| `unknownImplementsIds` | function | `lib/catalogue.ts` | Validate a doctrine page's `implements` list. Every entry must be a real catalogue id. This is the check that would have caught `implements: [alert-banner, care-card, toast]` before `toast` was on the roster. |
 | [`UnknownStatus`](../api/UnknownStatus.mdx) | type | `lib/status.ts` | The absence of an assertion, which covers a reading never taken, a stale reading, or a reading whose reference range the product does not own. |
 | [`UnresolvedReason`](../api/UnresolvedReason.mdx) | interface | `lib/registry.ts` | Why a lookup came back empty. The input to `\<NotBuiltYet\>`. |
 | [`ViewKind`](../api/ViewKind.mdx) | type | `lib/routes.ts` | What a `/view` route can render. |
-| [`ViewParams`](../api/ViewParams.mdx) | interface | `lib/routes.ts` | - |
+| [`ViewParams`](../api/ViewParams.mdx) | interface | `lib/routes.ts` | Everything a chrome-less preview URL can carry. Name and kind become path segments, and the rest become query parameters applied before first paint. |
 | `viewPath` | function | `lib/routes.ts` | `/view/base/base-lyra/component/range-bar?mode=dark&text=200`. |
-| [`WarningLevel`](../api/WarningLevel.mdx) | type | `lib/color/derive.ts` | - |
+| [`WarningLevel`](../api/WarningLevel.mdx) | type | `lib/color/derive.ts` | How serious a derivation warning is. An `error` makes the theme unsound and stops it shipping, while a `warning` and a `note` are advisory. |
 | `warnOnce` | function | `lib/opsinjs.ts` | Report a defect in development, once, and never do anything else. |
 | `wcag` | const | `lib/color/wcag.ts` | The short name, matching `apca()`. Identical to `contrastRatio`. |
 | `WCAG_FLOOR` | const | `lib/color/wcag.ts` | The three WCAG 2.2 thresholds this system checks against. |
-| [`WcagUse`](../api/WcagUse.mdx) | type | `lib/color/wcag.ts` | - |
+| [`WcagUse`](../api/WcagUse.mdx) | type | `lib/color/wcag.ts` | Which WCAG 2.2 contrast threshold applies. Body text, large text and non- text content each have a different floor. |
 | `wcagVerdict` | function | `lib/color/wcag.ts` | - |
-| [`WcagVerdict`](../api/WcagVerdict.mdx) | interface | `lib/color/wcag.ts` | - |
+| [`WcagVerdict`](../api/WcagVerdict.mdx) | interface | `lib/color/wcag.ts` | The result of one WCAG 2.2 contrast measurement, with the ratio, the floor for that use, and the success criterion it is measured against. |
 
 {/* opsinjs:generated:end */}

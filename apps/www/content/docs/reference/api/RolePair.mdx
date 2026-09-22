@@ -1,6 +1,6 @@
 ---
 title: "RolePair"
-description: "The interface RolePair, exported from lib/color/derive.ts."
+description: "One semantic role in both colour modes."
 kind: reference
 ---
 
@@ -14,22 +14,25 @@ kind: reference
 Source: `lib/color/derive.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## RolePair
 
-This symbol has no doc comment yet.
+One semantic role in both colour modes. Roles are derived as a pair, because a role that exists only in light mode is a role that breaks in dark.
 
 | Kind | Declared in |
 | --- | --- |
 | interface | `lib/color/derive.ts` |
 
 ```ts
-export interface RolePair
+export interface RolePair {
+  light: RoleValue
+  dark: RoleValue
+}
 ```
 
 {/* opsinjs:generated:end */}

@@ -1,6 +1,6 @@
 ---
 title: "UnresolvedReason"
-description: "Why a lookup came back empty. The input to `<NotBuiltYet>`."
+description: "Why a lookup came back empty."
 kind: reference
 ---
 
@@ -14,9 +14,9 @@ kind: reference
 Source: `lib/registry.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
@@ -29,7 +29,12 @@ Why a lookup came back empty. The input to `<NotBuiltYet>`.
 | interface | `lib/registry.ts` |
 
 ```ts
-export interface UnresolvedReason
+export interface UnresolvedReason {
+  name: string
+  reason: "not-built" | "unknown"
+  status: Status | null
+  message: string
+}
 ```
 
 {/* opsinjs:generated:end */}

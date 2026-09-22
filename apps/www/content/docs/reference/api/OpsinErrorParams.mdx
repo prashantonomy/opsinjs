@@ -14,15 +14,17 @@ kind: reference
 Source: `lib/opsinjs.ts`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-One page per exported symbol, so that a type name mentioned anywhere in the
-documentation has an address of its own. The summary is the symbol's doc comment;
-the signature is its declaration line, copied rather than reconstructed.
+Everything below is copied from the symbol, so a page is improved by improving
+its doc comment. The [API index](./index.mdx) says why there is a page per
+symbol and what these pages still do not carry.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## OpsinErrorParams
 
 The values a message template asks for, keyed by placeholder name.
+
+Values are stringified as they are: a number arrives as a number so the message does not have to decide how to format it, and no value is ever rounded, unit-converted or localised on its way into a warning. A warning that reformats what it was given is a warning that can disagree with the screen it is complaining about.
 
 | Kind | Declared in |
 | --- | --- |

@@ -28,6 +28,10 @@ export type { RegistryEntry, RegistryKind }
 export const DEFAULT_BASE = "base"
 export const DEFAULT_STYLE = "base-lyra"
 
+/**
+ * A request for one registry item, by id and optionally by base, style and
+ * kind. Anything left out falls back to the default.
+ */
 export interface RegistryQuery {
   name: string
   base?: string

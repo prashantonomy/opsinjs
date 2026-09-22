@@ -1,6 +1,6 @@
 ---
 title: ClinicalStatus
-description: The union of the four clinical status levels, and the type that makes the never-mix rule a compile error rather than a review comment.
+description: "What a reading means and what, if anything, to do about it."
 kind: reference
 reviewed: 2026-09-02
 reviewer: engineering
@@ -49,6 +49,10 @@ reason this type may never be combined with a category on one element is
 ## ClinicalStatus
 
 What a reading means and what, if anything, to do about it.
+
+Four levels, ordered. This is the ONLY status vocabulary in the system: the documentation chrome's callouts, the product's status pills and the dev warnings all use these four words, so a developer reading a Callout in these docs is reading the same vocabulary they will ship.
+
+A level is assigned by the consuming product from a reference range or a threshold that the product owns. opsinjs never assigns one, because opsinjs does not know the reader.
 
 | Kind | Declared in |
 | --- | --- |
