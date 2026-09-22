@@ -26,6 +26,10 @@ export default function NotFound() {
           into the document head, so this is the one route to a titled 404.
           Otherwise the page is announced by its URL. See WCAG 2.2 SC 2.4.2. */}
       <title>Page not found · opsinjs</title>
+      {/* See the note on app/not-found.tsx: the 404 status is what keeps this
+          out of an index, and this is the directive that says so again in a
+          place no edge rule can rewrite. React hoists it into the head. */}
+      <meta name="robots" content="noindex" />
       <main className="w-full max-w-xl">
         <p className="font-mono text-xs tracking-[0.16em] text-muted-foreground uppercase">
           404

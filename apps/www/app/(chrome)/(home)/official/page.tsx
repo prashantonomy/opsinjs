@@ -9,12 +9,21 @@ import {
   routes,
   site,
 } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Official resources",
   description:
     "The canonical domain, npm scope, registry URL and repository for opsinjs. The page also states honestly that no package has been published, so anything on npm claiming to be opsinjs today is not.",
-}
+  path: routes.official(),
+  type: "website",
+  section: "Trust",
+})
 
 /**
  * `/official` is the anti-impersonation page.
@@ -40,6 +49,20 @@ export default function OfficialPage() {
 
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Official resources", path: routes.official() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="Trust"
         title="Official resources"

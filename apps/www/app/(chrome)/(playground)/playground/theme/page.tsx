@@ -4,16 +4,40 @@ import Link from "next/link"
 import { Container, Mono, PageHeader, Prose } from "@/app/_shared/ui"
 import { ThemeTool } from "./theme-tool"
 import { routes } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Theme generator",
   description:
     "Take a brand colour through a lightness ramp and see, step by step, where it stops being readable. The measurement uses the same contrast implementation the build runs.",
-}
+  path: routes.playgroundTheme(),
+  type: "website",
+  section: "Playground",
+})
 
 export default function ThemePlaygroundPage() {
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Playground", path: routes.playground() },
+            { name: "Theme generator", path: routes.playgroundTheme() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="Playground"
         title="Theme generator"

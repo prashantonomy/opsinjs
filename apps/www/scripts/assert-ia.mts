@@ -2506,6 +2506,86 @@ function checkCatalogue(
  * Canonicality (decision 15)                                          *
  * ------------------------------------------------------------------ */
 
+/* ================================================================== *
+ * SEO001: every route says which URL it is                            *
+ * ================================================================== */
+
+/**
+ * SEO001. EVERY PAGE UNDER `app/` DECLARES A CANONICAL.
+ *
+ * The corpus route gets one from `generateMetadata`, and always did. The eleven
+ * hand-written routes outside it did not, for the ordinary reason: each one
+ * declared `export const metadata = { title, description }`, which is the shape
+ * that looks finished. None of them carried a canonical, an Open Graph card or a
+ * locale, and nothing anywhere said so. That is what this rule is for. It is not
+ * checking that somebody has thought about search; it is checking that the
+ * eleventh route added next year cannot quietly ship without the thing the other
+ * eleven have.
+ *
+ * WHY A CANONICAL IS NOT OPTIONAL HERE IN PARTICULAR. Several of these pages
+ * take query state that a reader will paste back at you: `?base=` and `?style=`
+ * on a component page, the ramp browser's own parameters, whatever a referrer
+ * appends. Each distinct query string is a distinct URL, and without a
+ * self-referential canonical each one competes with the page it came from.
+ * Google calls the link element a strong signal and a sitemap entry a weak one,
+ * so the sitemap does not cover for a missing canonical.
+ *
+ * HOW IT CHECKS. Statically, by reading the file. A route satisfies the rule by
+ * building its metadata through `pageMetadata` in `app/_shared/seo.ts`, which is
+ * the one place that shape is assembled, or by declaring `alternates` itself if
+ * it ever needs to. `/view` is exempt and is the only exemption: it is the
+ * chrome-less preview shell, it answers `robots: { index: false }`, and a
+ * canonical on a page that asks not to be indexed is two directives arguing.
+ *
+ * IT LOOKS FOR THE CALL AND NOT THE NAME, which is the difference between this
+ * rule working and this rule reporting green forever. The first draft searched
+ * the file for `pageMetadata`, and every file that had ever imported the helper
+ * satisfied it whether or not it still used it. Deleting the call while leaving
+ * the import is exactly how this regresses, and the linter removes the unused
+ * import afterwards rather than before. The trailing bracket is what separates
+ * `pageMetadata(` the call from `{ pageMetadata }` the import.
+ */
+function checkPageMetadata(): void {
+  const appDir = join(APP_DIR, "app")
+  if (!isDirectory(appDir)) return
+
+  const pageFiles: string[] = []
+  walk(appDir, (name) => name === "page.tsx" || name === "page.ts", pageFiles)
+
+  for (const file of pageFiles) {
+    const route = routeForPageFile(file)
+    /* The preview shell, which asks not to be indexed instead. */
+    if (route === "/view" || route.startsWith("/view/")) continue
+
+    const contents = readMaybe(file)
+    if (contents === undefined) continue
+
+    const declares =
+      contents.includes("export const metadata") ||
+      contents.includes("generateMetadata")
+
+    if (!declares) {
+      fail(
+        "SEO001",
+        rel(file),
+        `${route} exports no metadata, so it ships with no title of its own, no description and no canonical. Build one with pageMetadata() from app/_shared/seo.ts.`
+      )
+      continue
+    }
+
+    if (
+      !contents.includes("pageMetadata(") &&
+      !contents.includes("alternates")
+    ) {
+      fail(
+        "SEO001",
+        rel(file),
+        `${route} declares metadata without a canonical URL. Pass it through pageMetadata() from app/_shared/seo.ts, which supplies the canonical, the locale and the social card alongside the title and description.`
+      )
+    }
+  }
+}
+
 function checkCanonicality(pages: ParsedPage[]): void {
   for (const topic of CANONICAL_TOPICS) {
     const canonicalPage = pages.find((page) => page.slug === topic.canonical)
@@ -2630,6 +2710,7 @@ async function main(): Promise<void> {
   checkHardcodedDocsPaths()
   checkMetaTrees(pages)
   checkRouteReachability(pages)
+  checkPageMetadata()
   checkCanonicality(pages)
 
   const { rows, source } = await loadCatalogue()

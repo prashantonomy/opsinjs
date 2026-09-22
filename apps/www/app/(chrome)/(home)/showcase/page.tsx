@@ -3,12 +3,21 @@ import Link from "next/link"
 
 import { Container, Grid, PageHeader, Panel, Prose } from "@/app/_shared/ui"
 import { routes, site } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Showcase",
   description:
     "Products built with opsinjs. One so far, and opsinjs built it. This page carries that one, and says what an entry from another team will have to prove before it appears here.",
-}
+  path: routes.showcase(),
+  type: "website",
+  section: "Showcase",
+})
 
 /**
  * `/showcase` carries one thing, and it is opsinjs's own.
@@ -30,6 +39,20 @@ export const metadata: Metadata = {
 export default function ShowcasePage() {
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Showcase", path: routes.showcase() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="One built, none submitted"
         title="Showcase"

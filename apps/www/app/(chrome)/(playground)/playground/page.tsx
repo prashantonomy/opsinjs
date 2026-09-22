@@ -3,12 +3,21 @@ import Link from "next/link"
 
 import { Container, Grid, PageHeader, Panel } from "@/app/_shared/ui"
 import { routes } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Playground",
   description:
     "Three tools: build a theme from a brand colour, check a colour pair against APCA and WCAG 2.2, and test the two colour axes.",
-}
+  path: routes.playground(),
+  type: "website",
+  section: "Tools",
+})
 
 /**
  * `/playground` is the index of the three tools.
@@ -16,6 +25,20 @@ export const metadata: Metadata = {
 export default function PlaygroundPage() {
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Playground", path: routes.playground() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="Tools"
         title="Playground"

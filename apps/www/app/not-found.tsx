@@ -2,6 +2,7 @@ import Link from "next/link"
 
 import "./not-found.css"
 import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
+import { SITE_LANG } from "@/app/_shared/seo"
 
 /**
  * The GLOBAL 404 is served for URLs that match no route at all.
@@ -37,7 +38,7 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
  */
 export default function NotFound() {
   return (
-    <div lang="en" className="nf-root">
+    <div lang={SITE_LANG} className="nf-root">
       {/* Rendered in the tree rather than exported as `metadata`, because the
           Metadata API is collected from `layout` and `page` segments only and
           this file is neither. With no root layout above it, there is no layout
@@ -46,6 +47,13 @@ export default function NotFound() {
           WCAG 2.2 SC 2.4.2: a page with no title is announced by its URL, and a
           URL is what the reader already could not make sense of. */}
       <title>Page not found · opsinjs</title>
+      {/* Belt as well as braces. This response is a real 404 and a 404 is not
+          indexed, but the status code is the only thing saying so, and a status
+          code is the one signal a proxy, a preview host or a misconfigured
+          edge rule can rewrite on the way out without touching the body. The
+          directive says it again where nothing can drop it. React hoists a
+          <meta> into the head exactly as it hoists the <title> above. */}
+      <meta name="robots" content="noindex" />
       <main className="nf-main">
         <p className="nf-eyebrow">404</p>
         <h1 className="nf-title">There is no page at this address.</h1>

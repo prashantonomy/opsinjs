@@ -12,7 +12,44 @@ import { Reviewed, type ReviewedProps } from "@/components/docs/guidance"
 import { PageTemplate } from "@/components/docs/page-template"
 import { getMDXComponents } from "@/components/mdx"
 import { source } from "@/lib/source"
-import { absoluteUrl, docsMarkdownPath, ogUrl, site } from "@/lib/routes"
+import { docsMarkdownPath, docsPath, ogUrl } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+  techArticleLd,
+  type Crumb,
+} from "@/app/_shared/structured-data"
+
+/**
+ * The breadcrumb trail for a page, built from its own slug.
+ *
+ * WHY NOT `getBreadcrumbItems` FROM fumadocs. That walks the PAGE TREE, and
+ * `lib/sidebar-tree.ts` deliberately reshapes the tree into ten sidebar
+ * sections that do not match the URL hierarchy. A breadcrumb in a search result
+ * is a promise about the address bar, so it has to be built from the address.
+ * It also returns `name` as a ReactNode, which is the wrong type for a field
+ * that has to end up as a JSON string.
+ *
+ * Every folder in the corpus but one carries an `index.mdx`, so each prefix
+ * resolves to a real page with a real title. `reference/generated` is the
+ * exception and simply drops out of the trail; `breadcrumbLd` renumbers, so the
+ * positions stay consecutive, which Google requires.
+ */
+function docsCrumbs(slug: string[] | undefined, title: string): Crumb[] {
+  const segments = slug ?? []
+  const crumbs: Crumb[] = [{ name: "Introduction", path: docsPath() }]
+
+  for (let depth = 1; depth < segments.length; depth += 1) {
+    const prefix = segments.slice(0, depth)
+    const ancestor = source.getPage(prefix)
+    if (ancestor) crumbs.push({ name: ancestor.data.title, path: ancestor.url })
+  }
+
+  if (segments.length > 0) crumbs.push({ name: title, path: docsPath(...segments) })
+  return crumbs
+}
 
 /**
  * Every documentation page.
@@ -39,8 +76,33 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
 
   const MDX = page.data.body
 
+  /*
+    The two per-page entities. The breadcrumb is the one that changes what a
+    result looks like: without it, a page five levels down prints a truncated
+    URL under its title. The article block carries the review date as
+    `dateModified`, which is the same field and the same value the sitemap
+    reports as `lastmod`, so the two surfaces cannot tell a crawler different
+    stories about when this page was last looked at.
+  */
+  const structured = graph([
+    breadcrumbLd(docsCrumbs(params.slug, page.data.title)),
+    techArticleLd({
+      title: page.data.title,
+      description: page.data.description ?? "",
+      path: page.url,
+      image: ogUrl({
+        title: page.data.title,
+        description: page.data.description,
+        status: page.data.status,
+        section: params.slug?.[0],
+      }),
+      reviewed: page.data.reviewed,
+    }),
+  ])
+
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
+      <JsonLd data={structured} />
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
@@ -115,53 +177,39 @@ export async function generateMetadata(
   const page = source.getPage(params.slug)
   if (!page) notFound()
 
-  const url = absoluteUrl(page.url)
-
   /**
-   * One OG image service for the whole corpus rather than a per-route
-   * `opengraph-image.tsx`. The per-route form has to deal with an optional
-   * catch-all, a Promise `params` and the generated-image `id` parameter all at
-   * once, and gets you one image per page for the trouble. A single `/og`
-   * endpoint driven by the frontmatter is less code and, more usefully, means
-   * the status badge on the social card comes from the same field the page
-   * header renders. A component that goes from `planned` to `shipped` updates
-   * its card without anybody remembering to, and a page that declares no phase
-   * at all sends none, so its card carries no chip.
+   * `pageMetadata` in app/_shared/seo.ts builds the whole object: the
+   * canonical, the Open Graph card, the Twitter card, the locale and the
+   * alternate representations. It is shared with the eleven routes outside
+   * this corpus, which is the only reason they have a canonical at all. Every
+   * one of them used to declare a bare title and description and nothing else.
    *
-   * The URL is built by `ogUrl` in lib/routes rather than assembled here, for
-   * the same reason every other path is: one place knows the shape.
+   * The social card is one `/og` service for the whole site rather than a
+   * per-route `opengraph-image.tsx`. The per-route form has to deal with an
+   * optional catch-all, a Promise `params` and the generated-image `id`
+   * parameter all at once, and gets you one image per page for the trouble. A
+   * single endpoint driven by the frontmatter is less code and, more usefully,
+   * means the status chip on the card comes from the same field the page header
+   * renders. A component that goes from `planned` to `shipped` updates its card
+   * without anybody remembering to, and a page that declares no phase sends
+   * none, so its card carries no chip.
+   *
+   * THE MARKDOWN TWIN IS ADVERTISED, NOT SUBMITTED. `alternates.types` puts a
+   * `<link rel="alternate" type="text/markdown">` in the head, which is how a
+   * client that prefers text finds the twin without knowing the `.md`
+   * convention. The twin itself answers with a `Link: rel="canonical"` header
+   * pointing back here, which is what Google asks for on an alternate
+   * representation that lives at its own URL, and it is why four hundred
+   * near-identical markdown documents do not compete with the pages they are
+   * twins of. See `app/llms.mdx/[[...slug]]/route.ts`.
    */
-  const image = ogUrl({
+  return pageMetadata({
     title: page.data.title,
-    description: page.data.description,
+    description: page.data.description ?? "",
+    path: page.url,
+    type: "article",
     status: page.data.status,
     section: params.slug?.[0],
+    markdownPath: docsMarkdownPath(...(params.slug ?? [])),
   })
-
-  return {
-    title: page.data.title,
-    description: page.data.description,
-    alternates: {
-      canonical: url,
-      types: {
-        // The processed-markdown twin. Advertising it here is how a client that
-        // prefers text finds it without having to know the `.md` convention.
-        "text/markdown": absoluteUrl(docsMarkdownPath(...(params.slug ?? []))),
-      },
-    },
-    openGraph: {
-      type: "article",
-      siteName: site.name,
-      url,
-      title: page.data.title,
-      description: page.data.description,
-      images: [image],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: page.data.title,
-      description: page.data.description,
-      images: [image],
-    },
-  }
 }

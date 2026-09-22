@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 
 import "../product.css"
+import { SITE_LANG } from "@/app/_shared/seo"
 
 /**
  * ROOT LAYOUT #2 of 2 is the chrome-less preview surface.
@@ -63,7 +64,7 @@ export default function ViewRootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="opsin-product">
+    <html lang={SITE_LANG} suppressHydrationWarning className="opsin-product">
       <head>
         <script dangerouslySetInnerHTML={{ __html: applyViewPreferences }} />
       </head>

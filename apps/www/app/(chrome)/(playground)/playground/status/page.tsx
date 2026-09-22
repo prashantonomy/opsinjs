@@ -4,16 +4,40 @@ import Link from "next/link"
 import { Container, PageHeader, Prose } from "@/app/_shared/ui"
 import { StatusTool } from "./status-tool"
 import { routes } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Two-axis lab",
   description:
     "Combine a measurement category with a clinical status and watch the lab refuse to render the pair that would be unsafe. Then strip the colour out and see what survives.",
-}
+  path: routes.playgroundStatus(),
+  type: "website",
+  section: "Playground",
+})
 
 export default function StatusPlaygroundPage() {
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Playground", path: routes.playground() },
+            { name: "Two-axis lab", path: routes.playgroundStatus() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="Playground"
         title="Two-axis lab"

@@ -11,12 +11,21 @@ import {
   Prose,
 } from "@/app/_shared/ui"
 import { routes, viewPath } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Medicines app",
   description:
     "A whole single-page app built only from opsinjs parts: a diabetes medicines diary that records and reminds, and refuses to calculate a dose, change one, or say what to do about a dose somebody did not take.",
-}
+  path: routes.showcaseMedicinesApp(),
+  type: "website",
+  section: "Showcase",
+})
 
 /**
  * `/showcase/diabetes-medicines-app` is the one thing under `/showcase` that is
@@ -130,6 +139,21 @@ export default function MedicinesAppShowcasePage() {
 
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Showcase", path: routes.showcase() },
+            { name: "Medicines app", path: routes.showcaseMedicinesApp() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="Built by opsinjs, not an entry"
         title="A diabetes medicines app, built only from opsinjs"

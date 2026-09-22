@@ -4,12 +4,21 @@ import Link from "next/link"
 import { Container, Mono, PageHeader, Panel, Prose } from "@/app/_shared/ui"
 import { RampBrowser } from "./ramp-browser"
 import { routes } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Colours",
   description:
     "Every colour token in opsinjs, read live from the stylesheet: four status levels, six measurement categories, and the neutral roles.",
-}
+  path: routes.colors(),
+  type: "website",
+  section: "Foundations",
+})
 
 /**
  * `/colors` is the colour browser.
@@ -27,6 +36,20 @@ export const metadata: Metadata = {
 export default function ColorsPage() {
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Colours", path: routes.colors() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="Tokens"
         title="Colour"

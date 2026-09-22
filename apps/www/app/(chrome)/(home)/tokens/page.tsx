@@ -4,12 +4,21 @@ import Link from "next/link"
 import { Container, Mono, PageHeader, Panel, Prose } from "@/app/_shared/ui"
 import { TokenBrowser } from "./token-browser"
 import { routes } from "@/lib/routes"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Tokens",
   description:
     "Every opsinjs design token, enumerated from the running stylesheet: colour, materials, motion, shape and target sizes, with the value each one resolves to on your device.",
-}
+  path: routes.tokens(),
+  type: "website",
+  section: "Foundations",
+})
 
 /**
  * `/tokens` is the token browser.
@@ -27,6 +36,20 @@ export const metadata: Metadata = {
 export default function TokensPage() {
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Tokens", path: routes.tokens() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="Tokens"
         title="Every token, as your browser resolves it"

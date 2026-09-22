@@ -3,17 +3,41 @@ import Link from "next/link"
 
 import { routes } from "@/lib/routes"
 import { Container, Mono, PageHeader, Prose } from "@/app/_shared/ui"
+import { pageMetadata } from "@/app/_shared/seo"
+import {
+  JsonLd,
+  breadcrumbLd,
+  graph,
+} from "@/app/_shared/structured-data"
 import { ContrastTool } from "./contrast-tool"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contrast oracle",
   description:
     "Measure any colour pair with APCA Lc and the WCAG 2.2 ratio side by side, against the same implementation opsinjs CI runs.",
-}
+  path: routes.playgroundContrast(),
+  type: "website",
+  section: "Playground",
+})
 
 export default function ContrastPlaygroundPage() {
   return (
     <>
+      {/*
+        The trail Google prints in place of a truncated URL. The site
+        entity and the publisher are declared once on the root layout and
+        referred to by `@id`, so this block carries only what is local to
+        this page.
+      */}
+      <JsonLd
+        data={graph([
+          breadcrumbLd([
+            { name: "Introduction", path: routes.home() },
+            { name: "Playground", path: routes.playground() },
+            { name: "Contrast oracle", path: routes.playgroundContrast() },
+          ]),
+        ])}
+      />
       <PageHeader
         eyebrow="Playground"
         title="Contrast oracle"
