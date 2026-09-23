@@ -2,14 +2,16 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { NotBuiltYet } from "@/components/docs/stub"
+import { getCatalogue } from "@/lib/catalogue"
 import {
   explainUnresolved,
   getRegistryEntry,
   listBases,
+  listByKind,
   listStyles,
 } from "@/lib/registry"
 import type { ViewKind } from "@/lib/routes"
-import { getPage } from "@/lib/source"
+import { getPage, getPagesInSection } from "@/lib/source"
 import type { Status } from "@/lib/status"
 
 /**
@@ -116,6 +118,76 @@ function describeUnbuilt(kind: ViewKind, name: string): UnbuiltFrame | null {
   }
 
   return null
+}
+
+/**
+ * Prerender the whole matrix, so nothing here renders at request time.
+ *
+ * WHY THIS ROUTE AND NOT THE OTHERS. Every other surface on this site is either
+ * already static or is answering a question that only exists per request. This
+ * one was neither. Its parameters are closed and knowable at build time, and it
+ * was still rendering on demand: once per preview a reader opens, once per URL
+ * the nightly capture job visits, and those are the same couple of hundred
+ * pages every time.
+ *
+ * THE SET IS FILTERED BY THE ROUTE'S OWN PREDICATES rather than by a second
+ * opinion about what exists. A candidate is kept when `getRegistryEntry`
+ * resolves it or `describeUnbuilt` has something honest to say about it, which
+ * are exactly the two branches below that do not reach `notFound()`. Deriving
+ * the list that way is what makes `dynamicParams = false` safe: the prerendered
+ * set and the set of URLs that were ever going to render are the same set by
+ * construction, so everything else gets the 404 it already got, without a
+ * server waking up to say so.
+ *
+ * THE STYLE FALLBACK IS COVERED, because the candidates are the full cross
+ * product of `listBases()` and `listStyles()`. A name carried only at the
+ * default style still resolves at every other style through `getRegistryEntry`,
+ * and the filter sees that, so those URLs are prerendered rather than stranded.
+ *
+ * Three rosters feed it, one per kind, and they are the three `describeUnbuilt`
+ * consults: the catalogue for components, the generated index for examples, and
+ * `content/docs/screens` for screens. The index contributes to all three as
+ * well, because a built thing renders whether or not a roster still lists it.
+ */
+export const dynamicParams = false
+
+export function generateStaticParams(): {
+  base: string
+  style: string
+  kind: string
+  name: string
+}[] {
+  const roster: Record<ViewKind, Set<string>> = {
+    component: new Set([
+      ...getCatalogue().map((entry) => entry.name),
+      ...listByKind("component").map((entry) => entry.name),
+    ]),
+    example: new Set(listByKind("example").map((entry) => entry.name)),
+    screen: new Set([
+      ...listByKind("screen").map((entry) => entry.name),
+      ...getPagesInSection("screens")
+        .filter((page) => page.slugs.length === 2)
+        .map((page) => page.slugs[1]),
+    ]),
+  }
+
+  const params: { base: string; style: string; kind: string; name: string }[] =
+    []
+
+  for (const base of listBases()) {
+    for (const style of listStyles()) {
+      for (const kind of VIEW_KINDS) {
+        for (const name of roster[kind]) {
+          const renders =
+            getRegistryEntry(name, base, style, kind) !== null ||
+            describeUnbuilt(kind, name) !== null
+          if (renders) params.push({ base, style, kind, name })
+        }
+      }
+    }
+  }
+
+  return params
 }
 
 /**
