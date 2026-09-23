@@ -1,3 +1,5 @@
+"use client"
+
 /**
  * A confirmation that offers one way to take it back. The toast says a note was
  * removed and carries an Undo action, so the reader who acted by mistake has a

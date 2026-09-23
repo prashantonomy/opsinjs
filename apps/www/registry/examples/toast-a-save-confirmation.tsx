@@ -1,3 +1,5 @@
+"use client"
+
 /**
  * The case Toast was built for: a button that confirms the reader's own action
  * and then gets out of the way. The toast says "Saved", stays a few seconds, and
