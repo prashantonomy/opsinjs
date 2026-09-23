@@ -748,6 +748,150 @@
 }
 
 /* --------------------------------------------------------------------------
+   The documentation sidebar, and the three levels it has.
+
+   `lib/sidebar-tree.ts` guarantees the tree is exactly three levels deep and
+   that only level 0 carries an icon. `components/docs/sidebar.tsx` renders each
+   row with `data-opsin-nav` and the level it sits at, and everything a reader
+   uses to tell one level from another is here.
+
+   WHY THE STYLES ARE NOT ON THE ELEMENTS. Every link in the tree is in the HTML
+   of every page, which is what makes the corpus one crawlable graph and what
+   lets find-in-page reach a closed section. Four hundred rows each carrying the
+   same eight hundred characters of utility classes is four hundred kilobytes of
+   identical markup on every page. The same rules declared once here cost about
+   forty characters a row.
+
+   FOUR THINGS MOVE PER LEVEL, not one. Size, weight, colour and the rail. A
+   sidebar that distinguishes its levels by indentation alone asks the reader to
+   measure, and at a glance, on a narrow column, they will not: a section and a
+   page twelve pixels apart look like two rows of the same kind. So a pillar is
+   fifteen pixels and foreground-coloured, a section is fourteen and muted, a
+   page is thirteen and muted, and each nested level hangs off a one-pixel rail
+   drawn from the row above it.
+
+   THE RAIL IS ALSO THE ACTIVE MARKER. An open branch shows the reader a line
+   running from the pillar down to the page they are on, because the same
+   position that carries the border carries the primary-coloured bar. Level 0 has
+   no rail: the pillars are the trunk, and an active pillar is already the only
+   tinted row at the top of its own branch.
+   -------------------------------------------------------------------------- */
+
+@layer components {
+  [data-opsin-nav] {
+    @apply relative flex w-full flex-row items-center gap-2.5 rounded-lg pe-2 text-start wrap-anywhere;
+  }
+
+  [data-opsin-nav] svg {
+    @apply size-4 shrink-0;
+  }
+
+  /* The disclosure chevron, which fumadocs marks `data-icon` so that clicking
+     it toggles the panel while clicking the label navigates. It is smaller and
+     dimmer than a pillar's own icon, because it is a control rather than a
+     label. */
+  [data-opsin-nav] [data-icon] {
+    @apply size-3.5 opacity-60;
+  }
+
+  [data-opsin-nav]:is(a, button) {
+    @apply transition-colors;
+  }
+
+  [data-opsin-nav]:is(a, button):hover {
+    @apply bg-fd-accent/50 text-fd-accent-foreground;
+    transition: none;
+  }
+
+  [data-opsin-nav][data-active="true"] {
+    @apply bg-fd-primary/10 font-medium text-fd-primary;
+  }
+
+  /* The indent step is three spacing units, twelve pixels at the default
+     `--spacing`, which is what fumadocs indents by. Indentation was the one
+     level cue that was already right; the rest of this block is what gets
+     added to it. The rail sits half a step inside the parent's text, so it
+     reads as a line hanging off the section above rather than as a border
+     ruled down the page. */
+  [data-opsin-nav][data-level="0"],
+  [data-opsin-nav-heading][data-level="0"] {
+    padding-inline-start: calc(2 * var(--spacing));
+  }
+
+  [data-opsin-nav][data-level="1"],
+  [data-opsin-nav-heading][data-level="1"],
+  [data-opsin-nav-panel][data-level="1"] {
+    padding-inline-start: calc(5 * var(--spacing));
+    --opsin-nav-rail: calc(2.5 * var(--spacing));
+  }
+
+  [data-opsin-nav][data-level="2"],
+  [data-opsin-nav-heading][data-level="2"],
+  [data-opsin-nav-panel][data-level="2"] {
+    padding-inline-start: calc(8 * var(--spacing));
+    --opsin-nav-rail: calc(5.5 * var(--spacing));
+  }
+
+  [data-opsin-nav-panel] {
+    padding-inline-start: 0;
+  }
+
+  [data-opsin-nav][data-level="0"] {
+    @apply py-1.5 text-[0.9375rem] font-medium text-fd-foreground;
+  }
+
+  [data-opsin-nav][data-level="1"] {
+    @apply py-1.5 text-sm text-fd-muted-foreground;
+  }
+
+  [data-opsin-nav][data-level="2"] {
+    @apply py-1 text-[0.8125rem] text-fd-muted-foreground;
+  }
+
+  /* A pillar sits a little clear of the one above it, so ten sections still
+     read as ten things when one of them is open and thirty rows are showing. */
+  [data-opsin-nav-branch][data-level="0"] {
+    @apply mt-1;
+  }
+
+  [data-opsin-nav-branch][data-level="0"]:first-child {
+    @apply mt-0;
+  }
+
+  [data-opsin-nav][data-active="true"]:not([data-level="0"])::before {
+    content: "";
+    @apply absolute inset-y-1.5 w-px bg-fd-primary;
+    inset-inline-start: var(--opsin-nav-rail);
+  }
+
+  /* A heading with no page behind it: a separator run that already held a
+     folder, a run of one, or a group unwrapped to keep the tree three levels
+     deep. Small capitals, so a heading is never read as a link that failed to
+     render. */
+  [data-opsin-nav-heading] {
+    @apply mt-5 mb-0.5 inline-flex items-center gap-2 pe-2 text-[0.6875rem] font-medium tracking-[0.08em] text-fd-muted-foreground/75 uppercase;
+  }
+
+  [data-opsin-nav-heading]:first-child {
+    @apply mt-0;
+  }
+
+  [data-opsin-nav-heading]:empty {
+    @apply mb-0;
+  }
+
+  [data-opsin-nav-panel] {
+    @apply relative flex flex-col gap-0.5 pt-0.5;
+  }
+
+  [data-opsin-nav-panel]::before {
+    content: "";
+    @apply absolute inset-y-1 w-px bg-fd-border;
+    inset-inline-start: var(--opsin-nav-rail);
+  }
+}
+
+/* --------------------------------------------------------------------------
    The 640-767px navigation reflow.
 
    fumadocs' home header shows its `type: "main"` row from its own `sm`

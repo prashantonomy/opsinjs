@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import { DocsLayout } from "fumadocs-ui/layouts/docs"
 
+import { Folder, Item, Separator } from "@/components/docs/sidebar"
 import { baseOptions } from "@/lib/layout.shared"
 import { site } from "@/lib/routes"
 import { source } from "@/lib/source"
@@ -56,6 +57,13 @@ export const metadata: Metadata = {
  * line each above and below. That works because `lib/sidebar-tree.ts` has
  * already reshaped the tree into ten sections with collapsible subsections
  * inside them, so there is somewhere to stop between a section and a page.
+ *
+ * THE THREE ROW RENDERERS ARE OURS. `sidebar.components` is the published seam
+ * for replacing how a page, a folder and a heading are drawn, and
+ * `components/docs/sidebar.tsx` uses it to give each of the three levels its
+ * own size, weight, colour and rail, and to keep every collapsed panel in the
+ * document instead of unmounting it. `lib/sidebar-tree.ts` says what the levels
+ * are; that file says what they look like.
  */
 export default function DocsGroupLayout({ children }: { children: ReactNode }) {
   return (
@@ -66,6 +74,7 @@ export default function DocsGroupLayout({ children }: { children: ReactNode }) {
       sidebar={{
         collapsible: true,
         defaultOpenLevel: 0,
+        components: { Folder, Item, Separator },
       }}
     >
       {children}
