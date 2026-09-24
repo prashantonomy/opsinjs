@@ -12,9 +12,9 @@ import {
 } from "@/app/_shared/structured-data"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Theme generator",
+  title: "Theme generator tool",
   description:
-    "Take a brand colour through a lightness ramp and see, step by step, where it stops being readable. The measurement uses the same contrast implementation the build runs.",
+    "Take a brand colour through a lightness ramp and see where it stops being readable. The measurement uses the same contrast code the opsinjs build runs.",
   path: routes.playgroundTheme(),
   type: "website",
   section: "Playground",

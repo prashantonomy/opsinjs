@@ -13,7 +13,7 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Showcase",
   description:
-    "Products built with opsinjs. One so far, and opsinjs built it. This page carries that one, and says what an entry from another team will have to prove before it appears here.",
+    "Products built with opsinjs. One so far, and opsinjs built it. This page says what an entry from another team must prove before it appears here.",
   path: routes.showcase(),
   type: "website",
   section: "Showcase",

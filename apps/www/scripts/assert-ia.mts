@@ -2624,6 +2624,157 @@ function checkPageMetadata(): void {
         rel(file),
         `${route} declares metadata without a canonical URL. Pass it through pageMetadata() from app/_shared/seo.ts, which supplies the canonical, the locale and the social card alongside the title and description.`
       )
+      continue
+    }
+
+    /* SEO002 for the eleven routes that carry no frontmatter. See below. */
+    const call = pageMetadataCall(contents)
+    if (call !== undefined) checkRouteDescriptions(file, route, call)
+  }
+}
+
+/* ================================================================== *
+ * SEO002 (routes) and SEO003: the two things a result is made of      *
+ * ================================================================== */
+
+/**
+ * The balanced argument of the first `pageMetadata(` call in a file.
+ *
+ * Counting brackets rather than matching a closing `})` because a description
+ * is allowed to contain either character, and a regex that stops at the first
+ * one stops in the middle of a sentence on the pages most worth checking.
+ */
+function pageMetadataCall(contents: string): string | undefined {
+  const at = contents.indexOf("pageMetadata(")
+  if (at === -1) return undefined
+  const from = at + "pageMetadata(".length
+  let depth = 1
+  for (let index = from; index < contents.length; index += 1) {
+    const character = contents[index]
+    if (character === "(") depth += 1
+    else if (character === ")") {
+      depth -= 1
+      if (depth === 0) return contents.slice(from, index)
+    }
+  }
+  return undefined
+}
+
+/**
+ * One string-literal field out of that call, with Prettier's line wrapping and
+ * its `"a" + "b"` concatenation joined back into the sentence the reader sees.
+ */
+function metadataField(call: string, field: string): string | undefined {
+  const pattern = new RegExp(
+    `\\b${field}:\\s*((?:"(?:[^"\\\\]|\\\\.)*"\\s*\\+?\\s*)+)`
+  )
+  const match = pattern.exec(call)
+  if (!match?.[1]) return undefined
+  const parts = [...match[1].matchAll(/"((?:[^"\\]|\\.)*)"/g)].map(
+    (piece) => piece[1] ?? ""
+  )
+  return parts.join("").replace(/\\(.)/g, "$1")
+}
+
+/**
+ * SEO002 AGAIN, FOR THE ROUTES THE FIRST ONE CANNOT SEE.
+ *
+ * The description ceiling is enforced on frontmatter, and frontmatter is what
+ * four hundred of the four hundred and thirteen pages have. The other eleven
+ * build their metadata in TypeScript, so the rule that fails the build on a
+ * 161-character description never ran on them, and six of the eleven were over
+ * it. They were not marginally over: the showcase entry was 206 characters, and
+ * the clause Google cut was the one saying the app refuses to calculate a dose.
+ *
+ * Same ceiling, same reasoning, same constant. Read `DESCRIPTION_LIMIT` above
+ * for why the number is what it is.
+ */
+function checkRouteDescriptions(file: string, route: string, call: string): void {
+  const description = metadataField(call, "description")
+  if (description === undefined) return
+  if (description.length <= DESCRIPTION_LIMIT) return
+  fail(
+    "SEO002",
+    rel(file),
+    `${route} has a ${description.length}-character description and the ceiling is ${DESCRIPTION_LIMIT}. Google cuts the snippet around there, mid-word, and the clause that goes is the last one. Rewrite it rather than trimming the ending off.`
+  )
+}
+
+/**
+ * SEO003. NO TWO PAGES SHIP THE SAME `<title>`.
+ *
+ * The layout appends the system name to whatever a page calls itself, so a
+ * page's title in a search result is its `title` and nothing else
+ * distinguishing it. Ten pairs of pages here were shipping the same one. Not
+ * duplicates: `/accessibility/reduced-motion` is a conformance argument and
+ * `/foundations/motion/reduced-motion` is a table of what each token degrades
+ * to, and the two share four words of vocabulary out of several thousand. They
+ * shared a name.
+ *
+ * WHY THAT IS WORTH FAILING A BUILD OVER. A title is the one field that has to
+ * do its whole job in a list of ten blue links, with no context, next to the
+ * other one. Two rows reading "Reduced motion · opsinjs" make the reader pick
+ * at random, and they make Google pick too: identical titles are one of the
+ * signals it uses to decide two URLs are the same page and index one of them.
+ * The site's own search dialog has exactly the same problem, in a list the
+ * reader cannot even hover to disambiguate.
+ *
+ * It reads both halves of the site, because the collisions ran across the seam:
+ * four of the ten were a hand-written route against a documentation page, and a
+ * rule that read only the corpus would have reported six and called it clean.
+ *
+ * THE FIX IS NEVER A SUFFIX. "Reduced motion (accessibility)" is a title
+ * written for this rule rather than for a reader. Every one of the ten was
+ * resolved by naming what the page actually is, which is the thing the reader
+ * needed in the list of blue links anyway.
+ */
+function checkTitleCollisions(pages: ParsedPage[]): void {
+  const seen = new Map<string, { file: string; where: string }[]>()
+
+  const record = (title: string, file: string, where: string): void => {
+    const key = title.trim()
+    if (key === "") return
+    const existing = seen.get(key)
+    if (existing) existing.push({ file, where })
+    else seen.set(key, [{ file, where }])
+  }
+
+  for (const page of pages) {
+    const title = asText(page.frontmatter.title)
+    if (title) record(title, page.file, `/${page.slug}`)
+  }
+
+  const appDir = join(APP_DIR, "app")
+  if (isDirectory(appDir)) {
+    const pageFiles: string[] = []
+    walk(appDir, (name) => name === "page.tsx" || name === "page.ts", pageFiles)
+    for (const file of pageFiles) {
+      const route = routeForPageFile(file)
+      if (route === "/view" || route.startsWith("/view/")) continue
+      const contents = readMaybe(file)
+      if (contents === undefined) continue
+      const call = pageMetadataCall(contents)
+      if (call === undefined) continue
+      const title = metadataField(call, "title")
+      if (title) record(title, file, route)
+    }
+  }
+
+  for (const [title, holders] of seen) {
+    if (holders.length < 2) continue
+    /* Reported on every page in the collision rather than on the second one
+       found. Which of them should be renamed is a judgement about what each
+       page is for, and naming only one of them makes that judgement by
+       accident of directory order. */
+    for (const holder of holders) {
+      const others = holders
+        .filter((other) => other.where !== holder.where)
+        .map((other) => other.where)
+      fail(
+        "SEO003",
+        rel(holder.file),
+        `the title "${title}" is also used by ${others.join(", ")}. A search result carries the title and nothing else to tell them apart, and so does this site's own search dialog. Rename one of them after what the page is, rather than adding a bracketed suffix.`
+      )
     }
   }
 }
@@ -2753,6 +2904,7 @@ async function main(): Promise<void> {
   checkMetaTrees(pages)
   checkRouteReachability(pages)
   checkPageMetadata()
+  checkTitleCollisions(pages)
   checkCanonicality(pages)
 
   const { rows, source } = await loadCatalogue()

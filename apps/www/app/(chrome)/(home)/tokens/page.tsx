@@ -12,9 +12,9 @@ import {
 } from "@/app/_shared/structured-data"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Tokens",
+  title: "Token browser",
   description:
-    "Every opsinjs design token, enumerated from the running stylesheet: colour, materials, motion, shape and target sizes, with the value each one resolves to on your device.",
+    "Every opsinjs design token read live from the running stylesheet: colour, materials, motion, shape and target sizes, with the value each resolves to here.",
   path: routes.tokens(),
   type: "website",
   section: "Foundations",

@@ -14,7 +14,7 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Two-axis lab",
   description:
-    "Combine a measurement category with a clinical status and watch the lab refuse to render the pair that would be unsafe. Then strip the colour out and see what survives.",
+    "Combine a measurement category with a clinical status and watch the lab refuse the unsafe pair. Then strip the colour out and see what survives without it.",
   path: routes.playgroundStatus(),
   type: "website",
   section: "Playground",

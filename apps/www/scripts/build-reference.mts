@@ -408,7 +408,7 @@ function cssVariablesPage(tokens: GeneratedToken[]): PageSpec {
 
   return {
     slug: "css-variables",
-    title: "CSS variables",
+    title: "CSS variable reference",
     description:
       "Every --opsin-* custom property, grouped by the selector that declares it, with its value and what it controls.",
     howItIsGenerated: [
@@ -703,7 +703,7 @@ function cataloguePage(): PageSpec {
 function dataAttributesPage(): PageSpec {
   return {
     slug: "data-attributes",
-    title: "Data attributes",
+    title: "Data attribute reference",
     description:
       "Every data-* attribute opsinjs components emit, the condition that sets it and the values it can take.",
     howItIsGenerated: [

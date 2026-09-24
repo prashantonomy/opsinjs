@@ -19,7 +19,7 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Official resources",
   description:
-    "The canonical domain, npm scope, registry URL and repository for opsinjs. The page also states honestly that no package has been published, so anything on npm claiming to be opsinjs today is not.",
+    "The canonical domain, npm scope, registry URL and repository for opsinjs. Nothing has been published to npm, so any package claiming to be opsinjs today is not.",
   path: routes.official(),
   type: "website",
   section: "Trust",

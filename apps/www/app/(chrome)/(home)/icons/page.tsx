@@ -12,7 +12,7 @@ import {
 import { IconBrowser } from "./icon-browser"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Icons",
+  title: "Icon browser",
   description:
     "The curated opsinjs icon inventory: one library, a documented job for every glyph, and an explicit rule against symbols that imply clinical authority.",
   path: routes.icons(),

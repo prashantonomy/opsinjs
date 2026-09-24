@@ -21,7 +21,7 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Medicines app",
   description:
-    "A whole single-page app built only from opsinjs parts: a diabetes medicines diary that records and reminds, and refuses to calculate a dose, change one, or say what to do about a dose somebody did not take.",
+    "A single-page diabetes medicines diary built only from opsinjs parts. It records and reminds, and it refuses to calculate a dose or advise on a missed one.",
   path: routes.showcaseMedicinesApp(),
   type: "website",
   section: "Showcase",
