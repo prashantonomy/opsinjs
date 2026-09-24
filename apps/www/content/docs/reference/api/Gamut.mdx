@@ -32,4 +32,15 @@ The colour spaces this module can express a colour in.
 export type Gamut = "srgb" | "display-p3"
 ```
 
+### Used by
+
+4 other exported symbols name Gamut in its own declaration.
+
+| Symbol | Kind | What it is |
+| --- | --- | --- |
+| `clampToGamut` | function | Bring a colour into gamut by reducing chroma only. |
+| [`DeriveOptions`](./DeriveOptions.mdx) | interface | The knobs on theme derivation. |
+| `deriveRamp` | function | Build one ramp from a seed, clamping to sRGB and recording the P3 enhancement. |
+| `fit` | function | Fit an arbitrary colour into the shipped gamut without moving its hue or lightness. |
+
 {/* opsinjs:generated:end */}

@@ -1114,26 +1114,159 @@ function syncDescription(head: string, symbol: ExportedSymbol): string {
   )
 }
 
-function apiPage(symbol: ExportedSymbol, file: string): string {
+/**
+ * WHO ELSE MENTIONS THIS SYMBOL, name to the names of the symbols that do.
+ *
+ * WHY A REVERSE INDEX IS WORTH BUILDING. A per-symbol page had four things on
+ * it: a heading, a doc comment, a two-cell table and a declaration. Fifty-six
+ * of them averaged six hundred characters, which is shorter than the sidebar
+ * that ships above them, and the only way off one was the previous and next
+ * arrows, which land on whatever sorts alphabetically beside it. `Oklab` and
+ * `Oklch` are the same subject and were adjacent by luck; `Ramp` and
+ * `RolePair` are not the same subject and were adjacent for the same reason.
+ *
+ * A reference page is read by somebody who arrived at one type and needs the
+ * two it is made of. That relationship is already written down, in the
+ * declarations, and nothing was reading it. So it is read here: every symbol
+ * whose declaration names this one becomes a row on this one's page, with its
+ * own summary beside it, linked to its page.
+ *
+ * `\b` on both sides is what keeps `StatusMeta` out of `Status`'s list. The
+ * match is textual, like the extraction it reads from, and for the same
+ * reasons given above `walkFiles`.
+ */
+function referenceIndex(symbols: ExportedSymbol[]): Map<string, string[]> {
+  const index = new Map<string, string[]>()
+  for (const subject of symbols) {
+    const pattern = new RegExp(`\\b${subject.name}\\b`)
+    const users = symbols
+      .filter(
+        (other) => other.name !== subject.name && pattern.test(other.signature)
+      )
+      .map((other) => other.name)
+      .sort((a, b) => a.localeCompare(b))
+    index.set(subject.name, users)
+  }
+  return index
+}
+
+/**
+ * The body of an interface declaration, or undefined for anything else.
+ *
+ * The outer braces are dropped so that `readMembers` sees the members at depth
+ * zero, which is the depth it counts from.
+ */
+function interfaceBody(signature: string): string | undefined {
+  const open = signature.indexOf("{")
+  const close = signature.lastIndexOf("}")
+  if (open === -1 || close <= open) return undefined
+  return signature.slice(open + 1, close)
+}
+
+/**
+ * The members of an interface, as a table.
+ *
+ * It reuses `readMembers`, which is the chunker the component props tables are
+ * built with, so a member is parsed here exactly as it is parsed there rather
+ * than by a second reader that fails differently. Returns an empty string when
+ * the symbol is not an interface, or when the interface has no member the
+ * chunker recognises: an empty table under a heading is worse than no heading,
+ * because it reads as a claim that there is nothing to list.
+ *
+ * The declaration is still printed above this in full. The table is not a
+ * substitute for it, it is the part of it a reader can scan, and it is the only
+ * place a member's own doc comment appears at all. That comment was being
+ * discarded: the code block prints the member and drops the sentence explaining
+ * it, so the most useful writing in `lib/` was invisible on the page built to
+ * publish it.
+ */
+function memberTable(symbol: ExportedSymbol): string {
+  if (symbol.kindWord !== "interface") return ""
+  const body = interfaceBody(symbol.signature)
+  if (body === undefined) return ""
+  const rows = readMembers(body)
+  if (rows.length === 0) return ""
+
+  return [
+    "### Members",
+    "",
+    table(
+      ["Member", "Type", "Required", "What it is"],
+      rows.map((row) => [
+        code(row.name),
+        code(row.type),
+        row.required ? "Yes" : "No",
+        cell(row.description ? escapeForMdx(row.description) : undefined),
+      ])
+    ),
+  ].join("\n")
+}
+
+/**
+ * The symbols that name this one in their own declaration, as a table.
+ *
+ * Every row links to that symbol's page where it has one, which is every type
+ * and every interface (`hasOwnPage`). A const or a function has no page of its
+ * own and is printed as code, because a link to nothing is worse than a name.
+ */
+function usedByTable(
+  symbol: ExportedSymbol,
+  users: string[],
+  byName: Map<string, ExportedSymbol>
+): string {
+  if (users.length === 0) return ""
+
+  const rows = users.map((name) => {
+    const other = byName.get(name)
+    const label =
+      other && hasOwnPage(other) ? `[\`${name}\`](./${name}.mdx)` : code(name)
+    return [
+      label,
+      cell(other?.kindWord),
+      cell(other?.summary ? escapeForMdx(other.summary) : undefined),
+    ]
+  })
+
+  return [
+    "### Used by",
+    "",
+    `${users.length === 1 ? "One other" : `${users.length} other`} exported symbol${
+      users.length === 1 ? "" : "s"
+    } name${users.length === 1 ? "s" : ""} ${symbol.name} in its own declaration.`,
+    "",
+    table(["Symbol", "Kind", "What it is"], rows),
+  ].join("\n")
+}
+
+function apiPage(
+  symbol: ExportedSymbol,
+  file: string,
+  context: { users: string[]; byName: Map<string, ExportedSymbol> }
+): string {
   /* Some of these pages are hand-written prose with a generated block inside.
      Splice into the block and leave everything above it alone; only write the
      whole page when there is no page yet. */
   const current = readMaybe(file)
   const beginAt = current === undefined ? -1 : current.indexOf("{/* opsinjs:generated:begin")
   const endAt = current === undefined ? -1 : current.indexOf("{/* opsinjs:generated:end")
+  /* BLOCKS, joined by one blank line. Each entry is a whole markdown block and
+     carries its own internal newlines, which is what keeps the fenced
+     declaration from gaining a blank line after its opening fence. The two
+     tables at the end are empty strings when there is nothing to say and are
+     filtered out: a heading with no table under it reads as a claim that the
+     list is empty rather than absent, and those are different facts. */
   const generated = [
     `## ${symbol.name}`,
-    "",
     symbol.detail === undefined
       ? "This symbol has no doc comment yet."
       : escapeForMdx(symbol.detail),
-    "",
     table(["Kind", "Declared in"], [[cell(symbol.kindWord), code(symbol.file)]]),
-    "",
-    "```ts",
-    symbol.signature,
-    "```",
-  ].join("\n")
+    ["```ts", symbol.signature.trim(), "```"].join("\n"),
+    memberTable(symbol),
+    usedByTable(symbol, context.users, context.byName),
+  ]
+    .filter((block) => block.trim() !== "")
+    .join("\n\n")
 
   if (current !== undefined && beginAt !== -1 && endAt !== -1 && endAt > beginAt) {
     const endMarkerEnd = current.indexOf("}", endAt) + 1
@@ -1630,10 +1763,22 @@ async function main(): Promise<void> {
     return { file, contents: assemble(spec, file) }
   })
 
+  /* Built once for the whole set rather than per page: the index is O(n^2) in
+     the number of exported symbols and there is exactly one answer for the
+     run. `byName` is what lets a row link to the page of the symbol it names. */
+  const usedBy = referenceIndex(symbols)
+  const byName = new Map(symbols.map((symbol) => [symbol.name, symbol]))
+
   const documented = symbols.filter(hasOwnPage)
   for (const symbol of documented) {
     const file = join(API_DIR, `${symbol.name}.mdx`)
-    outputs.push({ file, contents: apiPage(symbol, file) })
+    outputs.push({
+      file,
+      contents: apiPage(symbol, file, {
+        users: usedBy.get(symbol.name) ?? [],
+        byName,
+      }),
+    })
   }
 
   /* The props map goes through the same `outputs` list as the pages, so

@@ -43,4 +43,30 @@ export interface Preset {
 }
 ```
 
+### Members
+
+| Member | Type | Required | What it is |
+| --- | --- | --- | --- |
+| `hue` | `number` | Yes | - |
+| `chroma` | `number` | Yes | - |
+| `lightness` | `number` | Yes | - |
+| `neutralChroma` | `number` | Yes | - |
+| `radius` | `number` | Yes | - |
+| `density` | `(typeof DENSITY_VALUES)[number]` | Yes | - |
+| `gamut` | `(typeof GAMUT_VALUES)[number]` | Yes | - |
+| `floor` | `(typeof FLOOR_VALUES)[number]` | Yes | - |
+| `cornerShape` | `(typeof CORNER_SHAPE_VALUES)[number]` | Yes | - |
+| `mode` | `(typeof MODE_VALUES)[number]` | Yes | - |
+
+### Used by
+
+4 other exported symbols name Preset in its own declaration.
+
+| Symbol | Kind | What it is |
+| --- | --- | --- |
+| [`DecodeResult`](./DecodeResult.mdx) | interface | The outcome of reading a preset code. |
+| `DEFAULT_PRESET` | const | - |
+| `presetBrandColor` | function | The brand colour a preset describes, as an `oklch()` string the colour engine can parse. |
+| `SHIPPED_PRESETS` | const | The shipped presets. |
+
 {/* opsinjs:generated:end */}

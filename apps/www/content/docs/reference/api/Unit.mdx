@@ -45,4 +45,25 @@ export interface Unit {
 }
 ```
 
+### Members
+
+| Member | Type | Required | What it is |
+| --- | --- | --- | --- |
+| `id` | `string` | Yes | - |
+| `symbol` | `string` | Yes | - |
+| `spoken` | `string` | Yes | - |
+| `plural` | `string` | Yes | - |
+| `measures` | `string` | Yes | - |
+| `joined` | `true` | No | - |
+
+### Used by
+
+3 other exported symbols name Unit in its own declaration.
+
+| Symbol | Kind | What it is |
+| --- | --- | --- |
+| `findUnit` | function | The unit a symbol names, or `undefined` when this system has never heard of it. |
+| `UNITS` | const | Every unit this system can speak, sorted by id. |
+| `UNITS_BY_SYMBOL` | const | The lookup `findUnit()` reads, derived from `UNITS` rather than emitted twice. |
+
 {/* opsinjs:generated:end */}

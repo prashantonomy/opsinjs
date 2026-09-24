@@ -32,4 +32,15 @@ One rung of the lightness ladder, from 50 at the lightest to 950 at the darkest.
 export type RampStep = (typeof RAMP_STEPS)[number]
 ```
 
+### Used by
+
+4 other exported symbols name RampStep in its own declaration.
+
+| Symbol | Kind | What it is |
+| --- | --- | --- |
+| `CHROMA_ENVELOPE` | const | Chroma as a fraction of the seed's, per step. |
+| [`Ramp`](./Ramp.mdx) | type | One complete lightness ramp, as a value per step. |
+| `RAMP_LIGHTNESS` | const | - |
+| [`RampStepValue`](./RampStepValue.mdx) | interface | One rung of a ramp, as the sRGB value that ships, the wide-gamut value where P3 has headroom, and whether sRGB had to clamp the chroma away. |
+
 {/* opsinjs:generated:end */}

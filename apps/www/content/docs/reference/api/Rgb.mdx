@@ -37,4 +37,34 @@ export interface Rgb {
 }
 ```
 
+### Members
+
+| Member | Type | Required | What it is |
+| --- | --- | --- | --- |
+| `r` | `number` | Yes | - |
+| `g` | `number` | Yes | - |
+| `b` | `number` | Yes | - |
+| `alpha` | `number` | No | - |
+
+### Used by
+
+14 other exported symbols name Rgb in its own declaration.
+
+| Symbol | Kind | What it is |
+| --- | --- | --- |
+| `displayP3ToOklch` | function | Gamma-encoded Display-P3, 0 to 1 per channel → OKLCH. |
+| `linearP3ToLinearSrgb` | function | Light-linear Display-P3 → light-linear sRGB, through XYZ (D65). |
+| `linearSrgbToLinearP3` | function | Light-linear sRGB → light-linear Display-P3, through XYZ (D65). |
+| `linearSrgbToOklab` | function | Light-linear sRGB → OKLab. |
+| `linearToSrgb` | function | - |
+| `oklabToLinearSrgb` | function | OKLab → light-linear sRGB. |
+| `oklchToDisplayP3` | function | OKLCH → gamma-encoded Display-P3, 0 to 1 per channel. |
+| `oklchToSrgb` | function | OKLCH → gamma-encoded sRGB, 0 to 1 per channel. |
+| `parseHex` | function | `#rgb`, `#rrggbb` or `#rrggbbaa` → sRGB 0 to 1. |
+| `simulate` | function | Simulate a dichromacy. |
+| `srgbToLinear` | function | - |
+| `srgbToOklch` | function | Gamma-encoded sRGB, 0 to 1 per channel → OKLCH. |
+| `toGrayscale` | function | Grayscale by relative luminance rather than by an average of the channels. |
+| `toRgb255` | function | 0 to 1 sRGB → 0 to 255 integers, clamped. |
+
 {/* opsinjs:generated:end */}

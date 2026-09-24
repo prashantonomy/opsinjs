@@ -32,4 +32,14 @@ A page's kind. This is a contract, not a label: `kind` fully determines the page
 export type Kind = (typeof KINDS)[number]
 ```
 
+### Used by
+
+3 other exported symbols name Kind in its own declaration.
+
+| Symbol | Kind | What it is |
+| --- | --- | --- |
+| `isKind` | function | - |
+| `OUTLINE_IS_EXACT` | const | `kind: project` is free-form and `kind: guide` has task sections between its fixed first and last headings, so for these two the outline is a REQUIRED SUBSET rather than the complete list. |
+| `SECTION_OUTLINES` | const | The H2s a page must have, by `kind`. |
+
 {/* opsinjs:generated:end */}
