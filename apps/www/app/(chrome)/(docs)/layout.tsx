@@ -75,6 +75,32 @@ export default function DocsGroupLayout({ children }: { children: ReactNode }) {
         collapsible: true,
         defaultOpenLevel: 0,
         components: { Folder, Item, Separator },
+        /*
+          THE TREE IS A NAVIGATION LANDMARK, and it was not announcing itself
+          as one. fumadocs renders the sidebar as a bare `<aside>`, which
+          exposes `complementary`: the role for content related to the page but
+          separable from it. Four hundred links to the rest of the corpus are
+          not related content, they are the site's navigation, and the document
+          had no `navigation` landmark at all. A screen-reader user pressing
+          the shortcut for the next landmark skipped straight past the only way
+          around the site.
+
+          `role` on an `<aside>` overrides the implicit one rather than adding
+          to it, which is what is wanted: one landmark, correctly named. The
+          label is what distinguishes it from the header's own links once there
+          is more than one navigation region in the document.
+
+          It is also the honest answer to a crawler. Every page here ships the
+          same four hundred sidebar links and the same seven thousand
+          characters of section names before its own first sentence, and on
+          half the corpus that is more text than the page itself carries. That
+          boilerplate has to be identifiable as boilerplate, and the landmark
+          is the standard way to say so. Keeping the links in the document is
+          deliberate and is explained in components/docs/sidebar.tsx; marking
+          them as navigation is what makes it safe.
+        */
+        role: "navigation",
+        "aria-label": "Documentation",
       }}
     >
       {children}
