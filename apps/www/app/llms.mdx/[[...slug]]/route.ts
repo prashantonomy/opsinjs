@@ -43,7 +43,7 @@
  * signals consolidate onto the page a reader should land on.
  */
 
-import { SITE_URL, provenance, text } from "@/app/_machine/contracts"
+import { SITE_URL, absoluteUrl, provenance, text } from "@/app/_machine/contracts"
 import { pageHeaders, renderPage } from "@/app/_machine/corpus"
 import { source } from "@/lib/source"
 
@@ -105,8 +105,10 @@ export async function GET(
       ...pageHeaders(page),
       /* `page.url` is the HTML page this file is a twin of, built by fumadocs
          from the same `baseUrl` every other link on the site uses, so the
-         canonical cannot drift from the route it names. */
-      link: `<${SITE_URL}${page.url}>; rel="canonical"`,
+         canonical cannot drift from the route it names. It goes through
+         `absoluteUrl` rather than being concatenated, so that the index twin
+         names the front door with the same spelling the front door uses. */
+      link: `<${absoluteUrl(page.url)}>; rel="canonical"`,
     },
   })
 }

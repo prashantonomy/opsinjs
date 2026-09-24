@@ -79,9 +79,34 @@ export function joinPath(
   return "/" + parts.join("/")
 }
 
-/** Turn a root-relative path into a full URL on the canonical origin. */
+/**
+ * Turn a root-relative path into a full URL on the canonical origin.
+ *
+ * THE ROOT LOSES ITS TRAILING SLASH, and that is the whole reason this is not
+ * a one-line wrapper around `new URL`. `new URL("/", origin)` spells the front
+ * door `https://opsinjs.pensievelabs.org/`, and Next's metadata resolver spells
+ * it `https://opsinjs.pensievelabs.org` in `rel="canonical"` and in `og:url`
+ * no matter which form it is handed. Without this the home page shipped both
+ * spellings inside its own markup: the canonical and the social card said one
+ * thing, the `TechArticle` block and the sitemap entry said the other, and the
+ * only URL on the site that every crawler reaches first was the one URL the
+ * site could not describe consistently.
+ *
+ * The two forms address the same resource, so nothing was broken. They are
+ * also the textbook way a site teaches a crawler that it has two front doors,
+ * and a self-referential canonical is worth less every time some other surface
+ * contradicts it. One spelling, chosen to match what Next emits, since that is
+ * the one surface here that cannot be changed.
+ *
+ * Every other path already has no trailing slash (`joinPath` strips them and
+ * the deployment answers 308 on a slashed variant), so this only ever fires on
+ * the root.
+ */
 export function absoluteUrl(path: string): string {
-  return new URL(path, site.url).toString()
+  const url = new URL(path, site.url).toString()
+  return url.endsWith("/") && new URL(url).pathname === "/"
+    ? url.slice(0, -1)
+    : url
 }
 
 /* ── docs ───────────────────────────────────────────────────────────────── */

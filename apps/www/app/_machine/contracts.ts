@@ -73,10 +73,22 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.pensievelabs.org"
 ).replace(/\/+$/, "")
 
-/** Prefix the canonical origin onto a root-relative path. */
+/**
+ * Prefix the canonical origin onto a root-relative path.
+ *
+ * THE ROOT IS SPELLED WITHOUT ITS TRAILING SLASH, to agree with
+ * `absoluteUrl` in lib/routes.ts and therefore with what Next emits in the
+ * home page's own `rel="canonical"`. The `.md` twin of the corpus index
+ * carries a `Link: rel="canonical"` header built from here, so without this
+ * the twin pointed a crawler at `https://opsinjs.pensievelabs.org/` while the
+ * page it names calls itself `https://opsinjs.pensievelabs.org`. A canonical
+ * that does not match the target's own canonical is a canonical a crawler is
+ * entitled to ignore.
+ */
 export function absoluteUrl(path: string): string {
   if (/^https?:\/\//.test(path)) return path
-  return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`
+  const withSlash = path.startsWith("/") ? path : `/${path}`
+  return withSlash === "/" ? SITE_URL : `${SITE_URL}${withSlash}`
 }
 
 export const SITE_NAME = "opsinjs"

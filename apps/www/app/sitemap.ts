@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-import { routes, site } from "@/lib/routes"
+import { absoluteUrl, routes } from "@/lib/routes"
 import { source } from "@/lib/source"
 
 /**
@@ -24,6 +24,13 @@ import { source } from "@/lib/source"
  *
  * 3. `/r/**` and the `llms-*.txt` shards. Machine surfaces, versioned and
  *    linked from the Agents documentation, not search destinations.
+ *
+ * EVERY URL IS BUILT BY `absoluteUrl`, which is what makes the front door
+ * spell itself the same way here as it does in its own `rel="canonical"`.
+ * This file used to concatenate `site.url` with a path, so the corpus index
+ * arrived as `https://opsinjs.pensievelabs.org/` while the page it points at
+ * declares `https://opsinjs.pensievelabs.org`. Same resource, two spellings,
+ * on the one URL every crawler reaches first.
  *
  * `lastModified` is set from a page's `reviewed` frontmatter date where it has
  * one, and left unset otherwise. It is emphatically NOT set to the build time:
@@ -58,7 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       typeof page.data.reviewed === "string" ? page.data.reviewed : undefined
     const reviewedDate = reviewed ? new Date(reviewed) : undefined
     return {
-      url: `${site.url}${page.url}`,
+      url: absoluteUrl(page.url),
       lastModified:
         reviewedDate && !Number.isNaN(reviewedDate.getTime())
           ? reviewedDate
@@ -78,17 +85,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     hundred real dates above.
   */
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${site.url}${routes.home()}` },
-    { url: `${site.url}${routes.colors()}` },
-    { url: `${site.url}${routes.tokens()}` },
-    { url: `${site.url}${routes.icons()}` },
-    { url: `${site.url}${routes.playground()}` },
-    { url: `${site.url}${routes.playgroundTheme()}` },
-    { url: `${site.url}${routes.playgroundContrast()}` },
-    { url: `${site.url}${routes.playgroundStatus()}` },
-    { url: `${site.url}${routes.official()}` },
-    { url: `${site.url}${routes.showcase()}` },
-    { url: `${site.url}${routes.showcaseMedicinesApp()}` },
+    { url: absoluteUrl(routes.home()) },
+    { url: absoluteUrl(routes.colors()) },
+    { url: absoluteUrl(routes.tokens()) },
+    { url: absoluteUrl(routes.icons()) },
+    { url: absoluteUrl(routes.playground()) },
+    { url: absoluteUrl(routes.playgroundTheme()) },
+    { url: absoluteUrl(routes.playgroundContrast()) },
+    { url: absoluteUrl(routes.playgroundStatus()) },
+    { url: absoluteUrl(routes.official()) },
+    { url: absoluteUrl(routes.showcase()) },
+    { url: absoluteUrl(routes.showcaseMedicinesApp()) },
   ]
 
   /*
