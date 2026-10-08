@@ -68,7 +68,7 @@ No upgrade has been exercised yet, because nothing has been released. Prefer com
 
 Publishing components beside opsinjs needs no fork. A registry is a flat `registry.json` plus one JSON file per item at a URL matching `{name}`, and `shadcn build` writes the item files. Pick a namespace nobody else will want, such as `@acme-health`, and reference opsinjs items by full URL or a configured namespace, never a bare name.
 
-Fork the repository only to change tokens, generators or doctrine. The GitHub repository is private today, so a fork needs access. First change its name, namespace, preset prefix and site URL. Never edit generated output, and run `pnpm run generate && pnpm run contrast && pnpm run check` after every upstream merge. Forking the status vocabulary or the clinical doctrine needs clinical sign-off.
+Fork the repository only to change tokens, generators or doctrine. First change its name, namespace, preset prefix and site URL. Never edit generated output, and run `pnpm run generate && pnpm run contrast && pnpm run check` after every upstream merge. Forking the status vocabulary or the clinical doctrine needs clinical sign-off.
 
 ## Proposed packages
 

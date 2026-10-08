@@ -39,11 +39,12 @@ export const site = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.pensievelabs.org",
   github: "https://github.com/prashantonomy/opsinjs",
   /**
-   * Whether the repository is public. While it is not, a link to it answers
-   * 404 for every reader but the owner, so the docs shell shows no "Edit this
-   * page" and no "View on GitHub". Flip this the day the repository opens.
+   * Whether the repository is public, which it has been since 8 October 2026.
+   * It gates "Edit this page" and "View on GitHub", because a link to a
+   * private repository answers 404 for every reader but its owner. Set it
+   * back to false only if the repository ever goes private again.
    */
-  sourcePublic: false,
+  sourcePublic: true,
   npmScope: "@opsinjs",
   /** The registry namespace a consumer adds to their components.json. */
   registryNamespace: "@opsinjs",

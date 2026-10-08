@@ -243,17 +243,14 @@ export function siteSummary(): string {
 /**
  * The repository these routes link to.
  *
- * THIS REPOSITORY IS NOT PUBLIC YET: `github.com/prashantonomy/opsinjs`
- * exists, but while it is private only collaborators can open it, so it is not
- * a page just anybody can reach today. The constant is written down here rather than in the four
- * routes that link to it so that publishing the repository is one edit, and so
- * that nobody has to discover the fact by following a link.
+ * `github.com/prashantonomy/opsinjs` has been public since 8 October 2026. The
+ * constant is written down here rather than in the four routes that link to it,
+ * so that a change of owner or name is one edit.
  *
  * It matters most on `/api/feedback`, whose whole answer to "we do not store
- * your report" is a pre-filled issue URL built from these two segments. Until
- * the repository is public that link is a promise rather than a destination.
- * That is why that route also echoes the report back in the response body, so
- * the reader still holds what they typed.
+ * your report" is a pre-filled issue URL built from these two segments. That
+ * route also echoes the report back in the response body, so the reader still
+ * holds what they typed if they never follow the link.
  */
 export const GITHUB_OWNER = "prashantonomy"
 export const GITHUB_REPO = "opsinjs"
