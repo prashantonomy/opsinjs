@@ -42,7 +42,7 @@ keep facts; link the doctrine page rather than restating it; copy the shape of
 `content/docs/components/button.mdx`.
 
 Every other page aims at the density of the clawscale docs
-(`/Users/taramaa/clawscalejs/apps/docs`) and blueprintjs.com: a sentence or two, then a
+(`apps/docs` in github.com/prashantonomy/clawscalejs) and blueprintjs.com: a sentence or two, then a
 few short sections of facts, tables where the facts are parallel, and a link to the page
 that owns anything else. LEAN002 caps a hand-written page at 1,200 words (1,500 on a
 health page). No filler, no "this section describes…", no lorem ipsum, no `TODO: write
@@ -114,17 +114,24 @@ pnpm check          # generated-file drift + IA assertions + llms.txt
 pnpm --filter @opsinjs/www run generate
 ```
 
-Do not run `git`, `pnpm install`, `turbo` or a build during a parallel authoring phase.
-The sequential phases own those.
+When several agents work in parallel, none of them runs `git`, `pnpm install`, `turbo`
+or a build. Whoever coordinates them runs those afterwards.
 
-Do not commit, and do not discuss or propose committing, unless the human explicitly asks
-for it in that turn.
+## Git and pull requests
+
+Work on a branch, never on `main`. Every change reaches `main` through a pull request,
+the maintainer's own included (`GOVERNANCE.md`), so a contributor's agent pushes to the
+contributor's fork and opens the pull request from there. Commit, push or open a pull
+request only when the person you are working for asks, or has given you standing
+permission to. Fill in the pull request template, and update the docs that describe the
+change in the same pull request.
 
 ## Ownership
 
-File sets are disjoint and assigned. Touching a file outside your set corrupts a worker
-running at the same time. If a file outside your set is wrong, report it in your summary;
-do not fix it.
+Keep a change to the files it needs. If a file outside it is wrong, say so in the pull
+request or your summary rather than fixing it in the same change. When several agents
+work in parallel, each owns a disjoint set of files, and touching a file outside your
+set corrupts a worker running at the same time.
 
 ## Definition of done for a page
 

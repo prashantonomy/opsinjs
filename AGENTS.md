@@ -201,8 +201,10 @@ in paths and in the catalogue, PascalCase in prose.
 
 ## 11. Ownership
 
-Files are written by workers with disjoint file sets. If a file looks wrong but is not
-yours, say so in your summary rather than editing it.
+Keep a change to the files it needs, and reach `main` only through a pull request. When
+several agents work in parallel, each owns a disjoint set of files. If a file outside
+your change looks wrong, say so in the pull request or your summary rather than editing
+it.
 
 ## 12. Never an em dash or an en dash
 
