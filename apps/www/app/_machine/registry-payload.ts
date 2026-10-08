@@ -336,6 +336,9 @@ export function stripJsonSuffix(segment: string): string {
   return segment.replace(/\.json$/i, "")
 }
 
+/** The shape a registry id can take, which is the only shape a 404 repeats. */
+const ITEM_NAME = /^[a-z0-9][a-z0-9-]{0,63}$/i
+
 /**
  * Resolve one id and answer.
  *
@@ -348,15 +351,36 @@ export function serveRegistryItem(
   rawName: string,
   options: { base?: string; style?: string } = {}
 ): Response {
-  const name = stripJsonSuffix(decodeURIComponent(rawName)).trim()
+  /* A malformed escape such as `%E0%A4` makes decodeURIComponent throw, which
+     used to surface as a 500. It is a bad request, so it is answered as one. */
+  let decoded: string
+  try {
+    decoded = decodeURIComponent(rawName)
+  } catch {
+    return json(
+      {
+        error: "malformed-name",
+        message: "The item name is not valid percent-encoding.",
+        roster: absoluteUrl("/r/index.json"),
+      },
+      { status: 400 }
+    )
+  }
+  const name = stripJsonSuffix(decoded).trim()
   const row = findCatalogueRow(name)
 
   if (!row) {
+    /* The name is echoed back only when it could be an id. Anything else is
+       text a stranger wrote into a URL, and repeating it on this origin would
+       hand an agent reading the answer words that are not ours. */
+    const echoed = ITEM_NAME.test(name) ? name : null
     return json(
       {
         error: "unknown-item",
-        name,
-        message: `${SITE_NAME} has no registry item called "${name}".`,
+        name: echoed,
+        message: echoed
+          ? `${SITE_NAME} has no registry item called "${echoed}".`
+          : `${SITE_NAME} has no registry item by that name.`,
         didYouMean: suggestNames(name),
         roster: absoluteUrl("/r/index.json"),
         catalog: absoluteUrl("/r/registry.json"),

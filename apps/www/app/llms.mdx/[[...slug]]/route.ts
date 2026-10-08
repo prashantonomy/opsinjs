@@ -52,6 +52,9 @@ export const dynamicParams = true
 
 const MARKDOWN = "text/markdown; charset=utf-8"
 
+/** Lower-case slugs joined by slashes, which is every page path this site has. */
+const DOCS_PATH = /^(\/[a-z0-9][a-z0-9-]{0,63}){1,6}$/
+
 export function generateStaticParams(): { slug: string[] }[] {
   return source.generateParams()
 }
@@ -70,13 +73,21 @@ export async function GET(
     // `provenance().notice`, the one place that count is computed, rather than
     // a fourth hand-written variant. A guessed URL is the moment a reader is
     // least able to tell a stale claim from a measured one.
-    const requested =
-      slug && slug.length > 0 ? `/${slug.join("/")}` : "the documentation index"
+    //
+    // The path is repeated only when it has the shape of a documentation path.
+    // Anything else is text a stranger wrote into a URL, and this answer is
+    // read by agents, so it must not carry words that are not ours.
+    const path = slug && slug.length > 0 ? `/${slug.join("/")}` : ""
+    const where = !path
+      ? "the documentation index"
+      : DOCS_PATH.test(path)
+        ? `\`${path}\``
+        : "that address"
     return text(
       [
         `# Not found`,
         "",
-        `There is no opsinjs documentation page at \`${requested}\`.`,
+        `There is no opsinjs documentation page at ${where}.`,
         "",
         "Where to look instead:",
         "",

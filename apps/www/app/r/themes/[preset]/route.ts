@@ -115,9 +115,16 @@ export async function generateStaticParams(): Promise<{ preset: string }[]> {
 
 /** Accept both `opsinjs-calm` and `opsinjs-calm.json`. */
 function normalise(segment: string): string {
-  return decodeURIComponent(segment)
-    .replace(/\.json$/i, "")
-    .trim()
+  let decoded: string
+  try {
+    decoded = decodeURIComponent(segment)
+  } catch {
+    /* A malformed escape such as `%E0%A4` is not a preset name. Returned as
+       it came, it fails isSafePreset and gets the same 400 as any bad name,
+       where it used to throw and surface as a 500. */
+    return segment
+  }
+  return decoded.replace(/\.json$/i, "").trim()
 }
 
 function isSafePreset(preset: string): boolean {
@@ -152,10 +159,11 @@ export async function GET(
   const preset = normalise((await context.params).preset)
 
   if (!isSafePreset(preset)) {
+    /* The rejected name is not echoed back, because it is text a stranger
+       wrote into a URL and this answer is read by agents. */
     return json(
       {
         error: "invalid-preset",
-        preset,
         message:
           "A preset name is lowercase alphanumeric with hyphens. Shipped opsinjs presets are namespaced `opsinjs-*`.",
       },

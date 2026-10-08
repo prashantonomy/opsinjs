@@ -115,6 +115,20 @@ function useIsClient(): boolean {
   )
 }
 
+/**
+ * `?base=` and `?style=` come from the address bar and become path segments of
+ * the frame's `src`, so only a slug is accepted. Without this, a value such as
+ * `../../og?title=...` walked the frame to another route on this origin and put
+ * a stranger's text inside a real docs page. An unknown slug still lands on the
+ * /view 404, which is honest. The registry's own list of bases is not imported
+ * here because it would pull the whole registry index into the client bundle.
+ */
+const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/
+
+function slugOr(value: string | null | undefined, fallback: string): string {
+  return value && SLUG.test(value) ? value : fallback
+}
+
 type PreviewMode = "light" | "dark"
 type Density = "compact" | "default" | "comfortable"
 type TextSize = "100" | "125" | "150" | "200"
@@ -411,8 +425,8 @@ export function ComponentPreview({
   const isClient = useIsClient()
   const query = isClient ? new URLSearchParams(window.location.search) : null
   const resolved = {
-    base: query?.get("base") ?? base,
-    style: query?.get("style") ?? style,
+    base: slugOr(query?.get("base"), base),
+    style: slugOr(query?.get("style"), style),
   }
 
   /*

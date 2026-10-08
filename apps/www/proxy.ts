@@ -100,9 +100,33 @@ const PREFIX_REDIRECTS: { from: string; to: string; permanent: boolean }[] = [
   },
 ]
 
+/**
+ * A redirect target built from the request path must stay on this site.
+ *
+ * Next writes a same-origin redirect's `Location` as the bare path, and a path
+ * that begins with two slashes, or with a slash and a backslash, is read by a
+ * browser as another host: `//evil.example` is an open redirect. The platform
+ * in front of the site collapses repeated slashes before this file runs, so
+ * nothing reaches that today, but the proxy should not depend on it. Every
+ * target derived from the request passes through here.
+ */
+function onThisSite(pathname: string): string {
+  return pathname.replace(/^[/\\]+/, "/")
+}
+
 export default function proxy(request: NextRequest) {
   const url = request.nextUrl
   const pathname = url.pathname
+
+  /* A path with a malformed percent-escape, such as `/%E0%A4`, names no page.
+     Left alone it was folded to lower case, redirected, and then answered with
+     a 500 when the router failed to decode it. It is a bad request, so it is
+     answered as one here, before any redirect below can repeat it. */
+  try {
+    decodeURIComponent(pathname)
+  } catch {
+    return new NextResponse(null, { status: 400 })
+  }
 
   /* The path with any trailing slash removed, which is the form every table
      above is keyed in, and its lower-cased twin, which is what the tables are
@@ -142,11 +166,9 @@ export default function proxy(request: NextRequest) {
   const destination = RETIRED_PAGES[page] ?? (legacy ? page : undefined)
   if (destination) {
     const target = url.clone()
-    target.pathname = twin
-      ? destination === "/"
-        ? "/index.md"
-        : `${destination}.md`
-      : destination
+    target.pathname = onThisSite(
+      twin ? (destination === "/" ? "/index.md" : `${destination}.md`) : destination
+    )
     return NextResponse.redirect(target, 308)
   }
 
@@ -167,7 +189,7 @@ export default function proxy(request: NextRequest) {
     const rewritten = rule.to.replace(/\/$/, "") + lower.slice(from.length)
     /* One hop, not two: a prefix rewrite that lands on a retired page goes
        straight to the page that absorbed it. */
-    target.pathname = RETIRED_PAGES[rewritten] ?? rewritten
+    target.pathname = onThisSite(RETIRED_PAGES[rewritten] ?? rewritten)
     return NextResponse.redirect(target, rule.permanent ? 308 : 307)
   }
 
@@ -188,7 +210,7 @@ export default function proxy(request: NextRequest) {
   // registry, the API, the preview shell and the metadata routes out.
   if (!canonicalPath.startsWith(API_PREFIX) && canonicalPath !== lower) {
     const target = url.clone()
-    target.pathname = lower
+    target.pathname = onThisSite(lower)
     return NextResponse.redirect(target, 308)
   }
 
