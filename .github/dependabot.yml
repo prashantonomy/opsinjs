@@ -16,8 +16,9 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
-    # Titles become squash commits on main, so they follow the commit format:
-    # "chore(deps): bump zod from 4.4.3 to 4.4.4".
+    # Titles become squash commits on main, so they carry the commit type:
+    # "chore(deps): Bump zod from 4.6.5 to 4.6.6". Dependabot capitalises the
+    # verb, so the maintainer lowercases it when squash merging.
     commit-message:
       prefix: "chore"
       include: "scope"

@@ -1,0 +1,225 @@
+name: Nightly
+
+# The slow half. Everything here needs a built site, a wall clock, or both, and
+# none of it belongs in a pull-request gate:
+#
+#   contrast:verify   measures every token pair and fails on a regression,
+#                     which would make a published contrast number untrue.
+#   check:freshness   blocking here and advisory in CI. A page past its review
+#                     window is a scheduling problem, not a review problem.
+#   run-evals         scores the docs-as-API contract. Advisory: while the corpus
+#                     is still being written, a falling score means "not finished
+#                     yet", and a red nightly nobody can act on is a red nightly
+#                     nobody reads.
+#   check-a11y        two halves, both blocking here and neither advisory.
+#                     --layout is the browser half, which measures the hit-area
+#                     floor, 1.3x and 200%. No parser can see those three.
+#                     --strict re-runs the source gate with its warnings
+#                     promoted to errors, and this job is the only place that
+#                     happens, which makes it the only place a warning has a
+#                     consequence. It runs last for that reason: see the step.
+#   capture           screenshots, which no-op cleanly when Playwright is absent.
+#                     Playwright is deliberately not a dependency, so this step
+#                     installs it here and nowhere else. Both it and the
+#                     browser half of check-a11y load it by dynamic import, so
+#                     neither ever appears in a package.json.
+
+on:
+  schedule:
+    # 03:15 UTC. Late enough that the day's merges are in, early enough that a
+    # failure is waiting when the first person starts.
+    - cron: "15 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24"
+  SITE_URL: "http://127.0.0.1:4000"
+
+jobs:
+  audit:
+    name: Nightly audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate
+        run: pnpm --filter @opsinjs/www run generate
+
+      - name: Generated files are in sync
+        run: pnpm --filter @opsinjs/www run check:generated
+
+      - name: Contrast has not regressed
+        # Blocking. Every contrast figure in the documentation is measured, and a
+        # regression means a page is now telling a reader something untrue about
+        # what they can see.
+        run: pnpm --filter @opsinjs/www run contrast:verify
+
+      - name: Information architecture, strictly
+        # --strict promotes every warning to an error: pages with no `implements`,
+        # and aliases the catalogue and the page disagree about. None of these
+        # should block a pull request; all of them should be fixed.
+        continue-on-error: true
+        run: pnpm --filter @opsinjs/www exec node scripts/assert-ia.mts --strict
+
+      - name: Documentation freshness
+        # Blocking here, by design. This is the only mechanism that makes
+        # `reviewed:` and `reviewEvery:` mean anything.
+        run: pnpm --filter @opsinjs/www exec node scripts/check-freshness.mts --strict
+
+      - name: Freshness report (machine-readable)
+        if: always()
+        run: |
+          pnpm --filter @opsinjs/www exec node scripts/check-freshness.mts --json \
+            > "${RUNNER_TEMP}/freshness.json" || true
+
+      - name: Build
+        run: pnpm --filter @opsinjs/www run build
+
+      - name: Start the built site
+        run: |
+          pnpm --filter @opsinjs/www run start > "${RUNNER_TEMP}/next-start.log" 2>&1 &
+          echo "$!" > "${RUNNER_TEMP}/next.pid"
+          for attempt in $(seq 1 60); do
+            if curl --silent --fail --output /dev/null "${SITE_URL}"; then
+              echo "site is up after ${attempt}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "the site did not start within 60s"
+          cat "${RUNNER_TEMP}/next-start.log"
+          exit 1
+
+      - name: Machine-readable surface, strictly
+        continue-on-error: true
+        run: pnpm --filter @opsinjs/www exec node scripts/check-llms.mts --base "${SITE_URL}" --strict
+
+      - name: Evals
+        # Advisory. The score is written to public/r/evals.json; it is a
+        # coverage probe for the documentation, not a pass/fail on a change.
+        continue-on-error: true
+        run: pnpm --filter @opsinjs/www exec node scripts/run-evals.mts --base "${SITE_URL}"
+
+      - name: Install Playwright
+        # The only place in the repository Playwright is installed. capture-registry
+        # detects its absence and exits 0 everywhere else.
+        run: |
+          pnpm --filter @opsinjs/www add --save-dev playwright@1.63.0
+          pnpm --filter @opsinjs/www exec playwright install --with-deps chromium
+
+      - name: Accessibility in a browser
+        # The layout half of the rig, and the only place it can run: 44x44 hit
+        # areas (OPSIN-0015's own floor), survival at the 1.3x multiplier
+        # foundations/typography/dynamic-type states as the bar, and usability
+        # at 200% root font size with no truncated numeric value. None of it is
+        # visible to a parser and all of it needs a layout engine.
+        #
+        # Blocking, unlike the advisory --strict runs of assert-ia and
+        # check-llms, and that is safe because the script exits 0 with a
+        # paragraph in every state it cannot measure, such as Playwright
+        # absent, the site down or nothing built. The only way it goes red
+        # is a measurement that failed, and a truncated health value or a 32px
+        # target is not something to leave for somebody to notice.
+        run: pnpm --filter @opsinjs/www exec node scripts/check-a11y.mts --layout --base "${SITE_URL}"
+
+      - name: Capture the view routes
+        # `if: always()` and not merely `continue-on-error`. The two are not the
+        # same thing and the difference cost this step its job once already:
+        # continue-on-error stops a failure here from failing the run, but it
+        # does nothing at all when an EARLIER step fails, and the moment the
+        # browser half above became blocking a red a11y measurement started
+        # skipping the screenshots silently. The screenshots are how a person
+        # sees what the measurement is talking about, so they are exactly what
+        # must survive it.
+        if: always()
+        continue-on-error: true
+        run: pnpm --filter @opsinjs/www exec node scripts/capture-registry.mts --base "${SITE_URL}"
+
+      - name: Accessibility from source, strictly
+        # Blocking, and last, and both are deliberate.
+        #
+        # CI runs this without --strict and blocks on its errors. --strict
+        # promotes the calibrated warnings too: a Tailwind t-shirt type size
+        # instead of one of the eleven semantic steps, a neutral ramp step where
+        # a role belongs, the retired --opsin-target-min, and the A11Y001 escape
+        # hatch, which is an element stamping `data-status` whose word and glyph
+        # may be delegated across an import a single-file checker cannot follow. Every
+        # one of those either still renders something or cannot be settled from
+        # one file, which is why none of them stops somebody else's pull request.
+        #
+        # It used to carry `continue-on-error: true`, which made this the only
+        # place those warnings were errors and simultaneously the place nothing
+        # failed on them. A warning whose only outcome is a line in a log is not
+        # a finding, it is a decoration; the escape hatch in particular was a
+        # real defect downgraded to nothing. So this step is blocking, and it is
+        # the answer to "where does a warning actually fail".
+        #
+        # Last, and `if: always()`, because it needs nothing but the source tree.
+        # Placed earlier and blocking, a t-shirt type size would skip the build,
+        # the browser half and the screenshots. That trades the layout
+        # measurements for a type-scale warning, which is the wrong way round.
+        if: always()
+        run: pnpm --filter @opsinjs/www exec node scripts/check-a11y.mts --strict
+
+      - name: Stop the site
+        if: always()
+        run: |
+          if [ -f "${RUNNER_TEMP}/next.pid" ]; then
+            kill "$(cat "${RUNNER_TEMP}/next.pid")" || true
+          fi
+
+      - name: Summarise
+        if: always()
+        run: |
+          {
+            echo "## Nightly audit"
+            echo
+            if [ -f apps/www/public/r/evals.json ]; then
+              echo "### Evals"
+              echo '```json'
+              head -c 4000 apps/www/public/r/evals.json
+              echo
+              echo '```'
+            fi
+            if [ -f "${RUNNER_TEMP}/freshness.json" ]; then
+              echo "### Freshness"
+              echo '```json'
+              head -c 4000 "${RUNNER_TEMP}/freshness.json"
+              echo
+              echo '```'
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload the artefacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: nightly-audit
+          path: |
+            apps/www/public/r/evals.json
+            apps/www/lib/generated/contrast.json
+            apps/www/public/r/screens/
+            ${{ runner.temp }}/freshness.json
+            ${{ runner.temp }}/next-start.log
+          if-no-files-found: ignore
+          retention-days: 14

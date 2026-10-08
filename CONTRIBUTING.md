@@ -44,7 +44,8 @@ pnpm dev        # http://localhost:4000
 
 1. Fork the repository and create a branch from `main`.
 2. Make the change, and update the docs page that describes it in the same pull request.
-3. Run the three gates from the repository root. All three must pass.
+3. Run the three gates from the repository root. All three must pass, and CI runs them
+   again on every pull request.
 
    ```bash
    pnpm typecheck

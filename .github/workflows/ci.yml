@@ -1,0 +1,171 @@
+name: CI
+
+# The pull request gate. Everything here is fast, deterministic and blocking.
+# Anything slow, flaky or advisory belongs in nightly.yml, because a gate that is
+# sometimes red for reasons unrelated to the change stops being read.
+#
+# The step order is load-bearing:
+#   install    postinstall runs `fumadocs-mdx`, which writes .source/. That
+#              directory is gitignored and nothing else regenerates it, so
+#              typecheck fails pointing at lib/source.ts without this.
+#   generate   tokens, registry and reference outputs are committed files.
+#   drift      regenerating and finding a diff means someone hand-edited a
+#              generated file. `git add -N .` is what makes untracked generated
+#              files visible to `git diff`.
+#   typecheck  runs fumadocs-mdx again itself, deliberately, so a clean clone
+#              that skipped postinstall does not fail here for the wrong reason.
+#   build      the only step that proves the site actually renders.
+#   dashes     U+2014 and U+2013, which the repository bans outright. Source
+#              only, so it sits with lint rather than after the build.
+#   check:ia   the information-architecture gate: outlines, frontmatter,
+#              reachability, the closed MDX vocabulary, both link directions.
+#   check:a11y the static half of the accessibility rig, over the component
+#              sources. No browser and no server, so it runs before either.
+#   check:llms needs a running server to prove the machine surface, so it comes
+#              after the build and starts one.
+#
+# Every action is pinned to a full commit SHA, with its release in a comment.
+# Dependabot updates both.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Node 24, because the scripts under apps/www/scripts are .mts files run by
+  # plain node through native type stripping, and engines.node is >=24.0.0 for
+  # the same reason. pnpm comes from the packageManager field in package.json.
+  NODE_VERSION: "24"
+  # `next start` and every live check agree on this port.
+  SITE_URL: "http://127.0.0.1:4000"
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Report the toolchain
+        run: |
+          echo "node    $(node --version)"
+          echo "pnpm    $(pnpm --version)"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Dependency versions are exact
+        # Reads the two package manifests and nothing else, so it needs no
+        # generated output and no build, and it runs first among the cheap gates.
+        run: pnpm --filter @opsinjs/www run check:versions
+
+      - name: Generated files are in sync (the generators' own check)
+        # Runs BEFORE Generate, deliberately. Each script compares the tree as
+        # checked out against what it would write. After Generate they would
+        # only compare freshly written files with themselves. The eight paths in
+        # check:generated are covered by the drift step below; these three add
+        # each generator's own opinion and fail naming the script.
+        run: |
+          pnpm --filter @opsinjs/www exec node scripts/build-tokens.mts --check
+          pnpm --filter @opsinjs/www exec node scripts/build-registry.mts --check
+          pnpm --filter @opsinjs/www exec node scripts/build-reference.mts --check
+
+      - name: Generate
+        run: pnpm --filter @opsinjs/www run generate
+
+      - name: Generated files are in sync
+        # Fails when a generated file was hand-edited, or when a source such as
+        # tokens/*.json or registry/catalogue.ts changed without regenerating.
+        # The fix is always `pnpm run generate` and a commit, never an edit here.
+        run: pnpm --filter @opsinjs/www run check:generated
+
+      - name: Typecheck
+        run: pnpm --filter @opsinjs/www run typecheck
+
+      - name: Lint
+        run: pnpm --filter @opsinjs/www run lint
+
+      - name: No em dash and no en dash
+        # U+2014 and U+2013 appear nowhere in the repository, with no allowlist.
+        # Source only, so it needs neither the build nor a server.
+        run: pnpm --filter @opsinjs/www run check:dashes
+
+      - name: Build
+        run: pnpm --filter @opsinjs/www run build
+
+      - name: Information architecture
+        run: pnpm --filter @opsinjs/www run check:ia
+
+      - name: Accessibility, from source
+        # The static half of the accessibility rig, and blocking. It reads
+        # registry/{bases,examples,screens}: colour, icon, word and data-status
+        # on every status surface, no px type size, no raw colour, no element
+        # taking colour from both axes, and no banned word. The half that needs
+        # a layout engine (44x44 hit areas, 1.3x and 200%) runs in nightly.
+        run: pnpm --filter @opsinjs/www run check:a11y
+
+      - name: Start the built site
+        run: |
+          pnpm --filter @opsinjs/www run start > "${RUNNER_TEMP}/next-start.log" 2>&1 &
+          echo "$!" > "${RUNNER_TEMP}/next.pid"
+          for attempt in $(seq 1 60); do
+            if curl --silent --fail --output /dev/null "${SITE_URL}"; then
+              echo "site is up after ${attempt}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "the site did not start within 60s"
+          cat "${RUNNER_TEMP}/next-start.log"
+          exit 1
+
+      - name: Machine-readable surface
+        # The llms.txt contract (every URL answers 200, every page appears once,
+        # every .md twin resolves) is only provable against a running server.
+        run: pnpm --filter @opsinjs/www exec node scripts/check-llms.mts --base "${SITE_URL}"
+
+      - name: Stop the site
+        if: always()
+        run: |
+          if [ -f "${RUNNER_TEMP}/next.pid" ]; then
+            kill "$(cat "${RUNNER_TEMP}/next.pid")" || true
+          fi
+
+      - name: Documentation freshness (advisory)
+        # Never blocking on a pull request. A stale page is a reason to wake
+        # somebody on a schedule, which nightly.yml does with --strict.
+        if: always()
+        continue-on-error: true
+        run: pnpm --filter @opsinjs/www exec node scripts/check-freshness.mts
+
+      - name: Upload the server log on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: next-start-log
+          path: ${{ runner.temp }}/next-start.log
+          if-no-files-found: ignore
+          retention-days: 7

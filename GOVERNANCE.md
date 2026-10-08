@@ -28,7 +28,9 @@ say.
 
 1. Every change reaches `main` through a pull request, the maintainer's own included.
    Nobody pushes to `main` directly, and a branch ruleset enforces it.
-2. `pnpm typecheck`, `pnpm lint` and `pnpm check` must pass.
+2. CI must pass. Its Verify job runs `pnpm typecheck`, `pnpm lint`, `pnpm check`, a
+   production build and the live `llms.txt` check, and its Title job checks the pull
+   request title. The ruleset requires both.
 3. Pull requests are squash merged, and the title becomes the commit on `main`.
 
 ## Issues and labels
