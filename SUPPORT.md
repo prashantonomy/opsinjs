@@ -1,57 +1,23 @@
 # Support
 
-opsinjs is a small, unfunded project. There is no company behind it, no support
-contract, and no service-level agreement. Assume a few people doing this
-alongside other work. Questions are usually answered. Sometimes they are not, and
-a polite follow-up after a week is reasonable rather than rude. Two kinds of
-message jump the queue, and both are called out below so that you know to say
-them out loud.
+opsinjs is a small, unfunded project with no support contract. Questions are usually
+answered, and a polite follow-up after a week is welcome.
 
-## Where to take what
-
-| You have | Take it to |
+| You have | Go to |
 | --- | --- |
-| A question about how to do something | A discussion on the repository (GitHub Discussions) |
-| A page that is wrong, unclear or out of date | An issue naming the page's address |
-| A bug in a component or in this site | An issue, with a reproduction |
-| A concern that a component or a piece of guidance could cause harm | A public issue, marked as a **safety concern** |
-| A security vulnerability | [SECURITY.md](./SECURITY.md). Report it privately, and never open a public issue. |
+| A question about how to do something | [GitHub Discussions](https://github.com/prashantonomy/opsinjs/discussions), in the Q&A category |
+| A docs page that is wrong, unclear or out of date | A [documentation problem](https://github.com/prashantonomy/opsinjs/issues/new?template=docs-issue.yml) |
+| A bug in a component or in the site | A [bug report](https://github.com/prashantonomy/opsinjs/issues/new?template=bug-report.yml) with a reproduction |
+| A risk that somebody misreads their own health data | A [safety concern](https://github.com/prashantonomy/opsinjs/issues/new?template=safety-concern.yml), which is triaged first |
+| A security vulnerability | [SECURITY.md](SECURITY.md). Report it privately |
 
-The canonical repository is <https://github.com/prashantonomy/opsinjs>. The docs site
-is served at <https://opsinjs.pensievelabs.org>.
-
-## Not reachable yet
-
-The repository is not public at the time of writing. Until it is, GitHub
-Discussions and both kinds of issue have nowhere to land, because each of those
-routes ends at that same repository. This is a known gap, not a mistake in this file. Opening the
-repository is what turns the table above from an intention into a working route.
+The documentation is at <https://opsinjs.pensievelabs.org>.
 
 ## Asking a question that gets answered
 
-For a health design system the difference between an answerable question and an
-unanswerable one is usually the context, so please include:
-
-1. **What you are trying to show a person.** "A blood-pressure reading against
-   their usual range" is answerable. "A card component" is not.
-2. **What you tried**, including which docs page you were reading. If the docs
-   sent you the wrong way, that is a docs bug and worth reporting on its own.
-3. **The versions.** Which registry URL you installed a component from, and when
-   you copied it, because nothing in the emitted source records where it came
-   from.
-4. **What "correct" would look like.** For anything clinical the right answer
-   depends on what the number means for the person reading it, and we cannot
-   guess that.
-
-## Safety concerns come first
-
-If following the guidance here could lead someone to misread their own health
-data, that is the most important message this project can receive. Open a public
-issue, say it is a safety concern in the first line, and do not bury it in a
-feature request. A clinical safety concern is not a security vulnerability, and
-routing it through the private security channel only slows it down.
-
-## Contributing and community
-
-How to contribute is in [CONTRIBUTING.md](./CONTRIBUTING.md). The documentation is at
-<https://opsinjs.pensievelabs.org>.
+1. Say what you are trying to show a person. "A blood pressure reading against their
+   usual range" is answerable, and "a card component" is not.
+2. Say what you tried and which docs page you read.
+3. Say which component you installed and when, because nothing in the copied source
+   records its version.
+4. Use made-up values. Never post real patient data.

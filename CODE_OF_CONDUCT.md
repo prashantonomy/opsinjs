@@ -59,15 +59,13 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the maintainers responsible for enforcement. Because this project
-does not operate a dedicated contact email, send your report through the
-repository itself: open a private message to the maintainers on the
-repository host, or, for a sensitive report, use the repository Security tab
-and its "Report a vulnerability" flow, which keeps the report private to the
-maintainers. While the repository is private, only collaborators can reach
-that tab; it opens to everyone once the repository becomes public. A clinical
-safety concern is not a code of conduct matter and is not a vulnerability, so
-please raise it as a public issue instead.
+reported privately to the community leaders responsible for enforcement through
+this repository's private reporting form: the Security tab, "Report a
+vulnerability", or
+https://github.com/prashantonomy/opsinjs/security/advisories/new . Start the
+title with "Conduct:". The form keeps the report visible to the maintainers
+only. A clinical safety concern is not a conduct matter, so open a public
+safety concern for that instead.
 
 All complaints will be reviewed and investigated promptly and fairly.
 
