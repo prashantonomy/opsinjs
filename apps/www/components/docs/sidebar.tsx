@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   BookMarked,
   Boxes,
+  HandHelping,
   HeartPulse,
   House,
   Layers,
@@ -33,6 +34,7 @@ const SECTION_ICONS: Record<string, ComponentType<LucideProps>> = {
   health: HeartPulse,
   patterns: Workflow,
   reference: BookMarked,
+  contribute: HandHelping,
 }
 
 function normalise(path: string): string {

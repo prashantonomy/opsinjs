@@ -11,7 +11,7 @@ These files live outside `content/docs/`, so fumadocs never indexes them.
 | `kind` | Template | Section |
 | --- | --- | --- |
 | `component` | `component.mdx` | Components |
-| `guide` | `page.mdx` | the top-level pages, and the Components overview |
+| `guide` | `page.mdx` | the top-level pages, the Contribute section, and the Components overview |
 | `foundation` | `page.mdx` | Foundations |
 | `health` | `page.mdx` | Health |
 | `pattern` | `page.mdx` | Patterns |

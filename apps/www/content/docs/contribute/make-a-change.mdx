@@ -1,0 +1,64 @@
+---
+title: Make a change
+description: The steps for every change, from an idea to a merged pull request, with the prompt to give Claude Code at each step.
+kind: guide
+aliases: [contribution workflow, plan mode, open a pull request]
+reviewed: 2026-10-08
+reviewer: engineering
+reviewEvery: 6m
+---
+
+Follow these steps for every change. Claude Code does the typing. You make the decisions and check the result.
+
+## The steps
+
+1. **Start with an issue.** A typo or a broken link needs none. A colour, a text size or a new component needs a [proposal](https://github.com/prashantonomy/opsinjs/issues/new?template=proposal.yml) first, and you wait until a maintainer agrees the approach. Write the clinical reason in your own words, because that is the part only you can supply.
+2. **Start fresh.** In your `opsinjs` folder, run `claude`. Between two unrelated tasks, type `/clear`.
+3. **Get the latest code and a branch.**
+
+   ```text title="Prompt"
+   Update my fork's main branch from prashantonomy/opsinjs, then create a
+   new branch for issue #42.
+   ```
+
+4. **Ask for a plan first.** Press Shift+Tab until the status bar shows plan mode. Claude then reads and plans without changing anything.
+
+   ```text title="Prompt"
+   For issue #42 I want to <describe your change>. Do not change anything
+   yet. Find the files involved, explain in plain English what you would
+   change and why, and tell me what could go wrong.
+   ```
+
+5. **Read the plan.** Ask about anything you do not understand, and correct anything that is wrong, before you approve it.
+6. **Let Claude make the change.** It asks before it edits a file or runs a command. If you are not sure what a command does, ask before you approve it.
+7. **Look at the result.** With `pnpm dev` running, open the page in your browser. Check light and dark mode, a window as narrow as a phone, and 200% text size with the switches on each preview.
+8. **Run the checks.**
+
+   ```text title="Prompt"
+   Run pnpm typecheck, pnpm lint and pnpm check. If anything fails, explain
+   it in plain English and fix the cause. Never change a check to make it
+   pass.
+   ```
+
+9. **Open the pull request.**
+
+   ```text title="Prompt"
+   Commit this with a Conventional Commits message, push the branch to my
+   fork, and open a pull request against prashantonomy/opsinjs. Fill in the
+   pull request template and write "Closes #42" in it.
+   ```
+
+10. **Answer the review.** Paste each review comment into Claude, ask it to make the change, check the result again, and ask it to push to the same branch. The pull request updates by itself.
+11. **Undo when you need to.** Press Esc twice, or type `/rewind`, to go back to an earlier point. Git keeps everything you committed.
+
+## Best practices
+
+1. **One idea per pull request.** Two small pull requests are reviewed faster than one large one.
+2. **Be specific.** Name the page, the component, what you see and what you want. "The numbers at the ends of the range bar are hard to read at arm's length" beats "make the text bigger".
+3. **Plan before every change.** A wrong plan costs a minute. A wrong change costs an afternoon.
+4. **Make Claude show its work.** Ask for the checks, a screenshot, or the values before and after.
+5. **Ask why.** If Claude cannot explain a change in plain English, do not submit it.
+6. **Start again when stuck.** If you have corrected Claude twice on the same thing, type `/clear` and ask again with a more specific prompt.
+7. **Keep the issue up to date.** Write down what you decided and why, so the reviewer does not have to guess.
+
+Before your first change, read [What not to do](./what-not-to-do.mdx).

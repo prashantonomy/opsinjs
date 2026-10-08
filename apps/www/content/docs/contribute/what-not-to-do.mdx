@@ -1,0 +1,38 @@
+---
+title: What not to do
+description: The mistakes that matter most in a design system for health apps, each with what to do instead. Read it before your first change.
+kind: guide
+aliases: [contributor mistakes, contribution rules, do and do not]
+reviewed: 2026-10-08
+reviewer: content
+reviewEvery: 6m
+---
+
+Patients read what opsinjs draws, so some mistakes here can mislead a person about their own health. These rules are not optional, and each one says what to do instead.
+
+## Patient safety
+
+1. **Do not let a component judge a reading.** No component decides whether a number is high, low or dangerous, and no screen gives medical advice. Show the value, and leave its meaning to the product that uses opsinjs. See [Health](../health/index.mdx).
+2. **Do not mix the two colour axes.** A category colour says what a reading is about, and a status colour says how urgent it is. They never share one element, and red means urgent only. Give each element one axis. See [Two colour axes](../health/two-colour-axes.mdx).
+3. **Do not show a status by colour alone.** Every status needs its word, and an icon where there is room. Use the StatusPill component, or the status word the system supplies.
+4. **Do not soften clinical wording.** "Nothing to worry about" is a clinical claim, not friendlier copy. Use the wording in [Writing](../foundations/writing.mdx).
+5. **Do not invent evidence.** No made-up study, statistic, guideline or reference, from you or from Claude. Check every reference Claude suggests, and label an opinion as an opinion.
+6. **Do not claim a review that has not happened.** Never write "clinically validated", "meets WCAG" or "safe for patients". Say what was checked, and who checked it.
+
+## Data and security
+
+7. **Do not put real patient data anywhere.** Not in code, an example, a screenshot, an issue or a prompt. Use made-up names and values.
+8. **Do not share a secret.** Never paste a password, an API key or a token into Claude, an issue or a commit. If one slips out, cancel it at once with the service that issued it.
+9. **Do not copy protected text.** Cite NHS and other Crown copyright text, and write your own words rather than pasting it.
+10. **Do not approve a command you do not understand.** Ask Claude "what does this command do?" first. Never start Claude Code with `--dangerously-skip-permissions`, which turns every safety prompt off.
+
+## Code and process
+
+11. **Do not type raw values.** No hex colour such as `#3b82f6` and no pixel size such as `14px` in a component. Use a token, or change the token through a proposal.
+12. **Do not change a check to make it pass.** If `pnpm check` fails, fix what it found. A check that is edited or switched off hides the problem from everybody after you.
+13. **Do not edit a generated file.** Change its source and regenerate. AGENTS.md section 7 lists which files are generated.
+14. **Do not start a big change without an agreed issue.** A colour, a text size or a new component starts with a proposal.
+15. **Do not bundle ideas.** Put one idea in each pull request.
+16. **Do not submit what you have not looked at.** Open the change in your browser in light and dark mode, at phone width and at 200% text size.
+17. **Do not push to `main`.** Work on a branch in your fork and open a pull request.
+18. **Do not use em dashes or en dashes.** The build fails on U+2014 and U+2013. Ask Claude to rewrite the sentence instead.

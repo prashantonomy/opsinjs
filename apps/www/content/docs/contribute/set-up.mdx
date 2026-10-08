@@ -1,0 +1,74 @@
+---
+title: Set up once
+description: Install the tools, copy opsinjs to your computer and start Claude Code. You do this once, and it takes about an hour.
+kind: guide
+aliases: [contributor setup, install claude code, fork and clone]
+reviewed: 2026-10-08
+reviewer: engineering
+reviewEvery: 6m
+---
+
+Do these steps in order. Open the Terminal app on a Mac, or PowerShell on Windows, type each command and press Enter. Once Claude Code is installed, you can paste any error into it and ask what went wrong.
+
+## 1. Accounts
+
+1. Create a free account at [github.com](https://github.com/signup).
+2. Check that your Claude plan includes Claude Code: Pro, Max, Team, Enterprise or a Console account.
+
+## 2. Tools
+
+1. **Git** keeps track of every change. On a Mac, run `xcode-select --install`. On Windows, install [Git for Windows](https://git-scm.com/download/win).
+2. **Node.js 24** runs the site. Install it from [nodejs.org](https://nodejs.org), then check it with `node --version`.
+3. **GitHub CLI** lets Claude Code work with GitHub. Install it from [cli.github.com](https://cli.github.com), then run `gh auth login` and accept the suggested answers.
+4. **Claude Code** makes the changes. On a Mac or Linux:
+
+   ```bash
+   curl -fsSL https://claude.ai/install.sh | bash
+   ```
+
+   On Windows, in PowerShell:
+
+   ```powershell
+   irm https://claude.ai/install.ps1 | iex
+   ```
+
+   Check it with `claude --version`. New to the terminal? Anthropic's [terminal guide](https://code.claude.com/docs/en/terminal-guide) starts from the beginning.
+
+## 3. Your copy of opsinjs
+
+1. Make your own copy on GitHub, called a fork, and download it:
+
+   ```bash
+   gh repo fork prashantonomy/opsinjs --clone
+   cd opsinjs
+   ```
+
+2. Install the project's packages. If you are asked to download pnpm, type `Y`. If `corepack` is not found, run `npm install --global corepack@latest` first. On Windows, run `corepack enable` in PowerShell opened as administrator.
+
+   ```bash
+   corepack enable
+   pnpm install
+   ```
+
+3. Start the docs site:
+
+   ```bash
+   pnpm dev
+   ```
+
+4. Open `http://localhost:4000` in your browser. You should see these docs. Leave this window open while you work, and press Ctrl+C in it when you want to stop the site.
+
+## 4. Claude Code
+
+1. Open a second terminal window, go to the same folder with `cd opsinjs`, and run `claude`. Sign in the first time.
+2. Check that it has read the project's rules:
+
+   ```text title="Prompt"
+   Read CLAUDE.md and AGENTS.md. In five short sentences of plain English,
+   tell me what this project is and the rules you must follow when you
+   change it.
+   ```
+
+3. If the answer mentions tokens, the two colour axes and never inventing evidence, you are ready.
+
+Prefer a window to a terminal? The [VS Code extension](https://code.claude.com/docs/en/vs-code) runs the same Claude Code in a panel. Next, read [Make a change](./make-a-change.mdx).
