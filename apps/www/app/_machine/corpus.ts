@@ -71,7 +71,7 @@ export interface SectionDescriptor {
 }
 
 /**
- * The six sections of the sidebar, in the order the root `meta.json` declares
+ * The sections of the sidebar, in the order the root `meta.json` declares
  * them. `sectionOf` maps a page to exactly one of these, so a page appears
  * exactly once in `llms.txt`. That is what `check-llms.mts` asserts. The
  * top-level pages (the introduction and the guides beside it) form the first.
@@ -116,6 +116,12 @@ export const SECTIONS: SectionDescriptor[] = [
     title: "Reference",
     blurb:
       "The generated list of every token, CSS variable, data attribute, key binding, contrast pair and type, plus error codes and the glossaries.",
+  },
+  {
+    id: "contribute",
+    title: "Contribute",
+    blurb:
+      "A plain-language guide to contributing with Claude Code: setting up, every step with an example prompt, three worked examples and what not to do.",
   },
 ]
 

@@ -2,7 +2,7 @@
 
 Conventions for Claude Code working in this repository. `AGENTS.md` carries the
 technical rules and is the longer document, so **read it first**. This file is the
-working protocol on top of it.
+working protocol on top of it. Claude Code loads it with this file: @AGENTS.md
 
 ## The one-line summary
 
@@ -25,8 +25,9 @@ does.
    under `registry/bases/`, or the emitting script. The authority for what is generated
    is the `check:generated` script in `apps/www/package.json`, not a prose copy of the
    list.
-3. Check the page's `kind` frontmatter. Six kinds exist, one per sidebar section:
-   `guide`, `foundation`, `component`, `health`, `pattern` and `reference`. Only
+3. Check the page's `kind` frontmatter. Six kinds exist: `guide` (the root pages, the
+   Contribute section and the Components overview), `foundation`, `component`,
+   `health`, `pattern` and `reference`, one for each of the other sections. Only
    `kind: component` fixes the headings: Usage, Examples, When to use it, Clinical
    meaning (on a `health-*` category only), Accessibility, Props interface, in that
    order (`apps/www/lib/status.ts`). Every other page names its own headings, the way a

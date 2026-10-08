@@ -4,6 +4,10 @@ Thanks for helping. opsinjs is a design system for health apps that patients rea
 mistake here can mislead somebody about their own health. The process is short, and it is
 the same for people and for AI agents.
 
+Not a software engineer? [Contribute with Claude Code](https://opsinjs.pensievelabs.org/contribute)
+is a plain-language guide for clinicians and health scientists, with every step, example
+prompts and a list of what not to do.
+
 ## Ground rules
 
 1. Read [AGENTS.md](AGENTS.md) first. It holds the technical rules, and agents read it too.

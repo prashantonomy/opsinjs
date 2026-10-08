@@ -49,6 +49,7 @@ Run `pnpm typecheck`, `pnpm lint` and `pnpm check` before you open a pull reques
 ## Community
 
 - [Contributing](CONTRIBUTING.md) and [governance](GOVERNANCE.md)
+- [Contribute with Claude Code](https://opsinjs.pensievelabs.org/contribute), a plain-language guide for clinicians and health scientists
 - [Code of conduct](CODE_OF_CONDUCT.md)
 - [Support](SUPPORT.md). Questions go to [GitHub Discussions](https://github.com/prashantonomy/opsinjs/discussions)
 - [Security policy](SECURITY.md). Report a vulnerability privately, never in a public issue

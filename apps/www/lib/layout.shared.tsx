@@ -7,7 +7,7 @@ import { site } from "@/lib/routes"
  *
  * opsinjs is a documentation site and nothing else, so on a documentation page
  * the sidebar in components/docs/shell.tsx is the navigation: a wordmark, a
- * theme row, a search row and six sections. This file configures only the thin
+ * theme row, a search row and the sections. This file configures only the thin
  * bar fumadocs' `HomeLayout` draws over the tool pages: a wordmark and a search
  * toggle. The tools, the machine surfaces, GitHub and the theme switch are in
  * the footer those pages render.

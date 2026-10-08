@@ -6,7 +6,7 @@ import { DOCS_BASE, joinPath, site } from "./routes.ts"
 import { source } from "./source.ts"
 
 /**
- * The sidebar's data: six sections, each a list of groups, each a list of
+ * The sidebar's data: the sections, each a list of groups, each a list of
  * links, plus the H2 and H3 headings of every page so the page you are on can
  * list its own headings under its row.
  *

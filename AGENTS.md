@@ -172,8 +172,9 @@ The documentation is modelled on clawscale and blueprintjs.com, and ADR 0026
 (`decisions/0026-the-site-takes-the-clawscale-shape.md`) is the record. There is no top
 navigation, no breadcrumb, no right-hand table of contents and no footer on a
 documentation page. The sidebar is the navigation: a wordmark, a Theme row, a Search
-row, then six sections, which are opsinjs (the introduction and the guides at the
-root), Foundations, Components, Health, Patterns and Reference. Only the section you
+row, then seven sections, which are opsinjs (the introduction and the guides at the
+root), Foundations, Components, Health, Patterns, Reference and Contribute, the
+plain-language guide to contributing with Claude Code. Only the section you
 are in is expanded, and the page you are on lists its own H2 and H3 headings under its
 row.
 

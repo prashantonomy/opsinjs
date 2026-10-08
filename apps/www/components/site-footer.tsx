@@ -7,7 +7,7 @@ import { agentRoutes, registryRoutes, routes, site } from "@/lib/routes"
 /* ==========================================================================
    site-footer.tsx defines <SiteFooter>, the footer of the tool pages.
 
-   The documentation sidebar holds the six sections and nothing else, so the
+   The documentation sidebar holds the sections and nothing else, so the
    tool pages (`/colors`, `/tokens`, `/icons`, `/playground`, `/showcase`,
    `/official`), the machine surfaces and the licence are linked from here.
 

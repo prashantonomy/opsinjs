@@ -1,0 +1,123 @@
+---
+title: Three examples
+description: A colour change, a text size change and a new component, each taken from the idea to a pull request with the prompts that do it.
+kind: guide
+aliases: [contribution examples, example prompts, worked examples]
+reviewed: 2026-10-08
+reviewer: content
+reviewEvery: 6m
+---
+
+Each example follows [Make a change](./make-a-change.mdx). Replace issue #42 with your own issue number.
+
+## 1. "This colour would look better"
+
+You think the Sleep colour is too intense for a bedtime screen and want it calmer.
+
+What to know first:
+
+1. Colours are tokens. Each category colour, such as Sleep, Heart or Activity, is one seed in `apps/www/tokens/color.json` plus eleven shades worked out from it by a rule written in the same file.
+2. A category colour says what a reading is about. A status colour says how urgent it is. They must never look alike, so a category stays clear of the status hues, and red means urgent only. See [Two colour axes](../health/two-colour-axes.mdx).
+3. A token change reaches every app that uses opsinjs, so it starts with a proposal.
+
+The steps:
+
+1. Open a proposal called "Token change: a calmer Sleep colour", with a screenshot and your reason.
+2. When it is agreed, ask for a plan:
+
+   ```text title="Prompt"
+   For issue #42 I want the Sleep category colour calmer, meaning less
+   saturated. Do not change anything yet. Show me its seed and its eleven
+   shades in apps/www/tokens/color.json, explain the rule that turns the
+   seed into the shades, list the components and pages that use it, and
+   tell me how a change would affect contrast in light and dark mode.
+   ```
+
+3. Make the change:
+
+   ```text title="Prompt"
+   Lower the chroma of the Sleep seed as agreed in issue #42, and recompute
+   all eleven Sleep shades with the ladder rule in color.json. Change
+   nothing else. Then run the generate and contrast scripts in apps/www,
+   and show me the Sleep contrast figures before and after. If any pair
+   falls below its floor, stop and tell me.
+   ```
+
+4. Look at the [colour browser](/colors) and a component page with a Sleep example, in light and dark mode. Make sure the new colour cannot be mistaken for a status colour.
+5. Run the checks and open the pull request with screenshots from before and after.
+
+## 2. "This text should be a little bigger"
+
+The numbers at each end of a RangeBar are hard for older patients to read.
+
+What to know first:
+
+1. Text sizes are named steps in `apps/www/tokens/type.json`, from `largeTitle` down to `caption2`. A component picks a step and never sets a pixel size. The accessibility check fails if it does.
+2. Those end labels use `caption1`, the step for axis labels and legend text.
+3. There are two ways to make them bigger. Give the RangeBar labels a larger step, which changes one component. Or make `caption1` itself bigger, which changes every component that uses it and needs a proposal first.
+
+The steps:
+
+1. Ask for a plan:
+
+   ```text title="Prompt"
+   For issue #42: the numbers at each end of a RangeBar are hard to read
+   for older patients. Do not change anything yet. Tell me which text step
+   they use, which other components use the same step, and the two ways to
+   make them bigger, with what each one would change.
+   ```
+
+2. Choose the smaller change, unless the issue agreed the larger one:
+
+   ```text title="Prompt"
+   Use the next larger text step for the end labels in the RangeBar
+   component only. Do not touch tokens/type.json. Keep each label on one
+   line, and update the RangeBar docs page if it names the step.
+   ```
+
+3. Check the RangeBar page at 100% and 200% text size, and in a window as narrow as a phone. The labels must stay readable and must never overlap or be cut off.
+4. Run the checks and open the pull request with screenshots at both text sizes.
+
+## 3. "Health apps keep needing this, so make it a component"
+
+Many apps show a patient's next appointment, and you want a reusable card for it.
+
+What to know first:
+
+1. A new component is the biggest kind of change. Its proposal is agreed before anybody writes code.
+2. Something close may already exist. Check the [component list](../components/index.mdx) first, because two existing components together may already do the job.
+3. A component shows information. It never decides anything clinical, such as whether a missed appointment is urgent.
+
+The steps:
+
+1. Check what exists:
+
+   ```text title="Prompt"
+   I want a reusable card for a patient's next appointment: the date, the
+   time, the place and who it is with. Before writing any code, check
+   apps/www/registry/catalogue.ts and the component pages. Does a component
+   already do this, or could two existing ones be combined? Answer in plain
+   English.
+   ```
+
+2. If nothing fits, draft the proposal:
+
+   ```text title="Prompt"
+   Draft a proposal for an appointment card, following
+   .github/ISSUE_TEMPLATE/proposal.yml. Say what it shows, what it must
+   never assert about somebody's health, and what happens when it is wrong,
+   for example when an appointment moves or is cancelled. Do not write any
+   code.
+   ```
+
+3. Post the proposal on GitHub and wait until a maintainer agrees it.
+4. Build it as agreed:
+
+   ```text title="Prompt"
+   Build the appointment-card component as agreed in issue #42. Follow
+   AGENTS.md, copy the shape of apps/www/content/docs/components/button.mdx
+   for its page, and use made-up example data only. Then run the checks and
+   show me the preview.
+   ```
+
+5. Check the preview in light and dark mode, at phone width and at 200% text size, then open the pull request.
