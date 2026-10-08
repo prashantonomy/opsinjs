@@ -1,0 +1,52 @@
+name: Proposal
+description: Suggest a new component or pattern, a token change, or a change to the health doctrine.
+title: "proposal: "
+labels: ["proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The approach is agreed here before anybody writes code. Check the [component list](https://opsinjs.pensievelabs.org/components) first, because what you need may already exist.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of change
+      options:
+        - A new component
+        - A new pattern
+        - A token change, such as a colour, a type size or a spacing step
+        - A change to an existing component
+        - A change to the health doctrine
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to show a person, and what gets in the way today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What you have in mind. For a token change, name the token and say who it affects.
+    validations:
+      required: true
+
+  - type: textarea
+    id: health
+    attributes:
+      label: Health impact
+      description: For a component, what it asserts about somebody's health and what happens when it is wrong. For a colour, how it keeps category colour and status colour apart.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Links, guidelines or studies. If it is your opinion, say so. An honest opinion is welcome and an invented reference is not.

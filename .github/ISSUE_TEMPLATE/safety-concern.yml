@@ -1,0 +1,48 @@
+name: Safety concern
+description: Something here could lead a person to misread their own health data.
+title: "safety: "
+labels: ["safety"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Safety concerns are triaged before everything else.
+
+        Use made-up values, and never include real patient data or anything that identifies a person. A security vulnerability goes through the Security tab instead of here.
+
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: The page address, the component id or the file path.
+      placeholder: https://opsinjs.pensievelabs.org/components/range-bar
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: What could somebody misread?
+      description: Who reads it, what they would conclude, and why that conclusion is wrong or unsafe.
+    validations:
+      required: true
+
+  - type: textarea
+    id: safer
+    attributes:
+      label: What would be safer
+      description: Optional. Your suggestion, in your own words.
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: A guideline, a standard, a study or your own clinical experience. Say plainly when it is opinion. Cite NHS or other Crown copyright text rather than pasting it.
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before you submit
+      options:
+        - label: This report contains no real patient data.
+          required: true

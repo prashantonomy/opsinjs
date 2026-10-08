@@ -1,0 +1,47 @@
+name: Bug report
+description: A component or the docs site renders or behaves wrongly.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search the existing issues first. If the bug could lead somebody to misread their own health data, use the safety concern form instead.
+
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: The component id, the page address or the file.
+      placeholder: range-bar, or https://opsinjs.pensievelabs.org/components/range-bar
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected and what you saw. Screenshots help with a visual bug. Use made-up data, never real patient data.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: A minimal code sample, or the steps to follow on the docs site.
+    validations:
+      required: true
+
+  - type: input
+    id: installed
+    attributes:
+      label: When you installed it
+      description: Nothing in the copied source records its version, so give the date you ran `shadcn add`, or the commit you are on.
+      placeholder: 2026-10-08, or commit 90ff029
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: React 19.2, Next.js 16.3, Safari 18 on iOS, text at 200%

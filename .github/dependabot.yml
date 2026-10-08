@@ -1,7 +1,9 @@
-# Dependabot configuration for opsinjs.
-# Keeps the pnpm monorepo dependencies and the GitHub Actions workflows
-# current. Dependabot reads pnpm-lock.yaml at the repository root for the
-# npm ecosystem, so a single "/" directory covers the whole workspace.
+# Dependabot keeps the pnpm workspace and the GitHub Actions current. It reads
+# pnpm-lock.yaml at the repository root, so one "/" entry covers the workspace.
+#
+# The ignore rules hold the pins AGENTS.md section 4 and section 5 explain.
+# Dependabot honours them for security updates too, so a security alert on an
+# ignored package is handled by hand.
 version: 2
 updates:
   - package-ecosystem: "npm"
@@ -14,14 +16,36 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+    # Titles become squash commits on main, so they follow the commit format:
+    # "chore(deps): bump zod from 4.4.3 to 4.4.4".
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      # Pinned at 5.9.3. The 7.x line is the native port, not a drop-in upgrade.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # The types follow the Node 24 runtime that engines.node requires.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # fumadocs-ui is installed as the alias npm:@fumadocs/base-ui and peers
+      # fumadocs-core at an exact version, so the two are bumped together by hand.
+      - dependency-name: "fumadocs-core"
+      # Major 15 is the intended line.
+      - dependency-name: "fumadocs-mdx"
+        update-types: ["version-update:semver-major"]
+      # An ESLint major lands by hand, together with eslint-config-next.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
     groups:
-      # Roll minor and patch bumps into one pull request to keep review
-      # volume down. Major bumps stay separate so each one gets its own read.
+      # Minor and patch bumps share one pull request to keep review volume down.
+      # Each major gets its own pull request and its own read.
       npm-minor-and-patch:
         applies-to: version-updates
         update-types:
           - "minor"
           - "patch"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -33,6 +57,9 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
     groups:
       actions-minor-and-patch:
         applies-to: version-updates
