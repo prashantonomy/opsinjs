@@ -78,9 +78,9 @@ const REQUIRED_ROUTES = [
  * llms-full.txt.
  */
 const SHARDS: Record<string, string[]> = {
-  "llms-components.txt": ["components", "screens"],
-  "llms-health.txt": ["health", "accessibility", "content"],
-  "llms-foundations.txt": ["foundations", "theming"],
+  "llms-components.txt": ["components"],
+  "llms-health.txt": ["health"],
+  "llms-foundations.txt": ["foundations"],
   "llms-reference.txt": ["reference"],
 }
 

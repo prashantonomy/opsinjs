@@ -23,7 +23,7 @@
         "frontmatter": { "status": "shipped", "kind": "component" },
         "catalogueId": "range-bar",
         "catalogueStatus": "shipped",
-        "alsoResolves": ["recipes/value-against-a-range", "health/reference-ranges"]
+        "alsoResolves": ["patterns/result-disclosure", "health/reference-ranges"]
       }
     },
     {
@@ -45,12 +45,12 @@
       "why": "`result-card` is implemented and `shipped`. The correct answer names the one import path that resolves and states in the same breath that the API can change in any release and that nobody has reviewed it. Presenting a shipped health component as settled is one failure; still calling a built one unbuilt is the other, and this task fails on either. The built half is asserted through the `importPath` attribute of `<ComponentInstall>` - a prop only a built component's page carries - rather than through the sentence that says so in prose. The review half is asserted through `accessibility review`, which assert-ia rule SAFE001 requires inside the `<StubNotice>` of every component page.",
       "expect": {
         "page": "components/result-card",
-        "mustContain": ["importPath=\"@/components/ui/result-card\"", "import { ResultCard } from \"@/components/ui/result-card\"", "accessibility review", "status=\"shipped\""],
+        "mustContain": ["importPath=\"@/components/ui/result-card\"", "import { ResultCard } from \"@/components/ui/result-card\"", "clinical review pending", "status=\"shipped\""],
         "mustNotContain": ["npm install @opsinjs", "@opsinjs/react", "<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "is not built", "documents an absence", "nothing is built"],
         "frontmatter": { "status": "shipped", "kind": "component" },
         "catalogueId": "result-card",
         "catalogueStatus": "shipped",
-        "alsoResolves": ["project/release-phases"]
+        "alsoResolves": ["reading-the-docs"]
       }
     },
     {
@@ -64,7 +64,7 @@
         "frontmatter": { "status": "shipped", "kind": "component" },
         "catalogueId": "toast",
         "catalogueStatus": "shipped",
-        "alsoResolves": ["reference/generated/catalogue"]
+        "alsoResolves": ["components"]
       }
     },
     {
@@ -76,11 +76,11 @@
         "mustContain": [
           "category",
           "status",
-          "the never-mix rule, stated so it can be tested",
+          "no element is tinted by both axes",
           "status is never expressed by colour alone",
           "<StatusAxisDemo"
         ],
-        "alsoResolves": ["health/category-identity", "health/clinical-status-semantics"]
+        "alsoResolves": ["health/two-colour-axes"]
       }
     },
     {
@@ -88,15 +88,15 @@
       "question": "Can I show urgency with colour alone?",
       "why": "No. Colour-blind readers, sunlight, grayscale printing and screen readers all lose it. A status always carries a word, and there are four of those words: a page that still offers `expected` or `act` is describing a vocabulary the system dropped.",
       "expect": {
-        "page": "health/clinical-status-semantics",
+        "page": "health/two-colour-axes",
         "mustContain": [
-          "status is never conveyed by colour alone",
+          "status is never expressed by colour alone",
           "steady",
           "watch",
           "attention",
           "urgent"
         ],
-        "alsoResolves": ["accessibility/colour-independence", "content/writing-status-and-alerts"]
+        "alsoResolves": ["foundations/accessibility", "foundations/writing"]
       }
     },
     {
@@ -107,11 +107,11 @@
         "page": "health/reference-ranges",
         "mustContain": [
           "normal",
-          "is banned",
+          "banned words",
           "in the usual range",
-          "describes the person, not the measurement"
+          "describes the person rather than the measurement"
         ],
-        "alsoResolves": ["content/writing-status-and-alerts"]
+        "alsoResolves": ["foundations/writing"]
       }
     },
     {
@@ -119,9 +119,9 @@
       "question": "Should I show blood glucose in mmol/L or mg/dL?",
       "why": "Unit systems are a correctness surface, not a localisation preference: the same number in the wrong unit is a different clinical picture.",
       "expect": {
-        "page": "health/unit-systems",
+        "page": "health/numbers",
         "mustContain": ["mmol/l", "mg/dl"],
-        "alsoResolves": ["health/numbers-units-precision"]
+        "alsoResolves": ["health/numbers"]
       }
     },
     {
@@ -129,7 +129,7 @@
       "question": "Can I use oklch(0.7 0.2 25) directly for an urgent state?",
       "why": "No. A raw value is unthemeable, unmeasurable and invisible to the contrast gate. Reference the token. A token name is asserted alongside the word, because a page can say \"token\" a dozen times without ever showing one.",
       "expect": {
-        "page": "foundations/token-architecture",
+        "page": "theming",
         "mustContain": ["token", "--opsin-status-urgent-line"],
         "alsoResolves": ["theming", "reference/generated/tokens"]
       }
@@ -139,10 +139,10 @@
       "question": "How do I add opsinjs to a Next.js app?",
       "why": "The ordinary install path must be findable in one hop and must name the file the CLI reads. It must also not name a package: there is no npm distribution and ADR 0002 says there will not be one, so an install page that reaches for `npm install` has invented the thing a reader would then fail to install.",
       "expect": {
-        "page": "start/installation/next",
+        "page": "getting-started",
         "mustContain": ["components.json", "@opsinjs"],
         "mustNotContain": ["npm install @opsinjs", "@opsinjs/react"],
-        "alsoResolves": ["start/installation", "registry/namespaces"]
+        "alsoResolves": ["nextjs", "registry"]
       }
     },
     {
@@ -150,10 +150,10 @@
       "question": "Run the shadcn CLI to add a component from opsinjs.",
       "why": "An agent that assumes a registry is configured produces a command that fails. The namespace has to be registered first, and the docs have to say so before the command. The needle is the `components.json` entry itself, because that is the artefact the reader has to copy and the one thing the page cannot be useful without.",
       "expect": {
-        "page": "registry/namespaces",
+        "page": "registry",
         "mustContain": ["@opsinjs", "\"@opsinjs\": \"https://opsinjs.pensievelabs.org/r/{name}.json\""],
         "mustNotContain": ["npm install @opsinjs"],
-        "alsoResolves": ["agents/mcp-server"]
+        "alsoResolves": ["agents"]
       }
     },
     {
@@ -161,9 +161,9 @@
       "question": "How small can a tap target be?",
       "why": "A health app is used one-handed, in a hurry, sometimes by people with tremor. The floor is published and is not negotiable per screen, and it is stated in CSS pixels rather than as a bare number so that nobody reads it as points on one platform and device pixels on another.",
       "expect": {
-        "page": "accessibility/target-size-and-motor",
+        "page": "foundations/accessibility",
         "mustContain": ["44", "44 css pixels"],
-        "alsoResolves": ["foundations/space/density-and-touch"]
+        "alsoResolves": ["foundations/space"]
       }
     },
     {
@@ -171,9 +171,9 @@
       "question": "Where is the machine-readable version of these docs?",
       "why": "The agent surface is only useful if it is discoverable from the human surface, and only trustworthy if the page names the address that answers what is built. `/r/index.json` is that address, so the page that introduces the machine surface has to point at it.",
       "expect": {
-        "page": "agents/llms-txt",
+        "page": "agents",
         "mustContain": ["llms.txt", "/llms-components.txt", "/r/index.json"],
-        "alsoResolves": ["agents/raw-markdown-api", "agents/machine-readable-schemas"]
+        "alsoResolves": ["agents"]
       }
     },
     {
@@ -181,7 +181,7 @@
       "question": "What is the evidence that this presentation format is better?",
       "why": "Every health page declares whether it is stating evidence or an opinion. A fabricated citation in a health document is the worst thing this repository could contain.",
       "expect": {
-        "page": "health/evidence-and-references",
+        "page": "health/safety-review",
         "mustContain": ["opinion"],
         "frontmatterAny": { "evidence": ["cited", "opinion", "mixed"] }
       }
@@ -191,9 +191,9 @@
       "question": "Can I use opsinjs for a regulated medical device interface?",
       "why": "The honest answer is no, and it must be reachable from the first page a new reader opens rather than buried in a legal note.",
       "expect": {
-        "page": "start/safety-scope-and-limitations",
+        "page": "health",
         "mustContain": ["not a medical device"],
-        "alsoResolves": ["health/regulatory-context"]
+        "alsoResolves": ["health/safety-review"]
       }
     },
     {
@@ -202,16 +202,11 @@
       "why": "The index of the component section is where that question is answered in one hop, and it is the page a corpus-wide regression would flatten first: before the component layer was built, this page listed reserved names and nothing else. A roster rendered from the catalogue is the structural fact - the `<StatusMatrix>` and `<SectionProgress>` calls are asserted rather than the count in the prose above them, because the count is allowed to move and the roster is not allowed to vanish. The roster's own contents are then pinned through the catalogue rather than through the rendered table, which is generated and does not appear in the page text at all: `score-dial` is the built id this task holds, and it is deliberately not one of the four the `*-is-built` tasks hold.",
       "expect": {
         "page": "components",
-        "mustContain": [
-          "<StatusMatrix",
-          "shipped",
-          "<SectionProgress",
-          "registry/catalogue.ts"
-        ],
+        "mustContain": ["every component is", "shipped", "(./result-card.mdx)", "(./visually-hidden.mdx)"],
         "mustNotContain": ["<NotBuiltYet", "nothing is built", "no component is implemented"],
         "catalogueId": "score-dial",
         "catalogueStatus": "shipped",
-        "alsoResolves": ["reference/generated/catalogue", "project/release-phases"]
+        "alsoResolves": ["components", "reading-the-docs"]
       }
     },
     {
@@ -271,10 +266,10 @@
       "question": "What is the one command that puts an opsinjs component in my project?",
       "why": "The sixty-second entry point, and the page where a regression to \"nothing is built\" is most costly: a reader who is told here that the command is a sketch never reaches a component page at all. The command is asserted verbatim because it is a fenced line that cannot wrap, and the npm forms are asserted absent because the page names the id that actually installs and must not offer a package that does not exist.",
       "expect": {
-        "page": "start/add-your-first-component",
+        "page": "getting-started",
         "mustContain": ["npx shadcn@latest add @opsinjs/status-pill", "components.json"],
         "mustNotContain": ["<NotBuiltYet", "nothing is built", "npm install @opsinjs", "@opsinjs/react"],
-        "alsoResolves": ["start/quick-start", "start/installation", "start/installation/components-json"]
+        "alsoResolves": ["getting-started"]
       }
     },
     {
@@ -282,9 +277,9 @@
       "question": "Can I npm install the opsinjs components instead of copying source?",
       "why": "No, and this is the one direction the rest of the suite does not guard: every other regression here is a page understating what exists, and this is a page overstating it. Nothing is published to npm, the decision to publish has not been made, and the page has to keep saying so while the components it describes remain installable by another route entirely. An agent that reads `shipped` as a release reaches for `npm install` next, so this is the failure adjacent to every task above it.",
       "expect": {
-        "page": "packages/opsinjs-react",
-        "mustContain": ["nothing is published to npm", "<StubNotice"],
-        "alsoResolves": ["project/decisions/0002-shadcn-registry-distribution", "registry"]
+        "page": "registry",
+        "mustContain": ["none is published", "proposed as specifications"],
+        "alsoResolves": ["registry"]
       }
     }
   ]

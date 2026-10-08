@@ -5,8 +5,7 @@ status: shipped
 kind: component
 category: health-data-display
 aliases: [gauge, dial, ring, score, index, bmi]
-governedBy: [reference-ranges, risk-and-statistics, numbers-units-precision, two-colour-axes, motion-in-health-ui, category-identity]
-usedIn: [choose-a-component, health-metric-card, results-screen]
+governedBy: [reference-ranges, numbers, two-colour-axes, alerts]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +22,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="score-dial" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="score-dial"
@@ -36,8 +31,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
   registryDependencies={["value", "status-pill"]}
 />
-
-## Usage
 
 ```tsx
 import { ScoreDial } from "@/components/ui/score-dial"
@@ -56,110 +49,9 @@ import { ScoreDial } from "@/components/ui/score-dial"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "A questionnaire total, a readiness index, or any score you calculated, meaningful only against its own bands.",
-    "A bounded score whose scale the reader has no intuition for, where position carries more than digits.",
-    "A score whose derivation you can state in one sentence, on the same screen.",
-  ]}
-  avoid={[
-    { case: "The number is a measurement rather than a calculation, with a published reference range.", instead: "range-bar" },
-    { case: "You cannot say what went into the score, or it is a risk or probability, which a dial must never draw as an angle.", instead: "value" },
-    { case: "The score is only meaningful as a trajectory, so one number says nothing alone.", instead: "trend-sparkline" },
-    { case: "You are showing completion of something the person is doing, such as steps against a goal.", instead: "progress" },
-    { case: "The score crossed a threshold that needs action now. The dial refuses attention and urgent.", instead: "care-card" },
-  ]}
-/>
-
-## Clinical meaning
-
-**Asserts.** The product computed a number from stated inputs, and it fell in a named band.
-It asserts a calculation, never a fact about the reader's body.
-
-**Never read as.** A measurement, a diagnosis, a percentage or a rank.
-[Risk and statistics](../health/risk-and-statistics.mdx) keeps probabilities off it. The
-scale reads *on a scale of 10 to 20*, never *out of 20*.
-
-**Colour axis.** Status sits on the indicator and the band the score fell in, only when the
-product passed `status`. Other bands stay neutral. Category tints the label alone, so
-[the two colour axes](../health/two-colour-axes.mdx) never meet.
-
-**Thresholds.** The product owns every band and cut-off; opsinjs ships none.
-`ScoreBand.source` is required, as [Reference ranges](../health/reference-ranges.mdx)
-demands. `status` is an input, never derived. `attention` and `urgent` are refused.
-
-**Staleness.** `calculatedAt` renders as a plain date, with no staleness treatment. Add a RelativeTime when an old score must read as old.
-
-<SafetyCallout severity="attention" evidence="opinion">
-When only part of the input data was available, `coverage` must say so. Name what was
-counted in your derivation; it will not guess a noun.
-</SafetyCallout>
-
-## Anatomy
-
-<Anatomy
-  name="score-dial"
-  parts={[
-    {
-      name: "ScoreDial",
-      describes: "The root. A stacked column, no colour, no tab stop.",
-      prop: "className",
-    },
-    {
-      name: "ScoreDial.Label",
-      describes: "What the score is called. The only part category tints.",
-      prop: "category",
-    },
-    {
-      name: "ScoreDial.Track",
-      describes: "The SVG, role=\"img\". Never a meter, a progressbar or a slider.",
-      prop: "min, max",
-    },
-    {
-      name: "ScoreDial.Band",
-      describes: "One arc per band, neutral unless the score fell there with a status.",
-      prop: "bands",
-    },
-    {
-      name: "ScoreDial.Boundary",
-      describes: "A radial mark at each internal band edge, so bands survive greyscale.",
-    },
-    {
-      name: "ScoreDial.Indicator",
-      describes: "The score's position. Absent with no score, no width, or off-scale.",
-      prop: "value",
-    },
-    {
-      name: "ScoreDial.Reading",
-      describes: "The visible text twin: number, band name and StatusPill.",
-      prop: "value, precision, locale, status",
-    },
-    {
-      name: "ScoreDial.Coverage",
-      describes: "The partial-data sentence, only when coverage is short.",
-      prop: "coverage",
-    },
-    {
-      name: "ScoreDial.Scale",
-      describes: "The bounds in words, each band with its range, and whose bands.",
-      prop: "min, max, bands",
-    },
-    {
-      name: "ScoreDial.Derivation",
-      describes: "What went into the score, over what window. Always shown.",
-      prop: "derivation",
-    },
-    {
-      name: "ScoreDial.CalculatedAt",
-      describes: "When the score was calculated. Without an instant it says nobody knows.",
-      prop: "calculatedAt",
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="score-dial" />
 
 ### opsinjs ships no bands
 
@@ -180,29 +72,67 @@ field on a band.
 
 <ComponentPreview name="score-dial-zero-is-not-absence" kind="example" align="start" />
 
+## When to use it
+
+<WhenToUse
+  use={[
+    "A questionnaire total, a readiness index, or any score you calculated, meaningful only against its own bands.",
+    "A bounded score whose scale the reader has no intuition for, where position carries more than digits.",
+    "A score whose derivation you can state in one sentence, on the same screen.",
+  ]}
+  avoid={[
+    { case: "The number is a measurement rather than a calculation, with a published reference range.", instead: "range-bar" },
+    { case: "You cannot say what went into the score, or it is a risk or probability, which a dial must never draw as an angle.", instead: "value" },
+    { case: "The score is only meaningful as a trajectory, so one number says nothing alone.", instead: "trend-sparkline" },
+    { case: "You are showing completion of something the person is doing, such as steps against a goal.", instead: "progress" },
+    { case: "The score crossed a threshold that needs action now. The dial refuses attention and urgent.", instead: "care-card" },
+  ]}
+/>
+
+## Clinical meaning
+
+**Asserts.** The product computed a number from stated inputs, and it fell in a named
+band. It asserts a calculation, never a fact about the reader's body.
+
+**Never read as.** A measurement, a diagnosis, a percentage or a rank.
+[Numbers and units](../health/numbers.mdx) keeps probabilities off it, and the scale
+reads *on a scale of 10 to 20*, never *out of 20*.
+
+**Colour axis.** Status sits on the indicator and the band the score fell in, only when
+the product passed `status`, and other bands stay neutral. Category tints the label
+alone, so [two colour axes](../health/two-colour-axes.mdx) never meet.
+
+**Thresholds.** The product owns every band and cut-off, and opsinjs ships none.
+`ScoreBand.source` is required, as [Reference ranges](../health/reference-ranges.mdx)
+demands. `status` is an input, never derived, and `attention` and `urgent` are refused.
+
+**Staleness.** `calculatedAt` renders as a plain date, with no staleness treatment. Add
+a RelativeTime when an old score must read as old.
+
+<SafetyCallout severity="attention" evidence="opinion">
+When only part of the input data was available, `coverage` must say so. Name what was
+counted in your derivation; it will not guess a noun.
+</SafetyCallout>
+
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is author-run,
-not an independent review, and clinical review is still pending. It found nothing to change:
-no serious defect in the source, and a clean rendered pass over axe, target size and
-320px reflow. There are no interactive elements, so keyboard and pointer criteria pass
-vacuously.
+The graphic is `role="img"` with a complete `aria-label` and `focusable="false"`, never
+a `meter`, `progressbar` or `slider`, which would assert a within-range value it may not
+make. Every status tint carries a word, a glyph and `data-status`, never colour alone,
+and the band name, scale, source and derivation are visible text no prop removes. One
+stacked column never truncates at 200% text, nothing animates, and nothing is
+interactive, so keyboard and pointer criteria pass vacuously. It renders clean for axe,
+target size and 320px reflow, and the audit changed nothing.
 
-**Argued from the source.**
+**Residual items.**
 
-- The graphic is `role="img"` with a complete `aria-label` and `focusable="false"`, never a
-  `meter`, `progressbar` or `slider`, which would assert a within-range value it may not make.
-- Every status tint carries a word and a glyph and stamps `data-status`, never colour alone.
-- The band name, scale, source and derivation are visible text no prop removes, the layout
-  is one stacked column that never truncates at 200% text, and nothing animates.
-
-**Deferred.** No live region mounts, because it is static and read-only, so nothing
-announces a score change; adding one is a recommended enhancement, not a fix. The tinted band
-strokes below the non-text floor in light, left as-is because the band name, the StatusPill
-word and glyph, the indicator and `data-status` all say the same thing.
-
-**Unmeasured.** The pair the arc stroke forms against its card is not in the measured set;
-the source records it and types no number.
+- The static, read-only dial mounts no live region, so nothing announces a score change.
+  Adding one is a recommended enhancement, not a fix.
+- The tinted band strokes fall below the non-text floor in light, and stay because the
+  band name, the StatusPill word and glyph, the indicator and `data-status` say the same
+  thing.
+- The arc stroke against its card is not in the measured set, and the source records the
+  pair without a number.
 
 <KeyboardTable
   name="score-dial"
@@ -222,7 +152,17 @@ the source records it and types no number.
 
 <ContrastReport component="score-dial" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="ScoreDialProps" />
+
+`bands` is required with no default, and may be an empty array. A `ScoreBand` carries
+an inclusive `from`, an exclusive `to`, a `name` in the reader's language and a required
+`source`. `status` accepts only `steady | watch`. `precision` is required, as
+[Numbers and units](../health/numbers.mdx) demands. A non-finite
+`value` prints and speaks *not available*.
+
+### Data attributes
 
 <DataAttributesTable
   name="score-dial"
@@ -249,21 +189,3 @@ the source records it and types no number.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="ScoreDialProps" />
-
-`bands` is required with no default, and an empty array is legitimate. A `ScoreBand` carries
-an inclusive `from`, an exclusive `to`, a `name` in the reader's language and a required
-`source`. `status` accepts only `steady | watch`. `precision` is required, as
-[Numbers, units and precision](../health/numbers-units-precision.mdx) demands. A non-finite
-`value` prints and speaks *not available*.
-
-## Related
-
-- [RangeBar](./range-bar.mdx) is a measured value against a published range, not a calculation.
-- [Progress](./progress.mdx) is a task advancing towards a goal, not a score.
-- [GoalRing](./goal-ring.mdx) is the ring the reader fills by doing something.
-- [MetricTile](./metric-tile.mdx) is the compact readout, with no room for a derivation.
-- [Value](./value.mdx) is honest when the derivation cannot be stated.

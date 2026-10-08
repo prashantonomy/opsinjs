@@ -1,7 +1,7 @@
 /**
  * GET /llms.txt is the curated index of the whole site.
  *
- * One entry per page, grouped under the sixteen documentation sections, with
+ * One entry per page, grouped under the six documentation sections, with
  * absolute URLs, the page's release status and its search synonyms. Every page
  * appears exactly once. `check-llms.mts` asserts both that and that every URL
  * printed here answers 200, which is what stops this file rotting into a list

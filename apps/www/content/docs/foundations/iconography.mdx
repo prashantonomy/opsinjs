@@ -1,0 +1,79 @@
+---
+title: Iconography
+description: One icon library, glyphs that never carry status alone, and the medical symbols opsinjs will not use.
+kind: foundation
+aliases: [icons, lucide, medical icons]
+---
+
+opsinjs draws every glyph from lucide, and the registry components import theirs from `lucide-react`. The [icon browser](/icons) lists the curated set and each glyph's job.
+
+## Rules
+
+1. **An icon never carries status alone.** Status is a colour, a glyph and a word together. There are no exceptions.
+2. **An icon is decorative unless it is the only content.**
+3. **Primary navigation and primary actions carry words.**
+4. **An icon never stands for a value.** A tick or a smiley beside a reading is a verdict, and verdicts are [clinical status](../health/two-colour-axes.mdx) in words.
+5. **No value, unit or status word is ever an icon or an icon font.**
+6. **Propose a missing glyph rather than drawing one.** A one-off SVG escapes the inventory and the colour-vision audit.
+
+## Status glyphs
+
+`CLINICAL_STATUS_META[level].icon` in `lib/status.ts` names one glyph per level: `Circle` for Steady, `CircleDot` for Watch, `Diamond` for Needs attention, `Octagon` for Urgent and `Minus` for Not known. Take glyph names from the map, as [StatusPill](../components/status-pill.mdx) does, rather than choosing your own.
+
+Each silhouette is heavier than the last, so the order survives greyscale. `Minus` is the absence of a verdict, never a fifth level. Do not use a warning triangle as a status glyph by default.
+
+## Health glyphs
+
+opsinjs does not practise medicine, so no glyph may claim a clinician is speaking. Never use:
+
+- **A red cross on white.** It is protected under the Geneva Conventions and national law.
+- **Any cross meaning "medical", a caduceus or a rod of Asclepius.** They signal authority.
+- **A stethoscope, white coat or clinician figure.** It implies a doctor is involved, and usually none is.
+- **A syringe, needle or blood drop.** It distresses many readers, including many the product serves.
+- **A pill meaning "health".** Use a pill only for a dose.
+- **A decorative ECG trace.** It is fabricated data.
+- **A health service's marks.** They imply a false endorsement.
+
+Draw the object measured or the activity recorded, or use words. Emergency is a screen with words, a phone number and a stated source ([High-stakes moments](../health/high-stakes-moments.mdx)), never a glyph.
+
+<SafetyCallout severity="watch" evidence="opinion">
+  This list is a design position, not a measured finding. The red cross emblem is a legal matter, and implying clinical status you do not hold is a regulatory question in most jurisdictions. Check both with your own counsel.
+</SafetyCallout>
+
+## Icons in code
+
+[Button](../components/button.mdx), [IconButton](../components/icon-button.mdx), [MetricTile](../components/metric-tile.mdx) and [TabBar](../components/tab-bar.mdx) take a glyph as a node and wrap it `aria-hidden`. Button and IconButton size any child `svg` at `1em`.
+
+```tsx
+import { Search } from "lucide-react"
+
+<IconButton
+  icon={<Search />}
+  label="Search readings"
+  onClick={openSearch}
+/>
+```
+
+The required `label` is the accessible name. Name the action ("Dismiss alert"), never the picture ("cross").
+
+- Import icons by name, never the whole library.
+- Never hardcode a fill or a stroke colour. Glyphs take `currentColor`.
+- Never put `aria-hidden` on a focusable element.
+- Never animate an icon to attract attention.
+
+## Sizing and alignment
+
+- Beside text, size in `em` so the glyph grows with the reader's text size.
+- Glyph size is not target size. A small glyph sits inside the 44px `--opsin-target-minimum` floor ([Space and layout](./space.mdx)).
+- Leave `--opsin-space-1` (4px) between a glyph and its label.
+- Align to the optical centre of the text, not its baseline.
+- Keep one size per row, and keep the icon column when a row has none.
+- Meaningful glyphs meet WCAG 2.2 SC 1.4.11 at their rendered size and stroke.
+
+## Inventory
+
+Only status is mapped. Components import other glyphs directly, so keep each concept's glyph in one place until a map exists.
+
+<NoDataYet what="The generated role-to-glyph table" script="scripts/build-registry.mts">
+No generator emits icon data yet, because `scripts/build-registry.mts` has no icon step.
+</NoDataYet>

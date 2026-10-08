@@ -21,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="avatar" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="avatar"
@@ -34,8 +30,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
 />
 
-## Usage
-
 ```tsx
 import { Avatar } from "@/components/ui/avatar"
 ```
@@ -43,6 +37,24 @@ import { Avatar } from "@/components/ui/avatar"
 ```tsx
 <Avatar name="Ada Vance" src="/people/ada-vance.jpg" size="md" />
 ```
+
+## Examples
+
+<ComponentPreview name="avatar" />
+
+### A name becomes its initials
+
+`name` drives the initials. A two-part name gives first and last, a single name
+gives one, and a non-Latin name keeps its own script rather than a transliterated guess.
+
+<ComponentPreview name="avatar-initials-from-a-name" kind="example" align="start" />
+
+### The fallback chain, one tier at a time
+
+`src` and `name` decide the tier: a picture that loads, initials when there is no
+picture, and a neutral person glyph when there is neither.
+
+<ComponentPreview name="avatar-the-fallback-chain" kind="example" align="start" />
 
 ## When to use it
 
@@ -60,75 +72,13 @@ import { Avatar } from "@/components/ui/avatar"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="avatar"
-  parts={[
-    {
-      name: "Avatar",
-      describes: "The root: a neutral circle sized in rem. Carries the name as its label when a fallback shows. Never a control.",
-      prop: "size",
-    },
-    {
-      name: "Avatar.Image",
-      describes: "The picture, when supplied and loaded. Its alt is the name. On error it is dropped for the fallback.",
-      prop: "src",
-    },
-    {
-      name: "Avatar.Fallback",
-      describes: "Initials from the name, or a lucide User glyph when the name yields none. Hidden from assistive technology.",
-      prop: "name",
-    },
-  ]}
-/>
-
-## Examples
-
-### A name becomes its initials
-
-`name` drives the initials. A two-part name gives first and last, a single name
-gives one, and a non-Latin name keeps its own script rather than a transliterated guess.
-
-<ComponentPreview name="avatar-initials-from-a-name" kind="example" align="start" />
-
-### The fallback chain, one tier at a time
-
-`src` and `name` decide the tier: a picture that loads, initials when there is no
-picture, and a neutral person glyph when there is neither.
-
-<ComponentPreview name="avatar-the-fallback-chain" kind="example" align="start" />
-
-## Content guidelines
-
-Pass the person's real name, spelled the way they spell it, through `name`. It is
-the alt text and the source of the initials at once, so a placeholder like "User"
-becomes a wrong label and wrong initials. opsinjs ships no default face and does not
-moderate a `src`.
-
-<DoDont>
-  <DoDont.Do>
-    **"Ada Vance", with her photo, or "AV" when there is none.** One field feeds the alt text and the initials.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A generic silhouette used for everyone, with no name behind it.** A nameless circle identifies nobody.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears anywhere.
-
-**Audited against WCAG 2.2 AA**, in a source pass over the component code and a
-rendered pass with axe-core, target-size, focus-visible and reflow checks. The audit
-is author-run, not an independent review, and clinical review is still pending.
-
-The audit found one defect worth fixing: a picture with a missing or blank name
-rendered with an empty `alt`, so a screen reader announced nothing while a sighted
-reader still saw a face. The picture tier now requires a usable name too, so a
-nameless avatar falls through to the neutral person glyph instead, matching the
-fallback chain this page already promises.
+The audit fixed one defect: a picture with a missing or blank name rendered an empty
+`alt`, so a screen reader announced nothing while a sighted reader saw a face. The
+picture tier now requires a usable name too, so a nameless avatar falls through to the
+neutral person glyph. On every commit `pnpm run check:a11y` confirms every colour is a
+role token, no type size is in `px` and no banned word appears.
 
 - The avatar takes no focus and is not a tab stop. Inside a button or a link, that
   control owns the focus and the name.
@@ -136,14 +86,16 @@ fallback chain this page already promises.
   and the initials or glyph are `aria-hidden`.
 - With a picture showing, the image's own `alt` carries the name and the root stays a
   plain container, so the name is announced once.
+
+**Residual items.**
+
 - An empty name warns in development, draws the person glyph and leaves the circle
   unlabelled, because the component cannot invent a label.
-
-**Left open by the audit.** Contrast of the initials and the glyph on the muted fill
-comes from shared role tokens, not a literal colour here; the rendered pass found no
-violation, but no ContrastReport data exists yet for this pair. Initials are still
-taken by code point rather than grapheme cluster, so a combining mark can be lost, as
-the notice above already states.
+- The initials and the glyph take their contrast on the muted fill from shared role
+  tokens. The rendered pass found no violation, but no ContrastReport data exists yet
+  for this pair.
+- Initials are taken by code point rather than grapheme cluster, so a combining mark
+  can be lost.
 
 <KeyboardTable
   name="avatar"
@@ -168,16 +120,10 @@ the notice above already states.
 
 <ContrastReport component="avatar" />
 
-## API reference
+## Props interface
 
 <PropsTable name="AvatarProps" />
 
 `name` is required, but an empty string still compiles. It warns in development and
 falls back to the person glyph. A missing or broken `src` is a fallback, not an error.
 `size` defaults to `md`, and an unknown value is repaired to `md` with a warning.
-
-## Related
-
-- [IconButton](./icon-button.mdx) is a control you press. An avatar presents a person and does nothing when tapped.
-- [Badge](./badge.mdx) is a count or a short status word, not a person.
-- [Skeleton](./skeleton.mdx) holds an avatar's space while a picture loads. An avatar is what arrives once it has.

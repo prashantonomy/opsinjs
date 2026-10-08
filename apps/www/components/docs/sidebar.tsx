@@ -1,204 +1,280 @@
 "use client"
 
-import type { ReactNode } from "react"
-import type * as PageTree from "fumadocs-core/page-tree"
-import { usePathname } from "fumadocs-core/framework"
+import type { ComponentType, ReactNode } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
-  SidebarFolder,
-  SidebarFolderContent,
-  SidebarFolderLink,
-  SidebarFolderTrigger,
-  SidebarItem,
-  useFolder,
-  useFolderDepth,
-} from "fumadocs-ui/components/sidebar/base"
-import { useTreePath } from "fumadocs-ui/contexts/tree"
+  BookMarked,
+  Boxes,
+  HeartPulse,
+  House,
+  Layers,
+  Search,
+  Workflow,
+  type LucideProps,
+} from "lucide-react"
+import { useSearchContext } from "fumadocs-ui/contexts/search"
+import { ThemeSwitch } from "fumadocs-ui/layouts/shared/slots/theme-switch"
+
+import type { DocsNav, NavLink, NavSection } from "@/lib/docs-nav"
+import { site } from "@/lib/routes"
 
 /**
- * The sidebar rows: which level a row is at, as distinct from what the levels
- * are and what they look like.
- *
- * `lib/sidebar-tree.ts` decides the shape and guarantees there are exactly three
- * levels and that only level 0 carries an icon. The `[data-opsin-nav]` block in
- * `app/globals.css` decides what a level looks like. This file is the join: it
- * renders each row with the level it sits at, and nothing else.
- *
- * WHY THIS REPLACES THE DEFAULT ROWS. fumadocs styles every row identically and
- * separates the levels with twelve pixels of indent and one vertical rail drawn
- * at depth 1 only. Two rows on different branches then look the same, a page
- * three levels in has nothing above it tying it to its section, and the reader
- * is left measuring. `sidebar.components` in `DocsLayout` is the published seam
- * for replacing the three renderers, and
- * `fumadocs-ui/components/sidebar/base` is a published entry point carrying the
- * behaviour worth keeping: the collapsible, the open state, the auto-scroll to
- * the active row, the chevron that toggles while the label navigates.
- *
- * THE PANELS STAY IN THE DOCUMENT. `hiddenUntilFound` renders
- * `hidden="until-found"` instead of unmounting, which changes two things. The
- * browser's own find-in-page reaches a collapsed section and opens it. And every
- * link in the sidebar is in the HTML of every page, so the corpus is one
- * crawlable graph rather than four hundred pages that each expose the ten
- * pillars plus whichever branch happens to be open. Nothing about what is on
- * screen changes: a closed panel is still closed.
+ * The documentation sidebar, modelled on blueprintjs.com: a wordmark, two
+ * action rows, then the sections. Only the section you are in is expanded, and
+ * the page you are on lists its own headings under its row, so there is no
+ * second table of contents on the right.
  */
 
-/** fumadocs' own matcher, which is not exported. Two lines, and it has to agree. */
-function isActive(href: string, pathname: string): boolean {
-  const normalise = (value: string) =>
-    value.length > 1 && value.endsWith("/") ? value.slice(0, -1) : value
-  return normalise(href) === normalise(pathname)
+const SECTION_ICONS: Record<string, ComponentType<LucideProps>> = {
+  home: House,
+  foundations: Layers,
+  components: Boxes,
+  health: HeartPulse,
+  patterns: Workflow,
+  reference: BookMarked,
 }
 
-/**
- * A page row.
- *
- * `useFolderDepth()` is the row's own level: zero at the root, one inside a
- * pillar, two inside a section. The icon is passed through rather than
- * suppressed here, because the tree has already stripped every icon below the
- * top level and a second guard in a second file is a second thing to keep in
- * step.
- *
- * `aria-current` is set as well as `data-active`. fumadocs sets only the data
- * attribute, which styles the row and tells a screen reader nothing.
- */
-export function Item({ item }: { item: PageTree.Item }): ReactNode {
-  const pathname = usePathname()
-  const level = useFolderDepth()
-  const active = isActive(item.url, pathname)
+function normalise(path: string): string {
+  return path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path
+}
 
+function sectionFor(nav: DocsNav, pathname: string): NavSection | undefined {
+  return nav.sections.find(
+    (section) =>
+      section.url === pathname ||
+      section.groups.some((group) =>
+        group.links.some((link) => link.url === pathname)
+      )
+  )
+}
+
+/** The opsinjs mark: a reading against a range, as in app/icon.svg. */
+export function LogoMark({ size = 32 }: { size?: number }) {
   return (
-    <SidebarItem
-      href={item.url}
-      external={item.external}
-      active={active}
-      icon={item.icon}
-      aria-current={active ? "page" : undefined}
-      data-opsin-nav=""
-      data-level={level}
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      aria-hidden="true"
+      className="shrink-0"
     >
-      {item.name}
-    </SidebarItem>
+      <rect width="32" height="32" rx="7" fill="#17181A" />
+      <rect x="6" y="14.5" width="20" height="3" rx="1.5" fill="#3F4145" />
+      <rect x="6" y="14.5" width="11" height="3" rx="1.5" fill="#7FB77A" />
+      <circle cx="22" cy="16" r="4" fill="#17181A" />
+      <circle cx="22" cy="16" r="2.75" fill="#E08A3C" />
+    </svg>
   )
 }
 
-/**
- * A heading with no page behind it.
- *
- * Rendered as a plain paragraph rather than through fumadocs' `SidebarSeparator`
- * because that component's only contribution is a margin and a padding this
- * block overrides anyway, and leaving them both in the markup means relying on
- * class-merge order to decide which one wins.
- */
-export function Separator({ item }: { item: PageTree.Separator }): ReactNode {
-  const level = useFolderDepth()
-
-  return (
-    <p data-opsin-nav-heading="" data-level={level}>
-      {item.name}
-    </p>
-  )
-}
-
-/**
- * A folder row and the panel under it.
- *
- * The row is a link when the folder has an overview page and a button when it
- * does not, which is fumadocs' own split and the reason `lib/sidebar-tree.ts`
- * works so hard to give every authored folder its overview back. Only the
- * generated separator groups reach the button branch.
- */
-export function Folder({
-  item,
-  children,
-}: {
-  item: PageTree.Folder
-  children: ReactNode
-}): ReactNode {
-  const path = useTreePath()
-  const level = useFolderDepth()
-
-  return (
-    <SidebarFolder
-      collapsible={item.collapsible}
-      active={path.includes(item)}
-      defaultOpen={item.defaultOpen}
-      data-opsin-nav-branch=""
-      data-level={level}
-    >
-      {item.index ? (
-        <FolderLink url={item.index.url} icon={item.icon}>
-          {item.name}
-        </FolderLink>
-      ) : (
-        <FolderTrigger icon={item.icon}>{item.name}</FolderTrigger>
-      )}
-      <FolderPanel>{children}</FolderPanel>
-    </SidebarFolder>
-  )
-}
-
-/**
- * The three pieces below read `useFolder()`, which only resolves inside
- * `SidebarFolder`, so they cannot be inlined above. A folder's own row sits one
- * level above its contents, which is why the first two subtract one from the
- * depth the context reports and the panel does not.
- */
-function FolderLink({
+function Headings({
+  nav,
   url,
-  icon,
-  children,
+  onNavigate,
 }: {
+  nav: DocsNav
   url: string
-  icon: ReactNode
-  children: ReactNode
-}): ReactNode {
-  const pathname = usePathname()
-  const folder = useFolder()
-  const level = (folder?.depth ?? 1) - 1
-  const active = isActive(url, pathname)
-
+  onNavigate?: () => void
+}) {
+  const headings = nav.headings[url]
+  if (!headings || headings.length === 0) return null
   return (
-    <SidebarFolderLink
-      href={url}
-      active={active}
-      aria-current={active ? "page" : undefined}
-      data-opsin-nav=""
-      data-level={level}
-    >
-      {icon}
-      {children}
-    </SidebarFolderLink>
+    <ul className="docs-nav-headings">
+      {headings.map((heading) => (
+        <li key={heading.id} data-depth={heading.depth}>
+          <a
+            className="docs-nav-heading"
+            href={`#${heading.id}`}
+            onClick={onNavigate}
+          >
+            {heading.text}
+          </a>
+        </li>
+      ))}
+    </ul>
   )
 }
 
-function FolderTrigger({
-  icon,
-  children,
+function LinkRow({
+  nav,
+  link,
+  pathname,
+  onNavigate,
 }: {
-  icon: ReactNode
-  children: ReactNode
-}): ReactNode {
-  const folder = useFolder()
-  const level = (folder?.depth ?? 1) - 1
-
+  nav: DocsNav
+  link: NavLink
+  pathname: string
+  onNavigate?: () => void
+}) {
+  const active = link.url === pathname
   return (
-    <SidebarFolderTrigger data-opsin-nav="" data-level={level}>
-      {icon}
-      {children}
-    </SidebarFolderTrigger>
+    <li>
+      <Link
+        aria-current={active ? "page" : undefined}
+        className="docs-nav-item"
+        data-active={active || undefined}
+        href={link.url}
+        onClick={onNavigate}
+      >
+        {link.title}
+      </Link>
+      {active ? (
+        <Headings nav={nav} url={link.url} onNavigate={onNavigate} />
+      ) : null}
+    </li>
   )
 }
 
-function FolderPanel({ children }: { children: ReactNode }): ReactNode {
-  const level = useFolderDepth()
+function SectionRow({
+  nav,
+  section,
+  pathname,
+  expanded,
+  onNavigate,
+}: {
+  nav: DocsNav
+  section: NavSection
+  pathname: string
+  expanded: boolean
+  onNavigate?: () => void
+}) {
+  const Icon = SECTION_ICONS[section.id] ?? Layers
+  const active = section.url === pathname
+  return (
+    <li className="docs-nav-section" data-expanded={expanded || undefined}>
+      <Link
+        aria-current={active ? "page" : undefined}
+        className="docs-nav-section-link"
+        data-active={active || undefined}
+        href={section.url}
+        onClick={onNavigate}
+      >
+        <span className="docs-nav-section-icon">
+          <Icon aria-hidden="true" />
+        </span>
+        <span className="docs-nav-section-title">{section.title}</span>
+        {section.meta ? (
+          <span className="docs-nav-section-meta">{section.meta}</span>
+        ) : null}
+      </Link>
+      {active ? (
+        <Headings nav={nav} url={section.url} onNavigate={onNavigate} />
+      ) : null}
+      {expanded ? (
+        <ul className="docs-nav-groups">
+          {section.groups.map((group, index) => (
+            <li key={group.title ?? index}>
+              {group.title ? (
+                <div className="docs-nav-group-title">{group.title}</div>
+              ) : null}
+              <ul>
+                {group.links.map((link) => (
+                  <LinkRow
+                    key={link.url}
+                    nav={nav}
+                    link={link}
+                    pathname={pathname}
+                    onNavigate={onNavigate}
+                  />
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  )
+}
+
+function ActionRow({ children }: { children: ReactNode }) {
+  return <div className="docs-sidebar-action">{children}</div>
+}
+
+function SearchRow({ onNavigate }: { onNavigate?: () => void }) {
+  const { setOpenSearch, hotKey } = useSearchContext()
+  return (
+    <button
+      type="button"
+      className="docs-sidebar-action"
+      onClick={() => {
+        onNavigate?.()
+        setOpenSearch(true)
+      }}
+    >
+      <Search aria-hidden="true" className="docs-sidebar-action-icon" />
+      <span className="docs-sidebar-action-label">Search</span>
+      <kbd className="docs-hint">
+        {hotKey.map((key, index) => (
+          <span key={index}>{key.display}</span>
+        ))}
+      </kbd>
+    </button>
+  )
+}
+
+export interface SidebarProps {
+  nav: DocsNav
+  /** Called after a link is followed, to close the mobile drawer. */
+  onNavigate?: () => void
+}
+
+export function Sidebar({ nav, onNavigate }: SidebarProps) {
+  const pathname = normalise(usePathname() ?? "/")
+  const current = sectionFor(nav, pathname)?.id ?? "home"
 
   return (
-    <SidebarFolderContent
-      hiddenUntilFound
-      data-opsin-nav-panel=""
-      data-level={level}
-    >
-      {children}
-    </SidebarFolderContent>
+    <div className="docs-sidebar-inner">
+      <div className="docs-brand">
+        <Link
+          href="/"
+          className="docs-brand-mark"
+          aria-label={`${site.name} home`}
+          onClick={onNavigate}
+        >
+          <LogoMark size={40} />
+        </Link>
+        <div className="docs-brand-text">
+          <Link href="/" className="docs-brand-name" onClick={onNavigate}>
+            {site.name}
+          </Link>
+          {site.sourcePublic ? (
+            <a
+              className="docs-brand-link"
+              href={site.github}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              View on GitHub
+            </a>
+          ) : (
+            <span className="docs-brand-link">{site.shortTagline}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="docs-sidebar-actions">
+        <ActionRow>
+          <span className="docs-sidebar-action-label">Theme</span>
+          <ThemeSwitch mode="light-dark-system" className="docs-theme-switch" />
+        </ActionRow>
+        <SearchRow onNavigate={onNavigate} />
+      </div>
+
+      <nav className="docs-nav" aria-label="Documentation">
+        <ul>
+          {nav.sections.map((section) => (
+            <SectionRow
+              key={section.id}
+              nav={nav}
+              section={section}
+              pathname={pathname}
+              expanded={section.id === current}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </ul>
+      </nav>
+    </div>
   )
 }

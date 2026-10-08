@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: ["long text", "notes input"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,19 +21,13 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="textarea" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="textarea"
   unbuilt={false}
   importPath="@/components/ui/textarea"
 />
-
-## Usage
 
 ```tsx
 import { Textarea } from "@/components/ui/textarea"
@@ -47,6 +40,25 @@ import { Textarea } from "@/components/ui/textarea"
   rows={4}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="textarea" />
+
+### A notes field
+
+Outside a Field, `aria-label` carries the prompt and the placeholder shows the kind of
+answer wanted rather than repeating the question.
+
+<ComponentPreview name="textarea-a-notes-field" kind="example" align="start" />
+
+### With a character limit
+
+`maxLength` caps the text, and the footnote states the limit in words, because the
+native attribute refuses the next keystroke in silence. A real `<label htmlFor>` pointed
+at its `id` names this box.
+
+<ComponentPreview name="textarea-with-a-character-limit" kind="example" align="start" />
 
 ## When to use it
 
@@ -63,73 +75,29 @@ import { Textarea } from "@/components/ui/textarea"
   ]}
 />
 
-## Examples
-
-### A notes field
-
-The case Textarea was built for, standalone rather than inside a Field. `aria-label`
-carries the prompt, and the placeholder shows the kind of answer wanted rather than
-repeating the question.
-
-<ComponentPreview name="textarea-a-notes-field" kind="example" align="start" />
-
-### With a character limit
-
-`maxLength` caps the text, and the footnote states the limit in words, because the
-native attribute refuses the next keystroke in silence. This box is named by a real
-`<label htmlFor>` pointed at its `id`.
-
-<ComponentPreview name="textarea-with-a-character-limit" kind="example" align="start" />
-
-## Content guidelines
-
-Put the question in a label or `aria-label`, never only in the placeholder, which is
-grey and vanishes the moment a reader types. Use the placeholder for an example of the
-answer. State a length limit in words before the reader reaches it, and count down to
-the ceiling rather than up from zero.
-
-<DoDont>
-  <DoDont.Do>
-    **Label "Anything you want to add?", placeholder "A sentence or two is plenty."**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **No label, the question in the placeholder.** It vanishes on the first keystroke.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Audited against WCAG 2.2 AA in a source pass and a rendered pass.** The audit is
-author-run and is not an independent review, and clinical review is still pending. The
-rendered pass on the component view was clean: no axe violations, no target-size hit, no
-focus-visible failure, and no reflow at 320px. The source pass confirmed the same, so the
-audit found nothing to change and no fix was applied.
+Only neutral chrome roles reach the box, never a status colour, literal or ramp step,
+and its type is the `body` step, not a pixel size. The focus ring rides in the box's own
+classes, so it survives without the product stylesheet, and the height floors at the
+house target. There is no axe, target-size, focus-visible or 320px reflow failure.
 
-The box draws only neutral chrome roles, so no status colour, colour literal or ramp step
-reaches it, and the type is the `body` step rather than a pixel size.
+**Residual items.**
 
-- The box needs an accessible name and invents none. A Field label, an `aria-label`, or
-  an `id` with a real `<label htmlFor>` gives it one, and the default export models the
-  visible-label path.
-- With none of `aria-label`, `id` or `name` present, a development warning names the gap
-  rather than shipping an unnamed box.
+- The box needs an accessible name and invents none. A Field label, an `aria-label` alone
+  or an `id` with a real `<label htmlFor>` gives it one, and with none of `aria-label`,
+  `id` or `name` a development warning names the gap.
+- A persistent visible label is recommended, not required, and the default export uses
+  one.
 - `invalid` sets `aria-invalid` and leaves the border neutral, because a form error is
-  not a clinical status. The message is [Field](./field.mdx)'s to place, so standalone
-  the box cannot associate an external message id.
-- The focus ring rides in the box's own classes, so a project without the product
-  stylesheet keeps it. Height floors at the house target.
-
-Known residual items a reader should weigh. The box accepts an `aria-label` on its own,
-and a persistent visible label is the recommended enhancement rather than a requirement,
-which is why the default export uses one. `maxLength` is forwarded but the box renders no
-visible counter and no live remaining-count region, so pair the limit with a visible count
-near the box as the Content guidelines say. Disabled state uses a muted fill rather than an
-opacity wash so the text stays legible, and WCAG exempts disabled controls from the contrast
-floor.
-
-**Not checked by any gate.** Every contrast pair, and what the box draws under
-`forced-colors: active` and `prefers-contrast: more`, including the browser's own
-resize handle.
+  not a clinical status. [Field](./field.mdx) places the message, so a standalone box
+  cannot associate an external message id.
+- `maxLength` is forwarded with no visible counter or live remaining-count region, so
+  pair the limit with a visible count near the box, as the Content guidelines say.
+- Disabled state is a muted fill, not an opacity wash, so the text stays legible, and
+  WCAG exempts disabled controls from the contrast floor.
+- No gate checks contrast, or the box under `forced-colors: active` and
+  `prefers-contrast: more`, including the browser's resize handle.
 
 <KeyboardTable
   name="textarea"
@@ -159,18 +127,10 @@ resize handle.
 
 <ContrastReport component="textarea" />
 
-## API reference
+## Props interface
 
 <PropsTable name="TextareaProps" />
 
-`value` with `onChange` makes the box controlled; `defaultValue` leaves it owning its
-own text. `rows` sets the resting height and defaults to three. `invalid` sets
-`aria-invalid` and draws no colour. `className` is merged last and must resolve no
-`--opsin-status-*` or `--opsin-category-*` role.
-
-## Related
-
-- [Field](./field.mdx) with an input is the control for a single-line answer, such as a
-  name or a place.
-- [ReadingInput](./reading-input.mdx) is the control for a measurement with a unit,
-  which a free-text box cannot format.
+`value` with `onChange` makes the box controlled, and `defaultValue` leaves it
+uncontrolled. `rows` sets the resting height and defaults to three. `className` is
+merged last and must resolve no `--opsin-status-*` or `--opsin-category-*` role.

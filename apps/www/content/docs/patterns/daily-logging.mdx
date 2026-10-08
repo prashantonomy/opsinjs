@@ -1,184 +1,93 @@
 ---
 title: Daily logging
-description: The repeated-entry flow is designed for the ninetieth entry rather than the first, where every saved second compounds and every extra field costs adherence.
+description: Repeated entry designed for the ninetieth entry rather than the first, where every saved second compounds and every extra field costs adherence
 kind: pattern
 aliases: [logging a reading, repeated entry, diary entry, tracking flow, quick add]
-implements: [log-sheet, reading-input, value, relative-time, field, sheet, empty-state]
-reviewEvery: 12m
-reviewed: 2026-09-20
-reviewer: engineering
 ---
 
-<PageTemplate kind="pattern" />
+The same person records the same thing for months, such as a blood pressure reading each morning or a dose taken. The target is three taps from the screen they are on: open, enter, save.
 
-## When to use
+## When to use it
 
-Use this pattern when the same person will enter the same shape of data
-repeatedly, on a cadence, for a long time: a blood-pressure reading each
-morning, a mood check-in each evening, a dose taken, a symptom noted.
+Use it when the reader knows what the fields mean, most entries resemble the last one, and a missed day is expected rather than an error. Use something else for:
 
-The design target is the **ninetieth entry, not the first**. Onboarding
-optimises for comprehension; logging optimises for the cost of a habit. A flow
-that takes eleven seconds instead of four is not thirty per cent worse. It is
-the difference between a dataset and an abandoned feature, because the reader is
-doing this while a kettle boils.
-
-Signals:
-
-- The reader already knows what the fields mean; explanation is now overhead.
-- Most entries are similar to the previous entry.
-- A missed day is expected and must not be treated as an error.
-- The value is being entered from a device readout, from memory, or from a
-  physical meter. [Data provenance and device
-  accuracy](../health/data-provenance-and-device-accuracy.mdx) covers what the
-  UI may then assert.
-
-## When not to use
-
-- **First-time entry.** The first log has to teach the units, the expected
-  range and why any of it matters. Use
-  [Onboarding and first run](./onboarding-and-first-run.mdx) for that, then hand
-  over to this pattern.
-- **The entry is a questionnaire.** A validated instrument with a fixed item
-  order and a scored total is not a log. Item order and wording are part of the
-  instrument and cannot be optimised for speed. Use
-  [Question pages](./forms/question-pages.mdx) and treat `questionnaire` as a
-  distinct surface.
-- **Data arrives automatically.** If a device syncs the value, there is nothing
-  to log; the design problem is trust and freshness. Use
-  [Offline and stale data](./offline-and-stale-data.mdx).
-- **You are editing history rather than adding to it.** Correcting last
-  Tuesday's entry has different stakes. The correction changes a trend that may
-  already have been shown to someone. Give it a distinct, slower flow.
-- **You want the built steps.** [Capture a daily log
-  entry](../recipes/daily-log-entry.mdx) is the recipe.
+- the first entry, which has to teach units: [Onboarding and first run](./onboarding-and-first-run.mdx);
+- a validated questionnaire, whose item order is fixed: [Questionnaire](../components/questionnaire.mdx);
+- values a device syncs: [Offline and stale data](./offline-and-stale-data.mdx);
+- correcting history, which deserves a slower flow.
 
 ## How it works
 
-<FlowDiagram>
-{`flowchart TD
-  A["Entry point: home tile, push, or widget"] --> B["Sheet opens with the field focused"]
-  B --> C{"Is there a sensible default?"}
-  C -->|"yes"| D["Prefill from the last entry and select it"]
-  C -->|"no"| E["Empty field, correct keyboard, unit visible"]
-  D --> F["Reader types or adjusts"]
-  E --> F
-  F --> G{"Value plausible?"}
-  G -->|"no"| H["Inline confirm, never a block: is that right?"]
-  G -->|"yes"| I["Save"]
-  H --> I
-  I --> J["Confirmation in place, entry visible, undo available"]
-  J --> K["Return to where the reader started"]`}
-</FlowDiagram>
+1. **Start where the person is.** The log action sits on the metric's tile or detail screen as one target, at least 44pt, in the lower third.
+2. **Open a sheet, not a screen.** The field is focused with the right keyboard (`inputmode="decimal"` for a number), and the context stays visible behind it.
+3. **Default the time, unit and metric.** The time is now and editable, and the unit is the last one used. Never pre-fill the measurement, because that is how a log fills with numbers nobody measured.
+4. **Warn, never block.** A surprising value gets a question and still saves, because a real reading outside your expected span matters most.
+5. **Confirm in place.** The entry appears where it will live, with undo. No "Saved!" dialog, no detour to a trends screen, and no streak or praise for a body reading.
+6. **Draw gaps as gaps.** A missed day is never interpolated, carried forward or styled as a status.
 
-<NotBuiltYet />
-
-The rules that make the difference at entry ninety:
-
-- **One tap from the surface the reader is already on.** If logging requires
-  navigating to a section, the section is the problem.
-- **The field is focused on open, with the keyboard already up and correct.**
-  A numeric entry uses `inputmode="decimal"`, not a text keyboard the reader has
-  to switch. See [Autocomplete and input
-  types](./forms/autocomplete-and-input-types.mdx).
-- **Prefill, but make it obvious and easy to replace.** Selecting the prefilled
-  value means a reader who wants a different number types over it in one action,
-  and a reader whose value is unchanged confirms in one action.
-- **The unit is displayed, never typed.** Unit ambiguity is a correctness
-  surface, not a preference; see [Unit
-  systems](../health/unit-systems.mdx).
-- **No validation blocks a save.** A physiologically surprising value is a
-  question ("87 mmol/L is unusually high. Is that right?"), never a rejection.
-  The reader may be entering a genuinely alarming true value, and refusing to
-  store it is the worst possible outcome. See [Validation
-  timing](./forms/validation-timing.mdx).
-- **Saving ends in place.** The reader sees the entry they just made, with an
-  undo affordance, and is returned to where they started. Never route them to a
-  trends screen they did not ask for.
-- **A missed day is not an error.** Gaps are rendered as gaps. Do not
-  interpolate, do not carry a value forward, and do not use `attention` styling
-  for an absent entry. Absence is not a clinical status.
-
-### States
+Decide per metric whether a second entry for one slot replaces the first, sits beside it or is refused. Say which before the person types.
 
 | State | Behaviour |
 | --- | --- |
-| Empty | An [Empty and first-use](./empty-and-first-use.mdx) surface, not a zero |
-| Draft | Preserved if the reader is interrupted; restored with an explicit "you had started this" |
-| Saving | Optimistic in the UI, queued if offline, never a blocking spinner |
-| Queued offline | The entry is visible and marked as not yet synced, with the time it was made |
-| Conflict | Two devices logged the same slot: both are kept and shown, never silently merged |
-| Failed | The value is never lost; the reader is told what happened and the retry is automatic |
+| Draft | Kept through an interruption and restored with "you had started this" |
+| Queued offline | Visible, marked as not yet synced, with the time it was made |
+| Conflict | Entries from two devices are both kept and shown, never silently merged |
+| Failed | The value is never lost. The reader is told, and the retry is automatic |
 
-## Content
+<NotBuiltYet />
 
-Logging copy is the shortest copy in the product. The reader is not reading; they
-are aiming.
+## Components
 
-<DoDont>
-  <DoDont.Do>
-    Label: "Systolic". Helper, once: "the top number". Unit shown beside the
-    field as `mmHg`. Button: "Save reading".
-  </DoDont.Do>
-  <DoDont.Dont>
-    Label: "Please enter your systolic blood pressure measurement in millimetres
-    of mercury". A sentence in a label is a sentence the reader re-reads ninety
-    times.
-  </DoDont.Dont>
-</DoDont>
+- [LogSheet](../components/log-sheet.mdx): the bottom sheet. It blocks no save and records every entry as self-reported.
+- [ReadingInput](../components/reading-input.mdx): one measurement with its unit, a unit switch and your warning.
+- [Field](../components/field.mdx), [Button](../components/button.mdx) and [Sheet](../components/sheet.mdx): label, save action, keyboard-safe detents.
+- [Value](../components/value.mdx), [RelativeTime](../components/relative-time.mdx) and [TimelineEntry](../components/timeline-entry.mdx): the saved entry and its dated history.
+- [EmptyState](../components/empty-state.mdx): before anything is logged.
+- [ScaleInput](../components/scale-input.mdx) and [DoseTracker](../components/dose-tracker.mdx): a rated scale such as pain, and a dose taken.
 
-<DoDont>
-  <DoDont.Do>
-    After saving: "Saved. 128/82 at 07:41." The reader can verify what was
-    recorded without leaving.
-  </DoDont.Do>
-  <DoDont.Dont>
-    After saving: "Great job! You're on a 12-day streak!" Congratulating someone
-    on a body reading confuses effort with outcome, and makes the day they miss
-    a failure.
-  </DoDont.Dont>
-</DoDont>
+## Build a log entry
 
-Streaks, badges and encouragement are deliberately out of scope for this
-pattern. Adherence copy that rewards *logging* is defensible; copy that rewards
-the *value* is not, because it makes an unwell reader feel they have lost.
+```tsx
+import { LogSheet } from "@/components/ui/log-sheet"
+import { ReadingInput } from "@/components/ui/reading-input"
+
+<LogSheet
+  open={open}
+  onOpenChange={setOpen}
+  title="An example entry"
+  values={{ reading }}
+  saveLabel="Save the example entry"
+  onSave={(entry) => store(entry)}
+>
+  <ReadingInput
+    label="Example measurement"
+    unit={unit}
+    units={["kg", "lb", "st"]}
+    precision={1}
+    value={reading}
+    warning={warning}
+    onChange={(next) => {
+      setReading(next.value)
+      setUnit(next.unit)
+    }}
+  />
+</LogSheet>
+```
+
+- LogSheet never reads its children. `onSave` receives your `values` verbatim, so an empty entry still arrives and the emptiness check is yours.
+- `warning` is a sentence you write from bounds you own. It never marks the field invalid or blocks the save.
+- A unit switch can convert or clear the number without anybody typing, and ReadingInput mounts no live region. Announce `next.effectText` politely whenever it is not null.
+
+## Example
+
+<IframePreview kind="screen" name="daily-log-screen" />
+
+The daily log screen is still a specification, so its frame shows the not-built notice. Its one lifted surface holds today's reading or an honest empty state.
 
 ## Accessibility
 
-- **Focus on open, focus on close.** The sheet moves focus to the first field
-  and returns it to the trigger on dismissal. Getting the return wrong dumps a
-  keyboard user at the top of the page on every single entry.
-- **The unit is part of the accessible name of the field**, not a decorative
-  suffix. "Systolic, in millimetres of mercury" is what should be announced.
-- **Confirmation is announced.** The saved state is a status message (WCAG 2.2
-  SC 4.1.3), and undo remains reachable in the tab order afterwards.
-- **Redundant entry.** A reader correcting one field must not have to re-enter
-  the others; WCAG 2.2 SC 3.3.7 exists for exactly this flow.
-- **Every gesture has a control.** Swipe-to-log or a long-press shortcut is
-  additive; the same action always exists as a labelled, focusable control. See
-  [Target size and motor](../accessibility/target-size-and-motor.mdx).
-- **Numeric steppers are not the only path.** A reader must be able to type the
-  value; forcing thirty taps of an increment control to reach 138 is a motor
-  accessibility failure even when every target passes.
-
-## Research
-
-<ResearchNote evidence="opinion" date="2026-09-02">
-  The "design for the ninetieth entry" framing, the prefill-and-select rule and
-  the prohibition on blocking validation are design opinions derived from the
-  failure modes rather than from a trial. The strongest of them is the
-  validation rule: refusing to store a surprising value is the one failure in
-  this pattern that can destroy clinically relevant data, and it is common
-  because it looks like defensive programming.
-
-  Deliberately not claimed: any figure for how much friction costs adherence. It
-  is easy to find confident numbers for this and hard to find ones that transfer
-  between populations and conditions, so we state the direction and not a
-  magnitude. What would change our mind: within-product experimental evidence
-  that prefilling biases entered values toward the previous reading, which would
-  be a serious argument against it in a clinical dataset.
-</ResearchNote>
-
-## Updates to this page
-
-<Reviewed />
+- Focus moves into the sheet on open and is trapped while it is modal. <Kbd>Escape</Kbd> dismisses it, and focus returns to the control that opened it.
+- The unit is part of the field's accessible name, as in "Systolic, in millimetres of mercury".
+- The save is announced politely, and undo stays reachable by keyboard while it is offered.
+- The keyboard never covers the save, and typed input survives rotation and backgrounding.
+- Every gesture has a labelled control, and a stepper is never the only way to enter a number.

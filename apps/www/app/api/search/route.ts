@@ -51,7 +51,7 @@
  * has had a clinical review, so the installable branch says exactly that
  * rather than hedging it as "the API is not stable yet", which was the smaller
  * of the warnings and the only one an agent was being given. The record is
- * ADR 0025 (./project/decisions/0025-the-audit-is-author-run).
+ * ADR 0025 (decisions/0025-the-audit-is-author-run.md at the repository root).
  *
  * A page with no phase at all gets no release sentence. That is every page in the
  * pages, and a doctrine page indexed with a phase word was always indexing a

@@ -1,0 +1,52 @@
+---
+title: Design principles
+description: Five prohibitions that settle design arguments in opsinjs, and what a designer decides for themselves
+kind: guide
+aliases: [design principles, for designers, designer onboarding, design handoff]
+---
+
+Each principle names something opsinjs will not do, so a proposal can be checked against it. When two proposals conflict, the one that breaks a principle higher on this page loses. That order is opinion, not evidence.
+
+## One element, one axis
+
+Colour carries two separate meanings. Category says which part of your health something is about, and status says how much attention it needs. One element takes colour from one axis, never both. An urgent heart tile takes its status from the surface and its category from a glyph or a label. Rule A11Y008 fails `pnpm check` on any registry element that carries both. See [Two colour axes](./health/two-colour-axes.mdx).
+
+## Never colour alone
+
+Every status is carried by a word, a distinct glyph and a colour together, and the word is never left out. Colour fails first, in greyscale print, sunlight, screenshots and screen readers. Rule A11Y001 fails a registry file that paints a status without a word and a glyph beside it.
+
+## Say what is not known
+
+Missing, stale, estimated and partial data are states with their own rendering, never a blank or a zero. A screen that shows nothing where a number should be reads as a steady reading. [States](./foundations/states.mdx) lists the data states every data-bearing component renders.
+
+## Tokens, not values
+
+No component, example or generated file contains a literal colour, radius, duration or spacing value. Everything resolves through a token and every token through a scale, which is what makes a theme possible and contrast measurable. Rules A11Y005 and A11Y006 fail `pnpm check` on a hex colour, a raw `oklch()` or a Tailwind palette class under `registry/`. The lint rules that would check your own project are planned, not built.
+
+## Do not practise medicine
+
+opsinjs decides how a number is presented, never what it means. Thresholds, reference ranges, triage, escalation and clinical wording belong to your product and its clinical governance. Any surface that could be read as a judgement says whose judgement it is.
+
+## For designers
+
+Fixed for you:
+
+- What a colour may mean.
+- The four status levels, with their words, icons and tone.
+- The measured contrast floor.
+- The six rungs of the material ladder.
+- Motion, which never signals urgency.
+
+Yours to decide: which measurement matters most, which category a metric belongs to, the copy, density within the space scale, and brand.
+
+Design at 200% text as a second artboard. Treat WCAG 2.2 SC 2.5.8 target size as the floor, not the goal. Order every reading as label, value, unit, status, time, so a screen reader announces the subject before the alarm.
+
+Before handing a screen over, check that:
+
+1. Every status distinction survives greyscale.
+2. There is at most one urgent surface. See [Alerts](./health/alerts.mdx).
+3. The word "normal" does not appear. See [Reference ranges](./health/reference-ranges.mdx).
+4. Every number has a timestamp.
+5. Someone can name the source of every threshold.
+
+There is no Figma library, kit or plugin yet, and the DTCG token export is specified rather than published. Your route into the system is these docs and the rendered previews.

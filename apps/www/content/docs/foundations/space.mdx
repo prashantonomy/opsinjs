@@ -1,0 +1,61 @@
+---
+title: Space and layout
+description: A 4px spacing scale, the 44pt touch floor, responsive modes, and the shell every screen sits in.
+kind: foundation
+aliases: [spacing, 4pt grid, density, touch target, hit area, breakpoints, page shell, safe area]
+---
+
+opsinjs is roomy on purpose. Scrolling costs a reader a second, but a mis-tap logs a reading they did not take or dismisses an alert they did not read.
+
+## Spacing scale
+
+The scale is a 4px grid. Tailwind derives every spacing utility from `--spacing`, which the product theme sets to 0.25rem, so `p-4` is 16px. The fixed steps are `--opsin-space-*`, written `p-opsin-4`, and at the default density both spellings land on the same pixel.
+
+`[data-density="compact"]` multiplies `--spacing` by 0.875, so `p-4` renders 14px and leaves the grid on purpose. Type size, the touch floor and the fixed steps do not move. [Card](../components/card.mdx) pads with the scaled `p-5`, and [Dialog](../components/dialog.mdx) with a fixed step that holds its inset. Use compact for dense lists, never for a screen's primary value.
+
+- Use a step, never a one-off value. A `13px` gap ignores density and breaks the nesting arithmetic in [Shape](./shape.mdx).
+- Group by proximity before reaching for a border. Gaps inside and between groups need two steps of difference to read as groups.
+- Never remove padding to make something fit. Cut the content or change the layout.
+- Steps are in rem, so space grows with the reader's text size.
+
+## Touch targets
+
+Anything a person taps is at least 44pt on both axes, measured on the interactive area rather than the visible box. The floor is `--opsin-target-minimum`, in rem so it grows with text. It sits above the 24 by 24 CSS pixels of WCAG 2.2 SC 2.5.8, and opsinjs does not use that criterion's spacing exception. The product theme backstops buttons and form controls with a minimum size, which is a safety net rather than a sizing method.
+
+- `--opsin-target-separation` is the minimum gap between targets whose visible boxes are smaller than the floor.
+- Controls with unequal consequences, such as save beside delete, sit further apart or not side by side.
+- Never stretch a hit area invisibly into a neighbour's space.
+- Anything behind a hover is also reachable on tap and on focus.
+- Primary actions sit low, where a thumb rests, and destructive ones do not. This is opinion informed by platform guidance.
+
+## Responsive modes
+
+On a wider screen nothing gets bigger. The reader sees more of the story at once: a reading beside its history, a list beside its detail, a sheet that becomes a pane.
+
+| May change with mode | Never changes |
+| --- | --- |
+| Columns and regions | Body text size |
+| Whether a surface is a sheet or a pane | The touch floor and radius rungs |
+| How much history and provenance shows | The line-length cap |
+| The outer gutter | The meaning, order and wording of content |
+
+The space tokens define `phone`, `tablet` and `wide` modes, each with its own `--opsin-gutter-*`. Prose stops at `--opsin-measure-comfortable` however wide the screen. Components query their container, never the viewport, so a tile in a narrow pane lays out as it would on a phone. Only the shell reads the viewport, because nothing sits above it.
+
+Nothing may be reachable in only one mode, and DOM order never changes with mode. Design the narrowest mode first, then ask what did not fit.
+
+## Layout
+
+The shell has four regions, in DOM order:
+
+1. Header, with the screen's H1 and at most one secondary action.
+2. Content, one scrolling column.
+3. Action, the persistent primary action, pinned low but last in the DOM so focus reaches it after the content.
+4. Chrome, the tab bar, outside the screen's landmark.
+
+Add the `--opsin-safe-*` insets to the gutter at screen edges, and to a fixed action bar's padding rather than its height. Keep the action region and a focused field above the on-screen keyboard.
+
+An overview screen is a heading, a run of tiles that each carry their own status and freshness, and a persistent action, with a ceiling on urgent surfaces set by [Alerts](../health/alerts.mdx). A reading screen puts the value with its unit, status and range first, then what it means, what to do, when it was taken and its history. Nothing covers the value, and it sits above the fold on the smallest supported screen.
+
+## Tokens
+
+<TokenTable scope="space" />

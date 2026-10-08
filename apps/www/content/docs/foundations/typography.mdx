@@ -1,0 +1,63 @@
+---
+title: Typography
+description: The platform UI font, a type scale named for jobs rather than sizes, and the reader's own text size.
+kind: foundation
+aliases: [font, system-ui, typeface, text styles, type ramp, tabular numerals, dynamic type, font scaling]
+---
+
+opsinjs ships no typeface. The product theme's `--font-sans` starts with `ui-sans-serif, system-ui`, so the device answers: SF Pro on an iPhone, Roboto on Android, Segoe UI Variable on Windows.
+
+## Why the system font
+
+- It is the font the reader already reads, tuned for the screen in their hand.
+- Bold text, larger accessibility sizes and the platform's text-size controls apply to the system font.
+- It never loads, so text never flashes or waits.
+- SF Pro cannot be served as a webfont, because Apple licenses it for Apple platforms and not for redistribution. Read Apple's licence yourself. `system-ui` reaches the copy already installed.
+
+A brand face is an opt-in through `--font-sans`.
+
+## Type scale
+
+Roles are named for their job, not their size. Each sets size, line height, tracking and weight, and `text-opsin-<role>` applies it.
+
+| Role | Use it for |
+| --- | --- |
+| `large-title` | One number or word that is a surface's whole subject. No component uses it yet |
+| `title1` | A screen title, and the display number in [Value](../components/value.mdx) |
+| `title2` | A section title, and the floor for a primary health value in a card |
+| `title3` | A [Dialog](../components/dialog.mdx) or [Sheet](../components/sheet.mdx) title, and the unit beside a display value |
+| `headline` | A card title or an emphasised lead line, at body size and heavier |
+| `body` | Default reading text, at 17px |
+| `callout` | Secondary prose in a dense container |
+| `subheadline` | The label beside a value. `subheadline-emphasis` is its heavier twin for a compact control |
+| `footnote` | Provenance: who measured this, when, with what |
+| `caption1` | Axis labels, legends and legal text |
+| `caption2` | The floor, only for text that repeats a label shown elsewhere |
+
+- Pick the role, never the size, and default to `body`.
+- Set a health value at `title2` or larger, and never below `body`.
+- A role is not a heading level. Choose `h2` from the page outline and the role from how it should look.
+- Use two weights, three at most. Size and weight show hierarchy, never status.
+- Nothing is smaller than `caption2`. If text does not fit, change the layout.
+
+## Tabular figures
+
+The product theme sets `font-variant-numeric: tabular-nums` on anything carrying `data-opsinjs-value`, so a changing reading does not shift the layout. The role does not set tabular figures, and `font-opsin-numeric` sets only the family. A resting heart rate is `62` in `title1` with the attribute, `bpm` in `title3`, the label in `subheadline` and "Measured 3 hours ago" in `footnote`.
+
+## Text size
+
+Every component must survive a 1.3× text multiplier with no clipping, truncation, overlap or horizontal scroll, and the system must stay usable at 200%. Every role is in `rem` and the multiplier is applied once at the root, so the reader's setting reaches every step. A single `px` font size opts that element out. Check with the text-size switch on any component preview.
+
+Five layout habits break first:
+
+- Fixed heights. Use a minimum height and let content decide.
+- `white-space: nowrap` and ellipses. Never truncate a value, a unit or a status word.
+- Label and value pairs forced side by side. Stack them with a container query.
+- Icons sized in px beside text. Size them in `em`.
+- Sticky headers and action bars. Let them collapse.
+
+Never disable text scaling with a viewport meta tag, a fixed px size on the root or `text-size-adjust: none`. Set `lang` on the document, because hyphenation and screen-reader pronunciation depend on it.
+
+## Tokens
+
+<TokenTable scope="type" />

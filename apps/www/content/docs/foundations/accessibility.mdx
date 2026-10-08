@@ -1,0 +1,100 @@
+---
+title: Accessibility
+description: WCAG 2.2 AA, what every component guarantees, what your product still owns, and the limits of an author-run audit.
+kind: foundation
+aliases: [a11y, wcag 2.2, vpat]
+---
+
+The target is WCAG 2.2 Level AA. The authors of the sixty components audited every one against it, in a source pass and a rendered pass, and fixed what they found. That is not an independent review, and no clinician has reviewed any component. opsinjs makes no conformance claim, and nothing here is for a production health surface.
+
+## What components guarantee
+
+- **Status is never colour alone.** A visible word and an icon whose shape differs per level sit beside every status colour.
+- **Targets are at least 44 by 44 CSS pixels** at every density.
+- **Keyboard patterns come from Base UI,** and only a modal surface traps focus.
+- **Motion and translucency degrade per token** when the reader asks for less.
+- **A number must never be clipped.** The value and its unit wrap instead.
+
+## What your product owns
+
+- **Names and words.** Label every icon-only button and field, and write headings, link text and a text equivalent for every chart. See [Writing](./writing.mdx).
+- **Order and focus.** Tab and screen readers follow the DOM. Place focus after a delete or a submit, and add a skip link and landmarks.
+- **Clinical meaning.** opsinjs renders "Needs attention". Which reading earns it is your product's clinical decision.
+- **Timing, sessions and sign-in**, under SC 2.2.1 and SC 3.3.8.
+- **Anything you colour, animate or make translucent yourself.**
+
+## Contrast
+
+`pnpm run contrast` measures every published token pair in both themes as a WCAG 2.2 ratio and an APCA Lc. Failing pairs are shown, not filtered, and `contrast:verify` fails the nightly job when a token edit moves a figure. The floor is on [Colour](./colour.mdx), and every figure is in the [contrast reference](../reference/generated/contrast.mdx).
+
+Check any pair you invent at [/playground/contrast](/playground/contrast), and text over a translucent rung, whose figure assumes its opaque fallback.
+
+## Colour independence
+
+The words are Steady, Watch, Needs attention, Urgent and Not known, and the `data-status` ids are `steady`, `watch`, `attention`, `urgent` and `unknown`. Under deuteranopia `steady` and `attention` collapse to one tone, so the word and icon carry the difference. Check in greyscale and at [/playground/status](/playground/status). Category colour never shares an element with status. See [Two colour axes](../health/two-colour-axes.mdx).
+
+## Keyboard and focus
+
+A composite widget such as a menu is one <Kbd>Tab</Kbd> stop, and arrow keys, <Kbd>Home</Kbd> and <Kbd>End</Kbd> move inside it. <Kbd>Esc</Kbd> dismisses the topmost surface and returns focus to its trigger. Positive `tabindex` is banned. The focus ring sits outside the element, so keep it clear of `overflow: hidden` and sticky bottom bars (SC 2.4.11).
+
+## Screen readers
+
+A value change is announced politely and a safety change assertively, with no third level. [AlertBanner](../components/alert-banner.mdx) uses `aria-live="polite"` at `attention` and `role="alert"` at `urgent`. Announce a sentence ("Blood pressure, 138 over 84, above your usual range"), never a bare number, and put the status word in the accessible name.
+
+## Target size
+
+`--opsin-target-minimum` is `2.75rem`, 44 pixels at the default root size, so it grows with the reader's text. That is the AAA figure (SC 2.5.5). AA asks for 24 (SC 2.5.8). `--opsin-target-separation` (`0.5rem`) spaces targets drawn smaller than 44 pixels. Never put delete beside save. Pair [Slider](../components/slider.mdx) with [ReadingInput](../components/reading-input.mdx), and give every drag a single-pointer alternative.
+
+## Text resizing and zoom
+
+Text scales to 200% through the root font size, and layouts reflow at 400% zoom in a 1280 pixel window (SC 1.4.10). Fixed pixel heights, `overflow: hidden` and `user-scalable=no` usually break them.
+
+<SafetyCallout severity="urgent" evidence="opinion">
+A truncated health value is a defect of the same class as a wrong one, because the reader cannot tell the two apart.
+</SafetyCallout>
+
+## User preferences
+
+- **`prefers-reduced-motion`.** Durations collapse to `1ms` and springs to their declared fallbacks. The state change still happens.
+- **`prefers-reduced-transparency`.** Translucent rungs turn opaque, and nothing moves.
+- **`prefers-contrast: more`.** Only [Surface](../components/surface.mdx) and [DisclaimerNote](../components/disclaimer-note.mdx) respond. The token layer has no answer.
+- **`forced-colors: active`.** Surface, [Field](../components/field.mdx), [RangeBar](../components/range-bar.mdx), [ScoreDial](../components/score-dial.mdx) and others answer it in their own files.
+
+Animation outside the tokens must read `matchMedia('(prefers-reduced-motion: reduce)')` itself, and urgency is never carried by motion. See [Motion](./motion.mdx).
+
+<Todo>
+Implement `prefers-contrast: more` in the token layer, give every control a visible boundary under `forced-colors`, and measure the escalated theme in `scripts/check-contrast.mts`.
+</Todo>
+
+## Cognitive accessibility
+
+Ask for one decision per screen, and name the primary action's outcome instead of "Continue". Put the answer before the explanation, and keep the reader's input through an error. [Toast](../components/toast.mdx) dismisses itself after five seconds by default, so anything the reader must act on belongs in an AlertBanner. This guidance is our opinion, untested by user research.
+
+## Print
+
+The product stylesheet prints both themes as ink on white, Surface keeps its outline, and [RelativeTime](../components/relative-time.mdx) prints an absolute time. A printed value still needs its unit, when it was taken, its status word and any disclaimer. Paper cannot be updated, so a provisional value must say so on the printout.
+
+## Testing your integration
+
+opsinjs has no test suite of its own. `pnpm run check:a11y` reads component source on every pull request, and a nightly browser pass checks hit area and 200% text. Assert on roles, accessible names, `data-*` attributes and visible text, which semver covers, and never on class names or DOM nesting.
+
+Test with an automated engine, the keyboard alone, 200% text, 400% zoom, greyscale, each preference and a screen reader, iOS VoiceOver and Android TalkBack first. Use empty, stale, out-of-range and implausible data. Finally, read the screen aloud to an outsider and ask what they would do next.
+
+## Conformance documents
+
+opsinjs makes no conformance claim at any level and publishes no conformance report. An Accessibility Conformance Report would list every one of the 55 WCAG 2.2 Level A and AA criteria as Not Evaluated, because that column records an independent evaluation and none has happened. Your product needs its own statement and report.
+
+<NoDataYet what="The conformance evaluation record" script="scripts/build-registry.mts">
+No catalogue row records an independent review, so there is no evaluation table to publish.
+</NoDataYet>
+
+## Known gaps
+
+- No screen reader has been used on any component, and no disabled people have tested one.
+- Forced colours are untested on a real Windows contrast theme, and print on a real printer.
+- Text spacing (SC 1.4.12) is unaddressed.
+- No shared announcement helper ships.
+
+<NoDataYet script="scripts/capture-registry.mts" what="A measured result for any rendered component">
+The rendered audit was done by hand. The scripts that would capture a figure need Playwright, run only nightly and publish no figure.
+</NoDataYet>

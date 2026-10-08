@@ -3,9 +3,10 @@ title: Field
 description: The wrapper that gives every input a visible label, a hint, an error message and the wiring between them. It is why no control here can ship without a name.
 status: shipped
 kind: component
+governedBy: [consent-and-privacy]
 category: actions-and-forms
 aliases: [form field, label, input wrapper, error message, hint, form control, validation message]
-usedIn: [ask-users-for/contact-details, ask-users-for/date-of-birth, ask-users-for/ethnicity, ask-users-for/height-and-weight, ask-users-for/medications, ask-users-for/name, ask-users-for/sex-and-gender, ask-users-for/symptoms, consent-before-collection, daily-log-entry, daily-log-screen, daily-logging, diabetes-medicines-app, forms/autocomplete-and-input-types, forms/error-summaries, forms/question-pages, forms/required-and-optional, forms/units-and-numeric-entry, forms/validation-timing, onboarding-and-first-run, onboarding-screen]
+usedIn: [ask-users-for, daily-logging, forms, onboarding-and-first-run]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -15,17 +16,13 @@ reviewer: engineering
   status="shipped"
   questions={[
     "Field ships required and optional with no prop to translate them, and whether a prop or a locale object fixes that is open.",
-    "Field mounts no live region, so an error is silent until focus reaches it. Whether Field exposes its generated ids to an error summary is open.",
+    "Whether Field exposes its generated ids to an error summary is open.",
   ]}
 >
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="field" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="field"
@@ -33,8 +30,6 @@ reviewer: engineering
   importPath="@/components/ui/field"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Field } from "@/components/ui/field"
@@ -45,6 +40,37 @@ import { Field } from "@/components/ui/field"
   <Field.Control name="example-measurement" inputMode="decimal" autoComplete="off" />
 </Field>
 ```
+
+## Examples
+
+<ComponentPreview name="field" />
+
+### The error keeps the hint
+
+`error` adds a sentence beside the hint rather than replacing it.
+
+<ComponentPreview name="field-error-keeps-the-hint" kind="example" align="start" />
+
+### Marking the exception
+
+One optional field among three needed ones, marked by `optionality="optional"`.
+See [Forms](../patterns/forms.mdx).
+
+<ComponentPreview name="field-marking-the-exception" kind="example" align="start" />
+
+### A control opsinjs does not ship
+
+`render` on `Field.Control` puts the whole wiring onto a `textarea` and a
+`select`.
+
+<ComponentPreview name="field-with-another-control" kind="example" align="start" />
+
+### Validating on submit
+
+The default `validateOn` fires on submit only inside `Field.Form`, where an
+empty field on Save shows the browser's own message. Pass `error` instead.
+
+<ComponentPreview name="field-validating-on-submit" kind="example" align="start" />
 
 ## When to use it
 
@@ -63,149 +89,22 @@ import { Field } from "@/components/ui/field"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="field"
-  parts={[
-    {
-      name: "Field",
-      describes: "The root. Owns every id relationship and draws the invalid left rule.",
-      prop: "validateOn",
-    },
-    {
-      name: "Field.Label",
-      describes: "A real label element against the generated control id.",
-      prop: "label",
-    },
-    {
-      name: "Field.Optionality",
-      describes: "The word required or optional, joining the accessible name.",
-      prop: "optionality",
-    },
-    {
-      name: "Field.Hint",
-      describes: "Guidance before the mistake, announced on focus through aria-describedby.",
-      prop: "hint",
-    },
-    {
-      name: "Field.Control",
-      describes: "The product's control and the only real export. Takes aria-invalid and the target floor.",
-      prop: "children",
-    },
-    {
-      name: "Field.Error",
-      describes: "The message and its CircleAlert glyph, never replacing the hint.",
-      prop: "error",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="field"
-  tree={[
-    {
-      part: "Field",
-      cardinality: "1",
-      note: 'data-slot="field"; renders a <div>, gains data-invalid when the field is invalid',
-      children: [
-        {
-          part: "Field.Label",
-          cardinality: "1",
-          note: 'data-slot="field-label"; a native <label for> against the control id',
-          children: [
-            {
-              part: "Field.Optionality",
-              cardinality: "0..1",
-              note: 'data-slot="field-optionality"; nested inside the label, absent when optionality="none"',
-            },
-          ],
-        },
-        {
-          part: "Field.Hint",
-          cardinality: "0..1",
-          note: 'data-slot="field-hint"; renders a <p>, its id joins aria-describedby',
-        },
-        {
-          part: "Field.Error",
-          cardinality: "0..1",
-          note: 'data-slot="field-error"; its id joins aria-describedby beside the hint',
-        },
-        {
-          part: "Field.Control",
-          cardinality: "1",
-          note: 'data-slot="field-control"; the consumer’s element, passed as children',
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### The error keeps the hint
-
-`error` adds a sentence beside the hint rather than replacing it.
-
-<ComponentPreview name="field-error-keeps-the-hint" kind="example" align="start" />
-
-### Marking the exception
-
-One optional field among three needed ones, marked by `optionality="optional"`.
-See [Required and optional](../patterns/forms/required-and-optional.mdx).
-
-<ComponentPreview name="field-marking-the-exception" kind="example" align="start" />
-
-### A control opsinjs does not ship
-
-`render` on `Field.Control` puts the whole wiring onto a `textarea` and a
-`select`.
-
-<ComponentPreview name="field-with-another-control" kind="example" align="start" />
-
-### Validating on submit
-
-The default `validateOn` fires on submit only inside `Field.Form`, where an
-empty field on Save shows the browser's own message. Pass `error` instead.
-
-<ComponentPreview name="field-validating-on-submit" kind="example" align="start" />
-
-## Content guidelines
-
-Labels are nouns in sentence case with no colon. Hints show the shape of a valid
-answer, never a number a reader could read as a result. Errors say what to fix,
-without blame.
-
-<DoDont>
-  <DoDont.Do>
-    **"Date of birth" over three labelled fields, error "Enter a date in the past".**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"DOB*" with "Invalid input."** An abbreviation, an unexplained symbol, no fix.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass on
-`/view/base/base-lyra/component/field`. The audit is author-run, not an
-independent review, and clinical review is pending. The rendered pass was clean:
-no axe violations, targets met `--opsin-target-minimum`, focus visible, no
-reflow at 320px.
+A native `label` points at a generated id, `aria-describedby` survives unmount,
+`aria-invalid` sits on the control, and the invalid state is a glyph and a left rule,
+never colour. The audit gave the error a live region, so it is announced on submit
+while focus is on Save, where it was silent before. Rendered, it shows no axe
+violation and no reflow at 320px, targets meet `--opsin-target-minimum`, and focus is
+visible. `pnpm run check:a11y` guards role tokens and non-`px` sizes.
 
-**Fixed here.** The error now carries a live region, so it is announced on
-submit while focus is on Save, where it was silent before.
+**Residual items.**
 
-**From source.** A native `label` against a generated id; `aria-describedby`
-survives unmount; `aria-invalid` sits on the control; the invalid state is a
-glyph and a left rule, never colour. `pnpm run check:a11y` guards role tokens
-and non-`px` sizes.
-
-**Limits.** The required and optional word is English only and untranslatable by
-prop. The focus ring lives in `product.css`, so a `shadcn add` copy without it
-shows no ring until you add one. The invalid shadow drops
-under forced colours and print, where the glyph, words and rule still carry the
-state.
+- The required and optional word is English only and untranslatable by prop.
+- The focus ring lives in `product.css`, so a `shadcn add` copy without it shows no
+  ring until you add one.
+- The invalid shadow drops under forced colours and print, where the glyph, words and
+  rule still carry the state.
 
 <KeyboardTable
   name="field"
@@ -235,7 +134,17 @@ state.
 
 <ContrastReport component="field" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="FieldProps" />
+
+`label` is required and there is no `hideLabel`. An empty `label` or `error` is
+refused with a development warning. Without a `Field.Form` ancestor the default
+`validateOn` checks on Enter alone.
+
+<PropsTable name="FieldControlProps" />
+
+### Data attributes
 
 <DataAttributesTable
   name="field"
@@ -252,20 +161,3 @@ state.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="FieldProps" />
-
-`label` is required and there is no `hideLabel`. An empty `label` or `error` is
-refused with a development warning. Without a `Field.Form` ancestor the default
-`validateOn` checks on Enter alone.
-
-<PropsTable name="FieldControlProps" />
-
-## Related
-
-- [ReadingInput](./reading-input.mdx) is a Field with a unit and a plausibility contract.
-- [LogSheet](./log-sheet.mdx) captures several Fields together.
-- [Callout](./callout.mdx) is guidance about a whole form, not one control.
-- [AlertBanner](./alert-banner.mdx) is the summary at the top of a failed form.

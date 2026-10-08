@@ -18,7 +18,7 @@
  *                                          every rendered measurement reads, and
  *                                          the BANNED_WORDS table a component's
  *                                          copy is checked against
- *   content/docs/handbook/error-codes.mdx  the published table of every code
+ *   content/docs/reference/error-codes.mdx  the published table of every code
  *
  * Those regions come from tokens/errors.json, tokens/units.json and the banned
  * list in tokens/glossary.json, which are authored data rather than token
@@ -112,21 +112,21 @@ const OUT_THEME = join(APP_DIR, "registry", "generated", "themes", "opsinjs-defa
  * because `warnOnce()` lives there and a consumer has no `lib/generated/`; the
  * rest of the file is hand-written and stays hand-written.
  *
- * `content/docs/handbook/error-codes.mdx` is the page a reader lands on with a
+ * `content/docs/reference/error-codes.mdx` is the page a reader lands on with a
  * code in their hand. Its table is the whole of `tokens/errors.json` and not
  * one row of it is authored, per ADR 0006.
  *
  * Both paths ARE in `check:generated`'s diff list in package.json, which names
  * `lib/generated`, `lib/opsinjs.ts`, `registry/__index__.ts`,
  * `registry/generated`, `app/tokens.generated.css`, the two reference
- * directories, `content/docs/handbook/error-codes.mdx` and `public/r`. So a
+ * directories, `content/docs/reference/error-codes.mdx` and `public/r`. So a
  * region that drifts is caught twice: by that diff, and by
  * `node scripts/build-tokens.mts --check`, which is what covers
  * registry/generated/themes on its own. package.json is the authority; if the
  * two ever disagree, the diff list wins and this comment is the stale half.
  */
 const OUT_SUBSTRATE = join(APP_DIR, "lib", "opsinjs.ts")
-const OUT_ERROR_CODES = join(APP_DIR, "content", "docs", "handbook", "error-codes.mdx")
+const OUT_ERROR_CODES = join(APP_DIR, "content", "docs", "reference", "error-codes.mdx")
 
 const SUBSTRATE_REGION_BEGIN = "/* opsinjs:errors:begin"
 const SUBSTRATE_REGION_END = "/* opsinjs:errors:end */"
@@ -2202,7 +2202,7 @@ export interface GeneratedErrorCode {
  * Every code the system can emit, in allocation order.
  *
  * The scheme is flat - \`OPSIN-0001\` upwards - and deliberately not grouped
- * into ranges: see \`content/docs/project/decisions/0015-error-codes-are-flat.mdx\`.
+ * into ranges: see \`decisions/0015-error-codes-are-flat.md\` at the repository root.
  */
 export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = ${JSON.stringify(errors.codes, null, 2)}
 
@@ -2768,7 +2768,7 @@ function mdxCell(text: string): string {
 }
 
 /**
- * The generated half of `content/docs/handbook/error-codes.mdx`.
+ * The generated half of `content/docs/reference/error-codes.mdx`.
  *
  * It renders the whole table rather than a sample of it. A handbook page whose
  * table is a selection is a page a reader has to leave to answer the question

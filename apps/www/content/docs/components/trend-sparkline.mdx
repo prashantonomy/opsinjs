@@ -7,8 +7,8 @@ reviewed: 2026-09-20
 reviewer: engineering
 category: health-data-display
 aliases: [chart, graph, sparkline, over time, trend, mini chart, line chart]
-governedBy: [trends-and-change, numbers-units-precision, uncertainty-and-staleness, category-identity]
-usedIn: [choose-a-component, sharing-with-a-clinician, trend-review, trend-with-a-caption, trends-screen]
+governedBy: [trends, numbers, two-colour-axes, alerts]
+usedIn: [trend-review]
 ---
 
 <StubNotice
@@ -23,11 +23,7 @@ usedIn: [choose-a-component, sharing-with-a-clinician, trend-review, trend-with-
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="trend-sparkline" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="trend-sparkline"
@@ -35,8 +31,6 @@ usedIn: [choose-a-component, sharing-with-a-clinician, trend-review, trend-with-
   importPath="@/components/ui/trend-sparkline"
   registryDependencies={["status-pill", "value"]}
 />
-
-## Usage
 
 ```tsx
 import { TrendSparkline } from "@/components/ui/trend-sparkline"
@@ -53,6 +47,40 @@ import { TrendSparkline } from "@/components/ui/trend-sparkline"
   minimumPoints={readingsATrendNeeds}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="trend-sparkline" />
+
+### A band behind the line, and one marked reading
+
+`range` shades a band only where it carries a source and both bounds. The one-sided
+range beside it is stated in words, drawn as nothing.
+
+<ComponentPreview name="trend-sparkline-a-band-and-a-marked-reading" kind="example" align="start" />
+
+### Not enough readings
+
+`minimumPoints` of four, against series of four and three. The short one draws nothing
+and appends its `caption` to the refusal.
+
+<ComponentPreview name="trend-sparkline-not-enough-readings" kind="example" align="start" />
+
+### A row of tiles
+
+What `category` is for: finding one line among several. Greyscale loses no fact.
+
+<ComponentPreview name="trend-sparkline-a-row-of-tiles" kind="example" align="start" />
+
+### States
+
+| Data state | What TrendSparkline renders |
+| --- | --- |
+| Error | A non-finite value is counted apart from gaps and called unreadable in the caption. |
+| Loading | None. The surface fetching the series owns the skeleton. |
+| Empty | Below `minimumPoints` it draws no line and prints the refusal, naming count and minimum. |
+| Partial | A `{ value: null }` entry is a real break, counted in the caption. Nothing is interpolated. |
+| Stale | The caption prints the last reading's date. No boundary invented, no verdict passed. |
 
 ## When to use it
 
@@ -77,137 +105,30 @@ import { TrendSparkline } from "@/components/ui/trend-sparkline"
 about cause.
 
 **Never read as.** A prediction, an explanation or a verdict. Upward is not worse and
-downward is not better, because valence belongs to the measurement and often to the
-person. Direction only ([Trends and change](../health/trends-and-change.mdx)).
+downward is not better, so the line shows direction only
+([Trends and uncertainty](../health/trends.mdx)).
 
 **Colour axis.** Category, on the line alone
-([Category identity](../health/category-identity.mdx)). Status is never drawn: the
+([Two colour axes](../health/two-colour-axes.mdx)). Status is never drawn: the
 marked reading is neutral and its verdict is a [StatusPill](./status-pill.mdx) in the
 caption.
 
 **Thresholds.** None. `changeThreshold` is required before any direction word prints,
 and `minimumPoints` before any line is drawn
-([Numbers, units and precision](../health/numbers-units-precision.mdx)).
+([Numbers and units](../health/numbers.mdx)).
 
 **Gaps and age.** A `{ value: null }` entry breaks the path and is never interpolated.
 The caption prints the last reading's date and invents no staleness boundary
-([Uncertainty and staleness](../health/uncertainty-and-staleness.mdx)).
-
-## Anatomy
-
-<Anatomy
-  name="trend-sparkline"
-  parts={[
-    {
-      name: "TrendSparkline",
-      describes: "The root: a flex column of period, plot and caption.",
-      prop: "className",
-    },
-    {
-      name: "TrendSparkline.Window",
-      describes: "The period, drawn only when you supplied a caption.",
-      prop: "window",
-    },
-    {
-      name: "TrendSparkline.Plot",
-      describes: "The SVG. role=\"img\" with a composed name, focusable=\"false\". Absent below minimumPoints.",
-      prop: "series",
-    },
-    {
-      name: "TrendSparkline.Baseline",
-      describes: "The zero anchor: a neutral hairline, so a flat series reads flat.",
-      prop: "series",
-    },
-    {
-      name: "TrendSparkline.Band",
-      describes: "The optional interval, dashed and neutral. Needs a source and both bounds.",
-      prop: "range",
-    },
-    {
-      name: "TrendSparkline.Line",
-      describes: "One path, broken at every gap. Carries data-category, never data-status.",
-      prop: "category",
-    },
-    {
-      name: "TrendSparkline.GapEdge",
-      describes: "A dot each side of a break, in the line's tint.",
-      prop: "series",
-    },
-    {
-      name: "TrendSparkline.Point",
-      describes: "The marked reading: a neutral dot, weight and halo apart. Stamps data-status.",
-      prop: "series",
-    },
-    {
-      name: "TrendSparkline.Caption",
-      describes: "The visible text twin: sentence, marked reading with pill, coverage, date, range.",
-      prop: "caption",
-    },
-  ]}
-/>
-
-## Examples
-
-### A band behind the line, and one marked reading
-
-`range` shades a band only where it carries a source and both bounds. The one-sided
-range beside it is stated in words, drawn as nothing.
-
-<ComponentPreview name="trend-sparkline-a-band-and-a-marked-reading" kind="example" align="start" />
-
-### Not enough readings
-
-`minimumPoints` of four, against series of four and three. The short one draws nothing
-and appends its `caption` to the refusal.
-
-<ComponentPreview name="trend-sparkline-not-enough-readings" kind="example" align="start" />
-
-### A row of tiles
-
-What `category` is for: finding one line among several. Greyscale loses no fact.
-
-<ComponentPreview name="trend-sparkline-a-row-of-tiles" kind="example" align="start" />
-
-## States
-
-| Data state | What TrendSparkline renders |
-| --- | --- |
-| Error | A non-finite value is counted apart from gaps and called unreadable in the caption. |
-| Loading | None. The surface fetching the series owns the skeleton. |
-| Empty | Below `minimumPoints` it draws no line and prints the refusal, naming count and minimum. |
-| Partial | A `{ value: null }` entry is a real break, counted in the caption. Nothing is interpolated. |
-| Stale | The caption prints the last reading's date. No boundary invented, no verdict passed. |
-
-## Content guidelines
-
-Captions state direction where a `changeThreshold` allows one, then magnitude, window,
-the marked reading, coverage, date and range. Avoid *improving*, *worsening*, *better*
-and *on track*, because each is valence nobody signed. Pass `locale`, or date order is
-the runtime's.
-
-<DoDont>
-  <DoDont.Do>
-    **"Down, from 20 steps to 16 steps, over the last 14 days."** Checkable against
-    the picture.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Trending in the right direction."** Valence with no author, magnitude or
-    window.
-  </DoDont.Dont>
-</DoDont>
+([Trends and uncertainty](../health/trends.mdx)).
 
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
-author-run, not an independent review, and clinical review is still pending.
+The rendered pass found no serious axe, target-size or focus breach at 320px, and nothing
+needed changing. The two colour axes stay apart, status is carried by the caption
+[StatusPill](./status-pill.mdx) and never by colour alone, and the committed `check:a11y`
+gate reruns the literal, bound, colour and axis rules.
 
-**What the audit found.** Nothing to change. The rendered pass was clean, with no serious
-axe, target-size or focus breach at 320px, and the source pass
-confirmed every check: the two colour axes stay apart, and status is carried by the
-caption [StatusPill](./status-pill.mdx), never by colour alone. The committed
-`check:a11y` gate reruns the literal, bound, colour and axis rules.
-
-**Residual and deferred.**
+**Residual items.**
 
 - No per-point data table twin. The text alternative is the `role="img"` name plus the
   visible caption. A full table is an enhancement, not an AA requirement.
@@ -239,7 +160,15 @@ caption [StatusPill](./status-pill.mdx), never by colour alone. The committed
 
 <ContrastReport component="trend-sparkline" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="TrendSparklineProps" />
+
+`precision`, `series` and `minimumPoints` are required with no default, because none is a
+number opsinjs could supply. `TrendPoint` and `ReferenceRange` come from `@/lib/opsinjs`,
+so no second copy can drift.
+
+### Data attributes
 
 <DataAttributesTable
   name="trend-sparkline"
@@ -266,18 +195,3 @@ caption [StatusPill](./status-pill.mdx), never by colour alone. The committed
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="TrendSparklineProps" />
-
-`precision`, `series` and `minimumPoints` are required with no default, because none is a
-number opsinjs could supply. `TrendPoint` and `ReferenceRange` come from `@/lib/opsinjs`,
-so no second copy can drift.
-
-## Related
-
-- [RangeBar](./range-bar.mdx) shows where one value sits in a reference range, not how a series moved.
-- [MetricTile](./metric-tile.mdx) can embed a sparkline. A sparkline is not a tile.
-- [ScoreDial](./score-dial.mdx) is a state at one moment, not a shape over time.
-- [EmptyState](./empty-state.mdx) owns the too-short refusal where the surface has no chart slot.

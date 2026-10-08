@@ -99,21 +99,12 @@ export default function TokensPage() {
               <li>
                 <Link
                   className="text-foreground underline underline-offset-4"
-                  href={routes.docs("foundations", "token-architecture")}
+                  href={routes.docs("theming")}
                 >
-                  Token architecture
+                  Theming
                 </Link>{" "}
-                covers the three tiers, and why a component may never reference
-                a primitive.
-              </li>
-              <li>
-                <Link
-                  className="text-foreground underline underline-offset-4"
-                  href={routes.docs("theming", "adding-your-own-tokens")}
-                >
-                  Adding your own tokens
-                </Link>{" "}
-                is the extension recipe that survives an upgrade.
+                covers the three tiers, why a component may never reference a
+                primitive, and adding your own tokens so they survive an upgrade.
               </li>
               <li>
                 <Link

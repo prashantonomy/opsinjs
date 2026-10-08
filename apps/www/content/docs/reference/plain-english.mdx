@@ -1,0 +1,64 @@
+---
+title: Plain English A to Z
+description: The clinical words a reader meets, the plain words to use instead, and how Term shows them in your product.
+kind: reference
+aliases: [clinical vocabulary, plain words, clinical terms, a to z, glossary data]
+---
+
+Each entry maps a clinical term to the plain wording a writer uses instead. Every definition is written from scratch for opsinjs. Nothing is copied from the NHS A to Z, any other Crown-copyright source, a dictionary or a manufacturer's leaflet.
+
+## Choosing a plain word
+
+A replacement passes four tests, in order:
+
+1. **Would someone say it out loud?** "Raised" passes. "Elevated" does not.
+2. **Does it lose anything the reader needs?** "Water pill" is plainer than "diuretic" and wrong, because the reader will not recognise it on the box. When plainness costs accuracy, use both words.
+3. **Will they meet the clinical term elsewhere?** If it is on their prescription, letter, portal or monitor, give the clinical term and the explanation once, then the plain form.
+4. **Is it the same word every time?** One clinical term maps to one plain replacement across the product.
+
+| Write | Not |
+| --- | --- |
+| Your blood pressure was 148 over 92. Your GP might call the top number "systolic". | Your systolic BP was 148 mmHg and your diastolic was 92 mmHg. |
+| Long-term (lasting months or years) | Chronic |
+| A steroid inhaler (sometimes called a "preventer") | An inhaler |
+
+Some plain words make things worse.
+
+| Avoid | Use instead |
+| --- | --- |
+| water pill, for a diuretic | the medicine's name, and what it does |
+| sugar, for glucose in a result | blood sugar once, then the measure's name |
+| good cholesterol, bad cholesterol | the named fraction, and what a higher figure means |
+| passed away | died |
+
+## Term in your product
+
+[Term](../components/term.mdx) shows a clinical word with its everyday meaning attached. It ships with an empty glossary. Your product passes its own entries to `TermGlossaryProvider` once, and each `<Term id>` looks one up. An id with no entry renders unmarked and warns in development.
+
+```tsx
+import { Term, TermGlossaryProvider } from "@/components/ui/term"
+
+<TermGlossaryProvider glossary={GLOSSARY}>
+  <p>
+    An <Term id="acute" /> problem started suddenly.
+  </p>
+</TermGlossaryProvider>
+```
+
+Each entry's `showBoth` says when the clinical term appears.
+
+| `showBoth` | Behaviour |
+| --- | --- |
+| `always` | Both forms every time, so a reader can match the screen to their paperwork |
+| `first-use` | Both forms the first time on a screen, then the plain wording alone. Express it with Term's `once` prop |
+| `plain-only` | The clinical term never reaches the reader. The entry tells authors what to write instead |
+
+A definition says what a word is, in one sentence. It is never what to do, what the word means for this reader, or a reassurance. Review your glossary as clinical content, not as microcopy.
+
+Term shows the clinical word with the plain wording attached, which is the reverse of `policy.rule` in `tokens/glossary.json`. That conflict is still open.
+
+## The A to Z
+
+The list is authored in `tokens/glossary.json`, which also holds a `banned` list of words such as normal, elevated and don't worry, each with a replacement. Treat a change to a `plain` wording as a breaking change to copy, and record it in the [changelog](../changelog.mdx).
+
+<Glossary />

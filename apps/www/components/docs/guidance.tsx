@@ -658,6 +658,20 @@ function resolveInstead(entry: WhenToUseAvoid): ResolvedInstead {
  * is wrong about its own system. So the phase the roster records is named in
  * the sentence and the destination is still linked.
  */
+/**
+ * An `href` written as a relative `.mdx` link, as every other link on a
+ * component page is, turned into the URL it names. `<WhenToUse>` appears only
+ * on component pages, so the link is resolved from `/components/`.
+ */
+function resolveHref(href: string): string {
+  if (!href.startsWith(".") || !href.endsWith(".mdx")) return href
+  const path = new URL(
+    href.replace(/\.mdx$/, ""),
+    "https://opsinjs.invalid/components/"
+  ).pathname
+  return path.replace(/\/index$/, "") || "/"
+}
+
 function InsteadPointer({
   entry,
   resolved,
@@ -671,7 +685,7 @@ function InsteadPointer({
     if (entry.href) {
       return (
         <>
-          Use <a href={entry.href}>{entry.instead}</a> instead.
+          Use <a href={resolveHref(entry.href)}>{entry.instead}</a> instead.
         </>
       )
     }
@@ -686,7 +700,9 @@ function InsteadPointer({
   }
 
   const destination = (
-    <Link href={entry.href ?? componentPath(target.name)}>
+    <Link
+      href={entry.href ? resolveHref(entry.href) : componentPath(target.name)}
+    >
       <code className="text-xs">{target.name}</code>
     </Link>
   )

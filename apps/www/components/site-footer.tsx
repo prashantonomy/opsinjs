@@ -5,24 +5,16 @@ import { ThemeSwitch } from "fumadocs-ui/layouts/shared/slots/theme-switch"
 import { agentRoutes, registryRoutes, routes, site } from "@/lib/routes"
 
 /* ==========================================================================
-   site-footer.tsx defines <SiteFooter>, the one footer, on every route.
+   site-footer.tsx defines <SiteFooter>, the footer of the tool pages.
 
-   IT IS THE WHOLE SECONDARY NAVIGATION. With the landing page deleted and the
-   top nav gone, the sidebar holds the ten documentation sections and nothing
-   else, by design. That leaves a real set of pages with nowhere to live:
-   `/colors`, `/tokens`, `/icons`, `/playground`, `/showcase`, `/official`, the
-   machine surfaces, the licence. They are not documentation sections and
-   putting them in the tree would undo the point of the tree. So they are here,
-   in the one place that renders under every page on the site.
+   The documentation sidebar holds the six sections and nothing else, so the
+   tool pages (`/colors`, `/tokens`, `/icons`, `/playground`, `/showcase`,
+   `/official`), the machine surfaces and the licence are linked from here.
 
-   That is also why this moved out of `app/(chrome)/(home)/layout.tsx`. There it
-   rendered on six routes and was absent from the four hundred documentation
-   pages, which is exactly backwards: a reader deep in the corpus is the one who
-   cannot otherwise find the theme switch or the playground.
-
-   THE THEME SWITCH IS HERE AND NOWHERE ELSE, for the same reason. `baseOptions`
-   turns off fumadocs' own, because it renders as a row inside the sidebar and
-   the sidebar is sections only.
+   It renders on the tool pages only, from the `(home)` and `(playground)`
+   layouts. A documentation page has no footer, as on blueprintjs.com: its
+   sidebar carries the theme switch and search, and the pages that matter link
+   the tools where they are relevant.
    ========================================================================== */
 
 function FooterColumn({
@@ -104,28 +96,19 @@ export function SiteFooter() {
             <FooterLink href={registryRoutes.catalog()}>
               registry.json
             </FooterLink>
-            <FooterLink href={routes.docs("agents")}>
-              Agents &amp; automation
-            </FooterLink>
-            <FooterLink href={routes.docs("registry")}>
-              Registry &amp; distribution
-            </FooterLink>
+            <FooterLink href={routes.docs("agents")}>Agents and LLMs</FooterLink>
+            <FooterLink href={routes.docs("registry")}>Registry</FooterLink>
           </FooterColumn>
 
           <FooterColumn title="Project">
-            <FooterLink href={routes.docs("project", "state-of-the-system")}>
-              State of the system
-            </FooterLink>
-            <FooterLink href={routes.docs("project", "roadmap")}>
-              Roadmap
-            </FooterLink>
-            <FooterLink href={routes.docs("project", "changelog")}>
-              Changelog
-            </FooterLink>
+            <FooterLink href={routes.docs()}>Introduction</FooterLink>
+            <FooterLink href={routes.docs("changelog")}>Changelog</FooterLink>
             <FooterLink href={routes.official()}>Official resources</FooterLink>
-            <FooterLink href={site.github} external>
-              GitHub
-            </FooterLink>
+            {site.sourcePublic ? (
+              <FooterLink href={site.github} external>
+                GitHub
+              </FooterLink>
+            ) : null}
           </FooterColumn>
         </div>
 
@@ -138,9 +121,9 @@ export function SiteFooter() {
           <p>
             <Link
               className="transition-colors hover:text-foreground"
-              href={routes.docs("project", "licence-and-attribution")}
+              href={routes.docs()}
             >
-              Licence and attribution
+              Licence
             </Link>
           </p>
         </div>

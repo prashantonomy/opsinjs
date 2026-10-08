@@ -1,0 +1,93 @@
+---
+title: Styling
+description: Style a component you own through className, its data attributes and the render slot, without breaking the theme or the colour axes.
+kind: guide
+aliases: [className override, cn function, state attributes, render prop, asChild, lint rules]
+---
+
+Installed components are source you own, so you can edit them, but each edit is yours to merge at every upgrade. Try these hooks first, and fix the token in [Theming](./theming.mdx) when several components look wrong the same way.
+
+## className and style
+
+Every component takes `className` and merges it onto its root with `cn()`, which is `clsx` plus `tailwind-merge`. Your class comes last, so it wins a conflict:
+
+```ts
+import { cn } from "@/lib/utils"
+
+cn("px-4 py-2", isWide && "px-8")
+// "py-2 px-8"
+```
+
+- `className` styles only the root of what receives it, such as `Card` or `Card.Header`. Reach anything else through its `data-slot`.
+- When you wrap a component, forward `className` last, or the default overwrites the caller's.
+- The registry does not ship `cn`, so yours is the one `shadcn init` wrote. Its stock `tailwind-merge` treats `text-opsin-*` type steps as colours, so `cn("text-opsin-body", "text-foreground")` keeps only the later class. Write the colour as `[color:var(--foreground)]`, as the components do.
+- Most components take a closed set of props with no `style`. [Button](./components/button.mdx) and [Link](./components/link.mdx) forward their native element's attributes, `style` included.
+- Never hardcode a colour such as `bg-[#e11d48]` or a size such as `text-[13px]`, never reach for `!important`, and never style into a component's internals by descendant selector.
+
+## Data attributes
+
+Attributes are the styling and testing contract, so renaming one is a breaking change. opsinjs stamps a closed set of four:
+
+| Attribute | On | Value |
+| --- | --- | --- |
+| `data-slot` | Every part of every component | The part, such as `result-card-header` |
+| `data-status` | An element whose colour, icon or word carries a status | `steady`, `watch`, `attention`, `urgent` or `unknown` |
+| `data-category` | An element tinted from the category axis | One of the six categories |
+| `data-opsinjs-value` | An element showing a measurement | The unrounded number, without its unit, so never export it alone |
+
+```css
+[data-open] { /* the popup is open */ }
+[data-status="urgent"] { /* the value's clinical status */ }
+```
+
+Components built on Base UI add its state attributes, such as `data-open`, `data-disabled` and `data-starting-style`. These are present or absent, so `[data-open]` matches and `[data-open="true"]` does not.
+
+- Style a state through its attribute, not a class you toggle.
+- Never set `data-status` yourself to force a colour, because that puts a clinical claim in the DOM that nothing backs.
+- Never invent `data-opsinjs-*` attributes. Use your own prefix.
+- No `data-state` attribute exists, so a selector against it matches nothing.
+
+## The render slot
+
+Four components take `render`, an element rendered in place of their own. Link, [Card](./components/card.mdx) and [MetricTile](./components/metric-tile.mdx) take your router's link so navigation stays client-side, and `Field.Control` in [Field](./components/field.mdx) takes a control opsinjs does not ship, such as `<textarea rows={3} />`. Link's own `href`, `data-slot` and attributes win over the router element's, and the two class lists are joined.
+
+```tsx
+import NextLink from "next/link"
+import { Link } from "@/components/ui/link"
+
+<Link href="/results" emphasis="action" render={<NextLink href="/results" />}>
+  See your results
+</Link>
+```
+
+Button takes no `render`, `href` or `as`, because a control that goes somewhere is a Link. `render` is the nearest thing to shadcn/ui's `asChild`, and it is untested against Next and React Router links.
+
+## Naming
+
+| Thing | Convention | Example |
+| --- | --- | --- |
+| Component id, file and docs path | kebab-case | `result-card` |
+| Component | PascalCase | `ResultCard` |
+| Props interface | `<Component>Props` | `ResultCardProps` |
+| Prop | camelCase, booleans positive | `disabled`, not `isDisabled` |
+| Custom property | `--opsin-`, then axis, member, role | `--opsin-status-urgent-surface` |
+
+Prose is British and code is American. Never name anything `normal`, never use `error` for a clinical state, and never add a catch-all `variant` prop, which ends up carrying both axes.
+
+## TypeScript
+
+Every component exports a `<Component>Props` interface, from which its page's API table is generated. The axis types ship with every component in `lib/opsinjs.ts`:
+
+```ts
+import { type ClinicalStatus, type HealthCategory } from "@/lib/opsinjs"
+```
+
+`ClinicalStatus` holds the four levels and `HealthCategory` the six categories. `unknown` is a separate `UnknownStatus`, the absence of a verdict rather than a fifth level, and `ClinicalStatusOrUnknown` joins the two. Type a wrapper with `Pick` and `Omit` on the exported interface, and never widen `status` to `string`.
+
+## Lint rules
+
+<NotBuiltYet what="The opsinjs lint tooling">
+`eslint-plugin-opsinjs` and `stylelint-plugin-opsinjs` are proposed as specifications. Neither is built or published.
+</NotBuiltYet>
+
+Until they exist, review by hand for a colour literal or arbitrary colour value, both axes on one element, a status token in a category role, a banned word such as "normal" in copy, and a component variable set on `:root`. In a fork, `pnpm run check:a11y` catches several of these, but only in the component sources under `registry/`, never in your application.

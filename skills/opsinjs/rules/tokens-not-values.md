@@ -74,7 +74,7 @@ Do not hand-pick a palette. opsinjs derives one: brand colour to an OKLCH
 lightness ramp, a chroma clamp against the sRGB gamut boundary, a Display-P3
 escalation for wide-gamut displays, and then APCA validation of every resulting
 role pair. The theme playground at `/playground/theme` does this interactively
-and emits the CSS; `/docs/theming/theme-generator.md` documents the mechanism.
+and emits the CSS; `/theming.md` documents the mechanism.
 
 Two things about the published contrast figures, because both get misread:
 
@@ -87,8 +87,7 @@ Two things about the published contrast figures, because both get misread:
 
 ## Where the detail lives
 
-- `/docs/foundations/token-architecture.md` - the three tiers
-- `/docs/reference/generated/tokens.md` - every token, generated
-- `/docs/reference/generated/css-variables.md` - every custom property, by selector
-- `/docs/theming/adding-your-own-tokens.md` - extending without forking
-- `/docs/handbook/tooling/stylelint-plugin.md` - the lint rule that catches this
+- `/theming.md` - the three tiers, and extending without forking
+- `/reference/generated/tokens.md` - every token, generated
+- `/reference/generated/css-variables.md` - every custom property, by selector
+- `/styling.md` - styling a component you own, and the lint rule proposed to catch this, which is not built yet

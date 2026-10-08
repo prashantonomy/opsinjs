@@ -21,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="progress" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="progress"
@@ -33,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/progress"
   dependencies={["@base-ui/react"]}
 />
-
-## Usage
 
 ```tsx
 import { Progress } from "@/components/ui/progress"
@@ -44,87 +38,9 @@ import { Progress } from "@/components/ui/progress"
 <Progress label="Uploading photos" value={45} />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "Showing how far through an upload or a download the reader has got, where the amount done is a real fraction of a known whole.",
-    "Tracking a multi-step flow, such as step three of five, by passing the step count as value and the total as max.",
-    "Signalling that a task with no known shape is running, by passing value={null}, rather than inventing a percentage.",
-  ]}
-  avoid={[
-    { case: "You are drawing a health reading against a range. A bar implies a target the reading does not have and carries no reference bounds.", instead: "range-bar" },
-    { case: "You are showing a composite score. A bar reads it as a mark out of its top, the one reading a score must not invite.", instead: "score-dial" },
-    { case: "The wait has no bar-shaped answer, because you cannot say what is arriving as a fraction. A placeholder of the shape to come says more.", instead: "skeleton" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="progress"
-  parts={[
-    {
-      name: "Progress",
-      describes: "The root, a Base UI Progress.Root with role=\"progressbar\" and the aria value attributes. Neutral chrome only, not focusable.",
-      prop: "value",
-    },
-    {
-      name: "Progress.Label",
-      describes: "The visible task name, wired by Base UI as the progressbar's accessible name. Comes from the required label prop.",
-      prop: "label",
-    },
-    {
-      name: "Progress.Value",
-      describes: "The text readout, formatted as a percentage. For an indeterminate task a plain phrase replaces it.",
-    },
-    {
-      name: "Progress.Track",
-      describes: "The groove the fill runs in: the neutral muted surface, clipping its fill to a pill.",
-    },
-    {
-      name: "Progress.Indicator",
-      describes: "The fill, in the primary action role. Its width follows the value, or spans the track and pulses when indeterminate.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="progress"
-  tree={[
-    {
-      part: "Progress",
-      cardinality: "1",
-      note: "data-slot=\"progress\", role=\"progressbar\"",
-      children: [
-        {
-          part: "Progress.Label",
-          cardinality: "1",
-          note: "data-slot=\"progress-label\", the accessible name",
-        },
-        {
-          part: "Progress.Value",
-          cardinality: "1",
-          note: "data-slot=\"progress-value\", percentage or phrase",
-        },
-        {
-          part: "Progress.Track",
-          cardinality: "1",
-          note: "data-slot=\"progress-track\", the muted groove",
-          children: [
-            {
-              part: "Progress.Indicator",
-              cardinality: "1",
-              note: "data-slot=\"progress-indicator\", the primary fill",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="progress" />
 
 ### A task completing
 
@@ -141,46 +57,40 @@ pulses, the readout says the work is in progress, and Base UI drops
 
 <ComponentPreview name="progress-indeterminate" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Name the task in `label`, not the widget: *Uploading photos*, never *Progress*.
-The label is the accessible name read before the value. Prefer `null` to a
-guessed number, because a bar parked at a made-up ninety promises an amount the
-task has not reached.
-
-<DoDont>
-  <DoDont.Do>
-    **"Uploading photos" at a real 45.** The label names the task and the readout
-    matches the fill.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A resting heart rate drawn as a fill towards a full track.** It invents a
-    target the reading never had.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "Showing how far through an upload or a download the reader has got, where the amount done is a real fraction of a known whole.",
+    "Tracking a multi-step flow, such as step three of five, by passing the step count as value and the total as max.",
+    "Signalling that a task with no known shape is running, by passing value={null}, rather than inventing a percentage.",
+  ]}
+  avoid={[
+    { case: "You are drawing a health reading against a range. A bar implies a target the reading does not have and carries no reference bounds.", instead: "range-bar" },
+    { case: "You are showing a composite score. A bar reads it as a mark out of its top, the one reading a score must not invite.", instead: "score-dial" },
+    { case: "The wait has no bar-shaped answer, because you cannot say what is arriving as a fraction. A placeholder of the shape to come says more.", instead: "skeleton" },
+  ]}
+/>
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Colour is a role token
-on neither axis; no type size is in `px`.
+`aria-valuenow` carries the amount done, with the label, minimum and maximum.
+Nothing takes focus, so the bar costs no tab stop. The transition and pulse drop
+under `prefers-reduced-motion`, and words carry the state. Type steps and the
+`em` track height scale together, so 200% text grows the bar rather than
+clipping it. `pnpm run check:a11y` confirms on every commit that colour is a
+role token on neither axis and that no type size is in `px`.
 
-**Audited against WCAG 2.2 AA**, source and rendered, author-run rather than
-independent, with clinical review still pending. Three fixes landed: a plain
-`aria-label` on the root so the name survives a first paint before Base UI's
-own wiring runs, a sibling status region announcing `"{label} complete."` at
-max, and `aria-hidden` on the indeterminate branch's text to match the
-determinate readout.
+The audit made three fixes: a plain `aria-label` on the root so the name
+survives a first paint before Base UI's own wiring runs, a sibling status region
+announcing `"{label} complete."` at max, and `aria-hidden` on the indeterminate
+branch's text to match the determinate readout.
 
-- `aria-valuenow` carries the amount done, with the label, minimum and
-  maximum.
-- Nothing takes focus, so the bar costs no tab stop.
-- The transition and pulse drop under `prefers-reduced-motion`; words carry
-  the state.
-- Type steps and the `em` track height scale together, so 200% text grows
-  the bar rather than clipping it.
+**Residual items.**
 
-**Still open.** Fill contrast against the track, carried below until
-measured. Wrap for a long label and print output were not checked.
+- Fill contrast against the track is not measured, and the report below carries
+  it until it is.
+- Wrap for a long label and print output were not checked.
 
 <KeyboardTable
   name="progress"
@@ -205,7 +115,7 @@ measured. Wrap for a long label and print output were not checked.
 
 <ContrastReport component="progress" />
 
-## API reference
+## Props interface
 
 <PropsTable name="ProgressProps" />
 
@@ -213,9 +123,3 @@ measured. Wrap for a long label and print output were not checked.
 state and 0 a task not started. A value outside 0 to `max` is clamped by Base UI
 and raises a development warning. No colour prop exists, and `className` takes
 neither a status nor a category tint.
-
-## Related
-
-- [RangeBar](./range-bar.mdx) draws a reading against a range somebody owns, with the reference bounds marked.
-- [ScoreDial](./score-dial.mdx) draws a composite score as an arc and says in words what it is made of.
-- [Skeleton](./skeleton.mdx) is the placeholder for arriving content whose shape you can show.

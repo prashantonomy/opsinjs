@@ -63,25 +63,21 @@ export default function NotFound() {
             <p className="mt-2 text-sm">
               <Link
                 className="underline underline-offset-4"
-                href={routes.docs("project", "roadmap")}
+                href={routes.docs("changelog")}
               >
                 Roadmap
               </Link>
               <span className="text-muted-foreground"> · </span>
               <Link
                 className="underline underline-offset-4"
-                href={routes.docs("project", "state-of-the-system")}
+                href={routes.docs()}
               >
                 State of the system
               </Link>
               <span className="text-muted-foreground"> · </span>
               <Link
                 className="underline underline-offset-4"
-                href={routes.docs(
-                  "project",
-                  "decisions",
-                  "0025-the-audit-is-author-run"
-                )}
+                href={routes.docs("foundations", "accessibility")}
               >
                 ADR 0025
               </Link>
@@ -97,7 +93,7 @@ export default function NotFound() {
                 {/* Built rather than written out: the example URL stays correct
                     if the corpus ever gains a language segment, and the file
                     stays free of the literal the IA gate bans. */}
-                {routes.docs("health", "alarm-fatigue")}
+                {routes.docs("health", "alerts")}
               </code>
               . Search is on every documentation page. Press{" "}
               <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.75em]">

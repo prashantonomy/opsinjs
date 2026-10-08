@@ -21,11 +21,7 @@ aliases: ["range input", "drag to set"]
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="slider" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="slider"
@@ -33,8 +29,6 @@ aliases: ["range input", "drag to set"]
   importPath="@/components/ui/slider"
   dependencies={["@base-ui/react"]}
 />
-
-## Usage
 
 ```tsx
 import { Slider } from "@/components/ui/slider"
@@ -47,6 +41,24 @@ import { Slider } from "@/components/ui/slider"
   onValueChange={setBrightness}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="slider" />
+
+### A coarse preference
+
+A fictional notification volume from nought to a hundred, driven by `value` and
+`onValueChange`.
+
+<ComponentPreview name="slider-a-coarse-preference" kind="example" align="start" />
+
+### With steps
+
+`min`, `max` and `step` snap the thumb to stops: a fictional map zoom running
+from one to nine in twos.
+
+<ComponentPreview name="slider-with-steps" kind="example" align="start" />
 
 ## When to use it
 
@@ -63,128 +75,22 @@ import { Slider } from "@/components/ui/slider"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="slider"
-  parts={[
-    {
-      name: "Slider",
-      describes: "The root. Holds value, min, max and step, and sits on neither colour axis.",
-      prop: "value",
-    },
-    {
-      name: "Slider.Label",
-      describes: "The visible label, wired to the thumb's hidden input so it names the control.",
-      prop: "label",
-    },
-    {
-      name: "Slider.Value",
-      describes: "A text readout mirroring the value, quieter than the label, with tabular figures.",
-    },
-    {
-      name: "Slider.Control",
-      describes: "The pointer region. Floors its height at the target minimum and blocks touch scrolling.",
-    },
-    {
-      name: "Slider.Track",
-      describes: "The thin muted rail with a hairline.",
-    },
-    {
-      name: "Slider.Indicator",
-      describes: "The filled portion, from the track start to the thumb, in the bridged primary role.",
-    },
-    {
-      name: "Slider.Thumb",
-      describes: "The draggable knob. A 44px hit area nesting a real range input.",
-      prop: "disabled",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="slider"
-  tree={[
-    {
-      part: "Slider",
-      cardinality: "1",
-      children: [
-        { part: "Slider.Label", cardinality: "1" },
-        { part: "Slider.Value", cardinality: "1" },
-        {
-          part: "Slider.Control",
-          cardinality: "1",
-          children: [
-            {
-              part: "Slider.Track",
-              cardinality: "1",
-              children: [
-                { part: "Slider.Indicator", cardinality: "1" },
-                { part: "Slider.Thumb", cardinality: "1" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### A coarse preference
-
-A fictional notification volume from nought to a hundred, driven by `value` and
-`onValueChange`.
-
-<ComponentPreview name="slider-a-coarse-preference" kind="example" align="start" />
-
-### With steps
-
-`min`, `max` and `step` snap the thumb to stops: a fictional map zoom running
-from one to nine in twos.
-
-<ComponentPreview name="slider-with-steps" kind="example" align="start" />
-
-## Content guidelines
-
-Name the preference, not the gesture: *Screen brightness*, never *Drag to set
-brightness*. The label is the accessible name and is heard before the value. Keep
-units out of the readout, because a unit invites the reader to treat a rough
-position as a measurement.
-
-<DoDont>
-  <DoDont.Do>
-    **"Screen brightness"** with a bare nought to a hundred readout names the
-    thing adjusted.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Blood pressure"** with a mmHg readout dresses a rough position as a
-    measurement.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-This component was audited against WCAG 2.2 AA in a source pass and a rendered
-pass. The audit is author-run, it is not an independent review, and clinical
-review is still pending. The rendered pass was clean: no axe violations, no
-target-size breach and no reflow failure. The source already handled the flagged
-risks, so nothing changed here.
+The audit found no axe violation, target-size breach or reflow failure, and
+changed nothing. The thumb wraps Base UI unmodified, so click-to-position plus
+Arrow, Home, End and Page keys give every drag a keyboard alternative (SC 2.5.7
+Dragging). The role, `aria-valuenow`, `min` and `max` come from the nested real
+range input, and the `Slider.Label` text is forwarded onto it so the name is
+present at render (SC 4.1.2 Name, Role, Value). The thumb hit area is floored at
+`--opsin-target-minimum` on both axes, with the knob drawn smaller inside (SC
+2.5.8).
 
-- 2.5.7 Dragging: the thumb wraps Base UI unmodified, so click-to-position plus
-  Arrow, Home, End and Page keys give every drag a keyboard alternative.
-- 4.1.2 Name, Role, Value: role, `aria-valuenow`, `min` and `max` come from the
-  nested real range input, and the `Slider.Label` text is forwarded onto it so
-  the name is present at render.
-- 2.5.8: the thumb hit area is floored at `--opsin-target-minimum` on both axes,
-  with the knob drawn smaller inside.
+**Residual items.**
 
-Two residual items. The knob's colour fade on interaction has no reduced-motion
-guard, but it is a colour change and not positional motion, so any neutralisation
-belongs in a shared stylesheet. The `Slider.Value` readout renders as an `output`
-with a polite live region, so while dragging the value is spoken twice, a
-verbosity and not a defect. Contrast pairs remain unmeasured.
+- The knob's colour fade on interaction has no reduced-motion guard, but it is a colour change and not positional motion, so any neutralisation belongs in a shared stylesheet.
+- The `Slider.Value` readout renders as an `output` with a polite live region, so while dragging the value is spoken twice, a verbosity and not a defect.
+- Contrast pairs remain unmeasured.
 
 <KeyboardTable
   name="slider"
@@ -229,19 +135,10 @@ verbosity and not a defect. Contrast pairs remain unmeasured.
 
 <ContrastReport component="slider" />
 
-## API reference
+## Props interface
 
 <PropsTable name="SliderProps" />
 
 `value` and `onValueChange` make this controlled, so the caller holds the number.
 `label` is required and a missing one raises a development warning. `min`
 defaults to 0, `max` to 100 and `step` to 1.
-
-## Related
-
-- [ReadingInput](./reading-input.mdx) is where a clinical measurement is typed,
-  with the unit and the plausibility checks.
-- [NumberField](./number-field.mdx) is for a precise non-clinical quantity where
-  the digits matter.
-- [SegmentedControl](./segmented-control.mdx) picks a named option rather than a
-  value along a continuum.

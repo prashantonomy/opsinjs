@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: data-display
 aliases: ["counter", "label chip"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,19 +21,13 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="badge" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="badge"
   unbuilt={false}
   importPath="@/components/ui/badge"
 />
-
-## Usage
 
 ```tsx
 import { Badge } from "@/components/ui/badge"
@@ -47,22 +40,9 @@ import { Badge } from "@/components/ui/badge"
 </span>
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "A small neutral count attached to a label, such as an unread count on a tab, where the number carries no clinical meaning.",
-    "A short neutral word on a list row or a heading, such as a category name the product owns, that is not a status.",
-    "A compact chip of neutral chrome that reads more calmly than a full sentence, as long as it carries content rather than urgency.",
-  ]}
-  avoid={[
-    { case: "The label says what a reading means or how urgent it is. A badge would carry that as colour alone.", instead: "status-pill" },
-    { case: "You are showing a measurement and its unit rather than a count or a word.", instead: "value" },
-    { case: "The chip has to be tapped to do something. A badge is content, not a control, and takes no focus.", instead: "button" },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="badge" />
 
 ### A count on a label
 
@@ -79,63 +59,46 @@ thing carrying a level.
 
 <ComponentPreview name="badge-the-two-weights" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Keep a badge to a few characters: a number, or a short neutral word. Give a bare
-number a noun through `srLabel`, so a screen reader hears what it counts. Never
-write a clinical status word into a badge. "Steady" and "Needs attention" belong
-in a [StatusPill](./status-pill.mdx), beside the colour and the glyph that make
-the level readable.
-
-<DoDont>
-  <DoDont.Do>
-    **"3" with `srLabel="3 unread"`** names the count for a screen reader and
-    stays quiet chrome.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A red badge reading "High" beside a reading** tells a clinical level by
-    colour alone. That is a StatusPill.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "A small neutral count attached to a label, such as an unread count on a tab, where the number carries no clinical meaning.",
+    "A short neutral word on a list row or a heading, such as a category name the product owns, that is not a status.",
+    "A compact chip of neutral chrome that reads more calmly than a full sentence, as long as it carries content rather than urgency.",
+  ]}
+  avoid={[
+    { case: "The label says what a reading means or how urgent it is. A badge would carry that as colour alone.", instead: "status-pill" },
+    { case: "You are showing a measurement and its unit rather than a count or a word.", instead: "value" },
+    { case: "The chip has to be tapped to do something. A badge is content, not a control, and takes no focus.", instead: "button" },
+  ]}
+/>
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA**, in a source pass and a rendered pass. The
-audit is author-run, not an independent review, and clinical review is still
-pending.
+`pnpm run check:a11y` confirms on every commit that the badge draws only
+neutral chrome roles, carries no `data-status` and sets its text at the
+`caption1` step rather than a `px` size. The audit fixed one defect: `aria-label`
+on a bare `span`, whose implicit role is generic, does not reliably carry an
+author-supplied name, so a non-empty `srLabel` now adds `role="img"`, the
+pairing [Avatar](./avatar.mdx) uses. Nothing else changed.
 
-The source pass found one real defect and fixed it: `srLabel` set `aria-label`
-on a bare `span`, whose implicit role is generic and does not reliably carry
-an author-supplied name to assistive technology, so a caller's count risked
-being silently dropped in favour of the visible digit. The badge now pairs
-`aria-label` with `role="img"` whenever `srLabel` is a non-empty string, the
-same pairing already used on [Avatar](./avatar.mdx). Nothing else about the
-markup, the props or the rendered output changed.
+**Argued from the source, not measured.** `srLabel=""` sets `aria-hidden`, so a
+count already spoken beside the badge is not read twice. Nothing takes focus,
+answers a key or animates, so there is no keyboard contract and nothing for
+`prefers-reduced-motion` to reduce. At 200% text and under a wider text-spacing
+override the chip grows rather than clipping, because nothing fixes its height
+or hides its overflow.
 
-**Checked by `pnpm run check:a11y` on every commit.** The badge draws only the
-neutral chrome roles, carries no `data-status`, and sets its text at the
-`caption1` semantic step rather than a `px` size.
+**Residual items.**
 
-**Argued from the source, not measured.**
-
-- `srLabel=""` sets `aria-hidden`, so a count already spoken beside the badge is
-  not read twice.
-- `srLabel` with text sets `aria-label` and `role="img"` together, so a bare
-  count is named reliably rather than risking a lone number.
-- Nothing takes focus, answers a key or animates, so there is no keyboard
-  contract and nothing for `prefers-reduced-motion` to reduce.
-- At 200% text and under a wider text-spacing override the chip grows with the
-  text rather than clipping it, because nothing fixes its height or hides its
-  overflow.
-
-**Residual, disclosed rather than fixed.** No contrast pair in either weight
-has been measured against real token values, so the numbers below are
-whatever the generator has produced so far. Nothing in the component checks
-that a caller's `srLabel` textually contains the visible content, so a caller
-who ignores the guidance in Content guidelines could still write a disjoint
-label; that stays a documented usage contract rather than enforced behaviour.
-Whether a screen reader speaks a labelled badge usefully in the flow of its
-host still has not been listened to, only reasoned about from the roles.
+- No contrast pair in either weight has been measured against real token
+  values, so the figures below are whatever the generator has produced so far.
+- Nothing checks that `srLabel` textually contains the visible content, so a
+  caller can still write a disjoint label. That is a documented usage contract,
+  not enforced behaviour.
+- Nobody has listened to a labelled badge in a screen reader in the flow of its
+  host, so how it reads there is reasoned from the roles.
 
 <KeyboardTable
   name="badge"
@@ -160,7 +123,7 @@ host still has not been listened to, only reasoned about from the roles.
 
 <ContrastReport component="badge" />
 
-## API reference
+## Props interface
 
 <PropsTable name="BadgeProps" />
 
@@ -168,12 +131,3 @@ host still has not been listened to, only reasoned about from the roles.
 colour prop, because a badge is on neither axis, and colour passed through
 `className` is the caller's to keep off both. `srLabel` names a bare count, and
 an empty string hides a decorative badge from the accessibility tree.
-
-## Related
-
-- [StatusPill](./status-pill.mdx) carries a clinical level as colour, icon and
-  word together, which a neutral badge cannot.
-- [Value](./value.mdx) formats a measurement and its unit. A badge counts or
-  names and formats nothing.
-- [Callout](./callout.mdx) sets information apart in a block. A badge is a chip
-  attached inline to something else.

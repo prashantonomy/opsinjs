@@ -1,175 +1,76 @@
 ---
-title: Overview
-description: What makes opsinjs a health design system rather than a general-purpose component library, and which decisions it fixes on a product's behalf.
+title: Health
+description: What opsinjs decides, what your product decides, and the ten rules every health screen must pass.
 kind: health
-evidence: opinion
-reviewed: 2026-09-02
+evidence: mixed
+implements: [result-card, range-bar, status-pill, alert-banner, care-card, value, disclaimer-note, term, scale-input, questionnaire, symptom-picker, score-dial, trend-sparkline, metric-tile, relative-time, consent-sheet, dose-tracker]
+reviewed: 2026-10-08
 reviewer: design
-reviewEvery: 6m
-implements: [result-card, range-bar, status-pill, alert-banner, care-card, value, disclaimer-note]
-aliases: [health design system, clinical safety, patient-facing, consumer health]
 ---
 
-<PageTemplate kind="health" />
+opsinjs decides how health information is presented. It never decides what that information means. No component has had an independent accessibility review or any clinical review, and nothing here is for a production health surface.
 
-<SectionProgress />
+## The ten rules
 
-## What this means
+Check each on the rendered screen before merging anything that shows, interprets or collects health data.
 
-A generic component library will render the number `212` in red inside a rounded
-rectangle without objection. It holds no position on whether that number is a
-cholesterol reading, on whether red here means "bad" or "cardiovascular", on
-whether the person looking at it knows what the unit is, or on whether the app
-has just told someone they are ill in a colour they cannot distinguish, at 11pm,
-with no way to ask a question until Monday.
+1. **Never carry clinical status in colour alone.** [Two colour axes](./two-colour-axes.mdx)
+2. **Never mix the category axis with the status axis** on one element. [Two colour axes](./two-colour-axes.mdx)
+3. **Never use "normal" or "abnormal" about a person's own result.** [Reference ranges](./reference-ranges.mdx)
+4. **Never show a number without its unit, its scale and when it was measured.** [Numbers and units](./numbers.mdx)
+5. **Never show more digits than the measurement supports.** [Numbers and units](./numbers.mdx)
+6. **Never draw a trend from fewer points than the metric's minimum window.** [Trends and uncertainty](./trends.mdx)
+7. **Never put more than one `urgent` surface on a screen.** [Alerts](./alerts.mdx)
+8. **Never convey urgency with motion, sound or haptics alone.** [Alerts](./alerts.mdx)
+9. **Never present a result without saying what, if anything, to do**, even when the answer is "nothing". [High-stakes moments](./high-stakes-moments.mdx)
+10. **Never collect health data without saying what it is for and how to stop.** [Consent and privacy](./consent-and-privacy.mdx)
 
-Health is the domain in which the distance between "renders correctly" and "is
-safe to ship" is greatest. The failure that matters here is a reader misreading a
-result they were not prepared for, rather than a broken layout, and of the two
-possible misreadings false reassurance is more dangerous than panic. Every rule
-in this section exists because a plausible, well-built, good-looking interface
-can produce that outcome with no visible sign of malfunction.
+To break a rule, record which, why, who agreed and the compensating control. Lint rules for rules 2, 3 and 4 are planned, not written, so all ten are human checks today. [Safety review](./safety-review.mdx) holds the checklist.
 
-This pillar is doctrine rather than library code: a small number of decisions,
-argued in public, that constrain what the components are allowed to do. The
-components are downstream of it, and it is the section that is complete today
-while the components are not, which is the reason to read it before writing code.
+## Who this is for
 
-## The rule
+Someone with no clinical training, reading their own result on their own phone with nobody to ask. New to the unit, they give the screen 3 to 15 seconds. Months later they want only the figure, from the same screen.
 
-**opsinjs decides how health information is presented. It never decides what
-that information means.**
+1. Expand every clinical term in place on first encounter, with [Term](../components/term.mdx).
+2. Give every value its scale, its unit and a sentence on what it means.
+3. Treat a four-year-old phone, low brightness, the largest text size, reduced motion, reduced transparency, increased contrast and greyscale as the expected case. Never fix the height of a card holding a clinical sentence.
+4. Never carry anything important once, quickly, or on a single channel.
+5. Order a result as value, meaning, then next step.
 
-### Decisions opsinjs fixes
+## Scope and safety
 
-Six decisions sit on the presentation side of that boundary. Each one is fixed
-for every product built on the system, and the enforcement column records how
-much of the fixing the build performs today and how much still rests on a
-reviewer.
+**opsinjs renders decisions. It does not make them.** It never triages, diagnoses or advises, and it is not a medical device. Every clinical judgement on screen originates outside opsinjs, where your organisation can name, review, version and audit it.
 
-| Decision | What is fixed | Failure it prevents | Where it is enforced | Doctrine page |
-| --- | --- | --- | --- | --- |
-| **Two colour axes** | Category identity and clinical status are independent channels with independent palettes, so a colour that says "this is a heart metric" can never also say "this is worrying" | One hue carrying both identity and urgency, after which a reader can rely on neither | The `--opsin-category-*` and `--opsin-status-*` namespaces are disjoint, and a component that accepts a `status` does not accept a `category` for the same surface | [The two colour axes](./two-colour-axes.mdx) |
-| **Four clinical status levels** | `steady`, `watch`, `attention` and `urgent` form an ordinal ladder in that order. Each level has a fixed meaning and a fixed tone, and `urgent` is budgeted at one surface per screen | A fifth level invented for one screen, and an `urgent` treatment spent on a product problem | Every component takes the level from the exported `ClinicalStatus` union, so an invalid level is a type error rather than an unstyled element. The per-screen budget is held by review | [Clinical status semantics](./clinical-status-semantics.mdx) |
-| **Status on more than one channel** | Colour, shape, icon and a word carry a status together, every time | A status invisible to a reader with a colour vision deficiency, or on a greyscale display | `StatusPill` exposes no `color` prop, no `variant` prop and no way to remove the word | [Clinical status semantics](./clinical-status-semantics.mdx) |
-| **Number formatting** | Precision, units and rounding are a correctness surface: one metric is shown to the same number of decimal places every time, and no number is rendered without its unit | A reading rounded or padded into a claim the instrument did not make | `Value` takes a magnitude, a unit and a precision rather than a pre-formatted string, holds no default precision of its own, and puts the unit into the accessibility tree in words | [Numbers, units and precision](./numbers-units-precision.mdx) |
-| **Rendered uncertainty** | A measurement, an estimate, a stale reading and an absent value are four visually distinct states | A three-day-old reading presented as current | `RelativeTime` ships no staleness default, so a product that states no threshold gets no stale treatment, and its one default, `absoluteAfterDays`, chooses the wording for an age without carrying a staleness verdict. `Value` refuses to render an unknown as a number | [Uncertainty, staleness and missing data](./uncertainty-and-staleness.mdx) |
-| **The word "normal"** | The word is banned from any user-facing string that describes a person's own result | A statement about one measurement read as a verdict on the person | `check-a11y.mts` gates the banned-word list from `tokens/glossary.json` across the component sources opsinjs ships. No check reaches a consuming product's strings. There the list falls to review, and the lint rule over user-facing strings has not been written | [Reference ranges](./reference-ranges.mdx) |
+1. No component derives a clinical status from a value. There is no `threshold` prop and there will not be one, because your product owns every threshold. Pass `status` in from one mapping your clinical owner approved, versioned and tested at its boundaries, never from code in or beside a component.
+2. No component supplies a reference range. Ranges arrive with their source, and whoever issued one owns it.
+3. No component's wording asserts a clinical meaning. Your clinical content owner writes that sentence.
+4. No component escalates on its own.
 
-Motion is never one of the channels that carry a status, which is why it is
-absent from the third row. A reader who has `prefers-reduced-motion` set receives
-the end state instead of the animation, so a signal carried in motion reaches
-some readers and not others.
-[Motion in health UI](./motion-in-health-ui.mdx) sets out the seven requirements
-that follow from the rule that motion may support a message but may never be the
-message.
+**You are responsible for every clinical claim your interface makes, including the ones made by colour, icon, order and emphasis rather than by words.** Your organisation and its regulator decide whether your product is a medical device.
 
-### Decisions opsinjs withholds
+<SafetyCallout severity="urgent" evidence="opinion">
+  If any part of your product would be a medical device without opsinjs, it is
+  still a medical device with opsinjs. Using this design system does not create,
+  transfer, reduce or satisfy any regulatory obligation. Nothing here has been
+  submitted to, reviewed by, or cleared by any regulator, and no conformity
+  assessment of any kind has been performed on it.
+</SafetyCallout>
 
-Four decisions sit on the clinical side of the boundary. The system supplies none
-of them, and each one has a named owner outside it.
+[DisclaimerNote](../components/disclaimer-note.mdx), [ConsentSheet](../components/consent-sheet.mdx), [AlertBanner](../components/alert-banner.mdx) and [CareCard](../components/care-card.mdx) are not compliance controls, and a disclaimer is necessary and insufficient. Keep a visible route to a human wherever a reader may be frightened, even offline or with the value missing. No component notices distress. If DCB0129 or DCB0160 apply, they apply whole, and opsinjs produces no hazard log or clinical safety case report. Nothing here is legal advice.
 
-| Decision withheld | Who owns it | Why opsinjs cannot supply it | Where to look |
-| --- | --- | --- | --- |
-| **The thresholds** separating `watch` from `attention` | The product, and whoever is clinically accountable for it | A threshold is a claim about what a measurement means for a person, and a presentation layer that shipped one would be making that claim with no author | [Clinical status semantics](./clinical-status-semantics.mdx) |
-| **The reference ranges** | The laboratory, device manufacturer or clinical team that issued them | They vary by laboratory, assay, age, sex, pregnancy and population | [Reference ranges](./reference-ranges.mdx) |
-| **The words that carry clinical meaning** | The product's clinical content owner | opsinjs supplies sentence shapes, and the clinical content placed inside them belongs to the product | [Clinical interaction guidelines](./clinical-interaction-guidelines.mdx) |
-| **Whether the product is a medical device** | The organisation shipping it, answering to its regulator | Classification turns on the intended purpose the product states for itself, which the system never sees | [Regulatory context](./regulatory-context.mdx), then [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx) |
+## Evidence
 
-## Why (evidence)
+Each instrument is named, not paraphrased, because a design system's summary of a regulation is a second-hand reading of a text you must legally read directly. Confirm the current version of each, because they are amended.
 
-<ResearchNote evidence="opinion" date="2026-09-02">
-  The argument for putting doctrine above components is an engineering one, and
-  it is an opinion rather than a finding.
+- **Regulation (EU) 2017/745 (the Medical Device Regulation, "MDR")** is the EU framework under which software may itself qualify as a medical device.
+- **MDCG 2019-11** is the Medical Device Coordination Group guidance on qualification and classification of software under MDR and IVDR.
+- **IMDRF, "Software as a Medical Device (SaMD): Key Definitions"** is the international definition the term SaMD comes from, and the vocabulary most regulators build on.
+- **DCB0129, "Clinical Risk Management: its Application in the Manufacture of Health IT Systems"** is the NHS England information standard placing clinical risk-management obligations on the *manufacturer* of health IT.
+- **DCB0160, "Clinical Risk Management: its Application in the Deployment and Use of Health IT Systems"** is the companion standard, placing obligations on the *deploying organisation*.
+- **WCAG 2.2 (W3C Recommendation)** is the accessibility standard opsinjs measures itself against; see [Accessibility](../foundations/accessibility.mdx). Success criteria 1.4.1 (Use of Colour) and 2.2.2 (Pause, Stop, Hide) are the normative basis for rules 1 and 8.
+- The systematic review of laboratory-result presentation formats in JMIR (2024), [10.2196/53993](https://doi.org/10.2196/53993), anchors rules 3, 4 and 5 in the claim that a number needs a scale, not in any visual treatment.
+- The patient-portal presentation study in BMC Medical Informatics and Decision Making (2018), [10.1186/s12911-018-0589-7](https://doi.org/10.1186/s12911-018-0589-7), is cited for the same claim.
 
-  A design system's real output is consistency of decision rather than code.
-  Where the decision "which colour means worrying" is taken independently on each
-  screen, it is taken slightly differently each time, and the inconsistency is
-  invisible in review because every screen is defensible on its own. Encoding the
-  decision once is the only mechanism we know of that survives a team growing.
-  The decision is encoded in tokens, in a status vocabulary and in a lint rule.
+Rules 2, 6, 7, 9 and 10 are opinion, as are the audience model and the position that no component derives severity from a value.
 
-  In a health product the cost of that inconsistency falls on interpretation
-  rather than on appearance. A reader who has learnt that amber means "look at
-  this soon" on one screen carries that reading into every other screen in the
-  app, whether or not the same meaning was assigned there.
-
-  What would change our mind: evidence that consumers do not in fact generalise
-  colour meaning across screens within one app, or that a status vocabulary
-  smaller than four levels performs measurably better. We have not run that
-  study and we do not cite one.
-</ResearchNote>
-
-Every page in this section declares an `evidence` field and is bound by it: a
-page marked `cited` names a source the reader can open, and a page marked
-`opinion` states which parts we would change our mind about. The full register of
-sources is at [Evidence and references](./evidence-and-references.mdx). We have
-not, at the time of writing, had this pillar reviewed by an external clinician,
-and the open item below is where that gap is tracked.
-
-<Todo>External clinical review of the whole Health pillar. Until it happens, no
-page here may be described as clinically approved, and `reviewer: clinical` does
-not appear in any frontmatter in this directory.</Todo>
-
-## Applying it
-
-Two pages in this section carry the operational load.
-[Clinical interaction guidelines](./clinical-interaction-guidelines.mdx) states
-ten numbered prohibitions, each written so that a reviewer can test a screen
-against it, and [Safety review checklist](./safety-review-checklist.mdx) is one
-printable list, grouped into ten lettered sections, whose items name the doctrine
-page they come from where one exists.
-
-<DoDont>
-  <DoDont.Do>
-    Read [Clinical interaction guidelines](./clinical-interaction-guidelines.mdx)
-    before your first screen, then keep
-    [Safety review checklist](./safety-review-checklist.mdx) open during review.
-  </DoDont.Do>
-  <DoDont.Dont>
-    Treat this section as background reading to come back to. The colour axes and
-    the status vocabulary are structural decisions, and retrofitting either one
-    means revisiting every screen that has already chosen for itself.
-  </DoDont.Dont>
-</DoDont>
-
-### Reading order by task
-
-The order below depends on what the implementing team is building today. The
-third column names a page that a condition adds, rather than a page everyone
-needs.
-
-| What the team is building | Read in this order | Read additionally when |
-| --- | --- | --- |
-| A screen that shows a measured value | [Reference ranges](./reference-ranges.mdx), then [Numbers, units and precision](./numbers-units-precision.mdx), then [Uncertainty, staleness and missing data](./uncertainty-and-staleness.mdx) | |
-| A surface that alerts | [Clinical status semantics](./clinical-status-semantics.mdx), then [Alarm fatigue](./alarm-fatigue.mdx), then [Emergency and escalation](./emergency-and-escalation.mdx) | |
-| Anything that asks the reader a question | [Consent and disclosure](./consent-and-disclosure.mdx) | Any answer could disclose risk of harm: [Crisis and self-harm](./crisis-and-self-harm.mdx) |
-
-## Components that implement this
-
-{/* Generated from `implements`. Do not restate the list by hand. */}
-
-Every component listed here carries a `governedBy` field naming the doctrine
-pages it must satisfy. `scripts/assert-ia.mts` fails the build with `CAT003` when
-a component's `governedBy` names a doctrine page whose `implements` does not list
-it. The reverse asymmetry, a doctrine page claiming a component that does not
-claim it back, is reported as a warning and does not fail `pnpm check`.
-
-## What this does not cover
-
-This pillar is written for **consumer and patient-facing** interfaces: an app
-someone uses to look at their own health data, log something about themselves, or
-be told something about a result. The four domains below sit outside that scope,
-the reason differs in each, and this guidance should not be used as-is in any of
-them.
-
-| Out of scope | Examples | Why this guidance does not transfer | What applies instead, or who is accountable |
-| --- | --- | --- | --- |
-| **Clinician-facing software** | Electronic health records, prescribing, triage tooling, diagnostic workstations | The reader is trained, the density requirements are the opposite of the ones here, and the safety analysis is different | |
-| **Regulated device user interfaces** | Anything that is part of a medical device under EU MDR, UK MDR or the FDA's device framework | Classification determines what the interface must do and must prove, and opsinjs confers no regulatory status of any kind | [Regulatory context](./regulatory-context.mdx) |
-| **Clinical content** | Thresholds, ranges, dosing, triage logic, and any sentence whose truth is a clinical claim | The truth of the sentence is a clinical question rather than a presentation one | Whoever is clinically accountable in your organisation |
-| **Legal advice** | Whether a regime applies to a given product, and what it requires once it does | [Regulatory context](./regulatory-context.mdx) is a starting map written by engineers and designers rather than by lawyers | |
-
-## Updates to this page
-
-<Reviewed />
+<Todo>External clinical review of the whole Health section. Until it happens, no page here may be described as clinically approved.</Todo>

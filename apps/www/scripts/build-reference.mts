@@ -9,19 +9,17 @@
  *   content/docs/reference/generated/tokens.mdx          from lib/generated/tokens.ts
  *   content/docs/reference/generated/css-variables.mdx   from lib/generated/tokens.ts
  *   content/docs/reference/generated/contrast.mdx        from lib/generated/contrast.json
- *   content/docs/reference/generated/glossary.mdx        from lib/generated/glossary.json
- *   content/docs/reference/generated/catalogue.mdx       from lib/generated/catalogue.json
- *   content/docs/reference/generated/types.mdx           from the exports in lib/
+ *   content/docs/reference/generated/types.mdx           from the exports in lib/,
+ *                                                        one section per type
  *   content/docs/reference/generated/data-attributes.mdx component-derived: NoDataYet
  *   content/docs/reference/generated/keyboard.mdx        component-derived: NoDataYet
- *   content/docs/reference/generated/api/<Symbol>.mdx    one page per exported symbol
- *   content/docs/reference/generated/api/meta.json       ordering for those pages
+ *   lib/generated/props.ts                               the component props tables
  *
  * THE TWO HALVES OF A REFERENCE PAGE. Everything between the two MDX comment
  * markers - one reading "opsinjs:generated:begin" and one reading
  * "opsinjs:generated:end", both spelled out in the BEGIN and END constants below -
  * belongs to this script and is replaced wholesale. Everything above the first
- * marker - frontmatter and the "How this is generated" section - is hand-written
+ * marker - frontmatter and a short introduction - is hand-written
  * and is preserved when it already exists. That split is deliberate: the source
  * of a table and the explanation of what its rows mean have different owners and
  * different review cadences.
@@ -68,13 +66,6 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const GENERATED_DIR = join(APP_DIR, "content", "docs", "reference", "generated")
-/**
- * Per-symbol pages live at content/docs/reference/api/, which is the URL
- * lib/routes.ts `apiSymbolPath()` builds and the one <ApiLink> resolves to.
- * They are NOT under generated/, because some of them are hand-written prose
- * with a generated block inside - see the splice rule below.
- */
-const API_DIR = join(APP_DIR, "content", "docs", "reference", "api")
 const LIB_DIR = join(APP_DIR, "lib")
 /**
  * The component sources, and the module the props tables are emitted to.
@@ -220,10 +211,6 @@ function defaultHeader(spec: PageSpec): string {
     "{/* This page has two halves. Everything above the generated marker is",
     "    hand-written and is preserved by scripts/build-reference.mts; everything",
     "    below it is replaced wholesale on every `pnpm run generate`. */}",
-    "",
-    '<PageTemplate kind="reference" />',
-    "",
-    "## How this is generated",
     "",
     spec.howItIsGenerated,
     "",
@@ -408,7 +395,7 @@ function cssVariablesPage(tokens: GeneratedToken[]): PageSpec {
 
   return {
     slug: "css-variables",
-    title: "CSS variable reference",
+    title: "CSS variables",
     description:
       "Every --opsin-* custom property, grouped by the selector that declares it, with its value and what it controls.",
     howItIsGenerated: [
@@ -589,121 +576,10 @@ function contrastPage(): PageSpec {
   }
 }
 
-function glossaryPage(): PageSpec {
-  const data = readJsonMaybe(join(LIB_DIR, "generated", "glossary.json")) as
-    | { terms?: Array<Record<string, unknown>>; banned?: Array<Record<string, unknown>> }
-    | undefined
-  const terms = Array.isArray(data?.terms) ? data.terms : []
-  const banned = Array.isArray(data?.banned) ? data.banned : []
-
-  return {
-    slug: "glossary",
-    title: "Glossary",
-    description:
-      "The clinical-to-plain-English glossary that Term and the A-Z render from, as one searchable table, with the words the system does not use.",
-    howItIsGenerated: [
-      "Source: `tokens/glossary.json`. Script: `scripts/build-tokens.mts`, then",
-      "`scripts/build-reference.mts`. Command: `pnpm run generate`.",
-      "",
-      "Every definition here is written for this project. Nothing is copied from the",
-      "NHS A-Z or any other Crown-copyright source: that material is cited where it is",
-      "relevant and never pasted. If a definition reads like a clinical textbook it is",
-      "wrong for this table - the reader is a patient, not a clinician.",
-      "",
-      "**Show both** says when the clinical term must still appear alongside the plain",
-      "wording. Dropping it entirely can cost a reader the ability to search for their",
-      "own condition, so plain-English replacement is not the same as plain-English",
-      "substitution.",
-      "",
-      "**The banned words are the more important table.** A word on that list is one",
-      "the system will not use anywhere, including in code identifiers, and each row",
-      "says what to write instead and why the substitution matters to a reader.",
-    ].join("\n"),
-    body:
-      terms.length === 0 && banned.length === 0
-        ? noData(
-            "scripts/build-tokens.mts",
-            "`tokens/glossary.json` has no entries yet. Authoring it and running `pnpm run generate` fills these tables.",
-          )
-        : [
-            "## A-Z",
-            "",
-            table(
-              ["Term", "Say this instead", "Show both", "Why"],
-              terms.map((entry) => [
-                cell(entry.term),
-                cell(entry.plain),
-                cell(entry.showBoth),
-                cell(entry.reason ?? entry.definition),
-              ]),
-            ),
-            "",
-            "## Words we do not use",
-            "",
-            table(
-              ["Never", "Instead", "Why"],
-              banned.map((entry) => [
-                cell(entry.word),
-                cell(entry.instead),
-                cell(entry.reason),
-              ]),
-            ),
-          ]
-            .filter((part) => part !== "")
-            .join("\n"),
-  }
-}
-
-function cataloguePage(): PageSpec {
-  const data = readJsonMaybe(join(LIB_DIR, "generated", "catalogue.json")) as
-    | { items?: Array<Record<string, unknown>> }
-    | undefined
-  const items = Array.isArray(data?.items) ? data.items : []
-
-  const shippedTable = table(
-    ["Component", "Category", "Status", "Since", "Search synonyms"],
-    items.map((item) => [
-      code(item.name),
-      cell(item.category),
-      cell(item.status),
-      cell(item.since),
-      cell(Array.isArray(item.aliases) ? item.aliases.join(", ") : ""),
-    ]),
-  )
-
-  return {
-    slug: "catalogue",
-    title: "Catalogue",
-    description:
-      "Every component opsinjs specifies, with status, category and search synonyms.",
-    howItIsGenerated: [
-      "Source: `registry/catalogue.ts`. Script: `scripts/build-registry.mts`, then",
-      "`scripts/build-reference.mts`. Command: `pnpm run generate`.",
-      "",
-      "The catalogue is the single source of truth for component identity: the id, the",
-      "category, the release phase and the search synonyms all live there and are read",
-      "from there by the sidebar chips, the status matrix, `llms.txt` and every `/r`",
-      "payload. That is what keeps a reader and an agent from getting different answers",
-      "to the same question.",
-    ].join("\n"),
-    body:
-      items.length === 0
-        ? noData(
-            "scripts/build-registry.mts",
-            "`registry/catalogue.ts` has no entries yet. Authoring it and running `pnpm run generate` fills these tables.",
-          )
-        : [
-            "## Specified",
-            "",
-            shippedTable || "<NoDataYet script=\"scripts/build-registry.mts\" />",
-          ].join("\n"),
-  }
-}
-
 function dataAttributesPage(): PageSpec {
   return {
     slug: "data-attributes",
-    title: "Data attribute reference",
+    title: "Data attributes",
     description:
       "Every data-* attribute opsinjs components emit, the condition that sets it and the values it can take.",
     howItIsGenerated: [
@@ -728,7 +604,7 @@ function dataAttributesPage(): PageSpec {
        be inventing a styling contract that consumers then select on. */
     body: noData(
       "scripts/build-reference.mts",
-      "This script does not read the component sources for `data-*` attributes yet, so the table below has no rows, which is not the same as no attribute being emitted. The base layer under `registry/bases/base` emits `data-slot` on every part, plus opsinjs's `data-status`, `data-category` and `data-opsinjs-value`, and inherits Base UI's `data-open`, `data-starting-style` and `data-ending-style`. That is the whole component contract, and the Handbook states it is closed at those four. The squircle is not among them: Card, Callout and Dialog deliver it with an inline `corner-shape` property, `[corner-shape:var(--opsin-corner-shape)]`, rather than stamping a `data-opsin-shape` attribute, so no component emits one. `data-opsinjs-not-implemented` is not a component attribute either. It is a documentation-site marker that this site's not-built-yet chrome stamps so a program can tell a specification from a shipped component. Filling this table needs the attribute, the part, the condition and the value set together; the vocabulary itself is specified in the Handbook under Data attributes.",
+      "This script does not read the component sources for `data-*` attributes yet, so there is no table, which is not the same as no attribute being emitted. Every part carries `data-slot`, and `data-status`, `data-category` and `data-opsinjs-value` appear where they apply, with Base UI's `data-open`, `data-starting-style` and `data-ending-style` inherited. That is the whole component contract, closed at those four, as Styling describes. The squircle is not among them: Card, Callout and Dialog set an inline `corner-shape` property instead. `data-opsinjs-not-implemented` is a documentation-site marker, not a component attribute. Each component page lists its own attributes under Props interface.",
     ),
   }
 }
@@ -1012,23 +888,36 @@ function hasOwnPage(symbol: ExportedSymbol): boolean {
   return symbol.kindWord === "type" || symbol.kindWord === "interface"
 }
 
-function typesPage(symbols: ExportedSymbol[]): PageSpec {
+function typesPage(
+  symbols: ExportedSymbol[],
+  usedBy: Map<string, string[]>,
+  byName: Map<string, ExportedSymbol>
+): PageSpec {
   const rows = symbols.map((symbol) => [
-    hasOwnPage(symbol) ? `[\`${symbol.name}\`](../api/${symbol.name}.mdx)` : code(symbol.name),
+    hasOwnPage(symbol) ? `[\`${symbol.name}\`](#${symbol.name.toLowerCase()})` : code(symbol.name),
     cell(symbol.kindWord),
     code(symbol.file),
-    /* THE FIRST PARAGRAPH, WHICH IS USUALLY THE WHOLE COMMENT.
-       Not `summary`, the first sentence: this is a table of every export and
-       the cell is the only thing said about each one, so a sentence-level cut
-       threw away the second half of every two-sentence comment. Not the whole
-       comment either. Several of these run to three paragraphs of design
-       rationale, and putting all of it in a cell took this one generated page
-       from 29 kB to 70 kB, on a page that is already among the largest in the
-       corpus and is carried whole by a shard with a byte budget. The opening
-       paragraph is what a table row is for; the rest is on the symbol's own
-       page, which the name links to. */
+    /* The first paragraph of the doc comment: a table row is for the opening
+       paragraph, and the whole comment is in the symbol's own section below. */
     cell(symbol.detail?.split("\n\n")[0]?.replace(/\s+/g, " ")),
   ])
+
+  /* One section per type and interface, in source order: the doc comment, the
+     declaration, its members and the symbols that use it. */
+  const sections = symbols.filter(hasOwnPage).map((symbol) =>
+    [
+      `### ${symbol.name}`,
+      symbol.detail === undefined
+        ? "This symbol has no doc comment yet."
+        : escapeForMdx(symbol.detail),
+      `A ${symbol.kindWord} in ${code(symbol.file)}.`,
+      ["```ts", symbol.signature.trim(), "```"].join("\n"),
+      memberTable(symbol),
+      usedByLine(usedBy.get(symbol.name) ?? [], byName),
+    ]
+      .filter((block) => block.trim() !== "")
+      .join("\n\n")
+  )
 
   return {
     slug: "types",
@@ -1036,21 +925,10 @@ function typesPage(symbols: ExportedSymbol[]): PageSpec {
     description:
       "Every symbol opsinjs exports, what kind of declaration it is, where it lives and what it is for.",
     howItIsGenerated: [
-      "Source: the `export` declarations under `lib/`. Script:",
-      "`scripts/build-reference.mts`. Command: `pnpm run generate`.",
-      "",
-      "Each name links to its own page, so `<ApiLink>` anywhere in the documentation",
-      "resolves to an address rather than to an anchor halfway down a page nobody can",
-      "scroll to reliably. The summary column is the first sentence of the symbol's own",
-      "doc comment - if it reads badly here, fix the comment, not this page.",
-      "",
-      "Component prop interfaces are not in this table, and not because they do not",
-      "exist. `extractPropsInterfaces()` in this same script reads the named",
-      "`export interface <Component>Props` out of each `registry/bases/base/*.tsx` and",
-      "emits it to `lib/generated/props.ts`, which is what a component page's props",
-      "table renders. This table lists what `lib/` exports - the clinical vocabulary",
-      "types, the status ladder and the category set - because those are the symbols",
-      "`<ApiLink>` has to resolve to an address of their own.",
+      "Generated from the `export` declarations under `lib/` by",
+      "`scripts/build-reference.mts`. Each type and interface has a section below with its",
+      "declaration, its members and the symbols that use it. Component props are on each",
+      "component page instead.",
     ].join("\n"),
     body:
       symbols.length === 0
@@ -1058,7 +936,10 @@ function typesPage(symbols: ExportedSymbol[]): PageSpec {
             "scripts/build-reference.mts",
             "`lib/` exports nothing yet. This table lists every exported symbol as soon as one exists.",
           )
-        : `## Exported symbols\n\n${table(["Symbol", "Kind", "Declared in", "Summary"], rows)}`,
+        : [
+            `## Exported symbols\n\n${table(["Symbol", "Kind", "Declared in", "Summary"], rows)}`,
+            ...(sections.length > 0 ? ["## Declarations", ...sections] : []),
+          ].join("\n\n"),
   }
 }
 
@@ -1082,36 +963,6 @@ function escapeForMdx(text: string): string {
       part.startsWith("`") ? part : part.replace(/([<{}])/g, "\\$1")
     )
     .join("")
-}
-
-/**
- * THE `description` ON A SYMBOL PAGE IS THE SYMBOL'S OWN FIRST SENTENCE, AND
- * THIS IS THE ONE LINE OF THE HAND-WRITTEN HEADER THIS SCRIPT OWNS.
- *
- * Everything above the generated marker is otherwise preserved, which is how a
- * page keeps its `reviewed` date and its aliases across a regeneration. That
- * rule had a cost nobody was paying attention to. A page is only written from
- * scratch once, so the description written on the day the page first appeared
- * was the description it kept forever. Twenty-four pages still carried the
- * placeholder their first run produced, of the form "The interface X, exported
- * from lib/y.ts", which is the page's own title and file path rearranged into a
- * sentence. As a search snippet it said nothing, and as a summary it was wrong
- * the moment somebody wrote a doc comment.
- *
- * There is no second opinion to preserve here. The description of a type is the
- * first sentence of its doc comment, and if that sentence is bad the repair is
- * in the source rather than on the page. So this line tracks the comment, and
- * `check:generated` now fails when the two drift.
- *
- * A symbol with no doc comment keeps whatever the page already says, because
- * overwriting a real sentence with a generated placeholder would be a loss.
- */
-function syncDescription(head: string, symbol: ExportedSymbol): string {
-  if (symbol.summary === undefined) return head
-  return head.replace(
-    /^description: .*$/m,
-    `description: ${yamlString(symbol.summary)}`
-  )
 }
 
 /**
@@ -1188,7 +1039,7 @@ function memberTable(symbol: ExportedSymbol): string {
   if (rows.length === 0) return ""
 
   return [
-    "### Members",
+    "**Members**",
     "",
     table(
       ["Member", "Type", "Required", "What it is"],
@@ -1203,123 +1054,17 @@ function memberTable(symbol: ExportedSymbol): string {
 }
 
 /**
- * The symbols that name this one in their own declaration, as a table.
- *
- * Every row links to that symbol's page where it has one, which is every type
- * and every interface (`hasOwnPage`). A const or a function has no page of its
- * own and is printed as code, because a link to nothing is worse than a name.
+ * The symbols that name this one in their own declaration, as one line of
+ * links to their sections on the same page. A const or a function has no
+ * section of its own and is printed as code.
  */
-function usedByTable(
-  symbol: ExportedSymbol,
-  users: string[],
-  byName: Map<string, ExportedSymbol>
-): string {
+function usedByLine(users: string[], byName: Map<string, ExportedSymbol>): string {
   if (users.length === 0) return ""
-
-  const rows = users.map((name) => {
+  const names = users.map((name) => {
     const other = byName.get(name)
-    const label =
-      other && hasOwnPage(other) ? `[\`${name}\`](./${name}.mdx)` : code(name)
-    return [
-      label,
-      cell(other?.kindWord),
-      cell(other?.summary ? escapeForMdx(other.summary) : undefined),
-    ]
+    return other && hasOwnPage(other) ? `[\`${name}\`](#${name.toLowerCase()})` : code(name)
   })
-
-  return [
-    "### Used by",
-    "",
-    `${users.length === 1 ? "One other" : `${users.length} other`} exported symbol${
-      users.length === 1 ? "" : "s"
-    } name${users.length === 1 ? "s" : ""} ${symbol.name} in its own declaration.`,
-    "",
-    table(["Symbol", "Kind", "What it is"], rows),
-  ].join("\n")
-}
-
-function apiPage(
-  symbol: ExportedSymbol,
-  file: string,
-  context: { users: string[]; byName: Map<string, ExportedSymbol> }
-): string {
-  /* Some of these pages are hand-written prose with a generated block inside.
-     Splice into the block and leave everything above it alone; only write the
-     whole page when there is no page yet. */
-  const current = readMaybe(file)
-  const beginAt = current === undefined ? -1 : current.indexOf("{/* opsinjs:generated:begin")
-  const endAt = current === undefined ? -1 : current.indexOf("{/* opsinjs:generated:end")
-  /* BLOCKS, joined by one blank line. Each entry is a whole markdown block and
-     carries its own internal newlines, which is what keeps the fenced
-     declaration from gaining a blank line after its opening fence. The two
-     tables at the end are empty strings when there is nothing to say and are
-     filtered out: a heading with no table under it reads as a claim that the
-     list is empty rather than absent, and those are different facts. */
-  const generated = [
-    `## ${symbol.name}`,
-    symbol.detail === undefined
-      ? "This symbol has no doc comment yet."
-      : escapeForMdx(symbol.detail),
-    table(["Kind", "Declared in"], [[cell(symbol.kindWord), code(symbol.file)]]),
-    ["```ts", symbol.signature.trim(), "```"].join("\n"),
-    memberTable(symbol),
-    usedByTable(symbol, context.users, context.byName),
-  ]
-    .filter((block) => block.trim() !== "")
-    .join("\n\n")
-
-  if (current !== undefined && beginAt !== -1 && endAt !== -1 && endAt > beginAt) {
-    const endMarkerEnd = current.indexOf("}", endAt) + 1
-    const head = syncDescription(current.slice(0, beginAt).trimEnd(), symbol)
-    const tail = current.slice(endMarkerEnd).trimStart()
-    return `${head}\n\n${[BEGIN, "", generated, "", END, ""].join("\n")}${
-      tail.length > 0 ? `\n${tail}` : ""
-    }`
-  }
-  if (current !== undefined) {
-    /* A hand-written page with no generated block. Leave it exactly as it is:
-       a symbol page somebody wrote is worth more than a generated one, and
-       overwriting it would be this script deleting another author's work. */
-    return current
-  }
-
-  return [
-    "---",
-    `title: ${yamlString(symbol.name)}`,
-    `description: ${yamlString(
-      symbol.summary ??
-        `The ${symbol.kindWord} ${symbol.name}, exported from ${symbol.file}.`,
-    )}`,
-    /* No `status:` line: see `defaultHeader()` above. */
-    "kind: reference",
-    "---",
-    "",
-    "{/* GENERATED - do not edit. Source: the declaration named in the table below.",
-    "    Script: scripts/build-reference.mts. Change the doc comment on the symbol. */}",
-    "",
-    '<PageTemplate kind="reference" />',
-    "",
-    "## How this is generated",
-    "",
-    `Source: \`${symbol.file}\`. Script: \`scripts/build-reference.mts\`. Command:`,
-    "`pnpm run generate`.",
-    "",
-    /* SHORT ON PURPOSE. This paragraph is byte-identical on every symbol page,
-       and it used to be longer than the unique content it sat above: fifty-six
-       pages opened with the same sixty words, and twenty-four of them had
-       nothing after it but a heading and a one-line declaration. The rationale
-       it used to carry is on the index, where it is written once. */
-    "Everything below is copied from the symbol, so a page is improved by improving",
-    "its doc comment. The [API index](./index.mdx) says why there is a page per",
-    "symbol and what these pages still do not carry.",
-    "",
-    BEGIN,
-    "",
-    generated,
-    "",
-    END,
-    "",
-  ].join("\n")
+  return `**Used by** ${names.join(", ")}.`
 }
 
 /* ------------------------------------------------------------------ *
@@ -1747,39 +1492,24 @@ async function main(): Promise<void> {
   const tokens = await loadTokens()
   const symbols = extractSymbols()
 
+  /* The reverse index is built once for the whole set: it is O(n^2) in the
+     number of exported symbols and there is one answer for the run. */
+  const usedBy = referenceIndex(symbols)
+  const byName = new Map(symbols.map((symbol) => [symbol.name, symbol]))
+
   const specs: PageSpec[] = [
     tokensPage(tokens),
     dataAttributesPage(),
     cssVariablesPage(tokens),
     keyboardPage(),
-    typesPage(symbols),
+    typesPage(symbols, usedBy, byName),
     contrastPage(),
-    glossaryPage(),
-    cataloguePage(),
   ]
 
   const outputs: Array<{ file: string; contents: string }> = specs.map((spec) => {
     const file = join(GENERATED_DIR, `${spec.slug}.mdx`)
     return { file, contents: assemble(spec, file) }
   })
-
-  /* Built once for the whole set rather than per page: the index is O(n^2) in
-     the number of exported symbols and there is exactly one answer for the
-     run. `byName` is what lets a row link to the page of the symbol it names. */
-  const usedBy = referenceIndex(symbols)
-  const byName = new Map(symbols.map((symbol) => [symbol.name, symbol]))
-
-  const documented = symbols.filter(hasOwnPage)
-  for (const symbol of documented) {
-    const file = join(API_DIR, `${symbol.name}.mdx`)
-    outputs.push({
-      file,
-      contents: apiPage(symbol, file, {
-        users: usedBy.get(symbol.name) ?? [],
-        byName,
-      }),
-    })
-  }
 
   /* The props map goes through the same `outputs` list as the pages, so
      `--check` covers it without a second code path. It is emitted even when
@@ -1800,9 +1530,6 @@ async function main(): Promise<void> {
     )
   }
   outputs.push({ file: PROPS_MODULE, contents: propsModule(propsInterfaces) })
-  /* api/meta.json is hand-written and already carries a "..." rest entry, so
-     every generated symbol page is picked up without this script owning the
-     ordering of a directory it only partly writes. */
 
   if (checkOnly) {
     const drifted = outputs.filter((output) => readMaybe(output.file) !== output.contents)
@@ -1826,16 +1553,11 @@ async function main(): Promise<void> {
     if (writeIfChanged(output.file, output.contents)) writtenCount += 1
   }
 
-  /* api/ is NOT pruned. Some pages there are hand-written prose with a
-     generated block inside, and a symbol disappearing from lib/ is not
-     authority to delete somebody's writing about it. A stale page is reported
-     by assert-ia's orphan check instead, where a human decides. */
-
   const emptyPages = specs.filter((spec) => spec.body.includes("<NoDataYet")).length
   console.log(
     [
-      `build-reference: ${specs.length} reference pages, ${documented.length} symbol pages ` +
-        `of ${symbols.length} exported symbols, ` +
+      `build-reference: ${specs.length} reference pages, ` +
+        `${symbols.length} exported symbols, ` +
         `${propsInterfaces.length} props interfaces; ${writtenCount} changed.`,
       emptyPages > 0
         ? `  ${emptyPages} of ${specs.length} render <NoDataYet>: their source data does not exist yet.`

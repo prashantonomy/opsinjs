@@ -1,166 +1,56 @@
 ---
 title: Sharing with a clinician
-description: Export, summary and hand-off surfaces produce something a clinician can read in ninety seconds without the product implying it has done any interpreting.
+description: Export and hand-off surfaces a clinician can read in ninety seconds, without the product implying it has interpreted anything.
 kind: pattern
 aliases: [export my data, share with doctor, appointment summary, printable report, hand-off]
-implements: [result-card, trend-sparkline, value, relative-time, consent-sheet, care-card, disclaimer-note]
-reviewEvery: 6m
-reviewed: 2026-09-20
-reviewer: clinical
 ---
 
-<PageTemplate kind="pattern" />
+The export answers to the clinician, who wants the fewest facts that change a decision. The screen before it answers to the reader.
 
-## When to use
+## When to use it
 
-Use this pattern when the reader wants to take what the product knows about them
-to a person who has ten minutes and clinical training.
+Use it when the reader takes their logs to an appointment, a clinic asks for readings between visits, or a referral needs their history.
 
-There are two audiences on this surface and they are in tension. The reader
-wants to feel that their tracking mattered. The clinician wants the smallest
-number of facts that change a decision, in a form they can scan on paper or on
-a phone in a corridor. The pattern resolves it by making the *export* answer to
-the clinician and the *screen the reader sees before exporting* answer to the
-reader.
+Do not use it for:
 
-Signals:
-
-- The reader has an appointment and has been logging.
-- A clinic has asked for readings between visits.
-- Someone is being referred and their history has to travel with them.
-
-## When not to use
-
-- **Continuous clinical monitoring.** A feed a clinician is expected to watch is
-  a regulated surface with alerting obligations, and this design system says
-  plainly it is not built for that. See
-  [Is opsinjs right for this project?](../start/is-opsinjs-right.mdx) and
-  [Regulatory context](../health/regulatory-context.mdx).
-- **Sharing with a family member or carer.** The audience is different, the
-  vocabulary is different, and the consent decision is different. Design it
-  separately.
-- **Raw data portability.** A machine-readable export for the reader's own use
-  is a different artefact from a clinical summary. Offer both, and do not
-  conflate them.
-- **You want the consent mechanics.** Granting, scoping and revoking access is
-  [Consent and permissions](./consent-and-permissions.mdx).
+- Continuous clinical monitoring, a regulated surface with alerting obligations that opsinjs is not built for. See [Safety review](../health/safety-review.mdx).
+- Sharing with a family member or carer, which needs its own design.
+- Raw data portability, which is a different artefact. Offer both.
+- Granting and revoking access. That is [Consent and permissions](./consent-and-permissions.mdx).
 
 ## How it works
 
-<FlowDiagram>
-{`flowchart TD
-  A["Reader chooses to share"] --> B["Pick a window and the metrics to include"]
-  B --> C["Preview: exactly what the clinician will see"]
-  C --> D{"Route?"}
-  D -->|"in person"| E["Printable summary, one page, no colour dependence"]
-  D -->|"send"| F["Consent: recipient, scope, duration"]
-  F --> G["Delivery, with a record of what was sent and when"]
-  E --> H["Revocation and history remain visible to the reader"]
-  G --> H`}
-</FlowDiagram>
+1. The reader picks a window and the measures to include. With nothing to share, say what would be needed rather than producing an empty document.
+2. The preview is the artefact itself, and the reader can still change the dates or remove a measure.
+3. In person, the product prints a one-page summary that depends on no colour.
+4. Sending needs consent naming the recipient, scope and duration, and a record of what was sent, to whom and when.
+5. The reader sees what was shared, to whom and until when. Expiry is visible, and revoking is immediate and says what the recipient may already hold.
 
-<NotBuiltYet />
+The export itself:
 
-- **Preview is mandatory and literal.** The reader sees the artefact, not a
-  description of it. Sharing health data without seeing what you shared is a
-  privacy failure regardless of what the summary contains.
-- **One page, and the first third is the answer.** Identity, window, the
-  measures included, and the summary sentence. Anything a clinician has to
-  scroll for is at risk of not existing.
-- **Numbers over narrative.** The export states values, ranges, dates and
-  completeness. It does not say "your blood pressure has been concerning". The
-  product's status vocabulary is designed for a layperson and is not a clinical
-  assessment; carrying it into a clinical context invites it to be read as one.
-- **Completeness is declared.** "42 of a possible 60 mornings, none between 12
-  and 19 August." A clinician's first question about self-reported data is how
-  much of it there is, and a summary that does not answer it will be discounted
-  entirely.
-- **Provenance travels.** Which device, which method, self-entered or measured.
-  A cuff reading and a wrist estimate are not interchangeable, and only the
-  export knows which is which. See
-  [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx).
-- **Print is a first-class target.** Real clinics print. The summary must be
-  legible in black and white on A4 with no interactive affordances; see
-  [Print and export](../accessibility/print-and-export.mdx).
+- Fits one page, and the first third is the answer: identity, window, measures included and a summary sentence.
+- States values, ranges and dates, never the product's status words. Those are written for a layperson and would read as a clinical assessment.
+- Declares completeness: "42 of a possible 60 mornings, none between 12 and 19 August." Gaps are declared, never filled.
+- Carries provenance: which device, which method, and whether each value was measured or self-entered.
+- Marks each stale value, as in [Offline and stale data](./offline-and-stale-data.mdx).
 
-### States
+## Components
 
-| State | Behaviour |
-| --- | --- |
-| Nothing to share | Say what would be needed, rather than producing an empty document |
-| Partial window | Included and rendered with its gaps declared, never gap-filled |
-| Contains stale values | Marked per value, with the same rules as [Offline and stale data](./offline-and-stale-data.mdx) |
-| Sent | A record the reader can see: what, to whom, when, and until when |
-| Expired | Access lapses visibly; the reader is told, not silently unlinked |
-| Revoked | Immediate, with an explicit statement of what the recipient may already hold |
+opsinjs ships no export or summary component. The product builds the document from these:
+
+- [Table](../components/table.mdx) carries each chart's table twin into the export.
+- [Value](../components/value.mdx) and [RelativeTime](../components/relative-time.mdx) format every number and date.
+- [ConsentSheet](../components/consent-sheet.mdx) asks before anything is sent.
+- [DisclaimerNote](../components/disclaimer-note.mdx) says what the document is, because it will outlive the app.
 
 ## Content
 
-The summary is written for the clinician; the surrounding screen is written for
-the reader. Do not let either voice bleed into the other.
-
-<DoDont>
-  <DoDont.Do>
-    Export header: "Home blood pressure, 3 May to 2 June 2026. 42 morning
-    readings of a possible 60. Self-measured, upper-arm cuff, model recorded per
-    reading."
-  </DoDont.Do>
-  <DoDont.Dont>
-    Export header: "Ellie's health journey 🌱. A summary of your amazing
-    progress!" Written for the wrong reader, and it will be discarded.
-  </DoDont.Dont>
-</DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    On the reader's screen: "This is what Dr Ellis will see. You can change the
-    dates or remove a metric before sending."
-  </DoDont.Do>
-  <DoDont.Dont>
-    "Share your data" with a single confirm button and no preview.
-  </DoDont.Dont>
-</DoDont>
-
-Every export carries the scope statement from
-[Safety, scope and limitations](../start/safety-scope-and-limitations.mdx). The
-document will outlive the app it came from, and it must say what it is.
+- Write the export for the clinician: "Home blood pressure, 3 May to 2 June 2026. 42 morning readings of a possible 60. Self-measured, upper-arm cuff." Never "your amazing progress".
+- Write the screen for the reader: "This is what Dr Ellis will see. You can change the dates or remove a metric before sending."
 
 ## Accessibility
 
-- **The export is a document, not a screenshot.** Real text, a real heading
-  structure, a real table. An image of a chart cannot be read by anyone using
-  assistive technology and cannot be searched by the clinician either.
-- **Charts carry their table twin into the export**, not only into the app.
-- **No colour dependence anywhere in the artefact.** It will be printed in
-  monochrome and photocopied. Verify with
-  [Colour independence](../accessibility/colour-independence.mdx).
-- **The preview is navigable**, not a modal image. It has headings, landmarks
-  and a reading order that matches the visual order.
-- **The share control names the recipient in its accessible name**: "Send
-  summary to Dr Ellis's clinic", not "Send".
-- **Print styles are tested, not assumed.** Page breaks fall between sections,
-  and link URLs are exposed in print where the text is not self-describing.
-
-## Research
-
-<ResearchNote evidence="opinion" date="2026-09-02">
-  The separation of the clinician-facing export from the reader-facing screen
-  and the rule that the product's status vocabulary must not travel into a
-  clinical document are design opinions, and the second is the load-bearing one.
-  Our status levels are defined for a layperson reading about themselves; the
-  same words in a clinical summary will be read as an assessment the product is
-  not qualified to make and did not intend to offer.
-
-  The completeness-declaration rule is likewise opinion, argued from how
-  self-reported data is treated when its density is unknown rather than from a
-  measurement we can cite.
-
-  What would change our mind: clinician feedback that a structured status
-  summary is more useful than raw values with ranges. That is plausible, but it
-  would require a vocabulary designed for that audience rather than a reuse of
-  this one.
-</ResearchNote>
-
-## Updates to this page
-
-<Reviewed />
+- The export is a document, not a screenshot: real text, real headings, real tables.
+- Nothing in it depends on colour, because it will be printed in monochrome and photocopied.
+- The share control names the recipient: "Send summary to Dr Ellis's clinic", not "Send".
+- Test the print styles: page breaks between sections, and URLs printed where link text is not self-describing.

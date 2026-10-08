@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: layout
 aliases: [separator, rule]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,15 +21,9 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="divider" />
-
-## Installation
+## Usage
 
 <ComponentInstall name="divider" unbuilt={false} importPath="@/components/ui/divider" />
-
-## Usage
 
 ```tsx
 import { Divider } from "@/components/ui/divider"
@@ -41,6 +34,24 @@ import { Divider } from "@/components/ui/divider"
 <Divider label="Earlier" />
 <Divider orientation="vertical" />
 ```
+
+## Examples
+
+<ComponentPreview name="divider" />
+
+### A labelled boundary in a list
+
+`label` marks the seam between today's items and the earlier ones. The two lists
+carry the grouping on their own; the divider is the visible echo, not the only signal.
+
+<ComponentPreview name="divider-a-labelled-group-boundary" kind="example" align="start" />
+
+### A vertical rule between inline facts
+
+`orientation="vertical"` draws a hairline that takes its height from the flex row
+around it. In a block that gives it no height it collapses to nothing.
+
+<ComponentPreview name="divider-vertical-between-inline-facts" kind="example" align="start" />
 
 ## When to use it
 
@@ -57,80 +68,23 @@ import { Divider } from "@/components/ui/divider"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="divider"
-  parts={[
-    {
-      name: "Divider",
-      describes: "The root. A neutral hairline on neither colour axis. Unlabelled, it is one element with role separator.",
-      prop: "orientation",
-    },
-    {
-      name: "Divider label",
-      describes: "Optional centred text on a horizontal rule, in muted ink. Its presence drops the separator role.",
-      prop: "label",
-    },
-  ]}
-/>
-
-## Examples
-
-### A labelled boundary in a list
-
-`label` marks the seam between today's items and the earlier ones. The two lists
-carry the grouping on their own; the divider is the visible echo, not the only signal.
-
-<ComponentPreview name="divider-a-labelled-group-boundary" kind="example" align="start" />
-
-### A vertical rule between inline facts
-
-`orientation="vertical"` draws a hairline that takes its height from the flex row
-around it. In a block that gives it no height it collapses to nothing.
-
-<ComponentPreview name="divider-vertical-between-inline-facts" kind="example" align="start" />
-
-## Content guidelines
-
-A label is a short plain noun for the boundary it marks: *Earlier*, *Today*,
-*Archived*. It is not a heading and not a sentence, so no verb and no full stop.
-Never let a divider be the only thing separating two groups; group with a list, a
-heading or a region first, then add the line.
-
-<DoDont>
-  <DoDont.Do>
-    **A divider between two lists** that already carry their own structure, so the line is an echo.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A divider between two runs of paragraphs** to imply sections a screen reader cannot hear.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears anywhere.
+The audit changed nothing. The divider is not focusable and captures no key, in either
+orientation, labelled or not. Unlabelled, the root exposes `role="separator"` with
+`aria-orientation`, so a reader navigating by region can skip it. Labelled, the root
+has no role, because a separator cannot carry an accessible name, and the label is
+plain text between two `aria-hidden` hairlines. Every colour is a role token, no type
+size is in `px`, and no banned word appears.
 
-**Audited against WCAG 2.2 AA**, in a source pass over `divider.tsx` and its two
-examples and a rendered pass over the shipped preview. The audit is author run,
-not an independent review, and clinical review is still pending. It found
-nothing to change.
+**Residual items.**
 
-- Not focusable and captures no key, in either orientation and whether or not
-  it is labelled.
-- Unlabelled, the root exposes `role="separator"` with `aria-orientation`, so a
-  reader navigating by region can skip it.
-- Labelled, the root has no role, because a separator cannot carry an accessible
-  name. The label is plain text between two `aria-hidden` hairlines.
-- A divider is never the only carrier of grouping for a screen reader; the groups
+- A divider is never the only carrier of grouping for a screen reader, so the groups
   either side must be separated by structure too.
-
-**Residual, not yet measured.** The hairline's contrast against a card, a sheet
-and the page, and the labelled form's footnote text against
-`--muted-foreground`, are both shared role token pairs missing from the
-generated contrast table; fixing either means editing the token set, which sits
-outside this component's own file.
+- The hairline's contrast against a card, a sheet and the page, and the labelled
+  form's footnote text against `--muted-foreground`, are not yet measured. Both are
+  shared role token pairs missing from the generated contrast table, so fixing either
+  means editing the token set, outside this component's own file.
 
 <KeyboardTable
   name="divider"
@@ -150,7 +104,7 @@ outside this component's own file.
 
 <ContrastReport component="divider" />
 
-## API reference
+## Props interface
 
 <PropsTable name="DividerProps" />
 
@@ -159,9 +113,3 @@ a development warning. `label` applies to the horizontal form only and is droppe
 with a warning on a vertical rule. A whitespace-only label counts as none.
 `className` is the only route by which colour can reach the component, and both
 colour axes stay off it.
-
-## Related
-
-- [Card](./card.mdx) groups content by giving it a background, an edge and padding. A divider only draws a line.
-- [Surface](./surface.mdx) places a group on its own material at a chosen depth. A divider marks a seam between peers.
-- [SegmentedControl](./segmented-control.mdx) offers a choice between views. Its seams look like dividers but carry a selection.

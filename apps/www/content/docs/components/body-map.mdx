@@ -22,15 +22,9 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="body-map" />
-
-## Installation
+## Usage
 
 <ComponentInstall name="body-map" unbuilt={false} importPath="@/components/ui/body-map" />
-
-## Usage
 
 ```tsx
 import { BodyMap } from "@/components/ui/body-map"
@@ -43,6 +37,24 @@ import { BodyMap } from "@/components/ui/body-map"
   onValueChange={setRegions}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="body-map" />
+
+### Pointing at what hurts
+
+A controlled multi-select over both figures, driven by `value` and `onValueChange`.
+A marked region stands out in greyscale, without colour.
+
+<ComponentPreview name="body-map-pointing-at-what-hurts" kind="example" align="start" />
+
+### Pairing the map with a checkbox list
+
+The map and a native checkbox list share one `value`, so a keyboard or
+assistive-technology user has a robust path to the same answer. Ship both together.
+
+<ComponentPreview name="body-map-with-a-checkbox-list" kind="example" align="start" />
 
 ## When to use it
 
@@ -62,130 +74,45 @@ import { BodyMap } from "@/components/ui/body-map"
 
 ## Clinical meaning
 
-**Asserts.** Only that the reader indicated these regions. It does not assert what
-is there, whether it hurts, how strongly, since when, or what it means.
+**Asserts.** Only that the reader indicated these regions, not what is there, whether
+it hurts, how strongly, since when, or what it means. The shipped labels are generic
+placeholders, and the consuming product owns the region words and any interpretation.
 
 **Never read as.** A symptom checker, a triage or a diagnosis. A product that treats
 a marked region as evidence of a condition has added a judgement the component does
 not make, and owns it.
 
 **Colour axis.** Neither. A selection is a muted fill, a hairline and a tick, never
-a hue. A marked region carries no clinical level and names no category. See
-[The two colour axes](../health/two-colour-axes.mdx).
+a hue, and a marked region carries no clinical level and names no category. See
+[Two colour axes](../health/two-colour-axes.mdx).
 
 **Thresholds.** None. The component runs no rules over a selection and reaches no
-conclusion from it.
-
-**Vocabulary.** The consuming product owns the region words and any interpretation.
-The shipped labels are generic placeholders, and whether a selection triggers
-anything is the product's decision.
-
-## Anatomy
-
-<Anatomy
-  name="body-map"
-  parts={[
-    {
-      name: "BodyMap",
-      describes: "The root: a group named by label, laying out the figures. Carries neither data-status nor data-category.",
-      prop: "label",
-    },
-    {
-      name: "Figure",
-      describes: "One abstract silhouette per view, aria-hidden, as a group named for the view, with region buttons positioned over it.",
-      prop: "view",
-    },
-    {
-      name: "Region",
-      describes: "One native toggle button per region, with aria-pressed and an aria-label from the region label. Selected shows a tick.",
-      prop: "regions",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="body-map"
-  tree={[
-    {
-      part: "BodyMap",
-      cardinality: "1",
-      note: "data-slot=\"body-map\", role=\"group\" named by label",
-      children: [
-        {
-          part: "Figure",
-          cardinality: "1 to 2",
-          note: "data-slot=\"body-map-figure\", one per view, role=\"group\" named for the view",
-          children: [
-            { part: "Region", cardinality: "0 or more", note: "data-slot=\"body-map-region\", a native button with aria-pressed and aria-label" },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### Pointing at what hurts
-
-The base case: a controlled multi-select over both figures, driven by `value` and
-`onValueChange`. Read it in greyscale to confirm a marked region stands out without
-colour.
-
-<ComponentPreview name="body-map-pointing-at-what-hurts" kind="example" align="start" />
-
-### Pairing the map with a checkbox list
-
-The map and a native checkbox list share one `value`, so a keyboard or
-assistive-technology user has a robust path to the same answer. Ship both together.
-
-<ComponentPreview name="body-map-with-a-checkbox-list" kind="example" align="start" />
-
-## Content guidelines
-
-Label the group with the question the reader is answering, and keep the region
-words plain. "Head", "Left arm" and "Lower back" say where and nothing more. Do not
-put a symptom or a diagnosis into a region label, and do not read one out of a
-selection.
-
-<DoDont>
-  <DoDont.Do>
-    **"Where are you noticing something?"** with regions named "Chest" and "Left arm" says where, and nothing more.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A region relabelled "Chest pain" or "Fracture"** presents a symptom or a diagnosis as though the reader confirmed it.
-  </DoDont.Dont>
-</DoDont>
+conclusion from it, and whether a selection triggers anything is the product's
+decision.
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA, in a source pass and a rendered pass.** This audit
-is author-run. It is not an independent review, and a clinical review is still
-pending. `pnpm run check:a11y` runs on every commit: every colour is a role token,
-no type size is in `px`, and no banned word appears anywhere.
+Each region is a real `button`, named by its label, with `aria-pressed` for its state,
+inside a group named by `label`. Unselected shows a plus, the selected state survives
+greyscale with `aria-pressed` as its carrier, and each marker meets the 44 by 44 floor
+on both axes in `rem`. Every colour is a role token, no type size is in `px`, and no
+banned word appears. Left and right are the subject's own sides, so the `left-arm`
+marker sits on the viewer's right, matching clinical convention.
 
-**What the audit fixed.** The region markers are `rem`-sized so they grow with the
-reader's text size, but the figure box was pinned in `px`. At 200% text the markers
-outgrew the fixed box and collided, which lost the ability to tap them separately
-under 1.4.4 and 1.4.10. The box now scales in `rem` in lockstep with the markers, so
-the spacing ratio holds at every text size and the default view is unchanged.
+The audit fixed one defect. The `rem` markers outgrew the `px`-pinned figure box at
+200% text and collided, so they could not be tapped separately (1.4.4, 1.4.10). The
+box now scales in `rem` in lockstep with the markers, so the spacing ratio holds at
+every text size and the default view is unchanged.
 
-**What the audit confirmed.**
+**Residual items.**
 
-- A real `button` per region, named by its label, with `aria-pressed` for its
-  state. The map is a group named by `label`.
-- Selected is a muted fill, a hairline and a tick, and unselected shows a plus.
-  The difference survives greyscale, and `aria-pressed` is the carrier.
-- Each marker meets the 44 by 44 floor on both axes, carried in `rem`.
-- Left and right are the subject's own sides, so the `left-arm` marker sits on the
-  viewer's right, matching clinical convention.
-
-**What a reader should still know.** The Front and Back captions render as `<p>`
-rather than headings, a deliberate choice so the component does not hardcode a
-heading level into a host document of unknown depth; each figure still carries a
-named `role="group"`. Screen-reader output across VoiceOver, NVDA and TalkBack, the
-nine-stop tab sequence, and forced colours are not gated, and the paired checkbox
-list stays the primary path for readers who cannot point at a target.
+- The Front and Back captions are `<p>`, not headings, by design, so the component
+  hardcodes no heading level into a host document of unknown depth. Each figure still
+  carries a named `role="group"`.
+- Screen-reader output in VoiceOver, NVDA and TalkBack, the nine-stop tab sequence and
+  forced colours are not gated.
+- The paired checkbox list stays the primary path for readers who cannot point at a
+  target.
 
 <KeyboardTable
   name="body-map"
@@ -210,16 +137,10 @@ list stays the primary path for readers who cannot point at a target.
 
 <ContrastReport component="body-map" />
 
-## API reference
+## Props interface
 
 <PropsTable name="BodyMapProps" />
 
 `label` is required and has no default. Name it as the question the reader is
 answering. A region `key` with no built-in place on the figure is warned once in
 development and skipped rather than drawn. `view` defaults to `both`.
-
-## Related
-
-- [ReadingInput](./reading-input.mdx) records a measurement rather than a location. Reach for it when the answer is a number and a unit.
-- [Field](./field.mdx) wraps a single control, and a free-text description of where something is belongs in one.
-- [ScaleInput](./scale-input.mdx) records how strong something is rather than where it is.

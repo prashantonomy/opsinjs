@@ -1,7 +1,7 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: tokens/units.json. Generator: scripts/build-tokens.mts (`pnpm run generate`). Gate: `pnpm check:generated`. This is the reviewable copy, with the authored policy attached; the copy that renders is the Unit/UNITS region inside lib/opsinjs.ts, because lib/generated/ does not travel with `shadcn add`. SAFETY: there is no reference range, threshold, plausibility bound, 'typical' value or default precision in this file, for any metric in any population. A unit table says what a number is measured in; it never says what a number should be. `generatedAt` carries the token source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "ba84baa7c3d0",
-  "sourceHash": "ba84baa7c3d0",
+  "generatedAt": "74d8ea8e44de",
+  "sourceHash": "74d8ea8e44de",
   "counts": {
     "units": 22,
     "conversions": 14,
@@ -353,7 +353,7 @@
         "kJ"
       ],
       "reason": "There is more than one calorie. The thermochemical calorie is exactly 4.184 joules and the fifteen-degree calorie is not, and food energy labelling picks one by regulation rather than by physics. Naming a single factor here would hide which calorie was meant, so the pair is refused until this file can carry the choice explicitly.",
-      "docs": "health/unit-systems"
+      "docs": "health/numbers"
     },
     {
       "between": [
@@ -361,7 +361,7 @@
         "mg/dL"
       ],
       "reason": "Molar concentration and mass concentration are related by the molar mass of the substance being measured, which is a property of the SUBSTANCE and not of either unit. Glucose, cholesterol and creatinine each carry a different factor, and this table does not know which analyte a reading is. A single published factor here would be applied to all three by somebody in a hurry, and the answer would be wrong by a multiple rather than by a rounding.",
-      "docs": "health/unit-systems"
+      "docs": "health/numbers"
     },
     {
       "between": [
@@ -369,7 +369,7 @@
         "%"
       ],
       "reason": "The two ways of reporting HbA1c are related by a fitted regression between two assay standardisations, not by an exact definition. A regression is a measurement with a residual, it is periodically re-fitted, and it belongs to the laboratory that reports the result. This table carries definitions only.",
-      "docs": "health/unit-systems"
+      "docs": "health/numbers"
     }
   ]
 }

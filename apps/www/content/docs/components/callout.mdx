@@ -5,7 +5,7 @@ status: shipped
 kind: component
 category: feedback
 aliases: [admonition, note, info box, aside, note box, tip]
-usedIn: [alert-escalation, choose-a-component, consent-and-permissions, consent-flow, diabetes-medicines-app, empty-and-first-use, forms/error-summaries, offline-and-stale-data, onboarding-screen]
+usedIn: [alert-escalation]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +22,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="callout" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="callout"
@@ -34,8 +30,6 @@ reviewer: engineering
   importPath="@/components/ui/callout"
   dependencies={["lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Callout } from "@/components/ui/callout"
@@ -46,6 +40,22 @@ import { Callout } from "@/components/ui/callout"
   This average does not include days when you did not wear the device.
 </Callout>
 ```
+
+## Examples
+
+<ComponentPreview name="callout" />
+
+### Next to what it explains
+
+One callout per surface, directly under the thing it annotates, saying something specific and checkable. `title` names what the reader is about to be told.
+
+<ComponentPreview name="callout-next-to-what-it-explains" kind="example" align="start" />
+
+### On a card
+
+The fill sets the callout apart, so `bg-card` behind it changes how much work the boundary does. The caller passes `rounded-opsin-xs` through `className` for the concentric inner radius.
+
+<ComponentPreview name="callout-on-a-card" kind="example" align="start" />
 
 ## When to use it
 
@@ -64,68 +74,15 @@ import { Callout } from "@/components/ui/callout"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="callout"
-  parts={[
-    {
-      name: "Callout",
-      describes: "The root, a role=\"note\" named by its title. One neutral treatment for every variant, from neither colour axis.",
-      prop: "className",
-    },
-    {
-      name: "Callout.Icon",
-      describes: "One distinct glyph per variant, never a status glyph. aria-hidden and sized in em.",
-      prop: "variant",
-    },
-    {
-      name: "Callout.Title",
-      describes: "Optional styled text, never an h1 to h6. Absent from the DOM when empty or whitespace.",
-      prop: "title",
-    },
-    {
-      name: "Callout.Body",
-      describes: "One short paragraph at the body type step. There is no actions slot.",
-      prop: "children",
-    },
-  ]}
-/>
-
-## Examples
-
-### Next to what it explains
-
-One callout per surface, directly under the thing it annotates, saying something specific and checkable. `title` names what the reader is about to be told.
-
-<ComponentPreview name="callout-next-to-what-it-explains" kind="example" align="start" />
-
-### On a card
-
-The fill sets the callout apart, so `bg-card` behind it changes how much work the boundary does. The caller passes `rounded-opsin-xs` through `className` for the concentric inner radius.
-
-<ComponentPreview name="callout-on-a-card" kind="example" align="start" />
-
-## Content guidelines
-
-Keep it to a short paragraph in the same voice as the surrounding text. The box is the emphasis, so the words need not be. The title names what the reader is about to be told, not the component. The glyph is `aria-hidden`, so the words must carry whatever the variant carries. Do not use a callout to hedge.
-
-<DoDont>
-  <DoDont.Do>
-    **"This average does not include days when you did not wear the device."** A specific, checkable limitation.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Important: your data may be incomplete."** Warning register, no specifics, nothing the reader can do.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-This component was audited against WCAG 2.2 AA in a source pass and a rendered pass on `/view/base/base-lyra/component/callout`. The audit is author-run and is not an independent review. Clinical review is still pending.
+It is a server component with no interactive elements, so the keyboard, focus and control criteria do not apply. `role="note"` gives it a start and end boundary, and a title supplies the accessible name through `aria-label`. It paints no colour from either axis and carries no clinical status, so greyscale and `forced-colors` take away nothing. Type sizes and colours are role tokens, the icon is sized in em, and the body reflows at 200% through `min-w-0` and `wrap-break-word` rather than scrolling. Nothing in the source needed to change.
 
-**What the audit found.** Nothing in the source needed to change. It is a server component with no interactive elements, so the keyboard, focus and control criteria do not apply; `role="note"` gives it a start and end boundary, and a title supplies the accessible name through `aria-label`. It paints no colour from either axis and carries no clinical status, so greyscale and `forced-colors` take away nothing. Type sizes and colours are role tokens, the icon is sized in em, and the body reflows at 200% through `min-w-0` and `wrap-break-word` rather than scrolling.
+**Residual items.**
 
-**What a reader should still know.** The variant glyph is `aria-hidden`, so the note, tip and caveat distinction reaches sighted readers alone. This is deliberate: announcing the glyph name would not convey the sense either, so the copy is required to carry it, and both examples do. The title renders as styled text rather than an `h1` to `h6`, because the component cannot know its nesting level, but it stays exposed to assistive technology as the accessible name. The four contrast pairs this component paints are not yet measured, and the report below says so rather than printing numbers nobody produced.
+- The variant glyph is `aria-hidden`, so the note, tip and caveat distinction reaches sighted readers alone. This is deliberate. Announcing the glyph name would not convey the sense either, so the copy is required to carry it, and both examples do.
+- The title renders as styled text rather than an `h1` to `h6`, because the component cannot know its nesting level, but it stays exposed to assistive technology as the accessible name.
+- The four contrast pairs it paints are not yet measured, and the report below says so.
 
 <KeyboardTable
   name="callout"
@@ -150,16 +107,8 @@ This component was audited against WCAG 2.2 AA in a source pass and a rendered p
 
 <ContrastReport component="callout" />
 
-## API reference
+## Props interface
 
 <PropsTable name="CalloutProps" />
 
 There is no `status`, `severity`, `color` or `warning` variant, and no `action` or `dismissible`. The variant union is not exported, so a wrapper writes `CalloutProps["variant"]`. An axis colour in `className` is stripped before it reaches the root, and development warns once per offending class list.
-
-## Related
-
-- [AlertBanner](./alert-banner.mdx) is the clinical, interruptive counterpart and the component Callout is most often mistaken for.
-- [StatusPill](./status-pill.mdx) states a clinical level directly, as a word, a glyph and a colour together.
-- [CareCard](./care-card.mdx) is for when there is something to do and somebody asking.
-- [DisclaimerNote](./disclaimer-note.mdx) is the standing statement about the product itself.
-- [Term](./term.mdx) explains a single word rather than a passage.

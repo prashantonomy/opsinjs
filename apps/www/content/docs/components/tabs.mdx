@@ -21,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="tabs" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="tabs"
@@ -33,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/tabs"
   dependencies={["@base-ui/react"]}
 />
-
-## Usage
 
 ```tsx
 import { Tabs } from "@/components/ui/tabs"
@@ -53,89 +47,9 @@ import { Tabs } from "@/components/ui/tabs"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "Two or three distinct panels share one region and only one is worth showing at a time.",
-    "Folding secondary views of one subject, such as an overview, a history and notes, behind their own tabs.",
-    "Views a reader moves between often and expects to find in a familiar bar.",
-  ]}
-  avoid={[
-    { case: "The choice sets one parameter of a view that stays on the surface, such as a chart's week window.", instead: "segmented-control" },
-    { case: "The choice is a small set of exclusive options taken as a form input, submitted as a value.", instead: "radio-group" },
-    { case: "The panels are steps in a sequence, where progress and a next action matter most.", instead: "stepper" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="tabs"
-  parts={[
-    {
-      name: "Tabs",
-      describes: "The root, a Base UI Tabs.Root on Composite. The list is one tab stop with roving focus.",
-      prop: "value",
-    },
-    {
-      name: "Tabs.List",
-      describes: "The row holding the tabs, role=\"tablist\", relative for the indicator, with a hairline rail on its bottom edge.",
-      prop: "label",
-    },
-    {
-      name: "Tabs.Tab",
-      describes: "One tab, a button with role=\"tab\" and aria-selected. Active lifts ink and weight; disabled drops to muted.",
-      prop: "items",
-    },
-    {
-      name: "Tabs.Indicator",
-      describes: "The active underline, pinned to the list bottom in chrome primary ink. Decorative; aria-selected is the carrier.",
-    },
-    {
-      name: "Tabs.Panel",
-      describes: "One panel per item, role=\"tabpanel\" tied to its tab, shown only while that tab is active.",
-      prop: "items",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="tabs"
-  tree={[
-    {
-      part: "Tabs",
-      cardinality: "1",
-      note: "the controlled root",
-      children: [
-        {
-          part: "Tabs.List",
-          cardinality: "1",
-          note: "role=\"tablist\"",
-          children: [
-            {
-              part: "Tabs.Tab",
-              cardinality: "2..n",
-              note: "role=\"tab\", aria-selected; one per item",
-            },
-            {
-              part: "Tabs.Indicator",
-              cardinality: "1",
-              note: "decorative",
-            },
-          ],
-        },
-        {
-          part: "Tabs.Panel",
-          cardinality: "2..n",
-          note: "role=\"tabpanel\"; one per item, only the active shown",
-        },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="tabs" />
 
 ### Switching between panels
 
@@ -151,39 +65,36 @@ body without the card moving.
 
 <ComponentPreview name="tabs-in-a-card" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Keep tab labels short, parallel and in sentence case: one or two words, the same
-part of speech, no terminal punctuation. Do not use tabs to hide content a reader
-needs together, such as a side by side comparison.
-
-<DoDont>
-  <DoDont.Do>
-    **"Overview" · "History" · "Notes"** name what each tab reveals, in one grammar.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Overview" · "Click for the full history"** mixes grammars, and one label instructs.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "Two or three distinct panels share one region and only one is worth showing at a time.",
+    "Folding secondary views of one subject, such as an overview, a history and notes, behind their own tabs.",
+    "Views a reader moves between often and expects to find in a familiar bar.",
+  ]}
+  avoid={[
+    { case: "The choice sets one parameter of a view that stays on the surface, such as a chart's week window.", instead: "segmented-control" },
+    { case: "The choice is a small set of exclusive options taken as a form input, submitted as a value.", instead: "radio-group" },
+    { case: "The panels are steps in a sequence, where progress and a next action matter most.", instead: "stepper" },
+  ]}
+/>
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA, in a source pass and a rendered pass at `/view`.**
-This is an author-run audit, not an independent review, and clinical review is
-still pending.
+Base UI's Tabs carries the tested WAI-ARIA pattern and the wrapper overrides none of
+it. Activation is manual, three sighted carriers plus `aria-selected` mark the active
+tab, and the row draws neutral chrome with no status or category axis. Rendered, it
+shows no axe violation, target-size breach, focus gap or 320px reflow, and the audit
+changed nothing.
 
-The audit found nothing to change and applied no fix. Base UI's Tabs carries the
-tested WAI-ARIA pattern and the wrapper overrides none of it. Activation is
-manual, three sighted carriers plus `aria-selected` mark the active tab, and the
-row draws neutral chrome with no status or category axis. The rendered pass was
-clean: no axe violation, no target-size breach, no focus gap, no 320px reflow.
+**Residual items.**
 
-Two items to weigh. Each tab floors its height at `--opsin-target-minimum` with
-padding but sets no `min-w`, the house treatment for a word-labelled target under
-SC 2.5.8. The `label` prop applies only as the tablist's `aria-label`, right here
-because every tab shows its own text.
-
-Contrast pairs for the active ink, the rail and the indicator stay unmeasured.
+- Each tab floors its height at `--opsin-target-minimum` with padding but sets no
+  `min-w`, the house treatment for a word-labelled target under SC 2.5.8.
+- The `label` prop applies only as the tablist's `aria-label`, which is right here
+  because every tab shows its own text.
+- Contrast pairs for the active ink, the rail and the indicator stay unmeasured.
 
 <KeyboardTable
   name="tabs"
@@ -223,16 +134,10 @@ Contrast pairs for the active ink, the rail and the indicator stay unmeasured.
 
 <ContrastReport component="tabs" />
 
-## API reference
+## Props interface
 
 <PropsTable name="TabsProps" />
 
 `value` and `onValueChange` make this controlled, with no internal selection
 state. A `value` matching no item renders no active tab and warns in
 development. `items` holds each tab's value, label and panel together.
-
-## Related
-
-- [SegmentedControl](./segmented-control.mdx) is for a parameter of one view that stays put, such as a chart's window.
-- [TabBar](./tab-bar.mdx) is navigation between whole sections of an app, each destination its own tab stop.
-- [Stepper](./stepper.mdx) is for panels that are steps in a sequence, where order matters.

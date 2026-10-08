@@ -1,0 +1,56 @@
+---
+title: Shape
+description: A radius ladder derived from one value, concentric nesting, and squircle corners where the browser supports them.
+kind: foundation
+aliases: [corners, border radius, radius ladder, concentric corners, squircle, corner-shape, superellipse, radius tokens]
+---
+
+Shape decides how big a corner is and which curve draws it. It never carries meaning, so a rounder card is not a friendlier result.
+
+## Radius scale
+
+Every rung is a fixed multiple of one root, `--opsin-radius-base`. Rungs are named for the object, not the size, and `rounded-opsin-<rung>` applies them.
+
+| Rung | Use it for |
+| --- | --- |
+| `none` | Full-bleed media and anything that meets a screen edge |
+| `xs` | Inline marks and small indicators, and the floor for a nested corner |
+| `sm` | Inputs and small controls |
+| `md` | The default, for buttons, list rows, tiles and [Card](../components/card.mdx) |
+| `lg` | A card nearly the width of a phone screen |
+| `xl` | Sheets and dialogs |
+| `full` | Pills and circles. Use `rounded-full`, because a capsule is a different object, not a bigger rung |
+
+- Match the rung to the object. When two adjacent rungs both seem right, take the smaller.
+- A different character is a change to the root in your theme, never to one component's radius.
+- Never square a corner for emphasis, and never animate a radius.
+
+## Nesting
+
+When one rounded box sits inside another, the inner radius is the outer radius minus the padding between them, and never less than `xs`.
+
+```text
+inner = max(outer - gap, radius-xs)
+```
+
+Only this keeps the two curves parallel. An equal inner radius pinches the gap on the diagonal, and a larger one bulges. Compute it from tokens, since a hard-coded `8px` fits exactly one padding.
+
+## Squircle
+
+Card, [Dialog](../components/dialog.mdx), [Sheet](../components/sheet.mdx), [Callout](../components/callout.mdx), [MetricTile](../components/metric-tile.mdx), [ResultCard](../components/result-card.mdx) and [AlertBanner](../components/alert-banner.mdx) carry `[corner-shape:var(--opsin-corner-shape)]` beside their radius. The token holds `superellipse(4)`, which eases curvature into the straight edge instead of pinching where an arc meets it. A browser without `corner-shape` drops the declaration and draws an ordinary rounded corner at the same radius, so no `@supports` guard is needed and nothing depends on it.
+
+- Opt in on surfaces the system draws, never on images, embeds or video.
+- Do not shrink the radius to compensate, or the nesting arithmetic differs between browsers.
+- Do not fake it with a clip path or an SVG mask, which clip focus rings and shadows.
+
+## Accessibility
+
+- Small controls do not take large rungs, because a radius takes tappable area from the 44pt floor in [Space and layout](./space.mdx).
+- A parent with a smaller radius can clip a child's focus ring, so the ring is drawn outside the box with an offset.
+- Assistive technology announces no corner, which is why shape may not carry information.
+
+This site's chrome uses shadcn's `lyra` style at zero radius, so only component previews show the ladder.
+
+## Tokens
+
+<TokenTable scope="shape" />

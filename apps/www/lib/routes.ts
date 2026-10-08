@@ -29,6 +29,8 @@ export const site = {
   /** The one-line claim. Used in metadata, in llms.txt and on the OG card. */
   tagline:
     "A React design system for consumer health products, built for the person reading their own results.",
+  /** The tagline at the size of the sidebar's second line. */
+  shortTagline: "Design system for health apps",
   /**
    * The canonical origin. Overridable so that preview deployments generate
    * their own absolute URLs instead of pointing every OG card and every
@@ -36,6 +38,12 @@ export const site = {
    */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.pensievelabs.org",
   github: "https://github.com/prashantonomy/opsinjs",
+  /**
+   * Whether the repository is public. While it is not, a link to it answers
+   * 404 for every reader but the owner, so the docs shell shows no "Edit this
+   * page" and no "View on GitHub". Flip this the day the repository opens.
+   */
+  sourcePublic: false,
   npmScope: "@opsinjs",
   /** The registry namespace a consumer adds to their components.json. */
   registryNamespace: "@opsinjs",
@@ -147,17 +155,13 @@ export function foundationsPath(...slugs: string[]): string {
   return docsPath("foundations", ...slugs)
 }
 
-export function accessibilityPath(...slugs: string[]): string {
-  return docsPath("accessibility", ...slugs)
-}
-
 export function referencePath(...slugs: string[]): string {
   return docsPath("reference", ...slugs)
 }
 
-/** A generated per-symbol API page. `<ApiLink>` resolves here, never to an anchor. */
+/** A type's section on the generated Types page. `<ApiLink>` resolves here. */
 export function apiSymbolPath(symbol: string): string {
-  return docsPath("reference", "api", symbol)
+  return `${docsPath("reference", "generated", "types")}#${symbol.toLowerCase()}`
 }
 
 /**
@@ -172,7 +176,7 @@ export function apiSymbolPath(symbol: string): string {
  */
 export function doctrinePath(reference: string): string {
   return reference.includes("/")
-    ? docsPath(...reference.split("/"))
+    ? docsPath(...reference.split("/").filter((segment) => segment !== "index"))
     : healthPath(reference)
 }
 
@@ -335,15 +339,11 @@ export const routes = {
   components: () => docsPath("components"),
   health: () => docsPath("health"),
   foundations: () => docsPath("foundations"),
-  accessibility: () => docsPath("accessibility"),
-  handbook: () => docsPath("handbook"),
   agents: () => docsPath("agents"),
   reference: () => docsPath("reference"),
-  roadmap: () => docsPath("project", "roadmap"),
-  changelog: () => docsPath("project", "changelog"),
-  releasePhases: () => docsPath("project", "release-phases"),
-  start: () => docsPath("start"),
-  recipes: () => docsPath("recipes"),
+  roadmap: () => docsPath("changelog"),
+  changelog: () => docsPath("changelog"),
+  releasePhases: () => docsPath("reading-the-docs"),
 
   colors: () => "/colors",
   tokens: () => "/tokens",

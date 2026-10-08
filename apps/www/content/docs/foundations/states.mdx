@@ -1,0 +1,58 @@
+---
+title: States
+description: The six interaction states every control shows, and the five data states every surface that displays a value must render.
+kind: foundation
+aliases: [hover, pressed, focus-visible, disabled, busy, stale data]
+---
+
+Interaction states say what you are doing to a control. Data states say what the system knows about the value inside it. A button can be hovered but never stale, and a reading can be stale but never hovered.
+
+## Interaction states
+
+Every interactive component must implement all six, or its page must say why not.
+
+| State | Rule |
+| --- | --- |
+| Hover | Pointer only, so never the only signal. A small lightness step, darker in the light theme and lighter in the dark |
+| Press | Applied on pointer-down, not on click, on `duration-instant` |
+| Focus | `:focus-visible` only. An offset outline outside the box, in one system-wide colour, so it never moves layout or gets clipped |
+| Selected | Persistent and distinct from focus. A fill and a mark, never a fill alone |
+| Disabled | Dimmed, with no pointer affordance, but readable. It leaves the tab order, so state the reason where a keyboard user will find it |
+| Busy | Keeps its label and tab stop and refuses activation, without becoming `disabled`. [Button](../components/button.mdx)'s `busy` prop sets `aria-busy` and `aria-disabled` |
+
+States resolve in a fixed order: disabled, busy, pressed, selected, focus, hover. A pressed control keeps its focus ring, and a disabled control never looks hoverable.
+
+- Never author a state colour. Hover and press come from shared fills.
+- A state is never a verdict. A tapped result card may darken, but it never takes a [status colour](../health/two-colour-axes.mdx).
+- When a control becomes disabled or disappears, focus moves somewhere documented, never to the document body.
+
+Press is implemented on Button and [Link](../components/link.mdx), and every component built from them inherits it.
+
+<Todo>
+  The close controls on [Dialog](../components/dialog.mdx) and [Sheet](../components/sheet.mdx) change on hover but give a touch no press cue.
+</Todo>
+
+Derived state values and their measured contrast are not generated yet.
+
+<NoDataYet script="scripts/build-tokens.mts" />
+
+## Data states
+
+Every surface that shows a value must render five data states, so that a blank, a `--` or a zero never stands in for a value nobody knows. A surface shows the first state below that applies.
+
+| State | Means | Render |
+| --- | --- | --- |
+| Error | The system tried and failed | [EmptyState](../components/empty-state.mdx) with `reason="could-not-load"`, a neutral word and icon with a retry or a route onwards |
+| Loading | The system is trying | A [Skeleton](../components/skeleton.mdx) in the final layout, with no placeholder digits or plausible chart |
+| Empty | There is genuinely nothing | EmptyState naming what would appear here, with one next action |
+| Partial | Only some of the window arrived | The value with its coverage, such as four of seven days, or EmptyState with `reason="not-enough"` |
+| Stale | Real but old | The value with its age and a refresh route, keeping its status colour. [MetricTile](../components/metric-tile.mdx) takes `staleAfterHours` |
+
+- Every state carries a word, and the state itself never takes a status colour.
+- Never average across a gap without saying so.
+- The product's clinical governance sets when a value turns stale ([Trends and uncertainty](../health/trends.mdx)), and the product sets how long loading runs before saying what it waits for. opsinjs renders the state, never the number.
+- Announce each change once. Skeletons are hidden from assistive technology, and stale and partial belong in the accessible name.
+
+<Todo>
+  No surface takes a state input or emits `data-state`, and nothing accepts the `DataState` type in `lib/opsinjs.ts` yet. Wire the five states from separate parts, and select on the words a surface renders.
+</Todo>

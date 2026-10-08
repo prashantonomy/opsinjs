@@ -467,8 +467,8 @@ export const TOKEN_META: {
   count: number
   namespaces: TokenNamespace[]
 } = {
-  generatedAt: "ba84baa7c3d0",
-  sourceHash: "ba84baa7c3d0",
+  generatedAt: "74d8ea8e44de",
+  sourceHash: "74d8ea8e44de",
   count: 358,
   namespaces: ["color", "material", "motion", "type", "space", "shape"] as TokenNamespace[],
 }
@@ -923,7 +923,7 @@ export interface GeneratedErrorCode {
  * Every code the system can emit, in allocation order.
  *
  * The scheme is flat - `OPSIN-0001` upwards - and deliberately not grouped
- * into ranges: see `content/docs/project/decisions/0015-error-codes-are-flat.mdx`.
+ * into ranges: see `decisions/0015-error-codes-are-flat.md` at the repository root.
  */
 export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
   {
@@ -943,7 +943,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "safety",
     "title": "A status was rendered without a word",
     "message": "<{component}> has `status=\"{status}\"` and no accessible label. Status is carried by colour, icon and word together; colour alone does not survive grayscale, colour-vision deficiency or a black-and-white printout.",
-    "docs": "health/clinical-status-semantics",
+    "docs": "health/two-colour-axes",
     "params": [
       "component",
       "status"
@@ -954,7 +954,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "safety",
     "title": "A value was rendered without a unit",
     "message": "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems: the same digits are one reading in mmol/L and a very different one in mg/dL, and nothing on the surface tells the reader which was meant. Pass the unit the reading was measured in. If the number has no unit by design, such as a composite score, pass `unit={null}` to say so; the warning stays for a caller who simply forgot.",
-    "docs": "health/unit-systems",
+    "docs": "health/numbers",
     "params": [
       "value",
       "null"
@@ -975,7 +975,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "safety",
     "title": "More than one urgent surface on a screen",
     "message": "{count} surfaces on this screen have `status=\"urgent\"`. The escalation budget is one. When everything is urgent, nothing is.",
-    "docs": "health/alarm-fatigue",
+    "docs": "health/alerts",
     "params": [
       "count"
     ]
@@ -985,7 +985,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "safety",
     "title": "A banned word appeared in a component's copy",
     "message": "The string \"{text}\" contains \"{word}\", which this system does not use. Write \"{replacement}\" instead.",
-    "docs": "content/plain-english-a-z",
+    "docs": "reference/plain-english",
     "params": [
       "text",
       "word",
@@ -997,7 +997,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "safety",
     "title": "A health value was animated",
     "message": "<{component}> is animating a health value with `{token}`. A value that overshoots has displayed, for one frame, a number that is not true. Use `spring-calm`, or render the final value immediately.",
-    "docs": "health/motion-in-health-ui",
+    "docs": "health/alerts",
     "params": [
       "component",
       "token"
@@ -1008,7 +1008,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "A raw colour value was passed where a token is required",
     "message": "<{component}> received `{prop}=\"{value}\"`. Components take a category or a status, never a colour. A raw value cannot be re-derived for dark mode, for Display-P3, or for a reader who has asked for more contrast.",
-    "docs": "foundations/token-architecture",
+    "docs": "theming",
     "params": [
       "component",
       "prop",
@@ -1020,7 +1020,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "A primitive token was referenced from a component",
     "message": "`{token}` is a primitive-tier token. Components consume roles. Primitives may be re-tuned in a minor release; roles are covered by the versioning policy.",
-    "docs": "foundations/token-architecture",
+    "docs": "theming",
     "params": [
       "token"
     ]
@@ -1030,7 +1030,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "An unknown category was requested",
     "message": "`category=\"{category}\"` is not one of {known}. Adding a category means adding a ramp, not passing a new string.",
-    "docs": "theming/category-palettes",
+    "docs": "theming",
     "params": [
       "category",
       "known"
@@ -1041,7 +1041,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "`unknown` was used as a status level",
     "message": "`unknown` is the absence of an assertion, not a fifth level. Use it when there is no reading or no range; do not use it to mean 'probably fine'.",
-    "docs": "health/uncertainty-and-staleness",
+    "docs": "health/trends",
     "params": []
   },
   {
@@ -1049,7 +1049,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "A trend was drawn from too few points",
     "message": "<TrendSparkline> received {count} points and `minimumPoints` is {minimum}. Two readings are not a trend, and drawing one implies a direction the data does not support.",
-    "docs": "health/trends-and-change",
+    "docs": "health/trends",
     "params": [
       "count",
       "minimum"
@@ -1060,7 +1060,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "A chart's y-axis was truncated",
     "message": "<{component}> has `yAxisMin={min}` on a health value. Truncating the axis exaggerates change; a 2% move drawn across the full height of a card reads as a crisis.",
-    "docs": "foundations/data-visualisation/chart-anatomy",
+    "docs": "foundations/data-visualisation",
     "params": [
       "component",
       "min"
@@ -1071,7 +1071,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "Category colours were used as chart series colours",
     "message": "This chart is colouring {count} series from the category ramps. Category colours identify what a reading is about; using them for series turns an identity into an arbitrary label.",
-    "docs": "foundations/data-visualisation/chart-colour",
+    "docs": "foundations/data-visualisation",
     "params": [
       "count"
     ]
@@ -1081,7 +1081,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "A touch target is below the floor",
     "message": "<{component}> renders a {width}x{height} hit area. The floor is 44x44, applied to the hit area rather than to the visible box.",
-    "docs": "accessibility/target-size-and-motor",
+    "docs": "foundations/accessibility",
     "params": [
       "component",
       "width",
@@ -1093,7 +1093,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "correctness",
     "title": "A stale reading was rendered as current",
     "message": "<{component}> was given a reading from {age} ago with no staleness treatment. A number with no time attached is read as 'now'.",
-    "docs": "health/uncertainty-and-staleness",
+    "docs": "health/trends",
     "params": [
       "component",
       "age"
@@ -1104,7 +1104,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "hygiene",
     "title": "More than three translucent surfaces are composited",
     "message": "{count} translucent material rungs are visible at once; the budget is 3. Beyond three the blur cost is measurable on mid-range devices and the backdrop is unreadable anyway.",
-    "docs": "foundations/materials/performance-budget",
+    "docs": "foundations/materials",
     "params": [
       "count"
     ]
@@ -1114,7 +1114,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "hygiene",
     "title": "A deprecated token was referenced",
     "message": "`{token}` was deprecated in {version} and is replaced by `{replacement}`. It will be removed in {removal}.",
-    "docs": "project/deprecations",
+    "docs": "changelog",
     "params": [
       "token",
       "version",
@@ -1127,7 +1127,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "hygiene",
     "title": "The token stylesheet was not loaded",
     "message": "`--opsin-tokens-generated` is not set on :root. app/tokens.generated.css has not been imported, or `pnpm run generate` has not run, and every component is falling back to authored defaults.",
-    "docs": "theming/tailwind-v4",
+    "docs": "theming",
     "params": []
   },
   {
@@ -1135,7 +1135,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "hygiene",
     "title": "Two theme providers are mounted",
     "message": "More than one theme provider is writing the `dark` class. Two providers race on first paint and produce a flash of the wrong theme.",
-    "docs": "handbook/dark-mode",
+    "docs": "theming",
     "params": []
   },
   {
@@ -1143,7 +1143,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "severity": "safety",
     "title": "A status outside the four levels was passed",
     "message": "<{component}> received `status=\"{status}\"`, which is not one of the four levels. The vocabulary is fixed at steady, watch, attention and urgent; a component that accepted a fifth would be inventing a verdict. Nothing was rendered.",
-    "docs": "health/clinical-status-semantics",
+    "docs": "health/two-colour-axes",
     "params": [
       "component",
       "status"

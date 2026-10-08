@@ -1,173 +1,56 @@
 ---
 title: Empty and first use
-description: The surface before there is anything to show. There are six kinds of nothing, and rendering the wrong one is a safety problem rather than a polish problem.
+description: What a health surface shows when it has no value, and why the different kinds of nothing must never look alike.
 kind: pattern
 aliases: [empty state, zero data, nothing to show, first use screen, no readings yet]
-implements: [empty-state, skeleton, care-card, callout, metric-tile, button]
-reviewEvery: 12m
-reviewed: 2026-09-20
-reviewer: engineering
 ---
 
-<PageTemplate kind="pattern" />
+A blank tile, a dash and a "0" are three different assertions. "0 steps yesterday" is not the same fact as "no step data for yesterday".
 
-## When to use
+## When to use it
 
-Use this pattern whenever a health surface has to render and there is no value
-to put on it.
+Use it whenever a health surface renders with no value to show.
 
-In most products an empty state is a polish concern. In a health product it is a
-correctness concern, because **there are six distinct kinds of nothing and they
-mean opposite things**:
+Do not use it when:
 
-| Kind of nothing | What it means | What the reader must not conclude |
-| --- | --- | --- |
-| Never collected | The reader has not started | That there is nothing to worry about |
-| Collected, none yet in range | The filter is empty, the data is not | That they stopped logging |
-| Not yet arrived | A result is pending | That it is late or lost |
-| Failed to load | The app does not know | That the value is zero or unchanged |
-| Withheld | The reader revoked access | That the data was deleted |
-| Genuinely zero | The measured value is zero | That the reading is missing |
-
-A blank tile, a dash, and a "0" are three different assertions, and a product
-that uses one glyph for all six is telling readers things it does not know. The
-last row is the one that catches teams out: "0 steps yesterday" and "we have no
-step data for yesterday" look identical in most dashboards and are not the same
-fact.
-
-## When not to use
-
-- **The data exists and is old.** That is not empty, it is stale, and it has its
-  own honesty requirements. Use
-  [Offline and stale data](./offline-and-stale-data.mdx).
-- **The reader has never opened the product.** The first-open sequence is
-  [Onboarding and first run](./onboarding-and-first-run.mdx). This pattern picks
-  up afterwards, on individual surfaces.
-- **The value is below a minimum window.** A trend with four points is not
-  empty. It has data and cannot yet support a direction. Use
-  [Trend review](./trend-review.mdx).
-- **You want the definitions.** The five canonical data states are empty,
-  loading, error, stale and partial. They are defined once in
-  [Data states](../foundations/data-states.mdx) and every data surface uses
-  those definitions.
+- The data exists but is old. That is [Offline and stale data](./offline-and-stale-data.mdx).
+- The reader has never opened the product. That is [Onboarding and first run](./onboarding-and-first-run.mdx).
+- A trend has too few points to support a direction. See [Trend review](./trend-review.mdx).
 
 ## How it works
 
-<FlowDiagram>
-{`flowchart TD
-  A["Surface renders"] --> B{"Do we have a value?"}
-  B -->|"yes"| C["Render it"]
-  B -->|"no"| D{"Do we know why not?"}
-  D -->|"no"| E["Error state: say we could not load it, offer retry"]
-  D -->|"yes"| F{"Which reason?"}
-  F -->|"nothing collected"| G["First-use: one action, one sentence of value"]
-  F -->|"nothing in this filter"| H["Say the filter is empty and offer to widen it"]
-  F -->|"pending"| I["Say what is expected and by when"]
-  F -->|"access withdrawn"| J["Say access is off and how to turn it back on"]
-  F -->|"measured zero"| K["Render zero as a value, with its unit"]`}
-</FlowDiagram>
+A measured zero is a value, shown with its unit. Every other absence renders its reason:
 
-<NotBuiltYet />
-
-Rules:
-
-- **Never render an absent value as a number.** No zeroes, no dashes styled like
-  data, no last-known value dressed as current. If the shape of the layout needs
-  filling, use a `Skeleton` while loading and an `EmptyState` afterwards.
-- **A first-use state has exactly one action.** The surface exists to get the
-  reader to one place; a screen of equal-weight suggestions is a menu, not an
-  empty state.
-- **Say what would fill it.** "Your readings will appear here once you log one"
-  is useful. "No data" is not.
-- **Never apply a clinical status to absence.** An empty tile is not `attention`
-  and not `steady`. It has no status, because there is nothing to have a status
-  about. This is the most common way the status axis leaks.
-  [The two colour axes](../health/two-colour-axes.mdx) is the rule it breaks.
-- **An error is not an empty state.** If the request failed, say so and offer a
-  retry. Presenting a failure as "no data yet" makes the reader believe a fact
-  about themselves that is actually a fact about your network.
-- **Loading has a floor and a ceiling.** Do not flash a skeleton for 80ms; do
-  not show one indefinitely. After a stated timeout the surface becomes an
-  honest error.
-
-### States
-
-| State | Surface | Announcement |
+| Kind of nothing | Render | Never imply |
 | --- | --- | --- |
-| Loading | `Skeleton` matching the final layout | Polite "loading" only if it exceeds the threshold |
-| First use | `EmptyState` with one action | Heading announced on focus |
-| Filtered empty | Inline message plus a control to widen the range | Status message on filter change |
-| Pending | `CareCard` with the expected timeframe | Status message on arrival |
-| Error | Inline error with retry | Assertive, because the reader may act on absence |
-| Withheld | Statement of what is off, plus a route to re-enable | Polite |
+| Loading | A skeleton in the final layout's shape | A value |
+| Never collected | One sentence of value and exactly one action | Nothing to worry about |
+| Nothing in this filter | Say so, and offer to widen it | They stopped logging |
+| Pending | What is expected, and by when | It is late or lost |
+| Failed to load | An error with a retry | The value is zero or unchanged |
+| Withheld | What is off, and how to turn it back on | The data was deleted |
+
+- Never render an absent value as a number: no zero, no dash styled as data, no last-known value dressed as current.
+- Never present a failed request as "no data yet". That is a fact about your network, not about the reader.
+- Absence has no clinical status, so an empty tile carries no status colour. See [Two colour axes](../health/two-colour-axes.mdx).
+- Loading has a floor and a ceiling. Never flash a skeleton, and after a stated timeout show an honest error.
+
+## Components
+
+- [EmptyState](../components/empty-state.mdx) requires a `reason`: `nothing-yet`, `no-matches`, `nothing-left`, `not-enough` or `could-not-load`. Only `could-not-load` draws a marker of its own, and its action is mandatory.
+- [Skeleton](../components/skeleton.mdx) holds the layout while loading, and `appearAfterMs` stops it flashing on a fast load.
+- [CareCard](../components/care-card.mdx) says when a pending result is expected.
+- [MetricTile](../components/metric-tile.mdx) with `value={null}` keeps its label and never shows a zero.
 
 ## Content
 
-Empty-state copy is where products are most tempted to be charming. In a health
-context, charm reads as evasion. The reader is looking at a screen that should
-have their data on it.
-
-<DoDont>
-  <DoDont.Do>
-    "No blood-pressure readings yet. Log one and we'll show it against your
-    range." One fact, one action, one reason.
-  </DoDont.Do>
-  <DoDont.Dont>
-    "Nothing to see here! 👀 Why not add some data?" Jokes about missing health
-    data land badly with a reader who thought they had entered some.
-  </DoDont.Dont>
-</DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    "We couldn't load your readings. This is a problem on our side. Try again."
-  </DoDont.Do>
-  <DoDont.Dont>
-    "No readings found." This is used for a failed request, which tells the
-    reader their data is gone.
-  </DoDont.Dont>
-</DoDont>
-
-Error and empty message wording is owned by
-[Error and empty messages](../content/error-and-empty-messages.mdx); do not
-restate it here.
+- One fact, one action, one reason: "No blood-pressure readings yet. Log one and we'll show it against your range." "No data" says nothing.
+- No jokes about missing health data.
+- An error owns the problem: "We couldn't load your readings. This is a problem on our side. Try again."
 
 ## Accessibility
 
-- **The empty state has a heading** at the same level the content would have
-  had, so the document outline does not change shape depending on whether the
-  reader has data.
-- **Skeletons are hidden from assistive technology** (`aria-hidden`), with a
-  single polite status message doing the announcing. A dozen shimmering
-  rectangles announced individually is worse than silence.
-- **A state change from loading to loaded, or to error, is a status message**
-  (WCAG 2.2 SC 4.1.3). Errors that the reader might act on are announced
-  assertively.
-- **The single action is the first focusable element** after the heading.
-- **Illustrations are decorative** and marked as such; an empty-state graphic
-  must never be the only carrier of the message.
-- **Do not use motion to fill the space.** An animated empty state is
-  attention-seeking with nothing to say, and it is the first thing removed under
-  `prefers-reduced-motion`. That means the layout has to work without it
-  anyway.
-
-## Research
-
-<ResearchNote evidence="opinion" date="2026-09-02">
-  The six-kinds-of-nothing taxonomy is ours, and it is the argument this page
-  exists to make: the failure is not that empty states are ugly, it is that they
-  are lossy. Collapsing "we could not load this" into "you have no data" is a
-  factual error presented to someone who may make a decision on it.
-
-  This is opinion in the sense that no study told us to write it. It is not
-  opinion that a failed request and an empty dataset are different facts.
-
-  What would change our mind: nothing on the taxonomy. On presentation, evidence
-  that distinguishing six states confuses readers more than one honest generic
-  message would argue for collapsing the middle rows. It would never argue for
-  collapsing the error row.
-</ResearchNote>
-
-## Updates to this page
-
-<Reviewed />
+- The empty state has a heading at the level the content would have had, so the outline keeps its shape.
+- Skeletons are `aria-hidden`, and the caller mounts one polite status message for the change. An error the reader might act on is announced assertively (WCAG 2.2 SC 4.1.3).
+- The single action is the first focusable element after the heading.
+- Illustrations are decorative, and nothing animates to fill the space.

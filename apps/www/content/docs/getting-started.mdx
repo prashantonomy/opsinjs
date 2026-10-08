@@ -1,0 +1,132 @@
+---
+title: Getting started
+description: Register the @opsinjs namespace, install the token layer and render your first component, then adapt the steps to your framework.
+kind: guide
+aliases: [quick start, installation, components.json, framework support, browser support, troubleshooting]
+---
+
+The shadcn CLI copies opsinjs into your project as source, and there is no npm package. Paths below are for Next.js, and the table at the end lists what differs elsewhere.
+
+## Prerequisites
+
+- React 19 or later. React 18 is not supported.
+- Tailwind CSS v4. There is no v3 path.
+- A current Node LTS for the CLI.
+- Control over stylesheet order.
+
+## Initialise shadcn
+
+```npm
+npx shadcn@latest init
+```
+
+`init` writes `components.json` and `lib/utils.ts`, whose `cn` helper every opsinjs component imports. The registry does not ship that file.
+
+## Register the namespace
+
+Add one entry to `components.json`.
+
+```json title="components.json"
+{
+  "registries": {
+    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"
+  }
+}
+```
+
+The CLI substitutes `{name}`. `opsinjs.pensievelabs.org` is the only canonical host, so anything else serving `@opsinjs` is not this project. Keep the other fields `init` wrote, with `tailwind.cssVariables` set to `true` and `iconLibrary` to `lucide`.
+
+## Install the token layer
+
+The tokens are a separate theme item. The CLI writes their light and `.dark` values into the stylesheet named by the `tailwind.css` field.
+
+```npm
+npx shadcn@latest add https://opsinjs.pensievelabs.org/r/themes/opsinjs-default.json
+```
+
+Order is load-bearing: Tailwind, the token layer, an `@source` line for the folder components land in, then your overrides. Getting it wrong is quiet, because components lay out correctly in the wrong colours.
+
+```css title="app/globals.css"
+@import "tailwindcss";
+
+/* The :root and .dark blocks the theme item writes. */
+
+@source "../components/ui/**/*.{ts,tsx}";
+
+/* Your own overrides last, so they win. */
+```
+
+## Add a component
+
+```npm
+npx shadcn@latest add @opsinjs/status-pill
+```
+
+It adds `lucide-react` to `package.json`, writes no CSS, and writes three files:
+
+```text
+<aliases.ui>/status-pill.tsx    the component, yours to edit
+<aliases.lib>/opsinjs.ts        units, categories and error codes every component reads
+<aliases.lib>/status.ts         the four clinical levels, their words and their glyphs
+```
+
+In a default project they land in `components/ui/` and `lib/`. Commit them on their own, so a later `--diff` has something to compare against.
+
+## Render it
+
+```tsx title="app/page.tsx"
+import { StatusPill } from "@/components/ui/status-pill"
+
+export default function Page() {
+  return <StatusPill status="watch" describes="Blood pressure" />
+}
+```
+
+`status` is required, because your product assigns it and opsinjs never derives one. `describes` is what a screen reader announces the level as being about. [StatusPill](./components/status-pill.mdx) has the full contract.
+
+Check that the pill is styled, that its background reads an `--opsin-status-*` custom property, and that in greyscale it still names its level in words and by icon.
+
+<Todo>
+Nobody has walked this path end to end against the published registry. No registry item serves the `@theme inline` mappings behind utilities the components use, such as `gap-opsin-2` and `text-opsin-body`, so a fresh project does not generate those utilities yet.
+</Todo>
+
+## Other frameworks
+
+| Setup | What differs |
+| --- | --- |
+| [Next.js](./nextjs.mdx) App Router | The reference install |
+| Vite | Client only. Declare `@/` in both `vite.config.ts` and `tsconfig.json`. Import `src/index.css` once, at the entry point |
+| React Router framework mode | Export `app/app.css` from the root route's `links`, so error routes get it too. Upgrade Remix to React Router 7 first |
+| TanStack Start | Vite rules apply. Load `src/styles.css` in the root route's document shell |
+| Astro | Import `src/styles/global.css` from your layout. Display components need no hydration directive. An interactive component must share an island with its trigger |
+| Manual, no CLI | Fetch `/r/<name>.json`, write each file in `files` to its target, install its `dependencies` and add the `cn` helper yourself |
+| Monorepo | Run the CLI with `--cwd apps/web`. Every consuming app needs its own `components.json`, its own aliases and its own `@source` lines |
+
+No row has a recorded end-to-end test, and the TanStack Start and Astro rows come from each framework's architecture, not from a build. Create React App and React Native are not targeted, and there is no Vue or Svelte build, though the tokens are plain CSS and work anywhere.
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+## Browser support
+
+The floor opsinjs commits to testing is Safari and iOS Safari 16.4, plus the current and previous major versions of Chrome, Edge and Firefox. Backdrop blur, `corner-shape`, Display P3 colour and `linear()` springs are enhancements. They degrade to an opaque surface, circular corners, the sRGB value the contrast floor is measured against, and the browser's default easing.
+
+<Todo>
+Not one of the sixty components has been tested against any browser, at the floor or above it.
+</Todo>
+
+## Troubleshooting
+
+**The CLI reports an unknown registry.** `components.json` has no `registries` entry for `@opsinjs`, or its key is missing the `@`. The URL must include `{name}`.
+
+**Every copied file fails on `@/lib/utils`.** `shadcn init` was never run. Run it, or add the `cn` helper at the path `aliases.utils` names.
+
+**The component renders unstyled.** Tailwind is not scanning the folder you copied into. Add an `@source` line, with a path relative to the CSS file.
+
+**Colours are wrong or empty.** The token layer is missing or loads before Tailwind, or `tailwind.css` names a stylesheet your app does not import.
+
+## Next steps
+
+- Using Next.js? Read [Next.js](./nextjs.mdx).
+- Changing colours or type? Read [Theming](./theming.mdx).
+- Coming from shadcn/ui? Read [Migrating from shadcn/ui](./migrating.mdx).
+- Showing a health value? Read [Health](./health/index.mdx) first.

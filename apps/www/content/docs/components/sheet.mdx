@@ -3,11 +3,12 @@ title: Sheet
 description: A panel that slides up from the bottom, stops at sensible heights, and can be dragged or dismissed. The one-handed way to act without leaving the page.
 status: shipped
 kind: component
+governedBy: [alerts, consent-and-privacy]
 reviewed: 2026-09-20
 reviewer: engineering
 category: surfaces
 aliases: [drawer, bottom sheet, modal sheet, detent, side panel, slide over]
-usedIn: [alert-escalation, consent-and-permissions, consent-flow, daily-log-entry, daily-log-screen, daily-logging, diabetes-medicines-app]
+usedIn: [alert-escalation, consent-and-permissions, daily-logging]
 ---
 
 <StubNotice
@@ -22,11 +23,7 @@ usedIn: [alert-escalation, consent-and-permissions, consent-flow, daily-log-entr
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="sheet" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="sheet"
@@ -35,8 +32,6 @@ usedIn: [alert-escalation, consent-and-permissions, consent-flow, daily-log-entr
   dependencies={["@base-ui/react", "lucide-react"]}
   registryDependencies={["surface", "button"]}
 />
-
-## Usage
 
 ```tsx
 import { Sheet } from "@/components/ui/sheet"
@@ -50,6 +45,24 @@ import { Sheet } from "@/components/ui/sheet"
   </Sheet.Content>
 </Sheet>
 ```
+
+## Examples
+
+<ComponentPreview name="sheet" />
+
+### A form the reader cannot leave by accident
+
+`dismissible={false}` cancels the scrim, Escape and a downward drag, and
+returns focus to the container.
+
+<ComponentPreview name="sheet-a-form-that-stays-put" kind="example" align="start" />
+
+### Two detents, and the button the gesture owes
+
+A second `detents` entry makes the grabber a real button, moving the sheet
+between half and full with no pointer.
+
+<ComponentPreview name="sheet-two-detents-and-a-control" kind="example" align="start" />
 
 ## When to use it
 
@@ -68,96 +81,21 @@ import { Sheet } from "@/components/ui/sheet"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="sheet"
-  parts={[
-    {
-      name: "Sheet.Scrim",
-      describes: "Only when modal; a Surface at the scrim rung.",
-      prop: "modal",
-    },
-    {
-      name: "Sheet.Container",
-      describes: "The popup: top corner, slide and detent transform.",
-      prop: "className",
-    },
-    {
-      name: "Sheet.Grabber",
-      describes: "A real button above one detent, named for the next height.",
-      prop: "detents",
-    },
-    {
-      name: "Sheet.Header",
-      describes: "Title and close control, above the scroll boundary.",
-    },
-    {
-      name: "Sheet.Title",
-      describes: "An h2; what aria-labelledby points at. Fixed level.",
-      prop: "title",
-    },
-    {
-      name: "Sheet.Close",
-      describes: "The one route dismissible={false} never cancels. Visibly labelled.",
-    },
-    {
-      name: "Sheet.Content",
-      describes: "The caller's scrolling region. Contains overscroll. A focus stop.",
-    },
-    {
-      name: "Sheet.Description",
-      describes: "What aria-describedby points at, at most one, never empty.",
-    },
-    {
-      name: "Sheet.Footer",
-      describes: "Pinned actions, above the keyboard and safe-area inset.",
-      prop: "footer",
-    },
-  ]}
-/>
-
-## Examples
-
-### A form the reader cannot leave by accident
-
-`dismissible={false}` cancels the scrim, Escape and a downward drag, and
-returns focus to the container.
-
-<ComponentPreview name="sheet-a-form-that-stays-put" kind="example" align="start" />
-
-### Two detents, and the button the gesture owes
-
-A second `detents` entry makes the grabber a real button, moving the sheet
-between half and full with no pointer.
-
-<ComponentPreview name="sheet-two-detents-and-a-control" kind="example" align="start" />
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source and a rendered pass, author-run rather
-than independent, with clinical review pending. The rendered pass found no
-axe violation, no target-size breach, no missed focus ring and no reflow break
-at 320px. The source pass required no changes.
+The rendered pass found no axe, target-size, focus-ring or reflow failure at 320px, and
+nothing was changed. A modal sheet takes the dialog role, named by `Sheet.Title`, and
+traps focus, with the page behind `aria-hidden`, not `inert`. Every gesture has a
+control: close for drag-to-dismiss, grabber for drag-between-detents. The footer sits
+outside the scrolling region and inside the keyboard inset, keeping the primary action
+visible. Under `prefers-reduced-motion` the sheet crossfades in place, and the drag
+still works.
 
-- A modal sheet takes the dialog role, named by `Sheet.Title`, and traps
-  focus; the page behind is `aria-hidden`, not `inert`.
-- Every gesture has a control: close for drag-to-dismiss, grabber for
-  drag-between-detents.
-- The footer sits outside the scrolling region and inside the keyboard inset,
-  keeping the primary action visible.
-- `prefers-reduced-motion` removes distance, not transition: it crossfades in
-  place, and the drag still works.
-
-Residual:
-
-- Focus rings use a negative outline offset to stay visible inside the
-  clipped popup, meeting 2.4.7 and 1.4.11.
-- No live region announces the new height; the grabber's accessible name
-  updates to name the next action instead.
-- Non-modal mode (`modal={false}`) pins the sheet to the bottom while the page
-  behind stays focusable, an unchecked obscured-focus shape; default and demo
-  stay modal.
+**Residual items.** Focus rings use a negative outline offset to stay visible inside the
+clipped popup, meeting 2.4.7 and 1.4.11. No live region announces the new height. The
+grabber's accessible name updates to name the next action instead. `modal={false}` pins
+the sheet to the bottom while the page behind stays focusable, an unchecked obscured-focus
+shape. Default and demo stay modal.
 
 <KeyboardTable
   name="sheet"
@@ -197,7 +135,25 @@ Residual:
 
 <ContrastReport component="sheet" />
 
-## Data attributes
+## Props interface
+
+### Sheet
+
+<PropsTable name="SheetProps" />
+
+`detents` defaults to `["content"]`; its first entry is where the sheet opens.
+`half` and `full` combine, `content` stands alone. `onOpenChange` receives the
+close route second, so a product can ask before discarding unsaved work.
+
+### Sheet.Content
+
+<PropsTable name="SheetContentProps" />
+
+### Sheet.Description
+
+<PropsTable name="SheetDescriptionProps" />
+
+### Data attributes
 
 <DataAttributesTable
   name="sheet"
@@ -229,29 +185,3 @@ Residual:
     },
   ]}
 />
-
-## API reference
-
-### Sheet
-
-<PropsTable name="SheetProps" />
-
-`detents` defaults to `["content"]`; its first entry is where the sheet opens.
-`half` and `full` combine, `content` stands alone. `onOpenChange` receives the
-close route second, so a product can ask before discarding unsaved work.
-
-### Sheet.Content
-
-<PropsTable name="SheetContentProps" />
-
-### Sheet.Description
-
-<PropsTable name="SheetDescriptionProps" />
-
-## Related
-
-- [Dialog](./dialog.mdx) is a question that must be answered, not a place chosen.
-- [LogSheet](./log-sheet.mdx) is a Sheet with a capture contract and field ceiling.
-- [ConsentSheet](./consent-sheet.mdx) is a Sheet with a consent contract and equal-weight decisions.
-- [Surface](./surface.mdx) is the layer Sheet is built from, for sheet and scrim.
-- [Popover](./popover.mdx) is small, anchored to a control rather than the screen.

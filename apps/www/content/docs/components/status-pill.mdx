@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-data-display
 aliases: [chip, status chip, status badge, status label, traffic light]
-governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, category-identity]
-usedIn: [alert-escalation, choose-a-component, health-metric-card, offline-and-stale-data, result-disclosure, results-screen, staged-alert, trend-review, value-against-a-range]
+governedBy: [two-colour-axes, alerts, high-stakes-moments, safety-review, trends]
+usedIn: [alert-escalation, result-disclosure, offline-and-stale-data]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +22,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="status-pill" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="status-pill"
@@ -35,8 +31,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
 />
 
-## Usage
-
 ```tsx
 import { StatusPill } from "@/components/ui/status-pill"
 ```
@@ -44,6 +38,23 @@ import { StatusPill } from "@/components/ui/status-pill"
 ```tsx
 <StatusPill status="attention" describes="Second example measurement" />
 ```
+
+## Examples
+
+<ComponentPreview name="status-pill" />
+
+### Scanning a column
+
+Four rows, each graded by `status`, and exactly one `urgent`.
+
+<ComponentPreview name="status-pill-in-a-list" kind="example" align="start" />
+
+### Every size keeps the word
+
+`size` sets the type step and padding and nothing else. `sm` and `md` label a status in
+prose and lists, and `lg` matches a heading.
+
+<ComponentPreview name="status-pill-sizes" kind="example" align="start" />
 
 ## When to use it
 
@@ -65,18 +76,17 @@ import { StatusPill } from "@/components/ui/status-pill"
 ## Clinical meaning
 
 **Asserts.** That the product has assigned one of exactly four levels of attention to
-the thing the pill labels. The levels are `steady`, `watch`, `attention` and `urgent`,
-defined in [Clinical status semantics](../health/clinical-status-semantics.mdx). It does
-not say what is wrong, why, or what happens next.
+the thing the pill labels: `steady`, `watch`, `attention` or `urgent`, defined in
+[Two colour axes](../health/two-colour-axes.mdx). It does not say what is wrong, why,
+or what happens next.
 
 **Never read as.** A diagnosis, a severity score or a triage category. The levels
-describe what the interface asks of the reader, not the state of their body. `urgent`
-on a screen is not `urgent` in a clinical handover.
+describe what the interface asks of the reader, not the state of their body, so
+`urgent` on a screen is not `urgent` in a clinical handover.
 
 **Colour axis.** Status only, and never alone: every pill renders a word and a glyph
-beside its colour. A pill never carries a category colour. That is a [Badge](./badge.mdx)
-under [Category identity](../health/category-identity.mdx), and
-[The two colour axes](../health/two-colour-axes.mdx) says why the two never share an element.
+beside its colour. A category colour belongs on a [Badge](./badge.mdx), never on a pill,
+and [Two colour axes](../health/two-colour-axes.mdx) says why the two never share an element.
 
 **Thresholds.** None. The consuming product assigns the level from rules or a clinician,
 and the pill derives nothing.
@@ -84,102 +94,36 @@ and the pill derives nothing.
 <SafetyCallout severity="urgent" evidence="opinion">
 At most one `urgent` pill may be visible on a screen. If the product's rules produce
 two, the screen needs an [AlertBanner](./alert-banner.mdx) for the most serious one.
-See [Alarm fatigue](../health/alarm-fatigue.mdx).
+See [Alerts](../health/alerts.mdx).
 </SafetyCallout>
-
-## Anatomy
-
-<Anatomy
-  name="status-pill"
-  parts={[
-    {
-      name: "StatusPill",
-      describes: "The root. Carries data-status and the level's surface, line and ink. Not focusable and not interactive.",
-      prop: "status",
-    },
-    {
-      name: "StatusPill.Icon",
-      describes: "One distinct glyph per level, from CLINICAL_STATUS_META[level].icon. aria-hidden and sized in em.",
-    },
-    {
-      name: "StatusPill.Label",
-      describes: "The level in words. Not removable; an empty label raises OPSIN-0002 and falls back to the level's word.",
-      prop: "label",
-    },
-  ]}
-/>
-
-## Examples
-
-### Scanning a column
-
-Four rows, each graded by `status`, and exactly one `urgent`. A pill earns its place
-when the alternative is reading every row.
-
-<ComponentPreview name="status-pill-in-a-list" kind="example" align="start" />
-
-### Every size keeps the word
-
-`size` sets the type step and padding and nothing else. `sm` and `md` label a status
-in prose and lists; `lg` matches a heading. No size drops the word.
-
-<ComponentPreview name="status-pill-sizes" kind="example" align="start" />
-
-## Content guidelines
-
-Use the level's own word, and use the same word on every screen. Never write a level
-as a sentence about the person: "Needs attention" labels a result, not a human being.
-A banned word passed as `label` raises OPSIN-0006 in development;
-[Reference ranges and normal](../health/reference-ranges.mdx) holds the list.
-
-<DoDont>
-  <DoDont.Do>
-    **"Steady"** for a result that needs nothing right now.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Normal"**, **"Healthy"**, **"Good"**, **"All clear"** are claims about the person.
-  </DoDont.Dont>
-</DoDont>
 
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
-author-run, it is not an independent review, and clinical review is still pending.
-The rendered pass reported no axe violations, no target-size hits, no focus problems
-and no reflow break at 320px, and found nothing to change.
+The icon is `aria-hidden` and sized in `em`, so the word carries the meaning and the
+glyph grows with it. At 200% text the pill grows and wraps, and the word is never
+truncated or replaced by the icon alone. Light-mode text contrast passes, with no axe,
+target-size, focus or 320px reflow failure.
 
-**Checked by `pnpm run check:a11y` on every commit.**
+`pnpm run check:a11y` checks on every commit that no file paints a status colour
+without reading `CLINICAL_STATUS_META` and a glyph, that every status surface carries
+`data-status`, and that status words come from `CLINICAL_STATUS_META[level].word`, never
+a literal. The four levels name four distinct glyphs: circle, ringed dot, diamond and
+octagon. A11Y017 fails the build when two levels share one.
 
-- No file paints a status colour without reading `CLINICAL_STATUS_META` and a glyph,
-  and every status surface carries `data-status`.
-- The four levels name four distinct glyphs: circle, ringed dot, diamond and octagon.
-  A11Y017 fails the build when two levels share one.
-- The status words are read from `CLINICAL_STATUS_META[level].word`, never written as
-  a literal.
+**Residual items.**
 
-**Argued from the source.**
-
-- Status is a visible word plus one of four distinct glyph shapes plus colour, never
-  colour alone. The icon is `aria-hidden` and sized in `em`, so the word carries the
-  meaning and the glyph grows with it.
-- With `describes`, the pill announces as *Needs attention, Second example
-  measurement*. Omit it when the subject is visible text in the same reading unit.
-  When the pill floats free of its subject, in a table cell reached by column
-  navigation or a card corner, the consuming product must pass `describes`, because
-  the component cannot know the reading context. That is by design, and the prop
-  JSDoc records it.
-- The pill is a `span`, not focusable and not in the tab order. A pill made into a
-  filter is a Button and owes a Button's target and name.
-- No live region is mounted, on purpose. The pill is a static read-only label rather
-  than a message, so a `role="status"` announcement would be wrong here.
-- At 200% text the pill grows and wraps; the word is never truncated and never
-  replaced by the icon alone.
-
-**Not yet measured.** The rendered pass ran in the light theme and reported no
-contrast violation, so light-mode text contrast passes. Dark-mode text contrast,
-forced colours, and the non-text contrast of the boundary and glyph against the
-surface were not measured. Those pairs arrive through role tokens
-and live in the token layer and the report below, not in this source.
+- The consuming product must pass `describes` when the pill floats free of its subject,
+  in a table cell reached by column navigation or a card corner, because the component
+  cannot know the reading context.
+- With `describes`, the pill announces as *Needs attention, Second example measurement*.
+  Omit it when the subject is visible text in the same reading unit.
+- The pill is a `span`. One made into a filter is a Button and owes a Button's target
+  and name.
+- No live region is mounted, on purpose. A static read-only label is not a message, so
+  a `role="status"` announcement would be wrong.
+- Not measured: dark-mode text contrast, forced colours, and the boundary and glyph's
+  non-text contrast against the surface. Those pairs arrive through role tokens and live
+  in the token layer and the report below, not in this source.
 
 <KeyboardTable
   name="status-pill"
@@ -199,7 +143,16 @@ and live in the token layer and the report below, not in this source.
 
 <ContrastReport component="status-pill" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="StatusPillProps" />
+
+`status` has no default, and a value outside the four, including `unknown`, renders no
+pill and warns in development. `className` is merged last and can strip the
+fill or the line, so change `size` instead. It cannot recolour the word; a rule on
+`[data-slot="status-pill"]` can.
+
+### Data attributes
 
 <DataAttributesTable
   name="status-pill"
@@ -216,19 +169,3 @@ and live in the token layer and the report below, not in this source.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="StatusPillProps" />
-
-`status` has no default. A value outside the four, including `unknown`, renders no
-pill and raises a development warning. `className` is merged last and can strip the
-fill or the line, so change `size` instead. It cannot recolour the word; a rule on
-`[data-slot="status-pill"]` can.
-
-## Related
-
-- [Badge](./badge.mdx) is a label, not a judgement. Categories, sources, counts and release phases are badges.
-- [AlertBanner](./alert-banner.mdx) shares the vocabulary but interrupts. A pill waits to be noticed.
-- [CareCard](./care-card.mdx) is the status with an instruction attached, when the reader has to act.
-- [Callout](./callout.mdx) sits outside the status axis, for information with no clinical level.

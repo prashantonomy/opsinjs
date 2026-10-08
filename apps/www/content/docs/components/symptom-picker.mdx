@@ -5,7 +5,7 @@ status: shipped
 kind: component
 category: health-input
 aliases: ["symptoms", "how are you feeling", "symptom checker"]
-governedBy: ["clinical-interaction-guidelines", "regulatory-context", "who-this-is-for"]
+governedBy: [health/index, safety-review]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +22,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="symptom-picker" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="symptom-picker"
@@ -34,8 +30,6 @@ reviewer: engineering
   importPath="@/components/ui/symptom-picker"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { SymptomPicker } from "@/components/ui/symptom-picker"
@@ -54,6 +48,24 @@ import { SymptomPicker } from "@/components/ui/symptom-picker"
 />
 ```
 
+## Examples
+
+<ComponentPreview name="symptom-picker" />
+
+### Choosing from a list
+
+Driven by `options`. The labels are fictional placeholders, because opsinjs ships
+no symptom list and an example must never be mistaken for a real vocabulary.
+
+<ComponentPreview name="symptom-picker-choosing-from-a-list" kind="example" align="start" />
+
+### Filtering a long list
+
+With `searchable` on, the filter narrows the visible rows by a match on their
+label, and the ticked values stay ticked as it narrows.
+
+<ComponentPreview name="symptom-picker-with-search" kind="example" align="start" />
+
 ## When to use it
 
 <WhenToUse
@@ -71,134 +83,36 @@ import { SymptomPicker } from "@/components/ui/symptom-picker"
 
 ## Clinical meaning
 
-**Asserts.** These are the values a reader ticked from the list you supplied. It
-asserts nothing about what an option means, how the ticked set reads together, or
-what happens next.
+**Asserts.** These are the values a reader ticked from the list you supplied.
+Nothing about what an option means, how the ticked set reads together, or what
+happens next.
 
-**Never read as.** Not a symptom checker, not a triage, not a diagnosis. Feeding
-the returned array into a rule that reaches a clinical conclusion moves the
-product onto the pathway [Regulatory context](../health/regulatory-context.mdx)
-describes.
+**Never read as.** A symptom checker, a triage or a diagnosis. Feeding the
+returned array into a rule that reaches a clinical conclusion moves the product
+onto the pathway [Safety review](../health/safety-review.mdx) describes.
 
 **Colour axis.** Neither. A selection is not a clinical level, so the component
 carries no `data-status` and no `data-category`. The ticked state travels as a
 check shape and a quiet fill, so it survives greyscale.
 
 **Thresholds.** The consuming product owns them. opsinjs ships no symptom list,
-no option labels and no default text, because a controlled vocabulary is product
-specific. [Clinical interaction
-guidelines](../health/clinical-interaction-guidelines.mdx) is why the picker
-records and never interprets.
-
-## Anatomy
-
-<Anatomy
-  name="symptom-picker"
-  parts={[
-    {
-      name: "SymptomPicker",
-      describes: "The root, a Base UI CheckboxGroup rendered as a named group, holding the shared array of ticked values.",
-      prop: "options",
-    },
-    {
-      name: "SymptomPicker.Search",
-      describes: "The optional filter input, matching labels case-insensitively, kept separate from the selection.",
-      prop: "searchable",
-    },
-    {
-      name: "SymptomPicker.Option",
-      describes: "One option, a Base UI checkbox and the whole pressable row, floored at the 44pt target minimum.",
-      prop: "value",
-    },
-    {
-      name: "SymptomPicker.OptionLabel",
-      describes: "The option's words, the visible label and the accessible name a screen reader reads.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="symptom-picker"
-  tree={[
-    {
-      part: "SymptomPicker",
-      cardinality: "1",
-      note: "role=\"group\", named by label.",
-      children: [
-        {
-          part: "SymptomPicker.Search",
-          cardinality: "0..1",
-          note: "Present only when searchable is set.",
-        },
-        {
-          part: "SymptomPicker.Option",
-          cardinality: "1..n",
-          note: "One per visible option.",
-          children: [
-            {
-              part: "SymptomPicker.OptionLabel",
-              cardinality: "1",
-              note: "The option's accessible name.",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### Choosing from a list
-
-The case the picker was built for, driven by `options`. The labels are fictional
-placeholders, because opsinjs ships no symptom list and an example must never be
-mistaken for a real vocabulary.
-
-<ComponentPreview name="symptom-picker-choosing-from-a-list" kind="example" align="start" />
-
-### Filtering a long list
-
-The same picker with `searchable` on. The filter narrows the visible rows by a
-match on their label, and the ticked values stay ticked as it narrows.
-
-<ComponentPreview name="symptom-picker-with-search" kind="example" align="start" />
-
-## Content guidelines
-
-Write every option in the reader's own words and keep each label short enough to
-scan. Phrase `label` as the question the list answers rather than as a heading.
-Never phrase an option as a verdict or a finding. [Who this is
-for](../health/who-this-is-for.mdx) sets the register.
-
-<DoDont>
-  <DoDont.Do>
-    **An option names one thing the reader recognises and ticks**, under a group label that asks a question.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **An option that smuggles a severity or a conclusion into its label**, dressing an interpretation as a plain choice.
-  </DoDont.Dont>
-</DoDont>
+option labels or default text, because a controlled vocabulary is product
+specific, and [Health](../health/index.mdx) is why the picker records and never
+interprets.
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA, in a source pass and a rendered pass.** The audit
-is author-run, not an independent review, and clinical review is pending.
+Each option is a real checkbox with its icon `aria-hidden`, the pressable row
+floors at `--opsin-target-minimum` in rem, and axe, target-size and 320px reflow
+checks were clean. The audit fixed one gap under SC 4.1.3 Status Messages: with
+`searchable` on, the count change sat in no live region, so a screen reader never
+heard the result count or that nothing matched. A persistent visually hidden
+`role="status"` region now announces the filtered count.
 
-**What the audit fixed.** With `searchable` on, typing filters the rows and can
-empty the list, but that count change sat in no live region, so a screen reader
-never heard the result count or that nothing matched (SC 4.1.3 Status Messages). A
-persistent visually hidden `role="status"` region now announces the filtered count.
+**Residual items.**
 
-**What the audit confirmed.** Each option is a real checkbox with its icon
-`aria-hidden`, the pressable row floors at `--opsin-target-minimum` in rem, and
-the rendered pass, run with axe, target-size and 320px reflow, was clean.
-`forced-colors` stays unchecked.
-
-**One residual, deferred.** The group and filter names are forwarded only as
-`aria-label`, with no persistent visible label. A required `label` prop keeps the
-group from being nameless, but a visible label is a recommended enhancement, held
-for one repair across the whole set.
+- `forced-colors` stays unchecked.
+- The group and filter names are forwarded only as `aria-label`, with no persistent visible label. A required `label` prop keeps the group from being nameless, but a visible label is a recommended enhancement, deferred for one repair across the whole set.
 
 <KeyboardTable
   name="symptom-picker"
@@ -233,7 +147,17 @@ for one repair across the whole set.
 
 <ContrastReport component="symptom-picker" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="SymptomPickerProps" />
+
+`options` is the product's vocabulary and the whole of what the picker draws, so
+an empty array renders nothing and warns in development. `value` and
+`onValueChange` make this controlled, with no selection state of its own. A value
+matching no option is kept and named by a warning. `label` is required, because a
+group with no accessible name is a defect.
+
+### Data attributes
 
 <DataAttributesTable
   name="symptom-picker"
@@ -255,19 +179,3 @@ for one repair across the whole set.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="SymptomPickerProps" />
-
-`options` is the product's vocabulary and the whole of what the picker draws, so
-an empty array renders nothing and warns in development. `value` and
-`onValueChange` make this controlled, with no selection state of its own. A value
-matching no option is kept and named by a warning. `label` is required, because a
-group with no accessible name is a defect.
-
-## Related
-
-- [Checkbox](./checkbox.mdx) is one box for a single option to tick, where a whole picker would be read twice.
-- [RadioGroup](./radio-group.mdx) is the one-of-many choice, where the options exclude each other.
-- [Textarea](./textarea.mdx) is where the reader describes something in their own words rather than choosing.

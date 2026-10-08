@@ -179,24 +179,17 @@ export function isNotImplemented(status: Status): boolean {
    ──────────────────────────────────────────────────────────────────────────── */
 
 export const KINDS = [
-  "component",
-  "foundation",
-  "health",
-  "accessibility",
-  "content",
-  "pattern",
-  "recipe",
-  "screen",
-  "handbook",
-  "reference",
-  "project",
   "guide",
+  "foundation",
+  "component",
+  "health",
+  "pattern",
+  "reference",
 ] as const
 
 /**
- * A page's kind. This is a contract, not a label: `kind` fully determines the
- * page's headings, and `assert-ia.mts` fails the build on a missing or an
- * unexpected one.
+ * A page's kind, one per sidebar section. Only `component` fixes the page's
+ * headings; every other kind names its own, as a page on blueprintjs.com does.
  */
 export type Kind = (typeof KINDS)[number]
 
@@ -415,244 +408,86 @@ export function axisConflict(input: {
    ──────────────────────────────────────────────────────────────────────────── */
 
 /**
- * The H2s a page must have, by `kind`. This is the outline
- * `content/_templates/*.mdx` implements, `<PageTemplate>` asserts and
- * `assert-ia.mts` checks; all three read it from here so they cannot drift.
+ * The H2s a page must have, by `kind`, for every kind but `component`.
  *
- * `component` is absent on purpose: a component page's outline depends on its
- * status as well as its kind, and lives in COMPONENT_SECTIONS_BY_STATUS below.
+ * Every one is empty. A guide, a foundation, a health page, a pattern or a
+ * reference page names its own sections, the way clawscale and blueprintjs.com
+ * pages do, so a page is never made to invent prose to fill a heading. Only a
+ * component page has a fixed outline, below.
  */
 export const SECTION_OUTLINES: Record<Exclude<Kind, "component">, string[]> = {
-  foundation: [
-    "Overview",
-    "How it works",
-    "Using it",
-    "Tokens",
-    "Accessibility impact",
-    "Related",
-  ],
-  health: [
-    "What this means",
-    "The rule",
-    "Why (evidence)",
-    "Applying it",
-    "Components that implement this",
-    "What this does not cover",
-    "Updates to this page",
-  ],
-  accessibility: [
-    "What we guarantee",
-    "What you own",
-    "How to check",
-    "Measured results",
-    "Known gaps",
-    "Updates to this page",
-  ],
-  content: [
-    "The rule",
-    "Approved / Rejected",
-    "Patterns",
-    "Banned words",
-    "Related components",
-  ],
-  pattern: [
-    "When to use",
-    "When not to use",
-    "How it works",
-    "Content",
-    "Accessibility",
-    "Research",
-    "Updates to this page",
-  ],
-  recipe: [
-    "The task",
-    "What you need",
-    "Build it",
-    "The copy",
-    "Get it right",
-    "Variations",
-    "Related",
-  ],
-  screen: [
-    "What this screen does",
-    "Composition",
-    "Preview",
-    "Safety notes",
-    "Accessibility",
-    "Status",
-  ],
-  handbook: [
-    "The short version",
-    "How it works",
-    "Do this",
-    "Not this",
-    "Gotchas",
-    "Related",
-  ],
-  reference: ["How this is generated"],
-  project: [],
-  guide: ["Overview", "Verify it worked", "Troubleshooting", "Next"],
+  guide: [],
+  foundation: [],
+  health: [],
+  pattern: [],
+  reference: [],
 }
 
-/**
- * `kind: project` is free-form and `kind: guide` has task sections between its
- * fixed first and last headings, so for these two the outline is a REQUIRED
- * SUBSET rather than the complete list. Everything else is exact.
- */
+/** No kind other than `component` has an exact outline. */
 export const OUTLINE_IS_EXACT: Record<Exclude<Kind, "component">, boolean> = {
-  foundation: true,
-  health: true,
-  accessibility: true,
-  content: true,
-  pattern: true,
-  recipe: true,
-  screen: true,
-  handbook: true,
-  reference: false,
-  project: false,
   guide: false,
+  foundation: false,
+  health: false,
+  pattern: false,
+  reference: false,
 }
 
 /**
- * The outline every component page with code behind it is held to. `shipped`
- * and `deprecated` both point at this one array on purpose. The phases named
- * different outlines once, which is why a page could not change release phase
- * without a content edit, and that coupling is what this array removes: a page
- * that satisfies this outline satisfies it at both phases, so retiring a
- * component is a frontmatter change and nothing else.
+ * The outline every component page with code behind it is held to, in order.
+ * `shipped` and `deprecated` share it, so retiring a component is a frontmatter
+ * change and nothing else.
  *
- * THE PAGE IS LEAN, AND THIS LIST IS SHORT BECAUSE OF IT. ADR 0024 is the
- * record. A developer comes to a component page to see the component, install
- * it, copy the usage, check the props, and learn the one thing this system adds
- * to a shadcn-style page, which is when not to reach for it. The seventeen
- * section anatomy this replaced carried a Status heading, a States matrix, a
- * Motion section, a Tokens table and a CSS variables table on top of that, and
- * the corpus it produced ran past a quarter of a million words across sixty
- * pages, which nobody read. Blueprint documents a component in a few hundred
- * words and a props table, and that is the density these pages now aim at.
- *
- * The Status heading is gone and nothing honest went with it: `<StubNotice>`
- * still opens every component page, above the first H2, and still carries the
- * review floor and the open safety questions. Motion and Tokens are gone; a
- * reduced-motion fact that matters is one bullet under Accessibility. Anatomy,
- * States, Content guidelines, Data attributes and CSS variables stay in the
- * outline and are optional, so a single-part component with no authored copy
- * is never made to invent a section to satisfy a checklist.
+ * It is the clawscale and blueprintjs.com shape (Usage, Examples, Props
+ * interface) plus the three things a health system adds: when not to reach for
+ * the component, what it means clinically (health components only) and an
+ * accessibility triage. `<StubNotice>` opens the page above the first H2 and
+ * carries the review floor and the open safety questions. ADR 0026 is the
+ * record.
  */
 const SHIPPED_SECTIONS: string[] = [
-  "Preview",
-  "Installation",
   "Usage",
+  "Examples",
   "When to use it",
   "Clinical meaning",
-  "Anatomy",
-  "Examples",
-  "States",
-  "Content guidelines",
   "Accessibility",
-  "Data attributes",
-  "CSS variables",
-  "API reference",
-  "Related",
+  "Props interface",
 ]
 
 /**
- * THE COMPONENT PAGE ANATOMY, status-gated.
- *
- * The page header and the page footer are generated from frontmatter and never
- * appear as an H2, so neither is listed here, and neither is `<StubNotice>`,
- * which sits above the first H2 with no heading of its own. Everything else a
- * reader scrolls past is, in page order.
- *
- * This array is the ORDER and the ALLOWED SET, not the required set. A page may
- * leave out any section named in `COMPONENT_OPTIONAL_SECTIONS` below, and
- * `componentRequiredSections()` is the list that must actually be present. What
- * is present has to appear in the order given here, as a subsequence: sections
- * may be skipped, never reshuffled. A heading with nothing under it is worse
- * than an absent heading, and both enforcers fail the build on an empty one.
- *
- * `## Clinical meaning` is listed here but is mandatory only for a `health-*`
- * category and forbidden outside one, which is a category gate rather than an
- * omission the author chooses; `CATEGORY_GATED_SECTIONS` below is the rule and
- * `assert-ia.mts` checks both directions.
- *
- * `## Accessibility` is spelled that way at every status, and the section
- * changes meaning rather than name: at `planned` it is the bar the
- * implementation has to clear, and once the component ships it is the set of
- * results being reported. One spelling, because a reader scanning a page for
- * the accessibility contract should not have to know the release phase before
- * they know what to look for, and because two spellings gave every enforcer an
- * alias table to keep in step.
- *
- * There are two outlines and three phases, because `deprecated` documents code
- * that still installs and therefore owes a reader everything `shipped` owes
- * them plus the replacement. Only `planned` gets the shorter one, and it is
- * shorter for a reason a reader can check: a specification cannot report
- * measured results, so it has no `## Usage`, no `## Examples`, no
- * `## Data attributes` and no `## API reference`, and it carries
- * `## Proposed API` instead.
+ * The outline by release phase. A `planned` page has nothing to install or
+ * show, so it carries the specification instead: what it is for, what it means
+ * clinically, the proposed API and the accessibility contract. No page is
+ * `planned` today; the outline stays so that adding one is not a redesign.
  */
 export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
   planned: [
-    "Preview",
-    "Installation",
     "When to use it",
     "Clinical meaning",
-    "Anatomy",
     "Proposed API",
     "Accessibility",
-    "Related",
   ],
   shipped: SHIPPED_SECTIONS,
   deprecated: SHIPPED_SECTIONS,
 }
 
 /**
- * The sections a component page may leave out.
- *
- * Write one where there is something to say and leave it out where there is
- * not. Omitting one is not a defect. Inventing content for one is: an Anatomy
- * section on a component with one part draws a tree with one node, a States
- * matrix on a control that carries no reading says "not applicable" five
- * times, and a Content guidelines section on a component that renders no
- * authored copy has nothing to approve or reject. Data attributes earns its
- * place only when the component stamps something beyond `data-slot`, and CSS
- * variables only when it declares a custom property of its own.
- *
- * This is the only list. `scripts/assert-ia.mts` reads it as its
- * `CONDITIONAL_HEADINGS.component` and `components/docs/page-template.tsx` reads
- * it at render time, so the build-time and runtime enforcers cannot disagree
- * about which headings are allowed to be missing. It applies at every phase:
- * Anatomy is the one member the `planned` outline also carries, and a
- * specification may leave it out for the same reason a shipped page may.
- *
- * A section here is optional, not unordered. It still has to appear in its
- * `COMPONENT_SECTIONS_BY_STATUS` position when it appears at all.
+ * Sections a component page may leave out. None: every section in the outline
+ * has something true to say on every component, and the one conditional
+ * section, Clinical meaning, is gated by category below rather than optional.
  */
-export const COMPONENT_OPTIONAL_SECTIONS: readonly string[] = [
-  "Anatomy",
-  "States",
-  "Content guidelines",
-  "Data attributes",
-  "CSS variables",
-]
+export const COMPONENT_OPTIONAL_SECTIONS: readonly string[] = []
 
 /**
- * Sections whose presence depends on the component's category rather than on
- * its status. Required when `category` starts with the prefix, and forbidden
- * when it does not.
+ * Sections whose presence depends on the component's category. Clinical
+ * meaning is required on a `health-*` component and forbidden elsewhere,
+ * because a component outside the health categories asserts nothing clinical.
  */
 export const CATEGORY_GATED_SECTIONS: {
   section: string
   requiredForCategoryPrefix: string
 }[] = [{ section: "Clinical meaning", requiredForCategoryPrefix: "health-" }]
 
-/**
- * The full ordered outline for a component page at a given status and category:
- * the canonical order, and the set of headings the page is allowed to carry.
- * Some of what comes back is optional, so do not use this as the missing-heading
- * check. `componentRequiredSections()` is that.
- */
+/** The outline for one component page, with the category gate applied. */
 export function componentSections(status: Status, category: string): string[] {
   const base = COMPONENT_SECTIONS_BY_STATUS[status]
   return base.filter((section) => {
@@ -662,13 +497,7 @@ export function componentSections(status: Status, category: string): string[] {
   })
 }
 
-/**
- * The sections a component page at this status and category must actually
- * carry: the outline above with the optional five taken out. This is what an
- * enforcer reports as missing, and it is deliberately a filter over
- * `componentSections()` rather than a second hand-written table, so the two can
- * never name a heading the other does not.
- */
+/** The sections a component page must carry: its outline minus the optional ones. */
 export function componentRequiredSections(
   status: Status,
   category: string

@@ -3,9 +3,10 @@ title: EmptyState
 description: What a screen shows before there is anything on it. It says plainly why it is empty and gives you one clear thing to do about it.
 status: shipped
 kind: component
+governedBy: [consent-and-privacy, trends]
 category: feedback
 aliases: [blank slate, no data, nothing here, zero state]
-usedIn: [choose-a-component, consent-flow, daily-log-screen, daily-logging, diabetes-medicines-app, empty-and-first-use, onboarding-and-first-run, onboarding-screen, results-screen, trend-review, trends-screen]
+usedIn: [consent-and-permissions, daily-logging, empty-and-first-use, onboarding-and-first-run, trend-review]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="empty-state" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="empty-state"
@@ -34,8 +31,6 @@ reviewer: engineering
   importPath="@/components/ui/empty-state"
   registryDependencies={["button", "link"]}
 />
-
-## Usage
 
 ```tsx
 import { EmptyState } from "@/components/ui/empty-state"
@@ -52,72 +47,9 @@ import { EmptyState } from "@/components/ui/empty-state"
 </EmptyState>
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "Nothing added yet, where the fastest help is the first step.",
-    "A filter or search that matched nothing, where the reader must know it was the filter, not the data.",
-    "A view that cannot yet draw honestly, such as a trend with too few readings.",
-  ]}
-  avoid={[
-    { case: "The content is loading and will arrive shortly.", instead: "skeleton" },
-    { case: "The whole view failed, rather than one surface that could not load.", instead: "alert-banner" },
-    { case: "There is content, but it needs a caveat.", instead: "callout" },
-    { case: "Permission is needed before anything can be shown.", instead: "consent-sheet" },
-    { case: "One value is missing inside a full surface.", instead: "value" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="empty-state"
-  parts={[
-    {
-      name: "EmptyState",
-      describes: "The root, coloured by neither axis: an absence is not a level or a category.",
-      prop: "reason",
-    },
-    {
-      name: "EmptyState.Illustration",
-      describes: "Optional. aria-hidden, inert, hidden in print and below a 17rem content area.",
-      prop: "illustration",
-    },
-    {
-      name: "EmptyState.ErrorFlag",
-      describes: "could-not-load only: \"Could not load\" beside an aria-hidden icon, in neutral ink.",
-      prop: "reason",
-    },
-    {
-      name: "EmptyState.Title",
-      describes: "What is not here, as a real h2 to h6. A blank title says so.",
-      prop: "title",
-    },
-    {
-      name: "EmptyState.Body",
-      describes: "Why, as a paragraph. With no children it admits the app does not say why.",
-      prop: "children",
-    },
-    {
-      name: "EmptyState.Action",
-      describes: "The one next step: a Link for an href, a neutral Button for an onSelect.",
-      prop: "action",
-    },
-    {
-      name: "EmptyState.ErrorNoRetry",
-      describes: "could-not-load with no usable action: admits no way back was offered.",
-      prop: "action",
-    },
-    {
-      name: "EmptyState.Secondary",
-      describes: "A quieter alternative, same two forms. Never a second primary, never alone.",
-      prop: "secondary",
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="empty-state" />
 
 ### A filter matched nothing
 
@@ -140,42 +72,38 @@ Cover it and the state still reads whole.
 
 <ComponentPreview name="empty-state-with-an-illustration" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Say what is not here, then why, then what to do. For `not-enough`, state the
-rule and the gap. For `could-not-load`, say the load failed, not that the reading is
-missing. See
-[Error and empty messages](../content/error-and-empty-messages.mdx).
-
-<DoDont>
-  <DoDont.Do>
-    **"No readings yet. Add your first and it will be here. [Add a reading]"**
-    Names the absence, one action.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Nothing to see here!"** Cheerful about missing health data, no
-    explanation, nothing to do.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "Nothing added yet, where the fastest help is the first step.",
+    "A filter or search that matched nothing, where the reader must know it was the filter, not the data.",
+    "A view that cannot yet draw honestly, such as a trend with too few readings.",
+  ]}
+  avoid={[
+    { case: "The content is loading and will arrive shortly.", instead: "skeleton" },
+    { case: "The whole view failed, rather than one surface that could not load.", instead: "alert-banner" },
+    { case: "There is content, but it needs a caveat.", instead: "callout" },
+    { case: "Permission is needed before anything can be shown.", instead: "consent-sheet" },
+    { case: "One value is missing inside a full surface.", instead: "value" },
+  ]}
+/>
 
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
-author-run, not an independent review, and clinical review is pending.
+Neither colour axis is used, so nothing can mix. `titleLevel` renders a real `h2` to
+`h6`, default `2`, so check it against the outline. The `could-not-load` flag carries
+its meaning in a word beside an `aria-hidden` icon, not colour, and the `href` action is
+an anchor floored at `var(--opsin-target-minimum, 2.75rem)` on both axes. The default
+preview renders clean on `/view`, and the audit changed nothing.
 
-Both passes found nothing to change. Neither colour axis is used, so nothing can
-mix. `titleLevel` renders a real `h2` to `h6`, default `2`; check it against the outline. The `could-not-load` flag carries its meaning in a word beside an
-`aria-hidden` icon, not colour. The `href` action is an anchor floored at
-`var(--opsin-target-minimum, 2.75rem)` on both axes.
+**Residual items.**
 
-No live region is mounted, by design. On a stateless, read-only render a live region
-could only mis-fire, since it announces only changes made after first paint. The
-announcement belongs to whatever region changed, which the caller owns, as the
-filter example shows.
-
-The rendered pass measured the default preview on `/view` and returned clean; the
-three example files were audited from source. Contrast against the card surface is
-unmeasured; the report below carries it.
+- No live region mounts, by design. On a stateless, read-only render one could only
+  mis-fire, since it announces only changes made after first paint. The announcement
+  belongs to whatever region changed, which the caller owns, as the filter example shows.
+- The three example files were audited from source alone.
+- Contrast against the card surface is unmeasured, and the report below carries it.
 
 <KeyboardTable
   name="empty-state"
@@ -210,7 +138,7 @@ unmeasured; the report below carries it.
 
 <ContrastReport component="empty-state" />
 
-## API reference
+## Props interface
 
 <PropsTable name="EmptyStateProps" />
 
@@ -218,13 +146,3 @@ unmeasured; the report below carries it.
 name the union `EmptyStateProps["reason"]`. A blank `title`, a body with no
 text or only a number, and an action with nothing to do each render a fallback and
 warn once. A `secondary` with no `action` also warns.
-
-## Related
-
-- [Skeleton](./skeleton.mdx) is for content that is coming, not content that is
-  absent.
-- [AlertBanner](./alert-banner.mdx) speaks for the whole view. `could-not-load`
-  reports one surface's failure in place.
-- [Callout](./callout.mdx) is a note beside content that exists.
-- [TrendSparkline](./trend-sparkline.mdx) draws the too-short refusal in a chart
-  card. `not-enough` carries it with no chart.

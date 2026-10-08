@@ -5,7 +5,7 @@ status: shipped
 kind: component
 category: data-display
 aliases: [data table, grid, rows and columns]
-usedIn: [trends-screen]
+usedIn: [trend-review]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,19 +22,13 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="table" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="table"
   unbuilt={false}
   importPath="@/components/ui/table"
 />
-
-## Usage
 
 ```tsx
 import { Table } from "@/components/ui/table"
@@ -54,6 +48,24 @@ import { Table } from "@/components/ui/table"
 />
 ```
 
+## Examples
+
+<ComponentPreview name="table" />
+
+### The readable twin of a chart
+
+The chart draws the shape; the table carries the figures. `captionHidden` hides
+the caption the heading above already supplies.
+
+<ComponentPreview name="table-a-chart-twin" kind="example" align="start" />
+
+### Numeric columns line up on their digits
+
+`numeric` right-aligns two columns in tabular figures while the first column
+labels each row.
+
+<ComponentPreview name="table-numeric-columns" kind="example" align="start" />
+
 ## When to use it
 
 <WhenToUse
@@ -71,101 +83,22 @@ import { Table } from "@/components/ui/table"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="table"
-  parts={[
-    { name: "Table", describes: "The focusable scroll container and the table it wraps.", prop: "className" },
-    { name: "Table.Caption", describes: "The required caption. captionHidden hides it on screen only.", prop: "caption" },
-    { name: "Table.Head", describes: "One th per column, scope col, muted to read as labels.", prop: "columns" },
-    { name: "Table.Row", describes: "One row per entry, hairline between. No hover or selected fill.", prop: "rows" },
-    { name: "Table.Cell", describes: "One cell per column. A numeric column right-aligns.", prop: "columns" },
-  ]}
-/>
-
-<CompositionTree
-  name="table"
-  tree={[
-    {
-      part: "Table",
-      cardinality: "1",
-      note: "Focusable, scrolls sideways",
-      children: [
-        { part: "Table.Caption", cardinality: "1", note: "sr-only when captionHidden, never absent" },
-        { part: "Table.Head", cardinality: "1", note: "Header cells, scope col" },
-        {
-          part: "Table.Body",
-          cardinality: "1",
-          note: "A tbody",
-          children: [
-            {
-              part: "Table.Row",
-              cardinality: "1..n",
-              note: "One per row",
-              children: [
-                { part: "Table.Cell", cardinality: "1..n", note: "First a th, the rest td" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### The readable twin of a chart
-
-The chart draws the shape; the table carries the figures. `captionHidden` hides
-the caption the heading above already supplies.
-
-<ComponentPreview name="table-a-chart-twin" kind="example" align="start" />
-
-### Numeric columns line up on their digits
-
-`numeric` right-aligns two columns in tabular figures while the first column
-labels each row.
-
-<ComponentPreview name="table-numeric-columns" kind="example" align="start" />
-
-## Content guidelines
-
-Write a caption naming the rows and columns, so the table stands on its own.
-Where a heading already names the data, keep the caption and set
-`captionHidden`.
-
-<DoDont>
-  <DoDont.Do>
-    **"Weekly figures for the example account, in the example unit"** names rows and columns.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Table"**, or an empty caption, leaves numbers counting nothing.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass on
-`/view/base/base-lyra/component/table`. The audit is author-run, not
-independent, and clinical review is pending.
+The audit changed nothing and found no axe violation, target-size failure,
+focus-visible gap or sideways page scroll at 320px. A real `<caption>` always renders,
+headers carry `scope="col"`, and the first body cell carries `scope="row"` when
+`rowHeader` is on. The `overflow-x-auto` container is `tabIndex=0`, reachable and
+scrollable by keyboard, and padding-based spacing with no fixed cell heights keeps
+text-spacing overrides from clipping. There is no colour prop, no `data-status`, no
+`data-category` and no transition.
 
-The audit found nothing to change in the source. The rendered pass is clean: no
-axe violations, no target-size failures, no focus-visible gaps, no sideways page
-scroll at 320px. A real `<caption>` always renders, headers carry `scope="col"`,
-and the first body cell carries `scope="row"` when `rowHeader` is on. The
-`overflow-x-auto` container is `tabIndex=0`, reachable and scrollable by
-keyboard. Padding-based spacing and no fixed cell heights keep text-spacing
-overrides from clipping. No colour prop, no `data-status`, no `data-category`,
-no transition.
+**Residual items.**
 
-Two items remain open. An empty `caption` renders an empty `<caption>`, warning
-only in development. The scroll container has no `role` and no accessible name;
-adding `role="region"` would require one, left to the consuming page.
-
-Contrast for the header ink, caption ink and hairlines has not been measured;
-the report below stands in its place.
+- An empty `caption` renders an empty `<caption>`, warning only in development.
+- The scroll container has no `role` and no accessible name; adding `role="region"`
+  would require one, so it is left to the consuming page.
+- Contrast for the header ink, caption ink and hairlines has not been measured.
 
 <KeyboardTable
   name="table"
@@ -195,7 +128,15 @@ the report below stands in its place.
 
 <ContrastReport component="table" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="TableProps" />
+
+`caption` is a required `string`. `rowHeader` defaults to true, so the first
+cell of each row is a `th`. There is no `onSort`, no `selectedRows` and no
+`virtualized`.
+
+### Data attributes
 
 <DataAttributesTable
   name="table"
@@ -212,18 +153,3 @@ the report below stands in its place.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="TableProps" />
-
-`caption` is a required `string`. `rowHeader` defaults to true, so the first
-cell of each row is a `th`. There is no `onSort`, no `selectedRows` and no
-`virtualized`.
-
-## Related
-
-- [MetricTile](./metric-tile.mdx) is one labelled reading on its own surface.
-- [TrendSparkline](./trend-sparkline.mdx) draws a series as a shape.
-- [Card](./card.mdx) is a surface for one record laid out freely.
-- [ResultCard](./result-card.mdx) places one result with its explanation.

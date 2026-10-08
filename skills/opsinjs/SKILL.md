@@ -19,7 +19,7 @@ recall instead is the failure this whole skill exists to prevent.
 
 ## Read this first: check before you claim
 
-opsinjs has three release phases, and `/docs/project/release-phases.md` says what
+opsinjs has three release phases, and `/reading-the-docs.md` says what
 each one promises: `planned` is a written specification with no code, `shipped`
 is installable source, and `deprecated` still installs while naming its
 replacement and its removal version. Every opsinjs component is `shipped` today.
@@ -41,12 +41,12 @@ single id, and they are the only three that do:
   settles it, because it is the one that scopes those headers to the id you
   asked about - and the `x-opsinjs-status` beside the boolean is what proves the
   scoping.
-- `https://opsinjs.pensievelabs.org/docs/components/<id>.md` - the page itself. Its
+- `https://opsinjs.pensievelabs.org/components/<id>.md` - the page itself. Its
   frontmatter carries `status:` and a per-page `implemented:` field, and that
   field is about the component the page is for.
 
 **Do not HEAD a documentation URL to decide whether a component is built.** On
-`/docs/…` and on its `.md` twin, `x-opsinjs-implemented` is scoped to the
+a documentation URL and on its `.md` twin, `x-opsinjs-implemented` is scoped to the
 system - it says whether opsinjs has implemented components at all, not whether
 this one is among them - and no `x-opsinjs-status` is sent beside it to
 disambiguate, so it reads `true` on any documentation page whatever that page
@@ -88,7 +88,7 @@ data; anything using opsinjs tokens, its registry, or its colour engine.
 
 Do **not** use it for clinician-facing EHR interfaces, regulated medical device
 UI, or anything that triages, diagnoses or advises. opsinjs is explicitly out of
-scope for those, and says so on `/docs/start/safety-scope-and-limitations`.
+scope for those, and says so on `/health`.
 
 ## The four rules, in priority order
 
@@ -135,7 +135,7 @@ Prefer the documentation over recall, in this order:
 
 1. `https://opsinjs.pensievelabs.org/llms.txt` - the curated index, absolute URLs, one line
    per page. Start here to find the right page.
-2. `https://opsinjs.pensievelabs.org/docs/<path>.md` - any page as plain markdown.
+2. `https://opsinjs.pensievelabs.org/<path>.md` - any page as plain markdown.
 3. `https://opsinjs.pensievelabs.org/llms-health.txt`, `llms-components.txt`,
    `llms-foundations.txt` - the three shards, when you need a whole pillar.
 4. `https://opsinjs.pensievelabs.org/r/index.json` - the roster: every component id with its

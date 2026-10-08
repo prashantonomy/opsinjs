@@ -1,5 +1,5 @@
 ---
-title: Data attribute reference
+title: Data attributes
 description: Every data-* attribute the system emits, the condition that produces it, and the values it can take.
 kind: reference
 full: true
@@ -9,57 +9,12 @@ reviewEvery: 12m
 aliases: [data-attributes, styling hooks, every data attribute]
 ---
 
-<PageTemplate kind="reference" />
-
-## How this is generated
-
-**Source:** the component sources under `registry/bases/base` and the registry
-items generated from them. **Script:** `scripts/build-registry.mts` produces the
-data; `scripts/build-reference.mts` writes this page. **Command:**
-`pnpm run generate`.
-
-A data attribute is a styling contract, not an implementation detail. Everything
-listed here is covered by the [versioning policy](../../project/versioning-policy.mdx):
-removing an attribute, or changing the condition under which it appears, is a
-breaking change and gets a major version, because somebody's stylesheet selects
-on it.
-
-**Four columns.** *Attribute* is the literal string you select on. *Emitted by*
-is the component and the part. Attributes appear on parts, not on components as
-a whole, and `data-open` on a dialog's backdrop is a different contract from
-`data-open` on its panel. *Condition* is the state that produces it, written so
-you can reproduce it. *Values* is the closed set, or `(none)` for a boolean
-attribute whose presence is the signal.
-
-**Two families appear here.** Attributes inherited from Base UI behave exactly as
-Base UI documents them, and are listed with a one-line summary and a link rather
-than re-documented. That family is `data-open`, `data-closed`,
-`data-starting-style`, `data-ending-style`, `data-disabled` and their relatives.
-Attributes opsinjs adds are documented in full, and are the ones carrying system
-meaning: the clinical status of a value, the category it belongs to, whether the
-data behind it is stale or partial.
-
-**What is deliberately excluded.** ARIA attributes are not data attributes and
-are documented per component under Accessibility. Attributes emitted by the
-documentation site's own chrome are not part of the system.
-
-**The table below is empty, and the components are not.** The implemented
-components under `registry/bases/base` carry `data-slot` on every part, plus
-`data-status`, `data-category` and `data-opsinjs-value` where
-those apply, and they inherit Base UI's `data-open`, `data-starting-style` and
-`data-ending-style`. What is missing is the extraction: the generator does not
-read the component sources for `data-*` yet, and a table filled by guessing the
-condition and the value set would be inventing a styling contract that consumers
-then select on. Until it is written, read the attributes off the anatomy block on
-each component's own page. Separately from the system,
-`data-opsinjs-not-implemented` is emitted
-by every not-built-yet marker on this site, so a program can tell a specification
-from a component without parsing prose.
+Written by `scripts/build-reference.mts`. A data attribute is a styling contract covered by the versioning policy in the [Changelog](../../changelog.mdx): removing one, or changing when it appears, is a breaking change. [Styling](../../styling.mdx) describes the contract.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 <NoDataYet script="scripts/build-reference.mts" />
 
-This script does not read the component sources for `data-*` attributes yet, so the table below has no rows, which is not the same as no attribute being emitted. The base layer under `registry/bases/base` emits `data-slot` on every part, plus opsinjs's `data-status`, `data-category` and `data-opsinjs-value`, and inherits Base UI's `data-open`, `data-starting-style` and `data-ending-style`. That is the whole component contract, and the Handbook states it is closed at those four. The squircle is not among them: Card, Callout and Dialog deliver it with an inline `corner-shape` property, `[corner-shape:var(--opsin-corner-shape)]`, rather than stamping a `data-opsin-shape` attribute, so no component emits one. `data-opsinjs-not-implemented` is not a component attribute either. It is a documentation-site marker that this site's not-built-yet chrome stamps so a program can tell a specification from a shipped component. Filling this table needs the attribute, the part, the condition and the value set together; the vocabulary itself is specified in the Handbook under Data attributes.
+This script does not read the component sources for `data-*` attributes yet, so there is no table, which is not the same as no attribute being emitted. Every part carries `data-slot`, and `data-status`, `data-category` and `data-opsinjs-value` appear where they apply, with Base UI's `data-open`, `data-starting-style` and `data-ending-style` inherited. That is the whole component contract, closed at those four, as Styling describes. The squircle is not among them: Card, Callout and Dialog set an inline `corner-shape` property instead. `data-opsinjs-not-implemented` is a documentation-site marker, not a component attribute. Each component page lists its own attributes under Props interface.
 
 {/* opsinjs:generated:end */}

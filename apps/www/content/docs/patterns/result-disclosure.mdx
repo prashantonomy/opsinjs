@@ -1,193 +1,108 @@
 ---
 title: Result disclosure
-description: Showing someone a result they may not want to see, without ambush. The sequence from notification to number to next step.
+description: Showing someone a result they may not want to see, without ambush, from notification to number to next step
 kind: pattern
 aliases: [showing a result, lab result flow, disclosing a test result, result ambush]
-implements: [result-card, range-bar, status-pill, care-card, alert-banner, disclaimer-note, term]
-reviewEvery: 6m
-reviewed: 2026-09-20
-reviewer: clinical
 ---
 
-<PageTemplate kind="pattern" />
+The reader knows a result is coming but not what it says, and your notification schedule picks the moment they find out. This pattern designs that moment.
 
-## When to use
+## When to use it
 
-Use this pattern whenever a value arrives that the reader did not create
-themselves and cannot immediately interpret: a lab result, a screening outcome,
-a derived risk score, a clinician's note attached to a number.
+Use it for a value the reader did not create and cannot interpret on sight, such as a lab result or a risk score. Use something else for:
 
-The defining property is **asymmetry of preparation**. The reader knows a result
-is coming but not what it says, and the moment they find out is chosen by your
-notification schedule rather than by them. That is the moment this pattern
-exists to design. Everything else follows from getting that moment right,
-including the layout of the card and the colour of the pill.
-
-Signals that you are in this situation:
-
-- The value has a reference range attached that the reader did not set.
-- The value can be outside that range in a direction that matters.
-- Somebody may need to do something about it, and it is not obvious what.
-- The reader may be alone, at work, on a phone, at 07:40 in the morning.
-
-## When not to use
-
-- **The reader entered the number themselves.** Someone who has just typed their
-  own weight is not being told anything. Use
-  [Daily logging](./daily-logging.mdx), which optimises for speed of re-entry
-  rather than for careful disclosure.
-- **The value implies emergency action.** If a reading crosses a threshold where
-  the correct next step is to call emergency services, disclosure is the wrong
-  frame. The design goal stops being comprehension and becomes speed. Use
-  [Emergency and escalation](../health/emergency-and-escalation.mdx).
-- **The result is a mental-health screening score with a self-harm item.** That
-  has its own duty of care and its own sequence. Use
-  [Crisis and self-harm](../health/crisis-and-self-harm.mdx).
-- **You are showing change, not a value.** A number that only means something
-  against its own history belongs in [Trend review](./trend-review.mdx).
-- **There is nothing to disclose yet.** A pending result is an
-  [Empty and first-use](./empty-and-first-use.mdx) problem; do not render an
-  empty ResultCard with dashes in it and hope.
+- a number the reader typed: [Daily logging](./daily-logging.mdx);
+- a value whose next step is emergency services, or a score with a self-harm item: [High-stakes moments](../health/high-stakes-moments.mdx);
+- change over time: [Trend review](./trend-review.mdx);
+- a pending result: [Empty and first use](./empty-and-first-use.mdx), never a card with dashes in it.
 
 ## How it works
 
-The sequence has four moments, and the design work is in the gaps between them
-rather than in any one screen.
+1. **Notification.** "Your ferritin result is ready." Never the value, the status word or a colour that encodes one, because someone else may read the lock screen.
+2. **Landing.** One plain-English sentence on what the test measures, before the number.
+3. **The value.** Number, unit and range together on first paint. Nothing animates in, and the status never arrives after the value.
+4. **Next step.** Something to do, including "nothing, and here is why". A result outside its range names a route to a human.
 
-<FlowDiagram>
-{`flowchart TD
-  A["Result becomes available"] --> B{"Does the reader get a push?"}
-  B -->|"yes"| C["Notification: says a result is ready, never the value"]
-  B -->|"no"| D["In-app entry point with an unread marker"]
-  C --> E["Landing surface: what this test is, before the number"]
-  D --> E
-  E --> F["The value, its units and its range together"]
-  F --> G{"Outside the expected range?"}
-  G -->|"no"| H["Plain statement plus what would change it"]
-  G -->|"yes"| I["Status, then meaning, then a concrete next step"]
-  I --> J["Named route to a human"]
-  H --> K["Exit: history, share, or done"]
-  J --> K`}
-</FlowDiagram>
-
-<NotBuiltYet />
-
-**Moment 1. The notification.** A push notification is read on a lock screen,
-possibly by someone else. It says that a result is ready and what it is about.
-It never carries the value, the status word, or a colour that encodes one. This
-is the single most common breach of this pattern and the most consequential; see
-[Notifications and off-screen
-alerts](../health/notifications-and-off-screen-alerts.mdx).
-
-**Moment 2. The landing surface.** Before the number, one sentence saying what
-this test measures in plain English. A reader who does not know what
-ferritin is cannot be told anything by a ferritin value, and the sentence costs
-nothing to the reader who does know.
-
-**Moment 3. The value.** The number, its unit and the range it is being judged
-against appear together, in one visual unit, on first paint. Never animate the
-number into place from zero; never reveal the status after the value with a
-transition. A CareCard's worth of interpretation may load afterwards, but the
-value and its range are a single atomic disclosure.
-
-**Moment 4. The next step.** Every result ends with something the reader can
-do, including "nothing, and here is why nothing is the right answer". A result
-outside the expected range without a named route to a human is an anxiety
-generator.
-
-### The states this sequence has to survive
-
-| State | What the reader sees | What must not happen |
+| State | Shows | Never |
 | --- | --- | --- |
-| Pending | The test, the expected timeframe, no placeholder value | A dash or a zero styled as a value |
-| Partial | The values that arrived, explicitly marked incomplete | Interpretation drawn from a partial panel |
-| Arrived | Value, unit, range, status, meaning, next step | Status before the reader knows what the test is |
-| Superseded | The current value, with the previous one reachable | A silent replacement with no record |
-| Withdrawn | An explicit statement that a result was retracted | The value quietly disappearing |
+| Pending | The test and when to expect it | A dash or zero styled as a value |
+| Partial | What arrived, marked incomplete | Interpretation of a partial panel |
+| Superseded | The current value, the previous one reachable | A silent replacement |
+| Withdrawn | A statement that it was retracted | The value quietly disappearing |
+
+<Todo>
+No screen shows the whole sequence yet. The results screen below covers the value and the next step. The notification and the landing surface have no specimen.
+</Todo>
+
+## Components
+
+- [ResultCard](../components/result-card.mdx): value, range, meaning and next step as one unit.
+- [RangeBar](../components/range-bar.mdx): where the value sits against its range, as position only.
+- [StatusPill](../components/status-pill.mdx): the level, only when a rule your product owns assigned one.
+- [Term](../components/term.mdx): a plain-English expansion of a clinical word.
+- [CareCard](../components/care-card.mdx): the next step, only when there is a real action with real timing.
+- [DisclaimerNote](../components/disclaimer-note.mdx): the boundary note, in the same place on every result screen.
+
+## Value against a range
+
+1. Write down the range's source, population, unit and date. Without all four you have two numbers, not a range. opsinjs supplies no ranges.
+2. Convert units once, where data enters your system. A range in one unit drawn against a value in another looks plausible and is wrong.
+3. Draw position, not a verdict: one continuous band, a marker told apart by shape, no truncated axis. Any status goes in the pill, never on the band.
+4. Write the sentence first. The bar adds speed, never information. With no range, say so and draw no bar, because an empty bar reads as a missing result.
+
+```tsx
+import { ResultCard } from "@/components/ui/result-card"
+import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
+
+<ResultCard
+  title="Example measurement"
+  value={14}
+  unit="mg/dL"
+  precision={0}
+  measuredAt="2026-03-14T08:12:00+00:00"
+  now="2026-03-14T11:12:00+00:00"
+  range={{ low: 10, high: 20, source: EXAMPLE_SOURCE }}
+  status="steady"
+  category="labs"
+  meaning="Two or three short sentences, in the second person, written by the product."
+/>
+```
+
+ResultCard derives no level, so `status` is always your rule's output. Category reaches only the title and status only the pill, as [Two colour axes](../health/two-colour-axes.mdx) requires.
+
+## Build a metric card
+
+A [MetricTile](../components/metric-tile.mdx) identifies and reports, and opens the detail screen where interpretation lives.
+
+- Label what was measured in the reader's words: "Resting heart rate", not "Heart health" or "RHR".
+- `measuredAt` is the measurement time, never the sync time. `staleAfterHours` is yours, per metric, with no default.
+- Default to no `status`. Add one only when your rule assigned it and the screen is inside its [alarm budget](../health/alerts.mdx), and pair `attention` or `urgent` with an `href`.
+- Decide all five [states](../foundations/states.mdx) first. Stale and partial are the two that mislead.
+
+```tsx
+import { MetricTile } from "@/components/ui/metric-tile"
+
+<MetricTile
+  label="Example measurement"
+  value={14}
+  unit="steps"
+  precision={0}
+  measuredAt="2026-04-06T07:15:00+00:00"
+  now={now}
+  href="/results/example"
+/>
+```
+
+## Example
+
+<IframePreview kind="screen" name="results-screen" embed />
+
+Every part of the results screen ships, but its composition has had no clinical review. It is not served from `/r`, so there is no `shadcn add` for it.
 
 ## Content
 
-The copy order is fixed: **what this is → what it says → what it means → what to
-do → who to ask.** Readers who are worried stop reading early, so the sentence
-that matters most is the one nearest the top of its section.
+Copy runs in a fixed order: what this is, what it says, what it means, what to do, who to ask.
 
-<DoDont>
-  <DoDont.Do>
-    "Your ferritin result is ready." This notification tells the reader
-    something has happened and lets them choose where they are when they learn
-    what.
-  </DoDont.Do>
-  <DoDont.Dont>
-    "Your ferritin is 8 µg/L low." This is the value and the verdict on a lock
-    screen, read in a queue, possibly by a colleague.
-  </DoDont.Dont>
-</DoDont>
+> Your `<measurement>` was `<value> <unit>`, measured `<when>`. The usual range for this test is `<low>` to `<high>` `<unit>`. `<what this does or does not mean>` `<what happens next>`
 
-<DoDont>
-  <DoDont.Do>
-    "This is higher than the range used for this test. That is common and often
-    has a simple explanation. Your clinic will contact you within three working
-    days."
-  </DoDont.Do>
-  <DoDont.Dont>
-    "Abnormal result. Please contact your doctor." That is two words of clinical
-    jargon, an instruction with no timeframe, and no indication of urgency in
-    either direction.
-  </DoDont.Dont>
-</DoDont>
-
-Word rules that apply here and are owned elsewhere: "normal" is banned by
-[Reference ranges](../health/reference-ranges.mdx); numeric formatting and
-rounding follow [Numbers, units and
-precision](../health/numbers-units-precision.mdx); the status sentence patterns
-are in [Writing status and alerts](../content/writing-status-and-alerts.mdx).
-Any clinical term appearing for the first time is wrapped in `Term` so its
-plain-English definition is one tap away.
-
-## Accessibility
-
-- **Order over emphasis.** The DOM order must be the reading order: test name,
-  value, unit, range, status, meaning, action. A status pill positioned visually
-  above the value but placed after it in the DOM tells a sighted reader and a
-  screen-reader user two different stories about which came first.
-- **The value is one accessible unit.** "Ferritin, 8 micrograms per litre, below
-  the expected range of 30 to 300" should be one announcement, not five
-  fragments read as a table. Units are spoken, not symbols: `µg/L` is
-  unintelligible to most speech synthesis.
-- **Status never depends on colour.** The status word is present as text. Run
-  the screen through [Colour independence](../accessibility/colour-independence.mdx)
-  in grayscale before shipping.
-- **Arrival is announced, not animated.** If the result loads after paint, it is
-  announced via a status message (WCAG 2.2 SC 4.1.3). Motion must not be the
-  signal. See [Motion in health UI](../health/motion-in-health-ui.mdx).
-- **The next-step control is reachable first by keyboard.** After the heading,
-  the first focusable element should be the action, not a share button or a
-  chart legend.
-- **No timed disclosure.** Nothing on this surface may auto-dismiss or advance.
-  WCAG 2.2 SC 2.2.1 is the floor; the design rule is stricter. A result screen
-  has no timers at all.
-
-## Research
-
-<ResearchNote evidence="mixed" date="2026-09-02">
-  There is a real and growing literature on how the *format* of a result changes
-  what a layperson takes away from it, prompted by patient-portal legislation
-  that gives people their results before a clinician has explained them. A 2024
-  systematic review in JMIR surveys the presentation formats that have been
-  trialled (doi:10.2196/53993), and a 2018 study in BMC Medical Informatics and
-  Decision Making examines patient-portal result presentation specifically
-  (doi:10.1186/s12911-018-0589-7). Both are worth reading before arguing with
-  this pattern.
-
-  What is opinion rather than evidence: the four-moment split above, the rule
-  that a notification never carries the value, and the claim that the value and
-  its range must arrive as one atomic disclosure. Those come from the failure
-  mode we consider worst, and not from a controlled comparison. That worst case
-  is a reader who learns a number before they have any frame for it. What would
-  change our mind: a study showing that withholding the value from the
-  notification increases the time to a needed action without reducing distress.
-</ResearchNote>
-
-## Updates to this page
-
-<Reviewed />
+Never write *normal*, *abnormal*, *good* or *bad*. Describe the position, such as "above the usual range", and not the person. [Reference ranges](../health/reference-ranges.mdx) owns the rule. DOM order follows the same sequence, because a pill placed first announces a verdict before the fact.

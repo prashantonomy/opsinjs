@@ -21,19 +21,13 @@ aliases: ["loader", "busy indicator", "activity indicator"]
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="spinner" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="spinner"
   unbuilt={false}
   importPath="@/components/ui/spinner"
 />
-
-## Usage
 
 ```tsx
 import { Spinner } from "@/components/ui/spinner"
@@ -45,6 +39,24 @@ import { Spinner } from "@/components/ui/spinner"
   <span>Loading</span>
 </span>
 ```
+
+## Examples
+
+<ComponentPreview name="spinner" />
+
+### A brief wait
+
+A ring beside a visible word, for a wait with no known shape. `label` names the
+wait for a screen reader while the visible caption carries it for everyone else.
+
+<ComponentPreview name="spinner-a-brief-wait" kind="example" align="start" />
+
+### Two sizes
+
+`size` sets `sm` and `md` side by side. Each is measured in `em`, so the ring
+grows with the surrounding text rather than pinning at a fixed size.
+
+<ComponentPreview name="spinner-two-sizes" kind="example" align="start" />
 
 ## When to use it
 
@@ -61,82 +73,24 @@ import { Spinner } from "@/components/ui/spinner"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="spinner"
-  parts={[
-    {
-      name: "Spinner",
-      describes: "The root, an inline span with role=\"status\". A live region carrying the accessible name from label.",
-      prop: "label",
-    },
-    {
-      name: "Spinner.Ring",
-      describes: "The turning SVG arc, aria-hidden and drawn in currentColor. Sized in em, held still under reduced motion.",
-      prop: "size",
-    },
-    {
-      name: "Spinner.Label",
-      describes: "A visually hidden copy of the name, so the live region has text to announce.",
-    },
-  ]}
-/>
-
-## Examples
-
-### A brief wait
-
-A ring beside a visible word, for a wait with no known shape. `label` names the
-wait for a screen reader while the visible caption carries it for everyone else.
-
-<ComponentPreview name="spinner-a-brief-wait" kind="example" align="start" />
-
-### Two sizes
-
-`size` sets `sm` and `md` side by side. Each is measured in `em`, so the ring
-grows with the surrounding text rather than pinning at a fixed size.
-
-<ComponentPreview name="spinner-two-sizes" kind="example" align="start" />
-
-## Content guidelines
-
-Name what is being waited for. "Loading your readings" tells a reader which part
-of the page is not ready, where a bare "Loading" does not. Where the wait runs
-long enough that a reader wonders whether anything is happening, a ring is the
-wrong indicator.
-
-<DoDont>
-  <DoDont.Do>
-    **A ring beside "Loading" for a two-second action with no known shape.**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A ring where a list is loading.** The list has an outline, so it wants a skeleton.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass over the component and its
-examples and a rendered pass covering axe, target size, focus visibility and
-reflow at 320px wide. The audit is author run, not an independent review, and
-clinical review is still pending.
+The root carries a required `aria-label` plus a visually hidden text twin, and
+the SVG ring is `aria-hidden`, so the decorative motion stays out of the
+accessibility tree. Sizing is em based throughout with no `px` type step, and
+the ring draws only in `currentColor`, with no status colour or category colour
+of its own. Axe, target-size and 320px reflow checks were clean, and nothing
+needed changing.
 
-The source pass found nothing that needed changing. The root already carries
-a required `aria-label` plus a visually hidden text twin, the SVG ring is
-`aria-hidden` so the decorative motion stays out of the accessibility tree,
-sizing is em based throughout with no `px` type step, and the ring draws only
-in `currentColor` with no status colour or category colour of its own. The
-rendered pass came back clean: no axe violation, no target size finding and
-no horizontal scroll at 320px.
+**Residual items.**
 
-Two points stay open. The ring's contrast against either theme's surfaces
-cannot be verified or hardened from source, because the ring takes whatever
-ink colour the caller's context supplies rather than a colour the component
-sets itself, so that gap belongs to the ContrastReport below rather than to
-this file. And the development only missing label warning does not stop a
-production caller from passing an empty or whitespace `label`, which matches
-the same convention already used by `divider` and `segmented-control`.
+- The ring takes whatever ink colour the caller's context supplies rather than
+  a colour the component sets itself, so its contrast against either theme's
+  surfaces cannot be verified or hardened from source. That gap belongs to the
+  report below.
+- The missing-label warning is development only, so it does not stop a
+  production caller passing an empty or whitespace `label`. `divider` and
+  `segmented-control` follow the same convention.
 
 <KeyboardTable
   name="spinner"
@@ -161,7 +115,7 @@ the same convention already used by `divider` and `segmented-control`.
 
 <ContrastReport component="spinner" />
 
-## API reference
+## Props interface
 
 <PropsTable name="SpinnerProps" />
 
@@ -169,10 +123,3 @@ the same convention already used by `divider` and `segmented-control`.
 wrong wait. `size` defaults to `md` and chooses visual weight only. There is no
 colour prop: colour reaches the ring only through `className`, and the
 two-colour-axes rule applies to that class in full.
-
-## Related
-
-- [Skeleton](./skeleton.mdx) is the outline of content that has not arrived, and it is the default loading indicator here.
-- [Button](./button.mdx) is where a wait belonging to a control lives, and it draws its own busy glyph.
-- [Progress](./progress.mdx) is the determinate bar, delegated to Base UI rather than shipped here.
-- [Stepper](./stepper.mdx) is the determinate wait through a named sequence of steps.

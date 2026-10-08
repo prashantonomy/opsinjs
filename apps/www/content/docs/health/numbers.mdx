@@ -1,0 +1,89 @@
+---
+title: Numbers and units
+description: The canonical rules for precision, rounding, units, unit systems and risk in any health number.
+kind: health
+evidence: mixed
+implements: [value, result-card, metric-tile, range-bar, reading-input, score-dial, log-sheet, relative-time, trend-sparkline, goal-ring, scale-input, care-card, disclaimer-note]
+reviewed: 2026-10-08
+reviewer: design
+---
+
+Every health value is formatted by an explicit rule stating its precision, unit and locale, never by default float rendering. Other pages defer to this one.
+
+## The rules
+
+### Precision
+
+1. Never show more precision than the source carries, not even to align a column.
+2. One metric shows the same number of decimal places everywhere, every time.
+3. Round half away from zero, once, at display. Never round twice, and never before a threshold comparison.
+4. Round derived and estimated values harder than measured ones, and label them as estimates.
+5. Never pad with false zeros. `5` shows as `5`, or `5.0` where the metric has one fixed decimal place, never `5.00`.
+
+Precision means decimal places, not significant figures, whose decimal places shift with magnitude and break rule 2.
+
+### Units and format
+
+6. Never show a value without its unit, including in tooltips, table headers and accessible names.
+7. The unit never wraps away from its number and is never styled as a footnote.
+8. The unit is spoken in words, so `mmHg` is "millimetres of mercury".
+9. Decimal and grouping marks come from the reader's locale and are never hand-rolled, because a misread `1,5` becomes `15`.
+10. Composite values stay whole, such as `118/76 mmHg` or a height in feet and inches.
+11. A span takes the word "to" and one unit, after the second number: `3.9 to 5.6 mmol/L`, or "up to 5.6 mmol/L". No dash joins two numbers.
+12. Zero, none and unknown differ. `0 steps` is a measurement, "No readings yet" an absence and "Not available" a failure. An absence is words alone, never a glyph, a blank or `0`.
+13. Show negative and out-of-scale values unclamped: "218 mmHg. That is above the top of this scale."
+14. Numerals are digits, even in prose: "You have 3 readings".
+15. Numbers in a column or updating in place use tabular figures.
+16. The value is the largest thing in its container.
+
+### Unit systems
+
+17. Store one canonical unit per metric and convert once, at display, never round-tripping through storage.
+18. The unit system is the reader's stored preference, per metric family where readers differ, such as kilograms for weight with feet and inches for height.
+19. Locale sets the first default, never the settled answer, so ask once.
+20. Never convert silently. Label a converted value: "Converted from 98 mg/dL."
+21. Ranges, thresholds and statuses convert with the value, and comparisons run on canonical units only.
+22. Round after conversion, at the destination metric's precision. Never re-derive an original from a rounded value.
+23. The unit is part of the entry field, always visible, switchable in place and remembered.
+24. Stones and pounds, or feet and inches, are entered as two inputs, because `11.3` st is 11 st 4 lb and not 11 st 3 lb.
+25. Entry is checked against the entered unit. A figure far from the reader's usual readings prompts a question, never a rejection: "Is it in mg/dL?"
+26. Exports, shares and print state the unit unambiguously.
+
+opsinjs ships no factor that depends on the analyte. [ReadingInput](../components/reading-input.mdx) converts only what is exact by definition, such as kg, lb and st, or °C and °F, and refuses mmol/L to mg/dL, mmol/mol to % and kcal to kJ by name. If your product calculates a dose, this page is not enough. Treat a non-SI unit as its own metric.
+
+### Risk
+
+State a risk as an absolute frequency, for a stated population, over a stated window, beside its baseline.
+
+27. Never give a relative figure alone. Both absolute figures appear, more prominent than the ratio.
+28. Prefer natural frequencies, "about 3 in every 100 people", to percentages, with one denominator across every figure compared.
+29. Always name the population, such as "people of your age with a similar reading".
+30. Always state the time window inside the figure, such as "in the next 10 years".
+31. Always give the baseline for the group the reader is compared with.
+32. Show both halves: "about 97 in every 100 do not".
+33. A bare percentage is never the headline of a tile, a notification or a dial.
+34. A small probability is never an area or an angle. Use a countable array, such as 100 marks with 3 highlighted, plus a text equivalent.
+35. A population figure says it describes a group, not the reader.
+36. A model's output is labelled as one. Its confidence is not the reader's risk.
+
+opsinjs ships no risk models or scores. Whether to show a risk at all is a clinical and ethical decision; see [High-stakes moments](./high-stakes-moments.mdx).
+
+<Todo>Write the screening-statistics guidance: why a positive result on a good test for a rare condition is usually a false positive, and how to say so.</Todo>
+
+## In code
+
+[Value](../components/value.mdx) enforces the formatting rules, and its `precision` is required with no default.
+
+```tsx
+<Value value={1000.2} unit="kg" precision={1} />
+```
+
+`value={null}` renders the absence form, never `0`. A missing `unit` raises OPSIN-0003 in development, and `unit={null}` marks a number that has no unit by design. Pass `locale` on any server-rendered surface.
+
+## Evidence
+
+- The systematic review of laboratory-result presentation formats in JMIR, 2024, [10.2196/53993](https://doi.org/10.2196/53993), is cited only for the general claim that presentation format changes what a lay reader takes from a result.
+
+Rules 1 to 5 restate significant-figure discipline from measurement science, and enforcing them at the component is our decision. Rules 27, 28 and 32 follow a risk-communication literature on natural frequencies and absolute versus relative risk, which several major medical journals reflect by requiring absolute figures beside relative ones. That literature is named, not cited. Every other rule is opinion, and rule 34 is untested.
+
+<Todo>Replace the described risk-communication literature with specific, read, dated citations.</Todo>

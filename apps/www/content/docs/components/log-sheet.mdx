@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-input
 aliases: [log, capture, quick entry, bottom sheet entry, diary, journal, daily entry]
-governedBy: [numbers-units-precision, unit-systems, consent-and-disclosure]
-usedIn: [ask-users-for/height-and-weight, ask-users-for/medications, ask-users-for/symptoms, daily-log-entry, daily-log-screen, daily-logging, diabetes-medicines-app, forms/autocomplete-and-input-types, forms/question-pages, forms/required-and-optional, forms/units-and-numeric-entry, forms/validation-timing]
+governedBy: [numbers, consent-and-privacy]
+usedIn: [daily-logging]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="log-sheet" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="log-sheet"
@@ -35,8 +31,6 @@ reviewer: engineering
   importPath="@/components/ui/log-sheet"
   registryDependencies={["sheet", "field", "button"]}
 />
-
-## Usage
 
 ```tsx
 import { LogSheet } from "@/components/ui/log-sheet"
@@ -56,6 +50,28 @@ import { LogSheet } from "@/components/ui/log-sheet"
   </Field>
 </LogSheet>
 ```
+
+## Examples
+
+<ComponentPreview name="log-sheet" />
+
+### Leaving with unsaved input
+
+Escape, the background, a drag and the close control all ask the same question in the
+footer. `onDiscard` receives the entry about to be lost.
+
+<ComponentPreview name="log-sheet-leaving-with-unsaved-input" kind="example" align="start" />
+
+### Two fields, and the window the product owns
+
+Two controls write two keys into one entry through `values`. `maxBackdateDays` sets the
+picker's earliest day, and the sheet still refuses no save.
+
+<ComponentPreview
+  name="log-sheet-two-fields-and-a-backdate-window"
+  kind="example"
+  align="start"
+/>
 
 ## When to use it
 
@@ -78,133 +94,36 @@ import { LogSheet } from "@/components/ui/log-sheet"
 
 **Asserts.** That the reader recorded this value, at this time, themselves.
 `LogEntry.provenance` is the literal `"self-reported"` and no prop changes it. See
-[Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx).
+[Trends and uncertainty](../health/trends.mdx).
 
 **Never read as.** A clinical observation or an assessment. The sheet never evaluates
 what is entered or says whether it is worth acting on.
 
 **Colour axis.** Category only, on one band beneath the heading carrying `data-category`
-with no word and no glyph. The status axis never appears here: an amber field
-mid-keystroke teaches a person to stop logging honestly.
+with no word and no glyph. The status axis never appears here.
 
 **Thresholds.** None. LogSheet holds no ranges and never blocks a save, so an unlikely
-value still saves. A plausibility warning belongs on [ReadingInput](./reading-input.mdx).
+value still saves, and a plausibility warning belongs on [ReadingInput](./reading-input.mdx).
 `maxBackdateDays` has no default and constrains the platform picker, not the save.
 
 **Timing.** `occurredAt` is the time the entry is about and `recordedAt` the save time.
 `backdated` is true only when the reader moved the time control.
 
-## Anatomy
-
-<Anatomy
-  name="log-sheet"
-  parts={[
-    {
-      name: "LogSheet",
-      describes: "The capture region inside Sheet's scrolling area. Header, title, close control and footer are Sheet's.",
-    },
-    {
-      name: "LogSheet.Category",
-      describes: "One aria-hidden tinted band carrying data-category. Rendered only when category is supplied.",
-      prop: "category",
-    },
-    {
-      name: "LogSheet.Fields",
-      describes: "The product's own controls, rendered in order and never inspected.",
-      prop: "children",
-    },
-    {
-      name: "LogSheet.Time",
-      describes: "A Field wrapping a datetime-local control, defaulted to when the sheet opened.",
-      prop: "timeLabel",
-    },
-    {
-      name: "LogSheet.Note",
-      describes: "A Field wrapping an optional textarea. Rendered only when noteLabel is supplied.",
-      prop: "noteLabel",
-    },
-    {
-      name: "LogSheet.Save",
-      describes: "The one primary action, full width in Sheet's footer. No default label.",
-      prop: "saveLabel",
-    },
-    {
-      name: "LogSheet.Confirm",
-      describes: "Replaces the save action when a dismissal arrives over unsaved input.",
-    },
-    {
-      name: "LogSheet.Answers",
-      describes: "The two answers stacked vertically with 16px between them.",
-    },
-    {
-      name: "LogSheet.Keep",
-      describes: "The safe answer, where the save action was, and the one focus lands on.",
-    },
-    {
-      name: "LogSheet.Discard",
-      describes: "The destructive answer, first in tab order. Calls onDiscard with the entry, then closes.",
-      prop: "onDiscard",
-    },
-  ]}
-/>
-
-## Examples
-
-### Leaving with unsaved input
-
-Escape, the background, a drag and the close control all ask the same question in the
-footer. `onDiscard` receives the entry about to be lost.
-
-<ComponentPreview name="log-sheet-leaving-with-unsaved-input" kind="example" align="start" />
-
-### Two fields, and the window the product owns
-
-Two controls write two keys into one entry through `values`. `maxBackdateDays` sets the
-picker's earliest day, and the sheet still refuses no save.
-
-<ComponentPreview
-  name="log-sheet-two-fields-and-a-backdate-window"
-  kind="example"
-  align="start"
-/>
-
-## Content guidelines
-
-The title names what is being logged: *Blood pressure*, *How you slept*. `saveLabel`
-says what it saves, *Save reading*, never *Done*, so it has no default. Ask for nothing
-you can infer; the fourth field stops people logging.
-
-<DoDont>
-  <DoDont.Do>
-    **"Systolic, Diastolic, Time (now), Save reading."** Three inputs and an action
-    that says what it does.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Systolic, Diastolic, Pulse, Arm, Position, Cuff size, Mood, Notes, Submit."**
-    Defensible fields, unusable set.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. This audit is
-author-run, not an independent review, and clinical review is still pending.
+Both inputs take their name and description from [Field](./field.mdx), so name, role
+and value hold. The only coloured element is the `aria-hidden` category band, and the
+single tokenised column reflows and scales. `axe` on the static rendered page is clean,
+but the open sheet was not re-measured in a browser.
 
-The audit found nothing to change here. Both inputs take their name and description
-from [Field](./field.mdx), so name, role and value hold; the only coloured element is
-the aria-hidden category band; and the single tokenised column reflows and scales.
-
-Three items are argued, not measured.
+**Residual items.** All three are argued, not measured.
 
 - The discard question is announced by a focus move and `aria-describedby`, not a live
-  region; a second modal was declined on purpose.
-- No *Saved* status is announced: `onSave` never closes the sheet, so the component cannot
-  know the save landed and that feedback belongs to the product.
-- Save is one explicit tap with no confirm step: no autosave, every field visible, sheet
-  stays open for undo.
-
-The open sheet was not re-measured in a browser: port 4000 holds a stale build.
-`axe` on the static rendered page is clean.
+  region. A second modal was declined on purpose.
+- No *Saved* status is announced. `onSave` never closes the sheet, so the component
+  cannot know the save landed, and that feedback belongs to the product.
+- Save is one explicit tap with no confirm step and no autosave. Every field stays
+  visible, and the sheet stays open for undo.
 
 <KeyboardTable
   name="log-sheet"
@@ -239,7 +158,27 @@ The open sheet was not re-measured in a browser: port 4000 holds a stale build.
 
 <ContrastReport component="log-sheet" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="LogSheetProps" />
+
+`open`, `onOpenChange`, `title`, `detents` and `className` come from
+[Sheet](./sheet.mdx). `footer`, `modal` and `dismissible` are omitted on purpose.
+`onSave` never closes the sheet; only the product knows whether the save landed. Both
+handlers receive a `LogEntry`:
+
+```tsx
+export interface LogEntry {
+  values: Record<string, number | string | null>
+  occurredAt: string
+  recordedAt: string
+  backdated: boolean
+  provenance: "self-reported"
+  note?: string
+}
+```
+
+### Data attributes
 
 <DataAttributesTable
   name="log-sheet"
@@ -261,31 +200,3 @@ The open sheet was not re-measured in a browser: port 4000 holds a stale build.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="LogSheetProps" />
-
-`open`, `onOpenChange`, `title`, `detents` and `className` come from
-[Sheet](./sheet.mdx). `footer`, `modal` and `dismissible` are omitted on purpose.
-`onSave` never closes the sheet; only the product knows whether the save landed. Both
-handlers receive a `LogEntry`:
-
-```tsx
-export interface LogEntry {
-  values: Record<string, number | string | null>
-  occurredAt: string
-  recordedAt: string
-  backdated: boolean
-  provenance: "self-reported"
-  note?: string
-}
-```
-
-## Related
-
-- [Sheet](./sheet.mdx) is the general surface. LogSheet adds a capture contract and one save.
-- [ReadingInput](./reading-input.mdx) is the single control that goes inside.
-- [Questionnaire](./questionnaire.mdx) is an assessment, not a record.
-- [Field](./field.mdx) is for entries that belong on a page, and wires every control here.
-- [ConsentSheet](./consent-sheet.mdx) asks for permission rather than a record.

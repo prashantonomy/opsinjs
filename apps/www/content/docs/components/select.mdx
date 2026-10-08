@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: ["dropdown", "picker"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="select" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="select"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/select"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Select } from "@/components/ui/select"
@@ -55,87 +48,9 @@ import { Select } from "@/components/ui/select"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "Choosing one value from a list too long to lay flat, such as a timezone.",
-    "A single choice on a dense form, where a closed trigger keeps a long list from pushing fields down.",
-    "A setting the reader changes rarely, so opening the list costs little.",
-  ]}
-  avoid={[
-    { case: "Fewer than about seven options, easier scanned flat.", instead: "radio-group" },
-    { case: "A clinical value with a range and a verdict, needing a control that formats it.", instead: "reading-input" },
-    { case: "The options open different views, so choosing one swaps what the reader sees.", instead: "tabs" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="select"
-  parts={[
-    {
-      name: "Select",
-      describes: "The root, rendered as the trigger button, the one tab stop.",
-      prop: "label",
-    },
-    {
-      name: "Select.Value",
-      describes: "The chosen label, or the muted placeholder via data-placeholder.",
-      prop: "placeholder",
-    },
-    {
-      name: "Select.Icon",
-      describes: "The open indicator, a lucide ChevronsUpDown, aria-hidden.",
-    },
-    {
-      name: "Select.Popup",
-      describes: "The floating list, portalled past clipping, a raised card at trigger width.",
-    },
-    {
-      name: "Select.Item",
-      describes: "One option row, role=option with aria-selected, neutral state-hover.",
-      prop: "options",
-    },
-    {
-      name: "Select.ItemIndicator",
-      describes: "The tick on the chosen option, a lucide Check, selection without colour.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="select"
-  tree={[
-    {
-      part: "Select",
-      cardinality: "1",
-      note: "Trigger, role combobox, one tab stop",
-      children: [
-        { part: "Select.Value", cardinality: "1", note: "data-placeholder when unchosen" },
-        { part: "Select.Icon", cardinality: "1", note: "ChevronsUpDown, aria-hidden" },
-        {
-          part: "Select.Popup",
-          cardinality: "1",
-          note: "Portalled, role listbox, raised",
-          children: [
-            {
-              part: "Select.Item",
-              cardinality: "1..n",
-              note: "role option, aria-selected, per option",
-              children: [
-                { part: "Select.ItemIndicator", cardinality: "0..1", note: "lucide Check, selected row" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="select" />
 
 ### Choosing from a list
 
@@ -151,38 +66,36 @@ value, and it never appears in the list.
 
 <ComponentPreview name="select-with-a-placeholder" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Keep option labels short, parallel and in sentence case, naming the value each
-sets, ordered the way the reader thinks rather than how the data is stored.
-Write the placeholder as a prompt, never as a plausible value.
-
-<DoDont>
-  <DoDont.Do>
-    **"Choose a timezone"** as the placeholder, with parallel labels: Lisbon, Berlin, Tokyo.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Lisbon"** as a placeholder while nothing is chosen. A default and a blank read alike.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "Choosing one value from a list too long to lay flat, such as a timezone.",
+    "A single choice on a dense form, where a closed trigger keeps a long list from pushing fields down.",
+    "A setting the reader changes rarely, so opening the list costs little.",
+  ]}
+  avoid={[
+    { case: "Fewer than about seven options, easier scanned flat.", instead: "radio-group" },
+    { case: "A clinical value with a range and a verdict, needing a control that formats it.", instead: "reading-input" },
+    { case: "The options open different views, so choosing one swaps what the reader sees.", instead: "tabs" },
+  ]}
+/>
 
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass, author-run
-rather than independent, with clinical review still pending.
+Base UI supplies a combobox trigger, a listbox popup and `aria-selected` options, and
+icons are `aria-hidden`. Selection is shown by a Check glyph and `aria-selected`, not
+colour. The focus ring, the `--opsin-target-minimum` hit area, neutral chrome colours
+and non-`px` type sizes all hold.
 
-Base UI supplies a combobox trigger, a listbox popup and `aria-selected`
-options; icons are `aria-hidden`, and selection is shown by a Check glyph and
-`aria-selected`, not colour. The focus ring, the `--opsin-target-minimum` hit
-area, neutral chrome colours and non-`px` type sizes all hold.
+**Residual items.**
 
-Two gaps remain. The required `label` becomes the trigger's `aria-label`, so
-once a value fills the trigger a reader can lose its programmatic name, a gap
-shared by several wrappers and waiting on one system-wide repair. At 200%
-text a long value truncates in the trigger, with no loss of function since
-the full label stays readable in the open list.
-
-Contrast pairs and the popup under `forced-colors: active` are still unmeasured.
+- The required `label` becomes the trigger's `aria-label`, so once a value fills the
+  trigger a reader can lose its programmatic name. Several wrappers share this gap,
+  and it waits on one system-wide repair.
+- At 200% text a long value truncates in the trigger, with no loss of function, since
+  the full label stays readable in the open list.
+- Contrast pairs and the popup under `forced-colors: active` are still unmeasured.
 
 <KeyboardTable
   name="select"
@@ -232,16 +145,10 @@ Contrast pairs and the popup under `forced-colors: active` are still unmeasured.
 
 <ContrastReport component="select" />
 
-## API reference
+## Props interface
 
 <PropsTable name="SelectProps" />
 
 `value` and `onValueChange` make this controlled: no internal selection state,
 and a value matching no option shows the placeholder. `label` is required, so
 the trigger always has an accessible name.
-
-## Related
-
-- [RadioGroup](./radio-group.mdx): every option at once, better under about seven options.
-- [SegmentedControl](./segmented-control.mdx): sets a parameter of one view from a small flat set.
-- [ReadingInput](./reading-input.mdx): for a clinical value with a range and a meaning.

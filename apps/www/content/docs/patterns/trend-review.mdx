@@ -1,179 +1,79 @@
 ---
 title: Trend review
-description: Reading change over time without over-interpreting noise. Minimum windows, honest axes, and separating direction from valence.
+description: Reading change over time without over-interpreting noise, with minimum windows, honest axes and direction kept apart from valence
 kind: pattern
 aliases: [trends over time, change over time, chart review, is it going up, noise vs signal]
-implements: [trend-sparkline, metric-tile, range-bar, value, relative-time, status-pill, empty-state]
-reviewEvery: 6m
-reviewed: 2026-09-20
-reviewer: clinical
 ---
 
-<PageTemplate kind="pattern" />
+The reader's question is "is this getting better or worse", not "what is my number". By default, charts mislead here. Three points make a line, an axis fitted to the data turns a small drift into a cliff, and a nightly average changes direction twice a week.
 
-## When to use
+## When to use it
 
-Use this pattern when the question the reader has is not "what is my number" but
-"is this getting better or worse".
+Use it when the reader compares a value with their own history, the measure varies day to day, and someone might change a behaviour or a dose because of the line. Use something else for:
 
-Trend surfaces are where consumer health products do their most confident lying.
-Three points and a line will produce a trend for any dataset; a y-axis truncated
-to the data range will make a two per cent drift look like a cliff; a
-seven-day average recomputed nightly will change direction on Tuesday and back
-again on Thursday. None of this requires bad intent. It is what happens by
-default.
-
-Signals you are in this pattern:
-
-- The reader is comparing a value to their own history rather than to a range.
-- The underlying measure has real day-to-day variation.
-- Someone might change a behaviour, or a dose, based on what the line does.
-
-## When not to use
-
-- **One value, one range.** If the question is "is this reading where it should
-  be", that is [Result disclosure](./result-disclosure.mdx) and a `RangeBar`.
-- **Fewer points than your minimum window.** Below the window, do not draw a
-  trend at all. Draw the points and say so. This is an
-  [Empty and first-use](./empty-and-first-use.mdx) surface, not a sparse chart.
-- **The change itself is the alert.** If a sustained direction crosses a
-  threshold that requires action, that is
-  [Alert escalation](./alert-escalation.mdx); the chart is not the delivery
-  mechanism.
-- **You want chart mechanics.** Axis rules, colour and the table twin are
-  [Data visualisation](../foundations/data-visualisation/index.mdx). Category
-  colours are not chart colours, and that page says why.
-- **You want the doctrine.** Minimum windows, direction versus valence and the
-  prohibition on inferring cause are
-  [Trends and change](../health/trends-and-change.mdx).
+- one value against one range: [Result disclosure](./result-disclosure.mdx);
+- a sustained change that needs action: [Alert escalation](./alert-escalation.mdx);
+- chart mechanics or the doctrine: [Data visualisation](../foundations/data-visualisation.mdx) and [Trends and uncertainty](../health/trends.mdx).
 
 ## How it works
 
-<FlowDiagram>
-{`flowchart TD
-  A["Reader opens the metric"] --> B{"Enough points for the minimum window?"}
-  B -->|"no"| C["Show the points, state how many more are needed"]
-  B -->|"yes"| D["Draw the series with a full, honest axis"]
-  D --> E{"Is the change larger than the measure's own variation?"}
-  E -->|"no"| F["Describe as steady; do not name a direction"]
-  E -->|"yes"| G["Name the direction and the window in words"]
-  G --> H{"Does the direction have a clinical valence here?"}
-  H -->|"no"| I["Direction only, neutral colour"]
-  H -->|"yes"| J["Direction plus status, from the status axis"]
-  C --> K["Table twin and export available at every state"]
-  F --> K
-  I --> K
-  J --> K`}
-</FlowDiagram>
+1. **Count the readings.** Below the metric's minimum, show the points with no line and no direction word, and say how many more are needed. Your product owns that minimum.
+2. **Fix an honest axis.** Zero where zero means something, otherwise the reference band or a fixed span. Keep it stable, and never fit it to the data.
+3. **Compare the change with the noise.** A change smaller than the measure's own variation is "about the same", with no direction named.
+4. **Name direction, never valence.** Up, down or about the same. Down is not worse. A status your rule assigned appears in words beside the chart and never recolours the line.
+5. **Write the caption.** Direction, size, unit and window, in words. The caption is the deliverable and the chart illustrates it.
+6. **Ship the table twin,** with the same numbers, on the page, in every state.
+
+Gaps are drawn as gaps, never interpolated. A stale series promotes its last-updated stamp and demotes the direction. Series in different units are split, never rescaled onto one axis. No causal language: "your sleep improved because you walked more" is a claim self-tracked data cannot support.
 
 <NotBuiltYet />
 
-The load-bearing rules:
+## Components
 
-- **A minimum window before the word "trend" is used.** The window is a property
-  of the measure, not of the chart component, and it is owned by whoever owns
-  the thresholds. Below it, the surface shows observations, not a direction.
-- **The axis includes the range, not just the data.** Truncating the y-axis to
-  the observed values is the single most effective way to manufacture alarm from
-  noise, and it is the default in most charting libraries.
-- **Direction and valence are separate.** "Down" is not "worse". Weight down,
-  resting heart rate down and haemoglobin down are three different stories, and
-  only the third has an obvious valence. The arrow describes the data; the
-  status colour, where there is one, comes from the status axis and is owned
-  by [Clinical status semantics](../health/clinical-status-semantics.mdx).
-  Never let the sparkline's own colour carry the verdict.
-- **The words say what the picture says.** Every trend surface carries a
-  sentence stating the direction, the size and the window in plain English. A
-  reader who cannot see the chart, or cannot read a chart, gets the same answer.
-- **No causal language, ever.** "Your sleep improved because you walked more" is
-  a claim the product cannot support from observational self-tracked data. State
-  the two series; let the reader draw the arrow.
-- **Gaps are gaps.** Missing days are not zeroes and not interpolated. A line
-  that bridges a three-week gap is asserting three weeks of data that do not
-  exist.
+- [TrendSparkline](../components/trend-sparkline.mdx): the series and its caption, with category colour on the line only.
+- [Table](../components/table.mdx): the readable twin, which TrendSparkline does not supply.
+- [RangeLegend](../components/range-legend.mdx): the key to a band behind the series.
+- [SegmentedControl](../components/segmented-control.mdx): the window, such as 7 days, 30 days or 12 months.
+- [Value](../components/value.mdx) and [MetricTile](../components/metric-tile.mdx): the latest reading, and related metrics.
+- [Skeleton](../components/skeleton.mdx) and [EmptyState](../components/empty-state.mdx): never a flat line at zero.
 
-### States
+## Trend with an honest caption
 
-| State | Behaviour |
-| --- | --- |
-| Below the window | Points only, with the count needed to draw a trend |
-| Sparse | Series drawn with gaps visibly broken, not bridged |
-| Noisy | Direction withheld; the sentence says the variation exceeds the change |
-| Clear | Direction, magnitude and window stated in words and in the chart |
-| Stale | Last-updated stamp promoted, direction demoted; see [Offline and stale data](./offline-and-stale-data.mdx) |
-| Mixed units | Series split, never rescaled onto one axis silently |
+```tsx
+import { TrendSparkline } from "@/components/ui/trend-sparkline"
 
-## Content
+<TrendSparkline
+  label="Example measurement"
+  unit="steps"
+  precision={0}
+  locale="en-GB"
+  window="the last 6 entries"
+  series={series}
+  minimumPoints={readingsATrendNeeds}
+/>
+```
 
-The caption is the deliverable. The chart is illustration.
+`minimumPoints` is required and has no default. Below it nothing is drawn, and the caption says why. `changeThreshold` is the smallest difference your metric counts as a change, and without it the caption names no direction. A gap is an entry with `value: null`, never an omitted one.
 
-<DoDont>
-  <DoDont.Do>
-    "Over the last 14 days your resting heart rate has been between 58 and 66,
-    with no clear direction."
-  </DoDont.Do>
-  <DoDont.Dont>
-    "Your resting heart rate is trending up ↑" It comes from four points
-    spanning a range narrower than the sensor's own error.
-  </DoDont.Dont>
-</DoDont>
+To write your own sentence, pass `caption`. The count of readings and of missing entries is still appended. Keep to this shape:
 
-<DoDont>
-  <DoDont.Do>
-    "Your weekly average has fallen by about 3 kg since June." Magnitude,
-    window, and a verb that describes the number.
-  </DoDont.Do>
-  <DoDont.Dont>
-    "Great progress. Keep it up!" Praise attached to a body measurement, which
-    becomes a rebuke the week it reverses.
-  </DoDont.Dont>
-</DoDont>
+> `<metric>` `<direction>` `<magnitude> <unit>` over `<window>`, compared with `<comparison window>`. `<what a change of this size does not mean>`
 
-Number formatting, rounding and precision follow
-[Numbers, units and precision](../health/numbers-units-precision.mdx). Relative
-dates ("since June", "14 days ago") follow
-[Numbers, dates and time](../content/numbers-dates-and-time.mdx).
+"Your resting heart rate was about 4 bpm lower over the last 7 days than the 7 days before. Day-to-day variation of this size is common and does not on its own mean anything has changed." Lead with absolute change, because a percentage of a small number makes a trivial change sound large. Never congratulate or commiserate.
+
+<Todo>
+Marking an event on the line itself, such as a medication change or an illness, has no component and no guidance yet. [TimelineEntry](../components/timeline-entry.mdx) covers a dated history list, not the chart.
+</Todo>
+
+## Example
+
+<IframePreview kind="screen" name="trends-screen" />
+
+The trends screen is still a specification, so its frame shows the not-built notice. Its caption sits inside the card with the chart, so the two cannot be screenshotted apart.
 
 ## Accessibility
 
-- **Every chart ships a table twin.** It is an equivalent rather than a
-  download, reachable in the same place, with the same numbers. See
-  [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
-- **The summary sentence is the alt text.** The chart's accessible description
-  is the same sentence a sighted reader gets, not "line chart showing resting
-  heart rate".
-- **Direction is never colour alone.** Grayscale must preserve the answer; the
-  word carries it. Verify with
-  [Colour independence](../accessibility/colour-independence.mdx).
-- **Interactive points are keyboard reachable** with a defined order, and the
-  focused point announces its value, its unit and its date rather than its
-  pixel position.
-- **Zoom and pinch are additive.** The default view must already be readable at
-  200% text; see [Text resizing and
-  zoom](../accessibility/text-resizing-and-zoom.mdx).
-- **No motion on load carrying meaning.** A line that animates left-to-right is
-  decoration; under `prefers-reduced-motion` it is absent, and nothing about the
-  reader's understanding may depend on having seen it.
-
-## Research
-
-<ResearchNote evidence="opinion" date="2026-09-02">
-  The prohibition on truncated y-axes in a health context, the minimum-window
-  rule and the separation of direction from valence are design opinions held
-  strongly enough to be enforced. They are grounded in the general graph-literacy
-  literature and in how badly the defaults behave, not in a health-specific
-  trial that we can point you at.
-
-  We are deliberately not citing a number for how many points constitute a
-  trend. It depends entirely on the measure's within-person variation, and any
-  universal figure would be false precision of exactly the kind this page
-  objects to. The window belongs to whoever owns the thresholds.
-
-  What would change our mind: evidence that full-range axes reduce engagement
-  enough to cost adherence in a population that benefits from tracking. That
-  would be a genuine trade-off rather than a reason to truncate quietly.
-</ResearchNote>
-
-## Updates to this page
-
-<Reviewed />
+- The caption is the chart's accessible description, not "line chart showing resting heart rate".
+- Changing the metric or window announces the new summary politely and does not move focus.
+- A focused point announces its value, unit and date, and every value is in the table without a gesture.
+- No draw-on animation carries meaning, and at 200% text the sentence is never truncated.

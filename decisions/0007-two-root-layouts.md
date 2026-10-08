@@ -1,0 +1,84 @@
+# ADR 0007. Two root layouts, and no app/layout.tsx
+
+The isolated preview surface owns its own document, so the application has two sibling root layouts and no shared one. That is awkward for the 404 page.
+
+## Status
+
+**Accepted.** 2026-09-02. Verified empirically against the framework version
+pinned in this repository.
+
+## Context
+
+[ADR 0004](./0004-lyra-docs-chrome.md) requires that a component preview render
+under the product theme with none of the documentation site's CSS reaching it.
+That is what the `/view` routes are for: a chrome-less page, at a real URL,
+rendering one component at a given base and style, embedded in a frame by the
+documentation and driven directly by screenshot tooling.
+
+"None of the documentation's CSS" is a stronger requirement than it sounds. A
+scoping class is not enough, because the documentation stylesheet sets properties
+on the document element and on `body`, and a preview that inherits them is a
+preview that lies.
+
+The original plan was one shared root layout with an isolated route group beneath
+it. That does not work. In the App Router, a route group nested under a root
+layout cannot own the `html` and `body` elements, because the parent already
+rendered them. The "isolated" group would therefore either render a nested
+document or inherit the parent's stylesheet. Both are exactly the failure the
+group exists to prevent.
+
+## Decision
+
+**There is no `app/layout.tsx`. There are two sibling root layouts:**
+
+- `app/(chrome)/layout.tsx` renders `html` and `body`, imports the documentation
+  stylesheet and mounts the documentation provider. The home, docs and playground
+  groups nest under it and render no document elements of their own.
+- `app/(view)/layout.tsx` renders its own `html` and `body` and imports the
+  product stylesheet only. No documentation chrome, no provider.
+
+Route handlers, the sitemap, the robots file and the icon stay at the top level
+and are unaffected, because none of them renders a document.
+
+## Consequences
+
+- **Two stylesheets with genuinely separate scopes**, which is what makes the
+  preview trustworthy. The generated token layer is imported by both; nothing else
+  crosses.
+- **Nested layouts must not render `html`.** Every layout under `(chrome)` is a
+  fragment. This is the mistake a contributor will make once.
+- **The 404 page cannot live in a route group.** This was verified rather than
+  assumed, and the result contradicted what we expected: with two sibling root
+  layouts, a not-found file placed inside the chrome group is *not* used for the
+  global 404. The framework silently falls back to its own built-in page. The
+  file therefore stays at the top level of the application.
+- **The 404 page has no root layout**, and so no `lang` attribute on the document
+  element, because the framework generates a bare document around it. A site this
+  insistent about accessibility should not ship a 404 that fails the
+  language-of-page criterion, so the page sets the language on a wrapper element
+  and imports the stylesheet itself. That was also verified to work.
+- **A fully-chromed 404 remains possible** through a catch-all route inside the
+  chrome group that calls `notFound()`, which was built and confirmed. It was not
+  adopted, because such a catch-all also swallows unmatched paths under `/view`,
+  and the isolated surface is the one place where a wrong URL should fail loudly
+  rather than render a friendly page.
+
+## Alternatives considered
+
+**One root layout with a nested isolated group.** Rejected: it produces either a
+nested document or an inherited stylesheet, and the second is the more dangerous
+because it looks fine until a property collides.
+
+**Render previews in an inline scoped container.** Rejected in
+[ADR 0004](./0004-lyra-docs-chrome.md). Scoping is not isolation.
+
+**A frame with inline document content rather than a real route.** Rejected: the
+preview would not be addressable, so it could not be linked, could not carry the
+base and style as path segments, and could not be driven by screenshot tooling.
+
+## Revisiting this
+
+Revisit if the framework changes how not-found handling resolves with sibling
+root layouts. That is the one part of this decision resting on observed behaviour
+rather than on documented guarantees, and it is the part most likely to move
+underneath us.

@@ -1,255 +1,89 @@
 ---
-title: The two colour axes
-description: Category identity and clinical status are two independent colour channels. No colour value may carry both, and no element may be tinted by both axes at once.
+title: Two colour axes
+description: Category colour says what a measurement is about and status colour says how urgent it is. They never meet on one element.
 kind: health
 evidence: mixed
-reviewed: 2026-09-02
+implements: [status-pill, alert-banner, range-bar, result-card, care-card, metric-tile, score-dial, trend-sparkline, range-legend, body-map, goal-ring, card, surface]
+aliases: [status levels, category colour]
+reviewed: 2026-10-08
 reviewer: design
-reviewEvery: 6m
-implements: [status-pill, alert-banner, range-bar, result-card, care-card, metric-tile, score-dial, trend-sparkline, range-legend, body-map, goal-ring]
-aliases: [two axes, category vs status, colour axes, never mix colour]
 ---
 
-<PageTemplate kind="health" />
+Identity lets a reader find the sleep tile at a glance, and status says whether its reading needs anything. Each axis has its own palette and its own token namespace.
 
-## What this means
+## The rules
 
-In a typical consumer health app, a single hue carries several unrelated
-meanings at once. Red marks the heart section, red marks a reading that is
-"high", and red is the brand accent on the primary button. Blue marks sleep, the
-informational tooltip and the disabled state on the same screen. By the fourth
-screen the palette has stopped carrying information, and the reader has
-correctly learnt that colour in this product is decoration. That lesson is hard
-to reverse and is learnt long before it costs anything, so the cost falls due on
-the day the app needs to say "this is not like your other readings" and has no
-unused signal left to say it with.
+### Axes
 
-The cause is structural rather than inattentive. Two different jobs are being
-served by one palette. **Identity** helps someone recognise at a glance that one
-tile is about sleep and another is about their heart. **Status** tells them
-whether the number in front of them is fine, worth watching, or needs attention.
-Both are legitimate uses of colour, and they cannot share a hue.
+1. No element is tinted by both axes or resolves a colour from both `--opsin-category-*` and `--opsin-status-*`. A card may have a category-tinted header and a status-tinted badge, but never a blend.
+2. A category colour never changes with a value or a status, and a status colour never changes hue with a category.
+3. Status is never expressed by colour alone. Every status carries a colour, an icon and a word together, and an element that drops the icon or the word has dropped the status.
+4. Motion, sound and haptics never carry a level on their own.
 
-opsinjs separates the two into two axes with two palettes and two token
-namespaces, and the rule against mixing them is specified for machine
-enforcement by a lint rule that has not yet been written.
+### Status
 
-## The rule
+5. There are exactly four levels. They are ordinal and their meanings are fixed. `unknown` is the absence of an assertion, not a fifth level, and is never coloured near `watch`.
+6. The level's word appears in full on every status surface and in its accessible name, never as the token name.
+7. One element carries one level. A container never inherits its children's highest status by default.
+8. A change of level is stated in words, saying that it changed and why.
+9. A status change is announced to assistive technology politely, and assertively only at `urgent`.
+10. `urgent` is reserved for clinical urgency and never carries a product's own problem. Informational messages go in [Callout](../components/callout.mdx), which has no `status`, `severity` or `color` prop.
+11. The levels are not a triage scale and are never mapped onto one. No level asserts a condition.
 
-**Colour in opsinjs runs on exactly two independent axes. A single colour value
-may express identity or status, never both, and no element may be tinted by both
-axes at once.**
+### Category
 
-**Axis 1. Category identity.** Six families each carry a stable hue that says
-what the metric is about and says nothing else about it. Their tokens live under
-`--opsin-category-*`:
-
-| Category | Token stem | What it identifies |
-| --- | --- | --- |
-| Heart | `--opsin-category-heart-*` | Blood pressure, heart rate, rhythm, circulation |
-| Activity | `--opsin-category-activity-*` | Movement, steps, exercise, energy expenditure |
-| Sleep | `--opsin-category-sleep-*` | Duration, timing, quality, disturbance |
-| Nutrition | `--opsin-category-nutrition-*` | Intake, hydration, glucose, weight |
-| Mind | `--opsin-category-mind-*` | Mood, stress, cognition, wellbeing |
-| Labs | `--opsin-category-labs-*` | Blood and other laboratory results reported by a testing service |
-
-The four roles a category exposes are `-surface`, `-line`, `-ink` and `-accent`,
-and there are no others, so the namespace holds no
-`--opsin-category-heart-danger`: a token that carries a verdict about a reading
-belongs to the status axis.
-
-**Axis 2. Clinical status.** Four ordinal levels say how a reading sits against
-what is expected for the person reading it, and say nothing about which body
-system produced it. Their tokens live under `--opsin-status-*`, with the same
-four roles:
-
-`--opsin-status-steady-*` · `--opsin-status-watch-*` ·
-`--opsin-status-attention-*` · `--opsin-status-urgent-*`
-
-A fifth stem, `--opsin-status-unknown-*`, exists and is deliberately **not** a
-fifth level. `unknown` is the absence of an assertion, which covers a reading
-never taken, a stale reading, or a reading whose reference range the product
-does not own. Colouring it anywhere near `watch` would let a reader take "we
-do not know" for "probably fine".
-
-### The four roles and their Tailwind classes
-
-Both axes use the same four role names, and they disagree about which role a
-bare Tailwind class resolves to. The asymmetry follows from what each axis
-usually paints: a status is a boundary, an icon stroke or a badge edge, and a
-category is a fill. The two bare class names are therefore symmetrical in form
-and not in what they resolve to. The contrast obligations in the fourth column
-are set by
-[Colour roles](../foundations/colour/colour-roles.mdx), which is canonical for
-them.
-
-| Role | What it paints | Bare Tailwind class resolves to it | Contrast obligation | May carry text |
-| --- | --- | --- | --- | --- |
-| `-surface` | The ground behind content, on a tile, a pill or a banner | No, spelt out as in `bg-status-attention-surface` | None of its own. It is the half that defines the pair | No. The pair is always `-ink` on `-surface` |
-| `-line` | A stroke, a border, a badge edge or a decorative glyph | Yes, on the status axis: `bg-status-urgent` resolves to the **line** | The non-text floor, against its own surface | No, except an icon whose meaning is repeated in adjacent text. An icon that carries the meaning is `-ink` |
-| `-ink` | Text, and an icon that carries words | No, spelt out as in `text-status-attention-ink` | The text floor, against its own surface and against the page | Yes, and it is the only role that may |
-| `-accent` | An identity fill or a chart mark | Yes, on the category axis: `bg-category-heart` resolves to the **accent** | None it must clear, because the role is chosen for recognition rather than for contrast. Both its pairs are advisory | No, and it is never the sole boundary either |
-
-On each axis the other three roles are always spelt out in full. What the four
-status levels mean, who may assign one, and what word the reader sees are on
-[Clinical status semantics](./clinical-status-semantics.mdx).
-
-### The never-mix rule
-
-The rule decomposes into four statements, each checkable against a rendered
-element:
-
-1. An element painted from the category axis may not change colour when its
-   status changes.
-2. An element painted from the status axis may not change hue when its category
-   changes.
-3. No element resolves a colour from both namespaces for the same property. A
-   card may have a category-tinted header and a status-tinted badge; the header
-   may not be a blend of the two.
-4. Status is never expressed by colour alone: every status carries a colour, an
-   icon and a word together. A status therefore stays legible when both axes are
-   rendered in greyscale, because the icon and the word survive the loss of hue.
+12. A category colour identifies a family. It never expresses value, quality, severity, direction, urgency or brand.
+13. A category colour is never the only cue. Every category-coloured element names the family in text.
+14. A category namespace never gains a role that carries a verdict, such as `--opsin-category-heart-danger`.
+15. A category colour is never a brand accent or a chart series colour. Series use the ramps in [Data visualisation](../foundations/data-visualisation.mdx).
+16. One metric takes one category on every surface in the product.
 
 <StatusAxisDemo />
 
-## Why (evidence)
-
-<ResearchNote evidence="mixed" date="2026-09-02">
-  **The cited part.** Rule 4 restates WCAG 2.2 success criterion 1.4.1 (Use of
-  Colour), which requires that colour is never the only visual means of
-  conveying information, indicating an action or distinguishing a visual
-  element. In a health interface, a "high" marker distinguished only by being
-  red carries no information to a reader with a common form of colour vision
-  deficiency. `scripts/check-contrast.mts` projects both axes through
-  protanopia, deuteranopia, tritanopia and greyscale and lists every pair that
-  collapses in the
-  [Colour-vision audit](../reference/generated/contrast.mdx#colour-vision-audit),
-  which the nightly job regenerates. How the check is built, and the forms of
-  low vision it says nothing about, are on
-  [Colour independence](../accessibility/colour-independence.mdx), which does not
-  render the table itself.
-
-  **The opinion part.** The separation into exactly two axes, and the choice of
-  six categories, is our design judgement. We are not aware of a study comparing
-  a two-axis palette against a merged one in a consumer health product, and we do
-  not cite one. The argument is structural rather than empirical: a hue with a
-  single meaning can be learnt once, whereas a hue with two meanings has to be
-  resolved from context on every encounter. A reader who cannot predict what a
-  hue means stops attending to colour at all.
-
-  What would change our mind: evidence that users read a merged palette
-  accurately in context, or that six identity hues is too many to distinguish
-  reliably at tile size on a low-quality display. The second is the risk we
-  consider more real, and it is why category colour is never load-bearing: a
-  reader who cannot tell two category hues apart loses recognition speed and
-  loses no meaning, because the category is also named in the words.
-</ResearchNote>
+## Status levels
 
 <CvdSimulator>
   <StatusLadder />
 </CvdSimulator>
 
-The four status levels above must remain distinguishable under protanopia,
-deuteranopia, tritanopia and full greyscale. Where a pair does collapse, the icon
-and the word carry the status without help from the hue, which is the redundancy
-rule 4 requires of every status rendering.
+| Level | Word and icon | Asserts, and its tone | Never means |
+| --- | --- | --- | --- |
+| `steady` | Steady, Circle | Inside the range set for this reader. Neutral, never congratulatory | Healthy, safe, normal, good, "you are fine" |
+| `watch` | Watch, CircleDot | Slightly outside the usual range, or moving in a direction worth noticing. Informative, and says what happens next or that nothing is needed | A mild diagnosis, or a hint to act without saying how |
+| `attention` | Needs attention, Diamond | Someone qualified should look, reasonably soon. Direct and calm, with one named action first, and incomplete without it | An emergency, a diagnosis, "you have X" |
+| `urgent` | Urgent, Octagon | The value may need help today. Short and unambiguous, with the action in the first line | Anything merely important to the product, such as an expiring trial or an unsynced device |
+| `unknown` | Not known, Minus | Nothing. No reading, a stale one, or a range the product does not own | "Probably fine" |
 
-## Applying it
+Your clinically accountable role assigns every level, and opsinjs ships no threshold for any metric, in any population, ever. `steady` and `watch` come from a reference range your product owns, `attention` from a clinically reviewed threshold, and `urgent` from one with a named clinical owner. Each traces to a rule written down outside the component with its source, owner and population. Use a device's or laboratory's own flag where one exists and say whose it is, and label a model's output as an estimate.
 
-<DoDont>
-  <DoDont.Do>
-    Paint identity on the container and status on a discrete indicator. A sleep
-    tile keeps its sleep hue in every state; the `StatusPill` inside it changes
-    from `steady` to `watch` without the tile changing colour.
-  </DoDont.Do>
-  <DoDont.Dont>
-    Turn the sleep tile red when sleep is short. The category landmark then moves
-    with the value, so the reader can no longer find the sleep tile by its hue,
-    and an `urgent`-level signal is spent on a reading that asks nothing of the
-    reader.
-  </DoDont.Dont>
-</DoDont>
+## Category identity
 
-<DoDont>
-  <DoDont.Do>
-    Use `--opsin-status-attention-surface` for the background of an alert about a
-    heart reading. Status owns the alert; the heart category is named in the
-    words.
-  </DoDont.Do>
-  <DoDont.Dont>
-    Derive an "urgent heart" colour by blending `--opsin-category-heart-accent`
-    with `--opsin-status-urgent-line`. Six categories against four status levels
-    give twenty-four such blends, none of which appears in the token set
-    `scripts/check-contrast.mts` measures, and each of which is a hue no reader
-    has been taught to read.
-  </DoDont.Dont>
-</DoDont>
+| Category | Covers |
+| --- | --- |
+| Heart | Blood pressure, heart rate, resting heart rate, rhythm, variability, circulation |
+| Activity | Steps, workouts, active minutes, movement, energy expenditure |
+| Sleep | Duration, timing, consistency, disturbance, sleep-derived recovery |
+| Nutrition | Intake, hydration, glucose, cholesterol, weight, body composition |
+| Mind | Mood, stress, cognition, wellbeing check-ins |
+| Labs | Test results, panels, assays, anything a laboratory reports |
 
-<DoDont>
-  <DoDont.Do>
-    Let a chart use the chart ramps from
-    [Chart colour](../foundations/data-visualisation/chart-colour.mdx). Series
-    colour is a third, separate problem with its own constraints.
-  </DoDont.Do>
-  <DoDont.Dont>
-    Colour a chart's series by category token. Category hues are tuned to be
-    distinguishable as identity marks at tile size, and separating adjacent lines
-    in a sequential ramp is a different discrimination task.
-  </DoDont.Dont>
-</DoDont>
+A result's interpretation is status, never Labs. Where a metric fits two families, as weight and glucose do, your product picks one and opsinjs does not adjudicate. Symptoms, medications and appointments take no category colour. There is no Cycle category, and adding a seventh is a design-system decision shown in [Theming](../theming.mdx).
 
-<DoDont>
-  <DoDont.Do>
-    Reach for `Callout` when the message is informational, such as a tip or a
-    note about how the app works. `Callout` sits outside the status axis by
-    design and exposes no `status`, `severity` or `color` prop.
-  </DoDont.Do>
-  <DoDont.Dont>
-    Use `AlertBanner` for a non-clinical message because it is the component that
-    looks important. A marketing prompt rendered at `attention` teaches the
-    reader that an `attention` surface can be passed over, and the surface they
-    most need to read arrives later wearing the same treatment;
-    [Alarm fatigue](./alarm-fatigue.mdx) is where that budget is set.
-  </DoDont.Dont>
-</DoDont>
+## Tokens
 
-<ContrastReport scope="status" />
+Both axes expose four roles, under `--opsin-category-<name>-*` and `--opsin-status-<level>-*`: `-surface` for the ground, `-line` for strokes and badge edges, `-ink` for text and meaningful icons, and `-accent` for identity fills and chart marks. Only `-ink` carries text, and text on a `-surface` is always the matching `-ink`. A bare `bg-status-urgent` resolves to the **line** and a bare `bg-category-heart` to the **accent**, so spell every other role out. Contrast floors are in [Colour](../foundations/colour.mdx).
 
-## Components that implement this
+## Enforcement
 
-{/* Generated from `implements`. Do not restate the list by hand. */}
+- The two namespaces are disjoint, so a mixed colour has to be assembled by hand.
+- A component that takes a `status` takes no `category` for the same painted surface.
+- Every component that accepts a status, [StatusPill](../components/status-pill.mdx) included, takes it from the exported `ClinicalStatus` union in [Types](../reference/generated/types.mdx), so an invalid level is a type error.
+- `scripts/check-contrast.mts` projects both axes through protanopia, deuteranopia, tritanopia and greyscale, and lists every collapsing pair in [Contrast](../reference/generated/contrast.mdx).
+- The lint rule `opsinjs/no-mixed-axes` is specified and not written, so a mixed axis on a hand-written surface is caught in review or not at all.
 
-The axis separation rests on three enforcement points. The token namespaces
-`--opsin-category-*` and `--opsin-status-*` are disjoint, so a colour carrying
-both axes has to be assembled by hand rather than resolved from a token. A
-component that takes a `status` does not take a `category` for the same surface:
-`StatusPill` is specified to read from the status axis exclusively, and a
-category label is a separate element elsewhere on the screen. The third point, a
-lint rule flagging any declaration that resolves both namespaces onto one
-property, is specified at [Tooling](../handbook/tooling/index.mdx) and has not
-been written, so until it exists a mixed axis on a hand-written surface is caught
-in review or not at all.
+## Evidence
 
-## What this does not cover
+- WCAG 2.2 success criterion 1.4.1 (Use of Colour), with the requirement that information is not conveyed through a single sensory characteristic, is the basis for rules 3 and 4.
+- The ARIA live-region model is the basis for rule 9, because an assertive announcement interrupts.
 
-- **Which category a metric belongs to.** Some metrics sit in two: weight is
-  nutrition and it is also cardiovascular. The implementing team picks one per
-  surface and holds to it, and opsinjs does not adjudicate.
-- **Adding a seventh category.** The mechanism is documented at
-  [Category palettes](../theming/category-palettes.mdx). Adding one changes the
-  identity vocabulary on every surface in the product, and the decision is owned
-  by whoever owns the design system rather than by a theme.
-- **Redefining the status palette.** opsinjs strongly discourages it, and
-  [Status palettes](../theming/status-palettes.mdx) makes that argument first and
-  then sets out how to change the ramp safely.
-- **Brand colour.** A brand accent is a third namespace of its own, and it may
-  never be a status colour. [Colour roles](../foundations/colour/colour-roles.mdx)
-  defines where it sits.
-- **The engine.** How the ramps are derived, clamped to gamut and validated
-  against a contrast floor is covered by
-  [Colour](../foundations/colour/index.mdx). This page governs what the colours
-  are allowed to mean.
-
-## Updates to this page
-
-<Reviewed />
+Everything else is opinion, including the two axes, the six categories and the four levels. No study comparing a two-axis palette with a merged one is cited, and the recognition speed category colour is kept for is unmeasured.

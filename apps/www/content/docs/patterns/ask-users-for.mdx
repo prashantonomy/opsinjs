@@ -1,0 +1,101 @@
+---
+title: Ask users for…
+description: What to ask, how to ask it and which component to use for the personal details a health product collects.
+kind: pattern
+aliases: [asking for personal data, what to collect, data collection patterns, field-level guidance]
+---
+
+The cheapest field is the one you do not collect, and the next cheapest is a coarser one, such as an age band rather than a birth date.
+
+## When to use it
+
+Use it before adding any field below. For how forms behave, see [Forms](./forms.mdx), and for when to ask, [Onboarding and first run](./onboarding-and-first-run.mdx). For wording, see [Writing](../foundations/writing.mdx).
+
+Do not use it for a daily reading, which is [Daily logging](./daily-logging.mdx). Nothing here is legal advice.
+
+## How it works
+
+1. Name the decision the answer changes. If you cannot, do not ask.
+2. Ask for the coarsest answer that decides it, and defer to the surface that needs it where you can.
+3. Say why in one sentence beside the question. "A more personalised experience" is not a reason.
+4. Say what skipping costs, and offer free text where a fixed list will not fit.
+5. Never ask again for something already given (WCAG 2.2 SC 3.3.7). Let the reader edit it instead.
+
+## Components
+
+- [Field](../components/field.mdx) holds every typed answer, with its label, hint and error.
+- [ReadingInput](../components/reading-input.mdx) takes height and weight with the unit beside the number.
+- [RadioGroup](../components/radio-group.mdx) takes one answer from a short list, and [Checkbox](../components/checkbox.mdx) any number.
+- [Combobox](../components/combobox.mdx) searches a list the product supplies.
+- [Term](../components/term.mdx) explains any clinical or administrative word.
+
+## Name
+
+Ask for what the reader wants to be called, to address them. Ask for the name a clinic or insurer holds only to match a record, and say so.
+
+- Use one free-text Field with `autocomplete="name"`. Split into `given-name` and `family-name` only when a receiving system demands parts, and never require a family name.
+- Do not limit length or characters, change capitalisation, or trim more than the outer spaces.
+- Address the reader by their preferred name everywhere. Use the record name only where a system requires it, and say so.
+- An empty field gets "Enter your name", never "invalid name".
+
+## Date of birth
+
+Ask for an age band unless a decision needs the exact date, such as matching a clinical record. To check that someone is an adult, ask exactly that.
+
+- Use three Fields, Day, Month and Year, in the reader's locale order, inside a `fieldset` whose `legend` is the question.
+- Give each `inputmode="numeric"` and `autocomplete` of `bday-day`, `bday-month` or `bday-year`. Accept a month name, and require four-digit years.
+- Never use a calendar picker as the only path, and never auto-advance between boxes.
+- An error names the missing part and clears nothing. If your system accepts a year alone, say so.
+
+## Sex and gender
+
+These are two questions, or none. Ask sex only when a reference range, screening or calculation depends on it, and prefer the specific clinical question, such as whether the reader has periods. Ask gender or pronouns only to address the reader.
+
+- Ask it with a RadioGroup labelled for its purpose: "Sex used for reference ranges".
+- Never offer a closed list of two. Include intersex and "prefer not to say", and a route to a person.
+- Take pronouns as free text with common options in a Field.
+- Never derive one answer from the other, and keep both editable at any time.
+
+## Ethnicity
+
+Ask only for equity monitoring with an analysis plan, or for a clinical adjustment a named clinician owns. If you cannot name which, do not ask. Never ask on a results screen or in a symptom flow.
+
+- Make it optional, self-identified and multi-select, with "prefer not to say" and free text. Use Checkboxes in a `fieldset`.
+- Use a recognised national classification and name it. Never infer ethnicity from a name or a postcode.
+- If it adjusts a number, the reader sees the adjustment and who owns it.
+
+## Contact details
+
+Ask for a channel only when you have a message to send on it. A message is a disclosure, because it may arrive on a lock screen somebody else can see.
+
+- One channel per purpose, chosen by the reader. Use `type="email"` with `autocomplete="email"`, or `type="tel"` with `autocomplete="tel"`.
+- Verify before relying on a channel, without locking the reader out. A code field takes `autocomplete="one-time-code"`, and paste works.
+- The message says only that there is something to see, never the substance.
+- Check an email for an `@` and let delivery test the rest. Store phone numbers as entered.
+
+## Height and weight
+
+Ask only when a named calculation needs it, and ask adult height once. Weight is a hard question for some readers, so never require it unless that calculation cannot run without it.
+
+- Use ReadingInput with `units={["kg", "lb", "st"]}`, so switching converts what was typed.
+- Compound units such as feet and inches take separate boxes under one legend.
+- Bounds are physical, never typical. No praise, comparison or target the reader did not set.
+- If you derive BMI, show its limits beside it, never show its category as a clinical status, and let the reader turn it off. If you cannot do all three, do not derive it.
+
+## Medications
+
+Ask only when the product does something specific with them. A self-entered list is what the reader believes they take, never a clinical record, and opsinjs does not support interaction checking against it.
+
+- Search, do not spell. Use a Combobox over the product's own list, matching brand and generic names, because opsinjs ships no vocabulary.
+- Keep a free-text Field always available. Never auto-select a result or autocorrect a name.
+- Take strength as a number and a unit separately, then form and schedule in the reader's words.
+- Show a read-back before storing, mark every entry self-reported or imported, and keep a stopped medicine with its dates.
+
+## Symptoms
+
+Record symptoms, never assess them, because assessment is a regulated clinical function opsinjs does not support. A symptom that needs action now, or any question that touches self-harm, belongs to [High-stakes moments](../health/high-stakes-moments.mdx).
+
+- Put a [Textarea](../components/textarea.mdx) first and largest, inside a Field. [SymptomPicker](../components/symptom-picker.mdx), [BodyMap](../components/body-map.mdx) beside a checkbox list, and [ScaleInput](../components/scale-input.mdx) with written anchors are optional assists.
+- Ask duration in relative words: "since this morning".
+- A red-flag rule signposts help and never diagnoses, and the entry is saved either way.
+- Show the entry back word for word, with no status colour.

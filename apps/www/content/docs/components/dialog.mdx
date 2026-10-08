@@ -3,9 +3,10 @@ title: Dialog
 description: A window that opens over the page and waits for an answer. It takes your keyboard and attention until you deal with it, and gives them back where it found them.
 status: shipped
 kind: component
+governedBy: [alerts, consent-and-privacy, high-stakes-moments]
 category: surfaces
 aliases: [modal, alert dialog, popup, confirm]
-usedIn: [alert-escalation, consent-flow, diabetes-medicines-app]
+usedIn: [alert-escalation, consent-and-permissions]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="dialog" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="dialog"
@@ -35,8 +32,6 @@ reviewer: engineering
   dependencies={["@base-ui/react", "lucide-react"]}
   registryDependencies={["surface", "button"]}
 />
-
-## Usage
 
 ```tsx
 import { Dialog } from "@/components/ui/dialog"
@@ -57,6 +52,24 @@ import { Dialog } from "@/components/ui/dialog"
 />
 ```
 
+## Examples
+
+<ComponentPreview name="dialog" />
+
+### Confirming something that cannot be undone
+
+Destructive first, safest last, where `initialFocus="safest"` lands, so a stray
+Return keeps the reading.
+
+<ComponentPreview name="dialog-confirming-a-deletion" kind="example" align="start" />
+
+### An answer is needed
+
+`severity="alert"` sets `role="alertdialog"`, removes the close control, and
+refuses both the scrim and Escape.
+
+<ComponentPreview name="dialog-an-answer-is-needed" kind="example" align="start" />
+
 ## When to use it
 
 <WhenToUse
@@ -74,117 +87,22 @@ import { Dialog } from "@/components/ui/dialog"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="dialog"
-  parts={[
-    {
-      name: "Dialog",
-      describes: "The portal root, holding the scrim and the panel.",
-      prop: "open",
-    },
-    {
-      name: "Dialog.Scrim",
-      describes: "The dimming layer, a Surface at the scrim rung.",
-    },
-    {
-      name: "Dialog.Viewport",
-      describes: "Fixed box; floats low on a phone, centred above sm.",
-    },
-    {
-      name: "Dialog.Container",
-      describes: "The popup. Carries the role, the name and the description.",
-      prop: "className",
-    },
-    {
-      name: "Dialog.Header",
-      describes: "Pinned. Holds the title and close control.",
-    },
-    {
-      name: "Dialog.Title",
-      describes: "An h2, always visible, and the accessible name.",
-      prop: "title",
-    },
-    {
-      name: "Dialog.Close",
-      describes: "Glyph and visible word from closeLabel. Absent when severity is alert.",
-      prop: "severity",
-    },
-    {
-      name: "Dialog.Body",
-      describes: "The scroll region, so the actions stay reachable at 200% text.",
-    },
-    {
-      name: "Dialog.Description",
-      describes: "What each answer does, and on an alert dialog why one is needed.",
-      prop: "description",
-    },
-    {
-      name: "Dialog.Content",
-      describes: "Optional. Nothing translucent goes in here.",
-      prop: "children",
-    },
-    {
-      name: "Dialog.Actions",
-      describes: "Pinned, least destructive last, at most two. Stacked below sm.",
-      prop: "actions",
-    },
-  ]}
-/>
-
-## Examples
-
-### Confirming something that cannot be undone
-
-Destructive first, safest last, where `initialFocus="safest"` lands, so a stray
-Return keeps the reading.
-
-<ComponentPreview name="dialog-confirming-a-deletion" kind="example" align="start" />
-
-### An answer is needed
-
-`severity="alert"` sets `role="alertdialog"`, removes the close control, and
-refuses both the scrim and Escape.
-
-<ComponentPreview name="dialog-an-answer-is-needed" kind="example" align="start" />
-
-## Content guidelines
-
-The title asks the question. The description says what each answer does, and on an
-alert dialog why one is required. Labels are verbs naming the outcome: never *OK*
-and *Cancel*, never a judgement about the reader.
-
-<DoDont>
-  <DoDont.Do>
-    **"Delete this reading? It will be removed from your history. [Delete reading]
-    [Keep it]"** Question, consequence, two verbs.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Are you sure? [OK] [Cancel]"** Sure about what, and which button does which?
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA: a source pass and a rendered pass. The rendered pass
-found no axe violations, no undersized target, no focus-visible miss, and held at
-320px. The source pass found no critical, serious or moderate defect. The audit is
-author-run, not independent, and clinical review is pending.
-
-Confirmed:
+The rendered pass found no axe violation, undersized target or focus-visible miss, and
+held at 320px, and the source had no critical, serious or moderate defect.
 
 - `severity="alert"` swaps in Base UI's alert-dialog root, tying the role to the
   refusal to dismiss.
-- Named by its title, described by its description; a blank description renders
-  nothing.
+- It is named by its title and described by its description. A blank description
+  renders nothing.
 - Focus moves in on open, is trapped, and returns on close to whatever had it.
 - The page behind is `aria-hidden`, not `inert`, so focus from behind can still
   reach it.
 
-One residual: `Dialog.Close` uses a raw `focus-visible` utility, not the
-border-focus token, but renders a valid 2px offset ring, so 2.4.7 and 1.4.11 pass;
-it matches the reviewed `sheet` close control by design.
+**Residual items.** `Dialog.Close` uses a raw `focus-visible` utility, not the
+border-focus token, but renders a valid 2px offset ring, so 2.4.7 and 1.4.11 pass. It
+matches the `sheet` close control by design.
 
 <KeyboardTable
   name="dialog"
@@ -224,17 +142,10 @@ it matches the reviewed `sheet` close control by design.
 
 <ContrastReport component="dialog" />
 
-## API reference
+## Props interface
 
 <PropsTable name="DialogProps" />
 
 `actions` and `closeLabel` are not in the specification; `closeLabel` defaults to
 *Close*, ignored on an alert dialog. `onOpenChange` does not fire when Escape is
 refused. `sheetBelow` is not a prop: the dialog never becomes a Sheet.
-
-## Related
-
-- [Sheet](./sheet.mdx): a place the reader chose to go and may leave; Dialog never becomes one.
-- [AlertBanner](./alert-banner.mdx): announces without blocking a reader who can carry on.
-- [ConsentSheet](./consent-sheet.mdx): a request with a consent contract and a recorded decision.
-- [Popover](./popover.mdx): anchored and non-modal, dismissed by leaving rather than answering.

@@ -5,7 +5,7 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: [cta, action, submit, primary button]
-usedIn: [consent-and-permissions, consent-flow, daily-log-entry, daily-log-screen, diabetes-medicines-app, empty-and-first-use, forms/error-summaries, forms/question-pages, health-metric-card, onboarding-and-first-run, onboarding-screen]
+usedIn: [daily-logging, forms, onboarding-and-first-run]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +22,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="button" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="button"
@@ -34,8 +30,6 @@ reviewer: engineering
   importPath="@/components/ui/button"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Button } from "@/components/ui/button"
@@ -46,6 +40,25 @@ import { Button } from "@/components/ui/button"
   Save reading
 </Button>
 ```
+
+## Examples
+
+<ComponentPreview name="button" />
+
+### One primary per surface
+
+One filled button answers *what should I do here?* Everything else is secondary or
+quiet.
+
+<ComponentPreview name="button-one-primary-per-surface" kind="example" align="start" />
+
+### Busy, at the foot of a form
+
+`busy` keeps the label, blocks activation and shows the indicator in the icon's
+seat. `busyLabel="Saving"` gives the state a word, and `fullWidth` stops the control
+growing when it appears.
+
+<ComponentPreview name="button-busy-at-the-foot-of-a-form" kind="example" align="start" />
 
 ## When to use it
 
@@ -63,91 +76,26 @@ import { Button } from "@/components/ui/button"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="button"
-  parts={[
-    {
-      name: "Button",
-      describes: "Always a real button element. Carries the variant's fill, ink and boundary, the size step and the focus ring.",
-      prop: "variant",
-    },
-    {
-      name: "Button.Target",
-      describes: "An aria-hidden hit area floored at --opsin-target-minimum, for a project without the product stylesheet.",
-    },
-    {
-      name: "Button.Icon",
-      describes: "An optional decorative glyph, leading or trailing, sized in em so it grows with the label.",
-      prop: "icon",
-    },
-    {
-      name: "Button.Busy",
-      describes: "The busy indicator, in the icon's seat: a spinner, or a still hourglass under reduced motion.",
-      prop: "busy",
-    },
-    {
-      name: "Button.Label",
-      describes: "The text and the accessible name. No prop removes it, and there is no icon-only mode.",
-      prop: "children",
-    },
-  ]}
-/>
-
-
-## Examples
-
-### One primary per surface
-
-One filled button answers *what should I do here?*. Everything else is secondary
-or quiet.
-
-<ComponentPreview name="button-one-primary-per-surface" kind="example" align="start" />
-
-### Busy, at the foot of a form
-
-`busy` keeps the label, blocks activation and shows the indicator in the icon's
-seat. `busyLabel="Saving"` gives the state a word, and `fullWidth` stops the control
-growing when it appears.
-
-<ComponentPreview name="button-busy-at-the-foot-of-a-form" kind="example" align="start" />
-
-## Content guidelines
-
-A label is a verb that names its own outcome, in sentence case, with no full stop:
-*Save reading*, *Delete this reading*. Never *OK*, *Submit*, *Yes* or *Click here*,
-each of which sends the reader back up the page to reconstruct the question.
-
-<DoDont>
-  <DoDont.Do>
-    **"Save reading"** names the outcome and survives being read out of context.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Submit"** on a screen with three of them tells a screen reader user nothing.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
-author-run, not an independent review, and clinical review is still pending. The
-rendered pass on the isolated view was clean, with no axe, target-size, focus-visible
-or reflow failure. The source met every check, so the audit changed nothing.
+It is a real `button` with the platform role and keys, named by its visible label,
+with the icon `aria-hidden`. `busy` works through `aria-busy` and `aria-disabled`, so
+the control keeps its tab stop, and the outline focus ring never shifts layout.
+Rendered, it shows no axe, target-size, focus-visible or reflow failure, and the audit
+changed nothing.
 
-It confirmed the load-bearing behaviour: a real `button` with the platform role and
-keys, the visible label as the accessible name with the icon `aria-hidden`, `busy`
-handled through `aria-busy` and `aria-disabled` so the control keeps its tab stop,
-and the outline focus ring that never shifts layout.
+**Residual items.**
 
-**Residual items to know.** No live region is mounted, by design: `busy` reaches the
-tree on the focused control as `aria-busy` plus `aria-disabled`, and `busyLabel`
-carries a word there, but with no `busyLabel` it is not otherwise announced. Because
-the ring is an outline with offset, an ancestor set to clip can hide it. `Button.Target` raises the hit area to the 44px floor under the SC 2.5.8
-inline exception, so a project without the product stylesheet owes
-`--opsin-target-separation`. In dark mode the quiet and primary labels clear the
-WCAG 4.5:1 floor but fall under the stricter APCA figure, which sits outside WCAG
-2.2 AA and belongs to the theme token layer.
+- No live region mounts, by design. `busy` reaches the tree on the focused control as
+  `aria-busy` plus `aria-disabled`, and `busyLabel` carries a word there, but with no
+  `busyLabel` it is not otherwise announced.
+- The ring is an outline with offset, so an ancestor set to clip can hide it.
+- `Button.Target` raises the hit area to the 44px floor under the SC 2.5.8 inline
+  exception, so a project without the product stylesheet owes
+  `--opsin-target-separation`.
+- In dark mode the quiet and primary labels clear the WCAG 4.5:1 floor but fall under
+  the stricter APCA figure, which sits outside WCAG 2.2 AA and belongs to the theme
+  token layer.
 
 <KeyboardTable
   name="button"
@@ -177,7 +125,17 @@ WCAG 4.5:1 floor but fall under the stricter APCA figure, which sits outside WCA
 
 <ContrastReport component="button" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="ButtonProps" />
+
+`type` defaults to `button`, not `submit`, so a form's submit control has to say
+`type="submit"`. There is no `disabled` convenience prop: the native attribute is
+the whole of it, and passing `busy` and `disabled` together warns in development.
+`className` and `style` merge caller last and must never resolve a `--opsin-status-*`
+or `--opsin-category-*` role, because a Button carries no clinical axis.
+
+### Data attributes
 
 <DataAttributesTable
   name="button"
@@ -194,22 +152,3 @@ WCAG 4.5:1 floor but fall under the stricter APCA figure, which sits outside WCA
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="ButtonProps" />
-
-`type` defaults to `button`, not `submit`, so a form's submit control has to say
-`type="submit"`. There is no `disabled` convenience prop: the native attribute is
-the whole of it, and passing `busy` and `disabled` together warns in development.
-`className` and `style` merge caller last and must never resolve a `--opsin-status-*`
-or `--opsin-category-*` role, because a Button carries no clinical axis.
-
-## Related
-
-- [Link](./link.mdx) is for navigation. A button acts and a link goes somewhere,
-  which is why this component cannot render an anchor.
-- [IconButton](./icon-button.mdx) is icon-only.
-- [Switch](./switch.mdx) covers an immediate on or off with no confirmation step.
-- [SegmentedControl](./segmented-control.mdx) covers choosing among options rather than acting.
-- [CareCard](./care-card.mdx) is where a clinical action lives, with its author and timing.

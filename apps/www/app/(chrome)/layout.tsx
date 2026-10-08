@@ -4,7 +4,6 @@ import { Inter } from "next/font/google"
 import { RootProvider } from "fumadocs-ui/provider/next"
 
 import "../globals.css"
-import { SiteFooter } from "@/components/site-footer"
 import { SITE_LANG, siteMetadata } from "@/app/_shared/seo"
 import {
   JsonLd,
@@ -23,23 +22,16 @@ import { cn } from "@/lib/utils"
  * the opsinjs product theme so that previews render as the product rather than
  * as the documentation site. Reintroducing a top-level layout would silently
  * re-nest `(view)` inside globals.css and destroy that distinction. See
- * ../../AGENTS.md and /docs/theming/lyra-and-the-docs-chrome.
+ * ../../AGENTS.md.
  *
  * `(home)`, `(docs)` and `(playground)` are nested groups UNDER this layout and
  * supply their own fumadocs chrome; they do not render <html>.
  *
- * THE FOOTER IS RENDERED HERE, once, for every route under this layout. It used
- * to live on the `(home)` group, which meant it appeared on the six tool pages
- * and on none of the four hundred documentation pages. Since the sidebar now
- * holds documentation sections and nothing else, the footer is the only route
- * to the tools, the machine surfaces and the theme switch, and a reader inside
- * the corpus is precisely the one who needs it. See components/site-footer.tsx.
- *
- * It is a SIBLING of `{children}`, not a child. Each nested group puts its
- * children inside a <main>, and a <footer> inside <main> does not expose the
- * contentinfo landmark: it degrades to a generic element and the site loses the
- * landmark screen-reader users navigate by. Rendering it here keeps the
- * landmark, and its `mt-auto` works because this <body> is a flex column.
+ * THE FOOTER IS NOT HERE. The documentation pages have no footer, as on
+ * blueprintjs.com: the sidebar holds the sections, the theme switch and search.
+ * The tool pages under `(home)` and `(playground)` render <SiteFooter> from
+ * their own layouts, as a sibling of the fumadocs <main> so it keeps the
+ * contentinfo landmark.
  */
 
 /**
@@ -110,7 +102,6 @@ export default function ChromeRootLayout({
           theme={{ defaultTheme: "light", enableSystem: true, hotKey: false }}
         >
           {children}
-          <SiteFooter />
         </RootProvider>
       </body>
     </html>

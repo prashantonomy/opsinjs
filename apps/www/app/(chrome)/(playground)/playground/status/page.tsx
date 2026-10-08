@@ -96,12 +96,12 @@ export default function StatusPlaygroundPage() {
                 reader simply does not know.
               </p>
               <p>
-                The generated colour-independence audit runs this check across
-                every token pair rather than by eye. See{" "}
+                The generated contrast audit runs this check across every token
+                pair rather than by eye. See{" "}
                 <Link
-                  href={routes.docs("accessibility", "colour-independence")}
+                  href={routes.docs("reference", "generated", "contrast")}
                 >
-                  colour independence
+                  the contrast reference
                 </Link>{" "}
                 for the measured version, including the colour-vision
                 simulations this lab deliberately does not approximate a second
@@ -118,24 +118,17 @@ export default function StatusPlaygroundPage() {
           <Prose className="mt-3">
             <p>
               <Link href={routes.docs("health", "two-colour-axes")}>
-                The two colour axes
+                Two colour axes
               </Link>{" "}
               is the doctrine page, and it is the one to read if you only read
-              one.{" "}
-              <Link href={routes.docs("health", "clinical-status-semantics")}>
-                Clinical status semantics
-              </Link>{" "}
-              defines what each of the four levels means, who is allowed to
-              assign it, and what it must never be read as.{" "}
-              <Link href={routes.docs("health", "category-identity")}>
-                Category identity
-              </Link>{" "}
-              covers the other axis and what a category colour may not carry.
+              one. It defines what each of the four levels means, who is allowed
+              to assign it and what it must never be read as, and it covers the
+              category axis and what a category colour may not carry.
             </p>
             <p>
               For the wording rather than the colour,{" "}
-              <Link href={routes.docs("content", "writing-status-and-alerts")}>
-                writing status and alerts
+              <Link href={routes.docs("foundations", "writing")}>
+                Writing
               </Link>{" "}
               has the sentence pattern for each level and the words banned at
               each one. The two pages are meant to be read together: a status is
@@ -146,8 +139,8 @@ export default function StatusPlaygroundPage() {
               The ramps themselves are browsable at{" "}
               <Link href={routes.colors()}>/colors</Link>, and the measured
               contrast for every pair is in{" "}
-              <Link href={routes.docs("accessibility", "contrast-conformance")}>
-                the conformance table
+              <Link href={routes.docs("reference", "generated", "contrast")}>
+                the contrast reference
               </Link>
               .
             </p>

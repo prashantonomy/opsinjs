@@ -91,33 +91,25 @@ export default function IconsPage() {
                 >
                   Iconography
                 </Link>{" "}
-                covers sizing, alignment and the optical rules.
+                covers sizing, alignment, the optical rules and using icons in
+                code.
               </li>
               <li>
                 <Link
                   className="text-foreground underline underline-offset-4"
-                  href={routes.docs("handbook", "icons")}
+                  href={routes.docs("foundations", "accessibility")}
                 >
-                  Icons in practice
+                  Accessibility
                 </Link>{" "}
-                covers importing, tree-shaking and the client-boundary question.
-              </li>
-              <li>
-                <Link
-                  className="text-foreground underline underline-offset-4"
-                  href={routes.docs("accessibility", "colour-independence")}
-                >
-                  Colour independence
-                </Link>{" "}
-                covers the greyscale and colour-vision audit these shapes exist
+                covers the greyscale and colour-vision checks these shapes exist
                 to pass.
               </li>
               <li>
                 <Link
                   className="text-foreground underline underline-offset-4"
-                  href={routes.docs("content", "alt-text-and-descriptions")}
+                  href={routes.docs("foundations", "writing")}
                 >
-                  Alt text and descriptions
+                  Writing
                 </Link>{" "}
                 says when a glyph needs a label and when it must be hidden.
               </li>
@@ -175,7 +167,7 @@ export default function IconsPage() {
             position set out in{" "}
             <Link
               className="text-foreground underline underline-offset-4"
-              href={routes.docs("start", "safety-scope-and-limitations")}
+              href={routes.docs("health")}
             >
               safety, scope and limitations
             </Link>

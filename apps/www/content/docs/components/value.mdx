@@ -7,8 +7,8 @@ reviewed: 2026-09-20
 reviewer: engineering
 category: health-formatting
 aliases: [number, unit, format, formatted number, format a number, numeric display, figure]
-governedBy: [numbers-units-precision, unit-systems, clinical-interaction-guidelines, data-provenance-and-device-accuracy, on-screen-privacy, reference-ranges, risk-and-statistics, safety-review-checklist, uncertainty-and-staleness, who-this-is-for]
-usedIn: [ask-users-for/height-and-weight, choose-a-component, daily-log-screen, daily-logging, diabetes-medicines-app, forms/units-and-numeric-entry, health-metric-card, onboarding-screen, results-screen, sharing-with-a-clinician, trend-review, trends-screen, value-against-a-range]
+governedBy: [numbers, health/index, trends, consent-and-privacy, reference-ranges, safety-review]
+usedIn: [daily-logging, forms, result-disclosure, onboarding-and-first-run, sharing-with-a-clinician, trend-review]
 ---
 
 <StubNotice
@@ -23,19 +23,13 @@ usedIn: [ask-users-for/height-and-weight, choose-a-component, daily-log-screen, 
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="value" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="value"
   unbuilt={false}
   importPath="@/components/ui/value"
 />
-
-## Usage
 
 ```tsx
 import { Value } from "@/components/ui/value"
@@ -44,6 +38,31 @@ import { Value } from "@/components/ui/value"
 ```tsx
 <Value value={1000.2} unit="kg" precision={1} />
 ```
+
+## Examples
+
+<ComponentPreview name="value" />
+
+### Zero is a reading. Absence is not.
+
+Three rows share a unit and a precision and differ only in the reading: a
+number, a `null`, and a number that arrived broken. Rule 12 of
+[Numbers and units](../health/numbers.mdx) keeps them apart.
+
+<ComponentPreview name="value-zero-is-not-absence" kind="example" align="start" />
+
+### One precision makes a column comparable
+
+Four readings of one metric at one `precision`, aligned by the layout and by
+tabular figures.
+
+<ComponentPreview name="value-aligned-in-a-column" kind="example" align="start" />
+
+### What a screen reader is actually given
+
+One magnitude with six units, and beside each the phrase that reaches speech.
+
+<ComponentPreview name="value-spoken-units" kind="example" align="start" />
 
 ## When to use it
 
@@ -76,114 +95,38 @@ absence at `display` takes the muted theme role.
 **Thresholds.** None here, and none in `tokens/units.json`, which holds no
 reference range, no plausibility bound and no default precision. Precision
 belongs to the metric, so `precision` is required. See
-[Numbers, units and precision](../health/numbers-units-precision.mdx) and
+[Numbers and units](../health/numbers.mdx) and
 [Reference ranges](../health/reference-ranges.mdx).
 
-**Masking.** [On-screen privacy](../health/on-screen-privacy.mdx) lists this
+**Masking.** [Consent and privacy](../health/consent-and-privacy.mdx) lists this
 among the components that implement a fixed-width mask. Value has no `masked`
 prop and reserves no width, so masking a reading today moves the layout.
 
 <SafetyCallout severity="attention" evidence="opinion" title="The unit table says what a number is measured in. It never says what a number should be.">
 `mmol/L` to `mg/dL` is refused, because the factor is a property of the analyte
 rather than of either unit. `convertUnit` returns nothing rather than a
-substituted default. See [Unit systems](../health/unit-systems.mdx).
+substituted default. See [Numbers and units](../health/numbers.mdx).
 </SafetyCallout>
-
-## Anatomy
-
-<Anatomy
-  name="value"
-  parts={[
-    {
-      name: "Value",
-      describes: "The root, and one accessible unit of meaning. Not focusable, not interactive, and it paints no colour for a reading.",
-      prop: "value",
-    },
-    {
-      name: "Value.Number",
-      describes: "The formatted magnitude in tabular figures, rounded once at display, half away from zero, with locale-aware separators.",
-      prop: "precision",
-    },
-    {
-      name: "Value.Unit",
-      describes: "The symbol as written, carrying the no-break space that joins it to the number inside this part.",
-      prop: "unit",
-    },
-    {
-      name: "Value.Spoken",
-      describes: "The unit in words, visually hidden and select-none. Present only when the reader's language is English or unset.",
-      prop: "unit",
-    },
-    {
-      name: "Value.Absence",
-      describes: "Words and no glyph: no reading yet for one never taken, not available for one that arrived broken.",
-      prop: "absenceLabel",
-    },
-  ]}
-/>
-
-## Examples
-
-### Zero is a reading. Absence is not.
-
-Three rows share a unit and a precision and differ only in the reading: a
-number, a `null`, and a number that arrived broken. Rule 13 keeps them apart.
-
-<ComponentPreview name="value-zero-is-not-absence" kind="example" align="start" />
-
-### One precision makes a column comparable
-
-Four readings of one metric at one `precision`, aligned by the layout and by
-tabular figures.
-
-<ComponentPreview name="value-aligned-in-a-column" kind="example" align="start" />
-
-### What a screen reader is actually given
-
-One magnitude with six units, and beside each the phrase that reaches speech,
-which a screenshot cannot show.
-
-<ComponentPreview name="value-spoken-units" kind="example" align="start" />
-
-## Content guidelines
-
-A caller's `absenceLabel` is rendered exactly as passed, with no check, so run
-your own absence copy past the banned-word list. Write a unit symbol exactly as
-`tokens/units.json` spells it, case included. A number with no unit by design
-takes `null`, never an omitted prop.
-
-<DoDont>
-  <DoDont.Do>
-    **"1000.2 kg"** for a device that measures to 100 g. One decimal place,
-    spoken as *1000.2 kilograms*.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"1000.2481 kg"** because that is what the device sent. Four decimal places
-    assert a precision the instrument lacks.
-  </DoDont.Dont>
-</DoDont>
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA** in a source pass and a rendered pass on
-`/view/base/base-lyra/component/value`. The audit is author-run, not an
-independent review, and clinical review is still pending.
+The unit symbol is `aria-hidden` only when a spoken form exists and the words
+follow it, so an English reader hears *1000.2 kilograms* as one phrase. Absence
+is spoken in words, never drawn at hero weight, and carries no decorative glyph.
+The component imposes no truncation, no fixed height and no `whitespace-nowrap`.
+Axe, target-size, focus-visible and 320px reflow checks came back empty, and the
+audit changed nothing in source.
 
-It changed nothing in source. The unit symbol is `aria-hidden` only when a
-spoken form exists and the words follow it, so an English reader hears *1000.2
-kilograms* as one phrase. Absence is spoken in words, never drawn at hero
-weight, and carries no decorative glyph. The component imposes no truncation, no
-fixed height and no `whitespace-nowrap`. The rendered pass returned empty axe,
-target-size, focus-visible and 320px reflow results.
+**Residual items.**
 
-Three items sit outside this source. A Value must never be the sole accessible
-name of a tappable control, because the visible symbol and the spoken words
-share no substring, so the control owes its own name carrying the symbol (WCAG
-2.2 SC 2.5.3). The only path to a clipped reading is a caller passing a
-truncating class through `className`, which `twMerge` lets win, so truncation is
-a caller responsibility documented on `ValueProps.className`. The spoken span
-uses `select-none` to keep the words off the clipboard while leaving them in the
-accessibility tree, untested by a copy test.
+- A Value must never be the sole accessible name of a tappable control, because
+  the visible symbol and the spoken words share no substring. The control owes
+  its own name carrying the symbol (WCAG 2.2 SC 2.5.3).
+- The only path to a clipped reading is a caller passing a truncating class
+  through `className`, which `twMerge` lets win, so truncation is a caller
+  responsibility documented on `ValueProps.className`.
+- The spoken span uses `select-none` to keep the words off the clipboard while
+  leaving them in the accessibility tree, untested by a copy test.
 
 <KeyboardTable
   name="value"
@@ -203,7 +146,16 @@ accessibility tree, untested by a copy test.
 
 <ContrastReport component="value" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="ValueProps" />
+
+`precision` is required and nothing is defaulted in its place. `unit={null}`
+declares a dimensionless number. Omitting `unit` raises OPSIN-0003 instead.
+Under server rendering, pass `locale` explicitly, or the server's own ICU
+default formats the first paint and hydration reformats it.
+
+### Data attributes
 
 <DataAttributesTable
   name="value"
@@ -220,20 +172,3 @@ accessibility tree, untested by a copy test.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="ValueProps" />
-
-`precision` is required and nothing is defaulted in its place. `unit={null}`
-declares a dimensionless number. Omitting `unit` raises OPSIN-0003 instead.
-Under server rendering, pass `locale` explicitly, or the server's own ICU
-default formats the first paint and hydration reformats it.
-
-## Related
-
-- [RelativeTime](./relative-time.mdx) does the same job for points in time, and shares the absence contract.
-- [ReadingInput](./reading-input.mdx) is the entry counterpart, so the two must agree on precision and units.
-- [MetricTile](./metric-tile.mdx) is a Value with a label, a time and a surface of its own.
-- [RangeBar](./range-bar.mdx) is a Value with its reference range drawn around it.
-- [Callout](./callout.mdx) owns the framing a bare risk proportion needs before it can be shown.

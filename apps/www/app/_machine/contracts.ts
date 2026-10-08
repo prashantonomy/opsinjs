@@ -51,14 +51,11 @@ import pkg from "@/package.json"
  * rendered, so this is baked at build time. Set it in the build environment,
  * not at request time.
  *
- * THE DEFAULT DOES NOT RESOLVE YET. `opsinjs.pensievelabs.org` is the subdomain
- * that will be attached to the Vercel deployment, and it is not live until that
- * attachment happens, so every absolute URL built from this constant is a name
- * the project intends to own rather than a URL an agent can fetch today. Those
- * URLs appear in `llms.txt`, in the four shards, in every `/r` payload, in each
- * `.md` twin's frontmatter, in the sitemap and in the feed. Set
- * `NEXT_PUBLIC_SITE_URL` to the origin that actually serves the build, and do
- * not treat the fallback as a contract until the domain is attached.
+ * The default, `opsinjs.pensievelabs.org`, is the live production host. Every
+ * absolute URL built from this constant appears in `llms.txt`, in the four
+ * shards, in every `/r` payload, in each `.md` twin's frontmatter, in the
+ * sitemap and in the feed, so a preview deployment sets `NEXT_PUBLIC_SITE_URL`
+ * to its own origin rather than pointing all of them at production.
  */
 /**
  * NOTE FOR THE SEQUENTIAL FINISH: `app/_shared/site.ts` (the human-facing
@@ -246,10 +243,9 @@ export function siteSummary(): string {
 /**
  * The repository these routes link to.
  *
- * THIS REPOSITORY IS NOT PUBLIC YET, in a sense close to how `SITE_URL` above
- * does not resolve yet: `github.com/prashantonomy/opsinjs` exists, but while it
- * is private only collaborators can open it, so it is not a page just anybody
- * can reach today. The constant is written down here rather than in the four
+ * THIS REPOSITORY IS NOT PUBLIC YET: `github.com/prashantonomy/opsinjs`
+ * exists, but while it is private only collaborators can open it, so it is not
+ * a page just anybody can reach today. The constant is written down here rather than in the four
  * routes that link to it so that publishing the repository is one edit, and so
  * that nobody has to discover the fact by following a link.
  *

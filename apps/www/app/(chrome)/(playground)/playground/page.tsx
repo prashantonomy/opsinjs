@@ -72,7 +72,7 @@ export default function PlaygroundPage() {
               they no longer describe your theme. Use{" "}
               <Link
                 className="text-foreground underline underline-offset-4"
-                href={routes.docs("theming", "validating-your-theme")}
+                href={routes.docs("theming")}
               >
                 validating your theme
               </Link>{" "}

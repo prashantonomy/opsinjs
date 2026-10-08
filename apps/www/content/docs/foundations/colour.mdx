@@ -1,0 +1,96 @@
+---
+title: Colour
+description: Two colour axes, one derivation engine, and a contrast floor measured on every declared pair in both themes.
+kind: foundation
+aliases: [color system, palette, oklch, colour engine, APCA, display-p3, color blind, color tokens]
+---
+
+The [colour browser](/colors) shows every colour token as your device resolves it.
+
+## Two axes
+
+Category colour says what kind of measurement something is: `sleep`, `heart`, `activity`, `nutrition`, `mind` or `labs`. Status colour says how urgent it is: `steady`, `watch`, `attention` or `urgent`, plus `unknown`, which means no verdict rather than a fifth level. An element takes colour from one axis, never both, and a status always carries a word and an icon too. Your product assigns every status from ranges and thresholds it owns, and [Two colour axes](../health/two-colour-axes.mdx) has the full rule.
+
+## Roles
+
+Clinical tokens are named `--opsin-<axis>-<name>-<role>`.
+
+| Role | What it is | Contrast obligation |
+| --- | --- | --- |
+| `surface` | The tinted fill behind content | The background half of each pair |
+| `line` | A boundary, icon stroke or chart mark | Non-text, against its own surface |
+| `ink` | Text and icons that carry words | Text, against its own surface and the page |
+| `accent` | An identity fill, such as a bar or a legend dot | None. Never text, never the only boundary |
+
+A contrast guarantee attaches to a pair, never to a colour.
+
+- Use a whole pair or neither half. A status word on a neutral card is `ink`, never `line`.
+- Never put one axis's `ink` on the other axis's `surface`.
+- Only status tints a surface. A category paints a line, a word or an accent, and has no surface utility.
+- Use a role, never a ramp step or a raw `oklch()`. Hover and pressed colours are derived from the role, not shipped as tokens. See [States](./states.mdx).
+- The bare Tailwind name differs by axis: `bg-status-urgent` is the line and `bg-category-heart` is the accent.
+
+Neutral UI uses the shadcn chrome roles, such as `--background`, `--card` and `--border`.
+
+## Derivation engine
+
+Give the engine one brand colour. It keeps the hue, lays it on the fixed lightness ladder every ramp shares, clamps chroma into sRGB step by step without moving lightness or hue, and assigns roles by measurement. If no step clears the floor, it says so rather than ship a failing theme. Derive your own in [Theming](../theming.mdx) or the [theme generator](/playground/theme).
+
+<Todo>
+  The maths lives in `lib/color/` as an app internal, with no published API your own CI can gate on. The theme generator is the only supported entry point.
+</Todo>
+
+## Contrast
+
+WCAG 2.2 is the obligation and APCA is the design tool. `scripts/check-contrast.mts` measures every declared pair in light and dark with both models.
+
+| What the pair carries | WCAG 2.2 | APCA Lc |
+| --- | --- | --- |
+| Body text, labels and UI copy | 4.5:1 | 75 |
+| Large text, 24px or 18.66px bold | 3:1 | 60 |
+| A meaningful line, such as a status rule, chart stroke or focus ring | 3:1 | 45 |
+| Disabled or decorative, carrying no information | None | None |
+
+APCA is a draft, so opsinjs pins its own thresholds. Lc 90 on a health value a person may act on is our judgement rather than a standard, and the build does not gate it.
+
+- Gated pairs fail the nightly run when a change drives one below its floor. Text, `ink` and the neutral boundaries are gated.
+- Advisory pairs, such as an `accent` fill, are published but not gated.
+- Exempt pairs sit outside the floor's scope.
+
+Anything outside the declared set is unmeasured, including text over an image or a translucent surface and faded text such as `text-foreground/70`. [Contrast](../reference/generated/contrast.mdx) lists every measured pair, and the [contrast oracle](/playground/contrast) checks any other.
+
+<ContrastReport scope="status" />
+
+<Todo>
+  In dark, the card border clears WCAG 3:1, but no neutral step lets a 1px hairline reach APCA Lc 45 on the near-black page.
+</Todo>
+
+## Colour blindness
+
+The status axis keeps the familiar green to red order, although red-green is the most common colour vision deficiency. Keeping it is a judgement, not a finding.
+
+The four levels collapse under simulation and in greyscale, so every status carries a visible word, a distinct glyph per level, and a fixed order wherever several levels appear together. There is no colour-blind palette or mode. Desaturate a screenshot and read it.
+
+## Display P3
+
+sRGB is what every reader gets, and every figure is measured on it. A P3 step adds chroma at the same lightness and hue, so contrast barely moves.
+
+Guard it with `@media (color-gamut: p3)`. The form `@supports (color-gamut: p3)` is always false, because `color-gamut` is a media feature. The generated stylesheet still uses the `@supports` form, so no reader receives P3 values yet.
+
+<NoDataYet what="A measurement of the escalated P3 values" script="scripts/check-contrast.mts">
+  `scripts/check-contrast.mts` never reads the P3 values, so the published figures describe sRGB only.
+</NoDataYet>
+
+## Dark mode
+
+Light is the default. Dark is re-derived from the same ladder, not inverted, and keeps every hue, the order of the status levels and the same contrast floor.
+
+Surfaces gain chroma and inks lose it. The background is near-black rather than black, a raised surface gets lighter instead of casting a shadow, and the root declares `color-scheme`. Test dark on a phone at low brightness.
+
+<Todo>
+  The dark `watch` and `attention` surfaces share ladder step 950 and measure roughly Lc 0 against each other. The line, the word and the icon tell them apart.
+</Todo>
+
+## Tokens
+
+<TokenTable scope="color" />

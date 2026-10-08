@@ -1,22 +1,17 @@
 /**
  * GET /rss.xml is the changelog feed.
  *
- * One item per changelog entry, newest first. The changelog is a folder of
- * narrative pages rather than a single append-only file, which is what makes a
- * feed possible at all: each entry has its own URL, its own markdown twin and
- * its own date.
+ * One item per dated entry on the changelog page, newest first. An entry is an
+ * H2 whose text is a date, such as "8 October 2026"; the item links to that
+ * heading and carries its first paragraph as the description.
  *
  * WHY A DESIGN SYSTEM NEEDS ONE. Versioning here covers the JavaScript API, the
  * rendered DOM, the `data-*` attributes and the CSS custom properties. A change
  * that a consuming team has to act on can therefore be a renamed variable with
  * no import to update and no type error to catch. A feed is the cheapest way
  * for somebody who copied the source into their own repository to find out that
- * the thing they copied has moved.
- *
- * Entries are dated from the frontmatter `reviewed` date. An undated entry is
- * still published, sorted after the dated ones, because a visible entry with
- * no timestamp is better than a silently dropped release note. While the changelog is empty the feed is valid
- * and says so in its description, rather than 404ing and looking broken.
+ * the thing they copied has moved. While the changelog has no dated entry the
+ * feed is valid and says so in its description, rather than 404ing.
  */
 
 import {
@@ -27,12 +22,7 @@ import {
   absoluteUrl,
   text,
 } from "@/app/_machine/contracts"
-import {
-  allPages,
-  metaOf,
-  pageUrl,
-  type CorpusPage,
-} from "@/app/_machine/corpus"
+import { allPages, pageUrl, type CorpusPage } from "@/app/_machine/corpus"
 
 export const dynamic = "force-static"
 
@@ -47,56 +37,100 @@ function escapeXml(value: string): string {
     .replace(/'/g, "&apos;")
 }
 
-/** ISO 8601 in frontmatter, RFC 822 on the wire. */
-function toRfc822(value: string | undefined): string | undefined {
-  if (!value) return undefined
-  const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toUTCString()
+const MONTHS = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+]
+
+/** "8 October 2026" as a UTC date, or undefined when the heading is not a date. */
+function headingDate(heading: string): Date | undefined {
+  const match = /^(\d{1,2}) ([A-Za-z]+) (\d{4})$/.exec(heading.trim())
+  if (!match) return undefined
+  const month = MONTHS.indexOf((match[2] ?? "").toLowerCase())
+  if (month === -1) return undefined
+  return new Date(Date.UTC(Number(match[3]), month, Number(match[1])))
 }
 
-function entryDate(page: CorpusPage): string | undefined {
-  const meta = metaOf(page)
-  return toRfc822(meta.reviewed)
+/** The heading's anchor, as the docs page renders it. */
+function anchorOf(heading: string): string {
+  return heading
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, "")
+    .replace(/ /g, "-")
 }
 
-function isChangelogEntry(page: CorpusPage): boolean {
-  return (
-    page.slugs[0] === "project" &&
-    page.slugs[1] === "changelog" &&
-    page.slugs.length > 2
-  )
+interface Entry {
+  title: string
+  date: Date
+  description: string
+  url: string
 }
 
-export function GET(): Response {
-  const entries = allPages()
-    .filter(isChangelogEntry)
-    .map((page) => ({ page, date: entryDate(page) }))
-    .sort((a, b) => {
-      if (a.date && b.date) return Date.parse(b.date) - Date.parse(a.date)
-      if (a.date) return -1
-      if (b.date) return 1
-      return b.page.url.localeCompare(a.page.url)
+async function changelogEntries(page: CorpusPage): Promise<Entry[]> {
+  const markdown = await page.data.getText("processed")
+  return markdown
+    .split(/^## /m)
+    .slice(1)
+    .flatMap((section) => {
+      const [line = "", ...rest] = section.split("\n")
+      /* Processed markdown writes a heading as `8 October 2026 [#8-october-2026]`,
+         so the id is read from it rather than recomputed. */
+      const idMatch = /\s*\[#([^\]]+)\]\s*$/.exec(line)
+      const heading = idMatch ? line.slice(0, idMatch.index) : line
+      const date = headingDate(heading)
+      if (!date) return []
+      const description =
+        rest
+          .join("\n")
+          .trim()
+          .split(/\n\s*\n/)[0]
+          ?.replace(/\s+/g, " ") ?? ""
+      return [
+        {
+          title: heading.trim(),
+          date,
+          description,
+          url: `${pageUrl(page)}#${idMatch?.[1] ?? anchorOf(heading)}`,
+        },
+      ]
     })
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+}
+
+export async function GET(): Promise<Response> {
+  const page = allPages().find(
+    (candidate) => candidate.slugs.join("/") === "changelog"
+  )
+  const entries = page ? await changelogEntries(page) : []
 
   const description = entries.length
     ? `Release notes for ${SITE_NAME}. Versioning covers the JavaScript API, the rendered DOM, data attributes and the CSS custom properties.`
-    : `Release notes for ${SITE_NAME}. No component is implemented, so nothing has been released yet and this feed is empty by design rather than broken. It will carry an item per changelog entry once there is one.`
+    : `Release notes for ${SITE_NAME}. The changelog has no dated entry yet, so this feed is empty by design rather than broken.`
 
-  const items = entries.map(({ page, date }) => {
-    const meta = metaOf(page)
-    const url = pageUrl(page)
-    return [
+  const items = entries.map((entry) =>
+    [
       "    <item>",
-      `      <title>${escapeXml(meta.title)}</title>`,
-      `      <link>${escapeXml(url)}</link>`,
-      `      <guid isPermaLink="true">${escapeXml(url)}</guid>`,
-      ...(date ? [`      <pubDate>${escapeXml(date)}</pubDate>`] : []),
-      ...(meta.description
-        ? [`      <description>${escapeXml(meta.description)}</description>`]
+      `      <title>${escapeXml(`${SITE_NAME} ${entry.title}`)}</title>`,
+      `      <link>${escapeXml(entry.url)}</link>`,
+      `      <guid isPermaLink="true">${escapeXml(entry.url)}</guid>`,
+      `      <pubDate>${escapeXml(entry.date.toUTCString())}</pubDate>`,
+      ...(entry.description
+        ? [`      <description>${escapeXml(entry.description)}</description>`]
         : []),
       "    </item>",
     ].join("\n")
-  })
+  )
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',

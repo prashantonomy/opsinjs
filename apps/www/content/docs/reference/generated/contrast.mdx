@@ -9,56 +9,9 @@ reviewEvery: 3m
 aliases: [contrast measurements, generated contrast, Lc table]
 ---
 
-<PageTemplate kind="reference" />
+Measured by `scripts/check-contrast.mts` from `tokens/color.json` and `tokens/material.json`, with the hand-written maths in `lib/color/apca.ts` and `lib/color/wcag.ts`, into `lib/generated/contrast.json`. `pnpm run contrast` measures and `pnpm run contrast:verify` fails on a regression; the nightly job runs both. No figure here was typed by a person.
 
-## How this is generated
-
-**Source:** `tokens/color.json` and `tokens/material.json`.
-**Script:** `scripts/check-contrast.mts`, which computes both metrics with the
-hand-written maths in `lib/color/apca.ts` and `lib/color/wcag.ts` and writes
-`lib/generated/contrast.json`; `scripts/build-reference.mts` renders this page
-from it. **Commands:** `pnpm run contrast` to measure, `pnpm run contrast:verify`
-to fail on a regression. The nightly job runs both.
-
-Every number here was computed from the shipped token values by a script, in the
-run whose date is printed at the top of the table. None of them was typed by a
-person, and none of them is a target that someone decided the system had already
-met.
-
-**Both metrics, side by side, always.** WCAG 2.2 contrast ratio is what a
-conformance claim is written against and what a procurement reviewer will ask
-for. APCA Lc models perception better, particularly for light text on dark
-surfaces and for the thin weights this system uses at small sizes. They disagree,
-and where they disagree we report both and hold the pair to the stricter verdict.
-[Contrast and APCA](../../foundations/colour/contrast-and-apca.mdx) explains what
-each number means and why we did not pick one.
-
-**Six columns.** *Foreground* and *Background* are the token pair. *Theme* is
-light or dark, and every pair is measured in both. *Lc* is the APCA value. *Ratio*
-is the WCAG 2.2 value. *Verdict* is measured against the published floor for the
-pair's intended use, not against a single global threshold. Body text, large
-text and non-text boundaries have different floors, and a pair that passes for one
-fails for another.
-
-**Three verdicts, and `advisory` is the one to read carefully.** `pass` means the
-pair clears both floors for its role. `FAIL` means a gated pair does not.
-`advisory` means the pair is *not gated*, as with an accent used as an identity
-fill, a chart mark, or a hairline boundary. It is a statement about how the pair is
-used, not about whether it clears anything. Some advisory pairs clear their floor
-and some do not, and this table renders both the same way. The ones that do not
-are recorded in `lib/generated/contrast.json` with `"passes": false` and the
-floors they miss named in `failing`, and `pnpm run contrast` lists the first few
-of them separately on stdout. So do not read `advisory` as a quieter `pass`, and
-do not quote the headline `n fail` count as a conformance result: it counts gated
-failures only.
-
-**What this page does and does not cover.** It covers the presets opsinjs ships.
-It says nothing about a theme you derived from your own brand colour: those
-numbers depend on your input, which is why the derivation tooling refuses to emit
-a theme it cannot verify and why
-[Validating your theme](../../theming/validating-your-theme.mdx) exists. Quoting
-these figures in a conformance document is only honest if you shipped the preset
-they describe.
+Every pair is measured in light and dark with both metrics: the WCAG 2.2 ratio, which a conformance claim is written against, and APCA Lc. Each verdict is against the floor for the pair's role, so body text, large text and non-text boundaries differ. `pass` clears both floors, `FAIL` is a gated pair that does not, and `advisory` is an ungated pair, such as an identity accent or a chart mark, whether or not it clears anything; do not read it as a quieter `pass`. The headline count is gated failures only. These figures describe the shipped preset, not a theme derived from your brand colour, which you measure as [Theming](../../theming.mdx) describes. [Colour](../../foundations/colour.mdx) explains the two metrics.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 

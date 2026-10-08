@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: ["radio buttons", "single choice"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="radio-group" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="radio-group"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/radio-group"
   dependencies={["@base-ui/react"]}
 />
-
-## Usage
 
 ```tsx
 import { RadioGroup } from "@/components/ui/radio-group"
@@ -54,6 +47,22 @@ import { RadioGroup } from "@/components/ui/radio-group"
 />
 ```
 
+## Examples
+
+<ComponentPreview name="radio-group" />
+
+### A single choice
+
+Three options, one chosen. `options` carries the list, `value` marks the chosen one.
+
+<ComponentPreview name="radio-group-a-single-choice" kind="example" align="start" />
+
+### Options with descriptions
+
+The same list with a `description` under each label.
+
+<ComponentPreview name="radio-group-with-descriptions" kind="example" align="start" />
+
 ## When to use it
 
 <WhenToUse
@@ -69,144 +78,23 @@ import { RadioGroup } from "@/components/ui/radio-group"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="radio-group"
-  parts={[
-    {
-      name: "RadioGroup",
-      describes: "The root radiogroup: one roving tab stop, neutral chrome only.",
-      prop: "options",
-    },
-    {
-      name: "RadioGroup.Label",
-      describes: "The visible legend, a heading in weight rather than element.",
-      prop: "label",
-    },
-    {
-      name: "RadioGroup.Item",
-      describes: "One option row, the pressable target.",
-      prop: "value",
-    },
-    {
-      name: "RadioGroup.Control",
-      describes: "The circle, aria-hidden, its ring lifting to the primary ink when checked.",
-    },
-    {
-      name: "RadioGroup.Indicator",
-      describes: "The dot, in the primary ink, only when checked.",
-    },
-    {
-      name: "RadioGroup.ItemLabel",
-      describes: "The option's words.",
-    },
-    {
-      name: "RadioGroup.ItemDescription",
-      describes: "The optional helper line, in the muted ink.",
-      prop: "options",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="radio-group"
-  tree={[
-    {
-      part: "RadioGroup",
-      cardinality: "1",
-      note: "data-slot=\"radio-group\", role=\"radiogroup\", one roving tab stop",
-      children: [
-        {
-          part: "RadioGroup.Label",
-          cardinality: "1",
-          note: "data-slot=\"radio-group-label\", the visible legend, wired by aria-labelledby",
-        },
-        {
-          part: "RadioGroup.Item",
-          cardinality: "2..n",
-          note: "data-slot=\"radio-group-item\", role=\"radio\", aria-checked; one per option",
-          children: [
-            {
-              part: "RadioGroup.Control",
-              cardinality: "1",
-              note: "data-slot=\"radio-group-control\", the circle, aria-hidden",
-              children: [
-                {
-                  part: "RadioGroup.Indicator",
-                  cardinality: "0..1",
-                  note: "data-slot=\"radio-group-indicator\", the dot, present only when checked",
-                },
-              ],
-            },
-            {
-              part: "RadioGroup.ItemLabel",
-              cardinality: "1",
-              note: "data-slot=\"radio-group-item-label\"",
-            },
-            {
-              part: "RadioGroup.ItemDescription",
-              cardinality: "0..1",
-              note: "data-slot=\"radio-group-item-description\", present only when the option has a description",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### A single choice
-
-Three options, one chosen. `options` carries the list, `value` marks the chosen one.
-
-<ComponentPreview name="radio-group-a-single-choice" kind="example" align="start" />
-
-### Options with descriptions
-
-The same list with a `description` under each label.
-
-<ComponentPreview name="radio-group-with-descriptions" kind="example" align="start" />
-
-## Content guidelines
-
-Labels are short, parallel and in sentence case, naming the value each option sets.
-Order them the way the reader thinks, and keep an option's wording the same on
-every screen.
-
-<DoDont>
-  <DoDont.Do>
-    **"Standard" · "Quiet" · "None"** are parallel single words, ordered from most
-    to least, so they read as siblings.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Standard reminders" · "Keep it quiet" · "I want nothing"** are three
-    grammars, so they stop reading as one set.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-This was audited against WCAG 2.2 AA in a source pass and a rendered pass on
-`/view/base/base-lyra/component/radio-group`. The audit is author-run, not an independent review, and clinical review is still
-pending.
+The audit found nothing to change. The rendered pass was clean, with zero axe violations,
+rows floored at `--opsin-target-minimum`, focus kept visible and no sideways scroll at
+320px. The source has one roving tab stop, a visible legend wired by `aria-labelledby`
+rather than an `aria-label`, and selection carried three ways through `aria-checked`, the
+lifted ring and the filled dot, never on colour alone.
 
-The audit found nothing to change. The rendered pass was clean: zero axe
-violations, rows floor at `--opsin-target-minimum`, focus stays visible, no
-sideways scroll at 320px. The source pass confirmed one roving tab stop, a visible
-legend wired by `aria-labelledby` rather than an `aria-label`, and selection
-carried three ways through `aria-checked`, the lifted ring and the filled dot,
-never on colour alone.
+**Residual items.**
 
-Two residual notes. An option's `description` renders inside the radio, so the
-accessible name folds it in rather than exposing it through `aria-describedby`. It is
-announced and passes AA; wiring it as a distinct description restructures
-the name, a redesign rather than a fix. The colour transition on the row is not
-motion under 2.3.3, and its `prefers-reduced-motion` handling lives in global
-product CSS. Every colour is a role token, so no contrast ratio reads from the
-source; the measured pairs are the report below.
+- An option's `description` renders inside the radio, so the accessible name folds it in
+  rather than exposing it through `aria-describedby`. It is announced and passes AA, and
+  wiring it as a distinct description restructures the name, a redesign rather than a fix.
+- The colour transition on the row is not motion under 2.3.3, and its
+  `prefers-reduced-motion` handling lives in global product CSS.
+- Every colour is a role token, so no contrast ratio reads from the source. The measured
+  pairs are the report below.
 
 <KeyboardTable
   name="radio-group"
@@ -251,7 +139,7 @@ source; the measured pairs are the report below.
 
 <ContrastReport component="radio-group" />
 
-## API reference
+## Props interface
 
 <PropsTable name="RadioGroupProps" />
 
@@ -259,11 +147,3 @@ source; the measured pairs are the report below.
 matching no option renders nothing chosen and warns in development. A disabled
 option stays in the list, drawn in the muted ink and skipped by the Arrow keys. No
 options renders nothing.
-
-## Related
-
-- [SegmentedControl](./segmented-control.mdx) is the same single choice drawn as one
-  compact row, for switching a view.
-- [Select](./select.mdx) collapses the options into one control that opens on
-  demand.
-- [Field](./field.mdx) wraps an input with its label, hint and validation message.

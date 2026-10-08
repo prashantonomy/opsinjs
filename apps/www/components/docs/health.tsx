@@ -70,7 +70,7 @@ export interface TermProps {
 export function Term({ id, plain, children, className }: TermProps) {
   return (
     <Link
-      href={`${docsPath("content", "plain-english-a-z")}#${id}`}
+      href={`${docsPath("reference", "plain-english")}#${id}`}
       data-opsinjs-term={id}
       title={plain}
       className={cn(

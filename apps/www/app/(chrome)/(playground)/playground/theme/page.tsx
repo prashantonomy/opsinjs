@@ -105,16 +105,14 @@ export default function ThemePlaygroundPage() {
                 vocabularies for the same idea, and the reader learns neither.
               </p>
               <p>
-                <Link href={routes.docs("theming", "category-palettes")}>
-                  Adding a category without contaminating the status axis
+                <Link
+                  href={`${routes.docs("theming")}#status-and-category-palettes`}
+                >
+                  Status and category palettes
                 </Link>{" "}
                 covers the one case where a brand does legitimately extend the
-                system, and{" "}
-                <Link href={routes.docs("theming", "status-palettes")}>
-                  status palettes
-                </Link>{" "}
-                explains why redefining the other axis is almost always a
-                mistake.
+                system, by adding a category, and explains why redefining the
+                status axis is almost always a mistake.
               </p>
             </Prose>
           </div>
@@ -131,21 +129,23 @@ export default function ThemePlaygroundPage() {
               configuration and can be applied with the CLI. The encoder is part
               of the theming tools and is not published yet, so this page hands
               you CSS rather than a code it cannot generate honestly.{" "}
-              <Link href={routes.docs("registry", "preset-codes")}>
-                Preset codes
+              <Link
+                href={`${routes.docs("theming")}#presets-and-preset-codes`}
+              >
+                Presets and preset codes
               </Link>{" "}
               documents the format.
             </p>
             <p>
               When you have a theme,{" "}
-              <Link href={routes.docs("theming", "validating-your-theme")}>
+              <Link href={`${routes.docs("theming")}#validating-contrast`}>
                 validate it
               </Link>
               : the conformance figures published on this site describe the
               shipped presets, and the moment you change a token they describe
-              something else. The check runs in CI and is the difference between
-              a theme that is accessible and a theme that was accessible when
-              somebody last looked.
+              something else. opsinjs measures its own presets in CI; a
+              <Mono> check-theme</Mono> command for your project is planned, not
+              published.
             </p>
             <p>
               Individual pairs can be checked in{" "}

@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import { HomeLayout } from "fumadocs-ui/layouts/home"
 
+import { SiteFooter } from "@/components/site-footer"
 import { baseOptions } from "@/lib/layout.shared"
 import { site } from "@/lib/routes"
 import { ToolNav } from "./tool-nav"
@@ -43,9 +44,12 @@ export default function PlaygroundGroupLayout({
   children: ReactNode
 }) {
   return (
-    <HomeLayout {...baseOptions()}>
-      <ToolNav />
-      {children}
-    </HomeLayout>
+    <>
+      <HomeLayout {...baseOptions()}>
+        <ToolNav />
+        {children}
+      </HomeLayout>
+      <SiteFooter />
+    </>
   )
 }

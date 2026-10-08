@@ -95,13 +95,9 @@ export default function ContrastPlaygroundPage() {
                 minimum scrim, and that measurement is generated rather than
                 checked by eye. See{" "}
                 <Link
-                  href={routes.docs(
-                    "foundations",
-                    "materials",
-                    "the-contrast-floor"
-                  )}
+                  href={routes.docs("foundations", "materials")}
                 >
-                  the contrast floor
+                  the contrast floor in Materials
                 </Link>
                 .
               </p>
@@ -109,8 +105,8 @@ export default function ContrastPlaygroundPage() {
                 Finally: the figures published on this site describe the shipped
                 presets. The moment you change a token they describe something
                 else, which is what{" "}
-                <Link href={routes.docs("theming", "validating-your-theme")}>
-                  validating your theme
+                <Link href={routes.docs("theming")}>
+                  validating your theme in Theming
                 </Link>{" "}
                 exists for.
               </p>
@@ -134,17 +130,17 @@ export default function ContrastPlaygroundPage() {
             </p>
             <p>
               <Link
-                href={routes.docs("foundations", "colour", "contrast-and-apca")}
+                href={routes.docs("foundations", "colour")}
               >
                 Contrast and APCA
               </Link>{" "}
               ·{" "}
-              <Link href={routes.docs("accessibility", "contrast-conformance")}>
-                Measured conformance for every token pair
+              <Link href={routes.docs("reference", "generated", "contrast")}>
+                Measured contrast for every token pair
               </Link>{" "}
               ·{" "}
-              <Link href={routes.docs("accessibility", "colour-independence")}>
-                Colour independence
+              <Link href={routes.docs("foundations", "accessibility")}>
+                Accessibility
               </Link>
             </p>
           </Prose>

@@ -124,9 +124,7 @@ wrong.
 
 ## Where the detail lives
 
-- `/docs/health/two-colour-axes.md` - the rule and its reasoning
-- `/docs/health/clinical-status-semantics.md` - what each level means and who assigns it
-- `/docs/health/category-identity.md` - what a category colour may never carry
-- `/docs/health/alarm-fatigue.md` - the escalation budget
-- `/docs/accessibility/colour-independence.md` - the grayscale and CVD audit
-- `/docs/content/writing-status-and-alerts.md` - the sentence pattern per level
+- `/health/two-colour-axes.md` - the rule, what each level means and who assigns it, and what a category colour may never carry
+- `/health/alerts.md` - the escalation budget
+- `/foundations/accessibility.md` - the grayscale and CVD audit
+- `/foundations/writing.md` - the sentence pattern per level

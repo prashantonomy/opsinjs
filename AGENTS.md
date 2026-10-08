@@ -49,7 +49,8 @@ catalogue row, and what would make it ready is the review nobody has done.
 `status` is frontmatter on a `kind: component` page and on nothing else. The three
 values are `planned` (a written specification and no code), `shipped`, and `deprecated`
 (still installs, on its way out, with a named replacement and a named removal version).
-ADR 0023 is the record.
+ADR 0023 is the record. Decision records live in `decisions/` at the repository root,
+not on the site.
 
 ## 2. This is not the Next.js you know
 
@@ -116,18 +117,18 @@ Node type stripping rejects anything that needs code generation.
 Prop tables, token tables, data-attribute tables, CSS-variable tables, contrast numbers,
 bundle sizes, catalogue rows and the glossary are **generated** into committed files.
 `pnpm check:generated` regenerates and then does `git add -N . && git diff --exit-code`
-over nine paths. The nine are `lib/generated`, `lib/opsinjs.ts`, `registry/__index__.ts`,
+over eight paths. The eight are `lib/generated`, `lib/opsinjs.ts`, `registry/__index__.ts`,
 `registry/generated`, `app/tokens.generated.css`, `content/docs/reference/generated`,
-`content/docs/reference/api`, `content/docs/handbook/error-codes.mdx` and `public/r`. The
-list here is the one in `apps/www/package.json`'s `check:generated` script; if the two
-ever disagree, that script wins and this line is the bug. If you hand-edit one of those
+`content/docs/reference/error-codes.mdx` and `public/r`. The list here is the one in
+`apps/www/package.json`'s `check:generated` script; if the two ever disagree, that script
+wins and this line is the bug. If you hand-edit one of those
 paths, CI fails. That is the point. Change the source (`tokens/*.json`,
 `registry/catalogue.ts`, or the file under `registry/bases/` the generator reads) and
 regenerate.
 
-Two of those nine paths are hand-written files carrying one spliced generated region
+Two of those eight paths are hand-written files carrying one spliced generated region
 each: `lib/opsinjs.ts`, the substrate `shadcn add` copies into a consumer's project, and
-`content/docs/handbook/error-codes.mdx`. The prose outside the markers is yours to write;
+`content/docs/reference/error-codes.mdx`. The prose outside the markers is yours to write;
 everything between them is rewritten by `build-tokens.mts` on every run. Nothing under
 `content/docs/components` is generated; every page there is authored. CI also runs
 `--check` on each of the three generator scripts *before* `generate`, so that each one
@@ -162,15 +163,25 @@ This is what keeps a future `[lang]` segment a bounded change instead of a migra
 it is what made moving the corpus to the root a one-line change to `DOCS_BASE` plus the
 two rewrite sources in `next.config.mjs`.
 
-## 8a. There is no top navigation
+## 8a. The site has the clawscale shape
 
-The sidebar is the navigation, and it holds a wordmark, a search box and ten sections:
-Introduction, Foundations, Components, Accessibility, Health, Handbook, Agents, Reference,
-Roadmap, Changelog. Nothing else goes in it. `lib/sidebar-tree.ts` is the single file that
-decides that shape, and it does so by transforming the page tree, so no page moves and no
-URL changes. Everything that is not a documentation section, which is the tool pages, the
-machine surfaces, the licence and the theme switch, lives in `components/site-footer.tsx`,
-rendered once from `app/(chrome)/layout.tsx` on every route.
+The documentation is modelled on clawscale and blueprintjs.com, and ADR 0026
+(`decisions/0026-the-site-takes-the-clawscale-shape.md`) is the record. There is no top
+navigation, no breadcrumb, no right-hand table of contents and no footer on a
+documentation page. The sidebar is the navigation: a wordmark, a Theme row, a Search
+row, then six sections, which are opsinjs (the introduction and the guides at the
+root), Foundations, Components, Health, Patterns and Reference. Only the section you
+are in is expanded, and the page you are on lists its own H2 and H3 headings under its
+row.
+
+The root `meta.json` and each section's `meta.json` order the pages; a `---Label---`
+separator starts a labelled group. `lib/docs-nav.ts` reads the page tree into the six
+sections and `components/docs/sidebar.tsx` draws them, inside
+`components/docs/shell.tsx`. A section is one folder with no nested folders, apart from
+`reference/generated`, which `...generated` lifts inline. The tool pages, the machine
+surfaces and the licence are linked from `components/site-footer.tsx`, which the `(home)`
+and `(playground)` layouts render. A URL that stopped being a page is answered by
+`proxy.ts` from `lib/redirects.ts`, and so is its `.md` twin.
 
 ## 9. Never invent evidence
 
@@ -231,25 +242,28 @@ playbook: the recognition table, twenty-two reframing roles with worked examples
 seven meanings a reframe may never change, and the fourteen-point self-check to run on
 your own file before you declare it done.
 
-## 13. Component pages are lean
+## 13. Pages are lean
 
-A component page is read the way a Blueprint page is read: see it, install it, copy
-the usage, check the props, and learn when not to use it. Its outline is the fourteen
-sections in `lib/status.ts`, eight of them required, and `assert-ia` rule LEAN001
-fails the build when the body passes 1,000 words, or 1,250 on a `health-*` page. The
-count is every whitespace-separated token in the body, JSX and code included.
+A component page is read the way a Blueprint page is read: install it, copy the
+usage, see it, learn when not to use it, check the props. Its outline is the six
+sections in `lib/status.ts`, in this order: Usage, Examples, When to use it, Clinical
+meaning (a `health-*` category only, and required there), Accessibility, Props
+interface. `assert-ia` rule LEAN001 fails the build when the body passes 1,000 words,
+or 1,250 on a `health-*` page. The count is every whitespace-separated token in the
+body, JSX and code included.
 
-There is no `## Status`. `<StubNotice status="shipped">` opens the page above the
-first H2 with the SAFE001 sentence and at most three one-sentence open questions, and
-C6001 fails the build when it sits anywhere else. Every section is a component call or
-a short paragraph: Preview and Installation are a tag and nothing else, Usage is two
-code blocks, When to use it is the `<WhenToUse>` lists with one line per entry,
-Clinical meaning is four bold-led facts, an example is one or two sentences over its
-preview, Accessibility is a labelled triage of a few lines above the keyboard table and
-the contrast report, and Related is two to five one-line bullets.
+`<StubNotice status="shipped">` opens the page above the first H2 with the SAFE001
+sentence and at most three one-sentence open questions, and C6001 fails the build when
+it sits anywhere else. Usage is the install command, the import and a minimal use.
+Examples opens with the default preview, then one or two sentences over each named
+example. When to use it is the `<WhenToUse>` lists, one line per entry. Clinical meaning
+is four bold-led facts. Accessibility is a labelled triage of a few lines above the
+keyboard table and the contrast report. Props interface is the generated props table,
+a short paragraph, and the data attributes table where the component has one.
 
-Doctrine is linked, never restated. The argument for a decision lives on the Health,
-Accessibility or Foundations page that owns it, and in git history for the long pages
-this replaced. When a page needs more than the budget, the excess belongs on a doctrine
-page or nowhere, and the page links to it. ADR 0024 is the record and
-`content/docs/components/button.mdx` is the exemplar; copy its shape, never its facts.
+Every other page names its own headings, like a clawscale page, and LEAN002 holds a
+hand-written page to 1,200 words, or 1,500 on a health page; generated pages are exempt.
+Doctrine is linked, never restated. The argument for a decision lives in `decisions/`
+and in git history, not on the page. `content/docs/components/button.mdx` is the
+exemplar for a component page; copy its shape, never its facts. `content/_templates/`
+holds the two skeletons.

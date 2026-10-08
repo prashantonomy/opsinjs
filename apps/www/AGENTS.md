@@ -17,9 +17,9 @@ that recall gets wrong.
 
 ```
 app/(chrome)/layout.tsx      <html>/<body>, imports globals.css, mounts RootProvider
-app/(chrome)/(home)/…        marketing chrome
-app/(chrome)/(docs)/…        DocsLayout, one persistent sidebar
-app/(chrome)/(playground)/…  full-bleed tool chrome
+app/(chrome)/(home)/…        the tool pages (colours, tokens, icons, showcase), with the footer
+app/(chrome)/(docs)/…        DocsShell: the clawscale-style sidebar, no footer
+app/(chrome)/(playground)/…  full-bleed tool chrome, with the footer
 app/(view)/layout.tsx        its OWN <html>/<body>, imports ONLY product.css, no provider
 ```
 
@@ -139,7 +139,7 @@ with an explicit `.ts` extension, which is why `tsconfig.json` sets
 
 ## Do not
 
-- Read `searchParams` in `app/(chrome)/(docs)/docs/[[...slug]]/page.tsx`. It deoptimises
+- Read `searchParams` in `app/(chrome)/(docs)/[[...slug]]/page.tsx`. It deoptimises
   the whole corpus out of static generation.
 - Add a `webpack` key to `next.config.mjs`. Turbopack hard-fails on it.
 - Run `next lint`. It was removed; use `pnpm lint`.

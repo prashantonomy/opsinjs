@@ -9,38 +9,9 @@ reviewEvery: 12m
 aliases: [key bindings, keyboard table, shortcuts]
 ---
 
-<PageTemplate kind="reference" />
+Aggregated by `scripts/build-reference.mts` from the `<KeyboardTable>` on every component page, so a key that is not documented on its component cannot appear here. Run `pnpm run generate`.
 
-## How this is generated
-
-**Source:** the `<KeyboardTable>` block on every component page, which is the same
-block the component page renders rather than a separate list.
-**Script:** `scripts/build-reference.mts`. **Command:** `pnpm run generate`.
-
-Aggregating rather than re-authoring is the whole point. A separate global
-keyboard list is a document that is correct on the day it is written and wrong
-within two releases, because the person changing a component's focus order does
-not know it exists. Here, a key that is not documented on its component page
-cannot appear on this page, and a component page without a keyboard table fails
-the build.
-
-**Four columns.** *Component* and *part* say where you must be focused. *Key* is
-written the way a keyboard prints it, so <Kbd>Enter</Kbd>, <Kbd>Esc</Kbd>,
-<Kbd>Shift</Kbd> <Kbd>Tab</Kbd>. *Action* describes the outcome, not the
-implementation. *Notes* carries the exceptions: what changes in a right-to-left
-layout, what a screen reader's browse mode intercepts, what differs on iOS where
-an external keyboard is attached.
-
-**What is deliberately excluded.** Browser and operating-system defaults are not
-listed, because <Kbd>Tab</Kbd> moving focus forward is not a feature of a
-component.
-The global focus contract, focus-visible behaviour and the skip-link rules live
-in [Keyboard and focus](../../accessibility/keyboard-and-focus.mdx), which is
-doctrine and belongs there rather than in a table.
-
-This site's own shortcuts are not part of the system either; the search dialog
-opens with <Kbd>Ctrl</Kbd> <Kbd>K</Kbd> and that is a property of the
-documentation, not of opsinjs.
+*Component* and *part* say where focus must be, *Key* is written as a keyboard prints it, such as <Kbd>Shift</Kbd> <Kbd>Tab</Kbd>, *Action* is the outcome, and *Notes* carries the exceptions. Browser and operating-system defaults are not listed. The focus contract lives in [Accessibility](../../foundations/accessibility.mdx), and this site's own <Kbd>Ctrl</Kbd> <Kbd>K</Kbd> search shortcut is not part of opsinjs.
 
 {/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 

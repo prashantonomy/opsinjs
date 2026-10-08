@@ -7,10 +7,25 @@ those specifications are binding. When you build a component you build the one i
 specification already describes. You implement it, you do not redesign it, and you do
 not promote its page past what the code actually does.
 
-This file is the practical starting point. The fuller guide, including the component
-intake questions and the four routes a change can take, lives in the handbook at
-[Contributing](https://opsinjs.pensievelabs.org/docs/handbook/contributing). That
-address is being attached to a fresh deployment and does not resolve yet.
+This file is the practical starting point. `AGENTS.md` holds the technical rules, and
+`decisions/` holds the records of why the system is shaped the way it is.
+
+## How a change gets in
+
+Four kinds of change, four different bars:
+
+| Change | Bar |
+| --- | --- |
+| A documentation fix | Correctness. Open a pull request. |
+| A token change | A migration story, because a token is a public API. |
+| A new component | An issue answering what it asserts about somebody's health and what happens when it is wrong, before any API. |
+| A change to Health doctrine | A dated rationale, a named reviewer and an honest `evidence` value. |
+
+Every change needs one review, and some need more: anything under `health/` needs a
+clinical reviewer, a colour token or contrast change needs the generated contrast report
+regenerated, anything user-visible in a component needs an accessibility check, and any
+wording that appears on screen needs a content review. Open an issue before a large
+change, and keep each pull request to one thing.
 
 ## Repository
 
@@ -46,8 +61,9 @@ pnpm check       # drift and integrity gate, described below
 
 - **Generated-file drift.** Every checked-in generated artefact is diffed against its
   source. If they disagree the gate fails.
-- **Information architecture.** Each page must carry the frontmatter its `kind`
-  prescribes and exactly the headings that `kind` prescribes, no more and no fewer.
+- **Information architecture.** Each page carries the frontmatter its `kind`
+  prescribes, a component page has exactly the six sections of its outline, every link
+  resolves, and no page passes its word budget.
 - **Accessibility from source.** The accessibility tables are checked against the token
   source rather than against hand-written copies.
 - **llms.txt.** The machine-readable index stays in step with the corpus.
@@ -76,15 +92,15 @@ say so plainly. Four components carry that truth:
 - `<Todo>` for a measured gap, which the coverage report counts.
 
 Use these instead of softening the truth in prose. The MDX vocabulary is closed. Only
-the tags listed in the anatomy contract exist, the `assert-ia` gate fails on any other
-JSX tag, and content work never defines a new one.
+the tags registered in `apps/www/components/mdx.tsx` exist, the `assert-ia` gate fails
+on any other JSX tag, and content work never defines a new one.
 
 ## Never hand-edit generated files
 
-Files under `lib/generated/`, `registry/generated/`, `content/docs/reference/generated/`,
-`content/docs/reference/api/` and `public/r/`, along with `registry/__index__.ts`,
-`lib/opsinjs.ts`, `app/tokens.generated.css` and `content/docs/handbook/error-codes.mdx`,
-are produced by scripts. Edit the source instead. The source is a file under `tokens/`,
+Files under `lib/generated/`, `registry/generated/`, `content/docs/reference/generated/`
+and `public/r/`, along with `registry/__index__.ts`, `lib/opsinjs.ts`,
+`app/tokens.generated.css` and `content/docs/reference/error-codes.mdx`, are produced by
+scripts. Edit the source instead. The source is a file under `tokens/`,
 `registry/catalogue.ts`, a file under `registry/bases/`, or the emitting script itself.
 Then regenerate. The authoritative list of what the drift gate diffs is in the www
 package manifest, not in any prose copy of it.

@@ -1,0 +1,80 @@
+---
+title: Trends and uncertainty
+description: What a screen may say about change over time, about old, estimated or missing values, and about where a number came from.
+kind: health
+evidence: opinion
+implements: [trend-sparkline, metric-tile, result-card, relative-time, status-pill, timeline-entry, value, skeleton, empty-state, disclaimer-note, reading-input, dose-tracker, source-citation]
+reviewed: 2026-10-08
+reviewer: design
+---
+
+opsinjs publishes no minimum window, change threshold, freshness window or accuracy figure for any metric. The metric's clinical owner supplies each one.
+
+## Trends
+
+1. Direction (up, down, unchanged) is arithmetic. Valence (better, worse) is a clinical judgement about one metric for one person, often unavailable. Keep them apart.
+2. Where no valence is defined, show direction only: no colour, status or adjective on the arrow.
+3. Draw no trend below the metric's declared minimum window. Two readings give a difference, not a direction.
+4. Below the metric's declared change threshold, say no change: "About the same as your average over the last 4 weeks."
+5. Name the baseline and window on screen, never a bare delta.
+6. Plot readings at their real times, show gaps, and never truncate the axis to steepen a slope ([Data visualisation](../foundations/data-visualisation.mdx)).
+7. A trend never sets a status. Status comes from the latest value against its range, so rising inside the usual range is not `attention`.
+8. Never extrapolate: no projected line, no "at this rate", no predicted value.
+9. Every chart has a text twin stating the same baseline, window and direction.
+10. Draw missing readings as missing, never interpolated or plotted as zero: "No readings between 3 and 17 March."
+11. A smoothed series keeps its raw points visible.
+
+The product owns the baseline and the sentence. The screen is [Trend review](../patterns/trend-review.mdx).
+
+## Staleness and missing data
+
+A value is fresh, stale, partial, estimated or absent ([States](../foundations/states.mdx)), and the reader must be able to tell which.
+
+12. Every value has a timestamp: relative for recency, absolute on demand.
+13. Each metric declares its own freshness window; none is defaulted.
+14. Staleness is shown by de-emphasising the value itself, not only in a caption.
+15. A stale value shows its age and a way to refresh, neither at full weight nor withheld.
+16. An estimate is labelled at the number with its source and rounded more coarsely ([Numbers and units](./numbers.mdx)): "Estimated from your watch. Roughly 7 hours 30 minutes."
+17. A failed fetch and an empty history get different sentences and next actions. Neither is ever rendered as a number.
+18. A loading placeholder implies no value: no plausible number, chart shape or status colour.
+19. Status degrades with certainty. Check it first: a value of unestablished recency, completeness or provenance never drives `attention` or `urgent`.
+20. State a partial result; never average over the gap: "3 of your 4 devices have reported today."
+21. Offline is a state of its own: say the device is offline rather than showing last values as current ([Offline and stale data](../patterns/offline-and-stale-data.mdx)).
+
+Your data layer supplies each reading's time, marks estimates, separates failure from absence and names the reporting sources.
+
+<Todo>Specify the presentation of an explicit uncertainty interval: a measured value with a stated error bound, in text and in a chart.</Todo>
+
+## Provenance
+
+Each class bounds what the interface may assert:
+
+- **Clinically measured** (a laboratory result): compare against an attributed range and carry a status.
+- **Device measured** (a validated home cuff, a scale): compare against a range where the device's method supports it, and carry a status where a clinical rule says so.
+- **Device estimated** (optical heart rate in motion, sleep stages): show as an estimate and as trends, never with a clinical status on its own.
+- **Self-reported** (a typed weight, a remembered dose): record and display as reported, never as measured.
+
+22. Record provenance at capture; it travels with the value, never reconstructed or defaulted.
+23. Show it in plain words at the value and in its accessible name: "from your cuff", "estimated by your watch", "you entered this".
+24. Status is bounded by class. An estimate never escalates on its own, so a wrist reading taken mid-run raises no cardiac alert, and may prompt a cuff reading instead.
+25. Never combine classes in one figure, such as a weekly average, without saying so.
+26. Name the device ("your Model X cuff"), never marketing ("clinically validated technology").
+27. Attribute and link a manufacturer's accuracy claim. Never restate it as the product's own, strengthen it, or invent a figure.
+28. State once, at the number, what the device does not do: a wrist sensor does not measure blood pressure.
+29. Label a model output as one, with its inputs.
+30. Never silently correct self-reported data. Query an implausible entry with the reader.
+31. Exports carry provenance ([Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx)).
+
+## Components
+
+[TrendSparkline](../components/trend-sparkline.mdx) requires `minimumPoints`, and below it draws nothing and says so. `changeThreshold` has no default, and without it the caption names no direction. A gap is an explicit `value: null`. [RelativeTime](../components/relative-time.mdx) has no staleness default; `staleAfterHours` adds the stale words and muted treatment. [Value](../components/value.mdx) renders `null` as an absence, never `0`.
+
+No component carries a provenance class, so rules 22 to 31 are the caller's. [ResultCard](../components/result-card.mdx) takes provenance as free text, so never pass it a `status` derived from an estimate or a self-report. [MetricTile](../components/metric-tile.mdx)'s `event` defaults to `measured`, unchecked against how the figure was obtained. [SourceCitation](../components/source-citation.mdx) renders provenance beside a value, not in its accessible name, and checks nothing.
+
+<Todo>Specify the four provenance classes as a shared type and a prop on every component that renders a health value, so that rule 24 is enforced rather than reviewed.</Todo>
+
+## Evidence
+
+Every rule here is opinion; no study is cited. Rules 3 and 4 follow from measurement variability. The four classes are our model, coarse so a non-expert can assign them.
+
+Take any accuracy claim from the manufacturer's current documentation or a study you have read. Differences in optical sensing across skin tones are discussed in research and by regulators. We give no figure or citation: ask your supplier, and apply rule 28.

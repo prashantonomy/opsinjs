@@ -1,0 +1,83 @@
+---
+title: Error codes
+description: Every development-mode warning opsinjs emits, its stable code, what causes it and the page that prevents it.
+kind: reference
+aliases: [warning codes, dev warnings, OPSIN error, console warning, what does this warning mean]
+---
+
+Every warning opsinjs emits in development carries a stable code, a sentence saying what to do instead, and a link to the page that explains the rule. `warnOnce()` ships in `lib/opsinjs.ts`, which `shadcn add` copies into your project with the components. Several built components call it, and the remaining codes are allocated with no caller yet. Message wording, severity and which component raises which code may change while the components are unreviewed. The code a message carries does not.
+
+## How the codes work
+
+- **Flat and permanent.** Codes run from `OPSIN-0001` in allocation order, and the digits carry no meaning. A code is never reused, renumbered or removed. Adding a code is not a breaking change.
+- **One code, one page.** Each code links the page that explains its rule.
+- **Once per session.** A warning fires once per code and message, not once per render. The message includes the values the component passed, so two components making the same mistake print two warnings, and the second render in Strict Mode prints nothing.
+- **Development only.** No warning throws. A production build strips them when your bundler applies the `NODE_ENV` guard, and where `process` is undefined the channel stays silent. Validate anything you need at runtime in your own code.
+- **One source.** `tokens/errors.json` is the only place a code is authored. `scripts/build-tokens.mts` writes it into `lib/opsinjs.ts`, `lib/generated/tokens.ts` and the table below, and the next `pnpm run generate` undoes an edit to any of them.
+
+## Handling a warning
+
+- Treat a `safety` code as an error. The screen looks right and tells a reader the wrong thing about their own health.
+- Search and parse by code, never by message text. Messages get clearer between versions, and codes do not change.
+- Never work around a warning you have not read.
+- Turn warnings into failures in CI if you want them enforced.
+- Do not silence the console to hide them, because that silences React's hydration warnings too.
+- A warning raised during server rendering appears in the server log, not the browser console.
+- A message with a `{brace}` still in it is a second bug, because the component did not supply that value.
+- Report a warning that fires when it should not.
+
+## The codes
+
+{/* opsinjs:errors:begin. Everything below is replaced by scripts/build-tokens.mts from tokens/errors.json */}
+
+A warning is one `console.warn` call, and it looks like this. The braces are
+filled from what the component passed; this is the template as authored, so
+what you see below is what the code emits and not a paraphrase of it.
+
+```text
+[opsinjs] OPSIN-0001 (safety): <{component}> received both `category="{category}"` and `status="{status}"`. A surface carries one axis. Set the category on the surface and render the status as a StatusPill inside it.
+  → https://opsinjs.pensievelabs.org/health/two-colour-axes
+```
+
+### Severities
+
+3 classes, and they are a statement about consequence rather than about
+how noisy the warning is.
+
+| Severity | Codes | What it means |
+| --- | --- | --- |
+| `safety` | 8 | A defect that can mislead a reader about their own health. Treat as a bug, not as a lint warning. |
+| `correctness` | 9 | The component will render something, but not what the author meant. |
+| `hygiene` | 4 | Works today, will not survive an upgrade. |
+
+### Every code
+
+21 codes, in allocation order. "Values in the message" names the
+`{braced}` spans a component has to supply; a missing one is reported in the
+warning itself rather than swallowed.
+
+| Code | Severity | What went wrong | Values in the message | Prevented by |
+| --- | --- | --- | --- | --- |
+| `OPSIN-0001` | safety | Both a category and a status were given to one surface | `component`, `category`, `status` | [health/two-colour-axes](../health/two-colour-axes.mdx) |
+| `OPSIN-0002` | safety | A status was rendered without a word | `component`, `status` | [health/two-colour-axes](../health/two-colour-axes.mdx) |
+| `OPSIN-0003` | safety | A value was rendered without a unit | `value`, `null` | [health/numbers](../health/numbers.mdx) |
+| `OPSIN-0004` | safety | A reference range was rendered without a source | `component` | [health/reference-ranges](../health/reference-ranges.mdx) |
+| `OPSIN-0005` | safety | More than one urgent surface on a screen | `count` | [health/alerts](../health/alerts.mdx) |
+| `OPSIN-0006` | safety | A banned word appeared in a component's copy | `text`, `word`, `replacement` | [reference/plain-english](../reference/plain-english.mdx) |
+| `OPSIN-0007` | safety | A health value was animated | `component`, `token` | [health/alerts](../health/alerts.mdx) |
+| `OPSIN-0008` | correctness | A raw colour value was passed where a token is required | `component`, `prop`, `value` | [theming](../theming.mdx) |
+| `OPSIN-0009` | correctness | A primitive token was referenced from a component | `token` | [theming](../theming.mdx) |
+| `OPSIN-0010` | correctness | An unknown category was requested | `category`, `known` | [theming](../theming.mdx) |
+| `OPSIN-0011` | correctness | `unknown` was used as a status level | none | [health/trends](../health/trends.mdx) |
+| `OPSIN-0012` | correctness | A trend was drawn from too few points | `count`, `minimum` | [health/trends](../health/trends.mdx) |
+| `OPSIN-0013` | correctness | A chart's y-axis was truncated | `component`, `min` | [foundations/data-visualisation](../foundations/data-visualisation.mdx) |
+| `OPSIN-0014` | correctness | Category colours were used as chart series colours | `count` | [foundations/data-visualisation](../foundations/data-visualisation.mdx) |
+| `OPSIN-0015` | correctness | A touch target is below the floor | `component`, `width`, `height` | [foundations/accessibility](../foundations/accessibility.mdx) |
+| `OPSIN-0016` | correctness | A stale reading was rendered as current | `component`, `age` | [health/trends](../health/trends.mdx) |
+| `OPSIN-0017` | hygiene | More than three translucent surfaces are composited | `count` | [foundations/materials](../foundations/materials.mdx) |
+| `OPSIN-0018` | hygiene | A deprecated token was referenced | `token`, `version`, `replacement`, `removal` | [changelog](../changelog.mdx) |
+| `OPSIN-0019` | hygiene | The token stylesheet was not loaded | none | [theming](../theming.mdx) |
+| `OPSIN-0020` | hygiene | Two theme providers are mounted | none | [theming](../theming.mdx) |
+| `OPSIN-0021` | safety | A status outside the four levels was passed | `component`, `status` | [health/two-colour-axes](../health/two-colour-axes.mdx) |
+
+{/* opsinjs:errors:end */}

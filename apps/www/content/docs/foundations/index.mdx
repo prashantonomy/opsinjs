@@ -1,131 +1,22 @@
 ---
 title: Foundations
-description: The ten token families and six system-wide contracts that every opsinjs component is obliged to obey, and what each one decides on your behalf.
+description: The token families and system-wide rules every opsinjs component obeys, one page each.
 kind: foundation
-reviewed: 2026-09-20
-reviewer: engineering
 ---
 
-<PageTemplate kind="foundation" />
+Foundations decide once what a colour, a size, a corner or a state means, so every component gives the same answer. Each page states the rules a component follows, and each token family ends in a table generated from `tokens/*.json`. Change a value in [Theming](../theming.mdx), and see every token in one list in [Tokens](../reference/generated/tokens.mdx).
 
-## Overview
-
-Foundations is the layer that exists before any component does. What a radius
-means, what "stale" looks like and which of two colour axes an element may draw
-from are all decided once here so that sixty components do not each make
-them differently and a reader looking at a blood-pressure reading does not have
-to work out whether amber means *this is a warning* or *this is your heart
-category*.
-
-Read the signpost first, because two of the three destinations are not here:
-
-> **Foundations is what a token means. Handbook and Theming are how you change
-> it. Reference is the generated list of every one.**
-
-That sentence is printed at the top of all three pillars. If a page in
-Foundations starts telling you how to override something, it is in the wrong
-place and should move to [Theming](../theming/index.mdx). If it prints a value,
-the value came from a generator, not from an author.
-
-Foundations is the part of this site that is completely real today. Nothing here
-depends on a component existing: the token sources are authored, the colour and
-contrast maths is hand-written, and the generated tables read the same files the
-product theme reads. The thing most often confused with Foundations is the
-component library. A foundation is nevertheless not a smaller component. It is
-the argument a component is not allowed to re-litigate.
-
-## How it works
-
-There are three shapes of page in this pillar and they are not interchangeable.
-
-**Token families** own a scale and the tokens that express it. There are six:
-[Colour](./colour/index.mdx), [Materials](./materials/index.mdx),
-[Motion](./motion/index.mdx), [Typography](./typography/index.mdx),
-[Shape](./shape/index.mdx) and [Space](./space/index.mdx). Each ends in a generated
-`Tokens` page, and each one is a scale rather than a palette. The steps are
-ordered, the ordering carries meaning, and skipping a step is a decision you
-have to be able to defend.
-
-**Expression foundations** own a medium that has no numeric scale but still needs
-one ruling for the whole system. There are four:
-[Iconography](./iconography/index.mdx), [Imagery](./imagery/index.mdx),
-[Data visualisation](./data-visualisation/index.mdx) and
-[Sound and haptics](./sound-and-haptics.mdx). Imagery and Sound and haptics were
-added after the first roster of eight, because a patient-facing system that has
-a rule about colour and no rule about which skin tone a rash is drawn on has
-picked the easy half of the problem.
-
-**System-wide contracts** are not families at all. They are the six pages that
-every component must satisfy regardless of which tokens it consumes:
-[Principles](./principles.mdx), [Token architecture](./token-architecture.mdx),
-[Layering and elevation](./layering-and-elevation.mdx),
-[Interaction states](./interaction-states.mdx), [Data states](./data-states.mdx) and
-[Layout](./layout.mdx).
-
-Every page in the pillar, including this one, has the same six sections in the
-same order: Overview, How it works, Using it, Tokens, Accessibility impact,
-Related. The shape is enforced by `<PageTemplate>` at build time, so a foundation
-cannot quietly become an essay with no applied guidance and no accessibility
-consequence.
-
-## Using it
-
-Come here when you need to know what something *means*. Three questions map onto
-three pillars, and getting them the right way round saves a lot of reading:
-
-- *What does `--opsin-status-urgent-line` signify, and when am I allowed to use
-  it?* Foundations answers that.
-- *How do I add a seventh category to my own build without breaking the status
-  axis?* [Theming](../theming/index.mdx) is where that is done.
-- *What is the complete list of every token that currently exists?*
-  [Reference](../reference/index.mdx) has it.
-
-If you are new, read [Principles](./principles.mdx) and
-[Token architecture](./token-architecture.mdx) in that order. They are twenty
-minutes and they make the other pages shorter, because almost every rule in the
-pillar is one of the five principles applied to a specific medium.
-
-If you are auditing rather than building, the four pages that carry the most
-weight are [Colour](./colour/contrast-and-apca.mdx),
-[Materials](./materials/the-contrast-floor.mdx),
-[Data states](./data-states.mdx) and
-[Density and touch](./space/density-and-touch.mdx). Those are where a consumer
-health product fails a real audit, in roughly that order of frequency.
-
-## Tokens
-
-Foundations as a whole owns no tokens. Each family owns its own and publishes it
-on that family's `Tokens` page, generated from `tokens/*.json` by
-`scripts/build-tokens.mts`:
-[colour](./colour/tokens.mdx), [materials](./materials/tokens.mdx),
-[motion](./motion/tokens.mdx), [typography](./typography/tokens.mdx),
-[shape](./shape/tokens.mdx) and [space](./space/tokens.mdx).
-
-The complete cross-family list, every token in one table with what it controls
-and what consumes it, is generated into
-[Reference → Tokens](../reference/generated/tokens.mdx). Nothing on this page
-duplicates it; a hand-kept second copy of a generated list is a copy that will be
-wrong within a month.
-
-## Accessibility impact
-
-Accessibility is not a seventh foundation. It is a property that each of the ten
-either protects or destroys, which is why every page in this pillar carries an
-`Accessibility impact` section rather than deferring to
-[the Accessibility pillar](../accessibility/index.mdx).
-
-The division of labour is: Foundations states the guarantee a token family makes
-and the failure mode when it is misused; Accessibility states the conformance
-position, the measured result, and what an implementing team still owns. Contrast
-figures are measured by `pnpm contrast` and rendered by `<ContrastReport>`. No
-number on any page in this pillar is typed by a human, and a regression against
-the published floor fails the build rather than appearing as a footnote.
-
-## Related
-
-- [Principles](./principles.mdx) has the five rules the rest of the pillar is
-  derived from. Read this first.
-- [Theming and tokens](../theming/index.mdx) is the other side of the signpost:
-  how to change what you have just read the meaning of.
-- [The two colour axes](../health/two-colour-axes.mdx) is the single most
-  load-bearing decision in opsinjs, and the one Foundations exists to protect.
+| Page | What it covers |
+| --- | --- |
+| [Accessibility](./accessibility.mdx) | WCAG 2.2 AA, what components guarantee, and the limits of an author-run audit |
+| [Colour](./colour.mdx) | Category and status as two axes, the derivation engine and the contrast floor the build measures |
+| [Typography](./typography.mdx) | The platform UI font, a type scale named for jobs, and the reader's own text size |
+| [Space and layout](./space.mdx) | The 4px spacing scale, the 44pt touch floor, responsive modes and the page shell |
+| [Shape](./shape.mdx) | The radius ladder, concentric nesting and squircle corners |
+| [Motion](./motion.mdx) | Springs as tokens, motion chosen by its job, and reduced motion |
+| [Materials](./materials.mdx) | The surface ladder, its rung names, and the contrast floor for translucent rungs |
+| [Iconography](./iconography.mdx) | One icon library, and glyphs that never carry status on their own |
+| [Imagery](./imagery.mdx) | Illustration, photography, skin-tone representation, avatars and body diagrams |
+| [Data visualisation](./data-visualisation.mdx) | Chart colour, chart anatomy and accessible charts |
+| [States](./states.mdx) | Interaction states, and the loading, empty, error, stale and partial data states |
+| [Writing](./writing.mdx) | Voice and tone, health literacy, and the words for status, alerts and errors |

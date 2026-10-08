@@ -3,11 +3,12 @@ title: Skeleton
 description: A grey placeholder in the shape of the content that is loading, so the page does not jump when it arrives. It is never in the shape of a number.
 status: shipped
 kind: component
+governedBy: [alerts, trends]
 reviewed: 2026-09-20
 reviewer: engineering
 category: feedback
 aliases: [loading placeholder, shimmer, loading state, placeholder, ghost]
-usedIn: [choose-a-component, daily-log-screen, empty-and-first-use, offline-and-stale-data, results-screen, trends-screen]
+usedIn: [empty-and-first-use, trend-review]
 ---
 
 <StubNotice
@@ -21,19 +22,13 @@ usedIn: [choose-a-component, daily-log-screen, empty-and-first-use, offline-and-
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="skeleton" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="skeleton"
   unbuilt={false}
   importPath="@/components/ui/skeleton"
 />
-
-## Usage
 
 ```tsx
 import { Skeleton } from "@/components/ui/skeleton"
@@ -42,6 +37,30 @@ import { Skeleton } from "@/components/ui/skeleton"
 ```tsx
 <Skeleton shape="text" lines={3} appearAfterMs={200} />
 ```
+
+## Examples
+
+<ComponentPreview name="skeleton" />
+
+### A list that is still arriving
+
+Three rows of `aria-hidden` skeletons, with one polite `role="status"` message the
+caller mounts beside the busy list rather than inside it. Every skeleton passes
+`appearAfterMs`, so a warm cache never shows one.
+
+<ComponentPreview name="skeleton-a-loading-list" kind="example" align="start" />
+
+### A row that may turn out to be empty
+
+The label gets a placeholder because every row has one. The value's seat gets
+height and no shape, because whether a reading exists is what the request will
+answer.
+
+<ComponentPreview
+  name="skeleton-a-row-that-may-be-empty"
+  kind="example"
+  align="start"
+/>
 
 ## When to use it
 
@@ -60,116 +79,33 @@ import { Skeleton } from "@/components/ui/skeleton"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="skeleton"
-  parts={[
-    {
-      name: "Skeleton",
-      describes: "The root. aria-hidden, hidden from print, and the element the appearance delay applies to. Never focusable, never announced.",
-      prop: "appearAfterMs",
-    },
-    {
-      name: "Skeleton.Group",
-      describes: "Present only for the text shape. Stacks the lines to take the height N lines of body text will.",
-      prop: "lines",
-    },
-    {
-      name: "Skeleton.Block",
-      describes: "One placeholder shape: placeholder-fill over a placeholder-line hairline. Carries the shimmer, which reduced motion removes.",
-      prop: "shape",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="skeleton"
-  tree={[
-    {
-      part: "Skeleton",
-      cardinality: "1",
-      note: "data-slot=\"skeleton\", aria-hidden, print:hidden",
-      children: [
-        {
-          part: "Skeleton.Group",
-          cardinality: "0..1",
-          note: "data-slot=\"skeleton-group\"; the text shape only",
-          children: [
-            {
-              part: "Skeleton.Block",
-              cardinality: "1..n",
-              note: "data-slot=\"skeleton-block\"; one per line, the last narrower when there is more than one",
-            },
-          ],
-        },
-        {
-          part: "Skeleton.Block",
-          cardinality: "0..1",
-          note: "data-slot=\"skeleton-block\"; the single-shape form, which is a line, a block or a circle",
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### A list that is still arriving
-
-Three rows of skeletons, each root `aria-hidden`, with one polite `role="status"`
-message mounted by the caller beside the busy list rather than inside it. Every
-skeleton passes `appearAfterMs`, so a warm cache never shows one.
-
-<ComponentPreview name="skeleton-a-loading-list" kind="example" align="start" />
-
-### A row that may turn out to be empty
-
-The label gets a placeholder because every row has one. The value's seat gets
-height and no shape, because whether a reading exists is what the request will
-answer.
-
-<ComponentPreview
-  name="skeleton-a-row-that-may-be-empty"
-  kind="example"
-  align="start"
-/>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
-author-run, not an independent review, and clinical review is still pending.
-The rendered pass found no violation, no target-size hit, no missing
-focus-visible state and no reflow failure at 320px. The source pass found no
-defect to fix, so this audit made no change to the component.
-
-**Checked by `pnpm run check:a11y` on every commit.** No status colour can
-reach a skeleton, every colour is a theme role (`bg-placeholder-fill` and
-`border-placeholder-line`), and no type size is in `px`.
-
-**Measured by `pnpm run contrast`.** The placeholder line clears the non-text
-floor against the page, a card and the muted ground in both themes; against its
-own fill it sits below Lc 45 in the dark theme, and the fill itself is published
-as advisory.
+Rendered, it shows no violation, target-size hit, missing focus-visible state or
+reflow failure at 320px, and the audit changed nothing. On every commit
+`pnpm run check:a11y` checks that no status colour can reach a skeleton, that every
+colour is a theme role (`bg-placeholder-fill`, `border-placeholder-line`), and that no
+type size is in `px`. `pnpm run contrast` measures the placeholder line clearing the
+non-text floor against the page, a card and the muted ground in both themes.
 
 **Argued from the source, not measured.**
 
-- The root is `aria-hidden` and mounts no live region on purpose. A list of
-  many skeletons should be announced once, not once per block, so the caller
-  owns one `role="status"` message beside the region rather than inside it.
-  Both examples on this page already show that pattern.
-- The shimmer is declared inside a `prefers-reduced-motion: no-preference`
-  query, so under reduce it never runs and the static tint remains.
-- The shimmer runs two cycles, about 3.2 seconds, then stops on the static
-  tint, so SC 2.2.2 does not engage. The appearance delay is never suppressed.
-- Nothing is focusable or interactive, and the root is `print:hidden`.
-- There is no `forced-colors` or `prefers-contrast` override. The root is
-  decorative and `aria-hidden`, so forced-colors mode has no information here
-  that an override would need to preserve.
+- The root is `aria-hidden`, nothing is focusable or interactive, and it is
+  `print:hidden`.
+- No live region mounts, on purpose. A list of many skeletons should be announced once,
+  not once per block, so the caller owns one `role="status"` message beside the region
+  rather than inside it, as both examples show.
+- The shimmer is declared inside a `prefers-reduced-motion: no-preference` query, so
+  under reduce it never runs and the static tint remains.
+- The shimmer runs two cycles, about 3.2 seconds, then stops on the static tint, so
+  SC 2.2.2 does not engage. The appearance delay is never suppressed.
+- There is no `forced-colors` or `prefers-contrast` override, because the decorative,
+  `aria-hidden` root has no information an override would need to preserve.
 
-**Not checked by any gate.** The 200% and 1.3x layout claims, what a screen
-reader announces, the dark-theme boundary on its own fill, and the text
-rhythm on a browser without the `lh` unit.
+**Residual items.** `pnpm run contrast` puts the placeholder line below Lc 45 against
+its own fill in the dark theme, and the fill is published as advisory. No gate checks
+the 200% and 1.3x layout claims, what a screen reader announces, the dark-theme
+boundary on its own fill, or the text rhythm on a browser without the `lh` unit.
 
 <KeyboardTable
   name="skeleton"
@@ -189,7 +125,7 @@ rhythm on a browser without the `lh` unit.
 
 <ContrastReport component="skeleton" />
 
-## API reference
+## Props interface
 
 <PropsTable name="SkeletonProps" />
 
@@ -197,14 +133,3 @@ rhythm on a browser without the `lh` unit.
 not a timer, so the placeholder holds the layout before hydration. A `shape`
 outside the four resolves to `text`. `lines` is clamped to 1 to 24. No part is
 exported; style them through `data-slot`.
-
-## Related
-
-- [EmptyState](./empty-state.mdx) is for when nothing is coming. Confusing the
-  two misleads the reader about whether their data exists.
-- [Spinner](./spinner.mdx) is for waits whose shape is unknown, where a skeleton
-  has no single outline to promise.
-- [Surface](./surface.mdx) is what skeletons frequently sit on, and where reduced
-  transparency and reduced motion interact.
-- [Button](./button.mdx) owns its own busy state; never replace a pressed button
-  with a skeleton.

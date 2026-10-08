@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: ["autocomplete", "typeahead", "search select"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="combobox" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="combobox"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/combobox"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Combobox } from "@/components/ui/combobox"
@@ -55,87 +48,9 @@ import { Combobox } from "@/components/ui/combobox"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "One item from a list long enough that typing a few letters beats scrolling it: a city, a country, a product-owned medication name.",
-    "A single choice where the reader knows roughly what they want and would rather type than hunt.",
-    "A field that must stay compact, filtering a long list in place rather than pushing the form down.",
-  ]}
-  avoid={[
-    { case: "A short fixed set that fits in a closed menu, so typing to filter buys nothing.", instead: "select" },
-    { case: "Two to about five short options worth comparing at a glance.", instead: "radio-group" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="combobox"
-  parts={[
-    {
-      name: "Combobox",
-      describes: "The visible root: a neutral hairline box holding the input and the trigger.",
-      prop: "items",
-    },
-    {
-      name: "Combobox.Input",
-      describes: "The text input and the one tab stop, role=\"combobox\", named by label, filtering by contains match.",
-      prop: "label",
-    },
-    {
-      name: "Combobox.Trigger",
-      describes: "A trailing button that opens the popup without typing, a lucide ChevronsUpDown.",
-    },
-    {
-      name: "Combobox.Popup",
-      describes: "The floating list, portalled past overflow clipping, matched to the input's width.",
-    },
-    {
-      name: "Combobox.Item",
-      describes: "One match, role=\"option\" with aria-selected. The active row takes the neutral hover surface.",
-      prop: "value",
-    },
-    {
-      name: "Combobox.ItemIndicator",
-      describes: "The lucide Check on the chosen match, so the selection survives greyscale.",
-    },
-    {
-      name: "Combobox.Empty",
-      describes: "The muted line shown when nothing matches. Base UI keeps it mounted and announces it politely.",
-      prop: "emptyMessage",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="combobox"
-  tree={[
-    {
-      part: "Combobox",
-      cardinality: "1",
-      children: [
-        { part: "Combobox.Input", cardinality: "1" },
-        { part: "Combobox.Trigger", cardinality: "1" },
-        {
-          part: "Combobox.Popup",
-          cardinality: "1",
-          children: [
-            { part: "Combobox.Empty", cardinality: "1" },
-            {
-              part: "Combobox.Item",
-              cardinality: "0..n",
-              children: [{ part: "Combobox.ItemIndicator", cardinality: "1" }],
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="combobox" />
 
 ### Filtering a list
 
@@ -151,45 +66,36 @@ popup, announced politely.
 
 <ComponentPreview name="combobox-no-match" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Name the field for the thing chosen, "Medication" rather than "Search", since a
-screen-reader user hears the name before the role. Write `emptyMessage` to help,
-such as "No matches. Check the spelling." Spell item labels as the product's list
-spells them.
-
-<DoDont>
-  <DoDont.Do>
-    **A label of "Medication", a placeholder of "Search medications".** The field
-    names the thing, the prompt the act.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A label of "Search" and a built-in list of medicines.** opsinjs ships no
-    vocabulary.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "One item from a list long enough that typing a few letters beats scrolling it: a city, a country, a product-owned medication name.",
+    "A single choice where the reader knows roughly what they want and would rather type than hunt.",
+    "A field that must stay compact, filtering a long list in place rather than pushing the form down.",
+  ]}
+  avoid={[
+    { case: "A short fixed set that fits in a closed menu, so typing to filter buys nothing.", instead: "select" },
+    { case: "Two to about five short options worth comparing at a glance.", instead: "radio-group" },
+  ]}
+/>
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA** in a source pass and a rendered pass, author-run
-rather than independent. Clinical review is pending.
+Base UI renders `role="combobox"` on the input, which is the single tab stop,
+`role="listbox"` on the popup and `role="option"` with `aria-selected` on each match.
+The selection is a lucide Check and the highlight a neutral surface under
+`data-highlighted`, so both survive greyscale. The input and the trigger floor a 44pt
+target in rem and carry their own focus ring. The audit fixed two defects: the trigger
+button now takes an `aria-label` built from the field's label, and the input's stray
+`outline-none` no longer hides the keyboard focus ring.
 
-The audit fixed two defects in the source: the trigger button now takes an
-`aria-label` built from the field's label, and the input's stray `outline-none`
-no longer hides the keyboard focus ring.
+**Residual items.**
 
-- Base UI renders `role="combobox"` on the input, `role="listbox"` on the popup
-  and `role="option"` with `aria-selected` on each match.
-- The input is the single tab stop; Arrow keys move a highlight through the popup.
-- The selection is a lucide Check and the highlight a neutral surface under
-  `data-highlighted`, so both survive greyscale.
-- The input and the trigger floor a 44pt target in rem and carry their own
-  focus ring.
-
-**Known gaps.** The label reaches a screen reader as `aria-label`, not a visible
-label element; a shared repair across the other input wrappers is still open.
-The live match count is not announced as the reader filters. No contrast pair is
-measured, so the report below stands in.
+- The label reaches a screen reader as `aria-label`, not a visible label element; a
+  shared repair across the other input wrappers is still open.
+- The live match count is not announced as the reader filters.
+- No contrast pair is measured.
 
 <KeyboardTable
   name="combobox"
@@ -229,7 +135,7 @@ measured, so the report below stands in.
 
 <ContrastReport component="combobox" />
 
-## API reference
+## Props interface
 
 <PropsTable name="ComboboxProps" />
 
@@ -237,9 +143,3 @@ measured, so the report below stands in.
 own. A `value` matching no item renders nothing chosen and raises a development
 warning. `label` is required, and `items` comes from the product. Omitted,
 `emptyMessage` falls back to a plain line.
-
-## Related
-
-- [Select](./select.mdx) opens a closed menu of a fixed list with no text filter.
-- [RadioGroup](./radio-group.mdx) shows two to five options side by side.
-- [Field](./field.mdx) is the labelled wrapper a Combobox sits inside.

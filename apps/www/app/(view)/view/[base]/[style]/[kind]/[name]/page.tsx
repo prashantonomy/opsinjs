@@ -11,7 +11,6 @@ import {
   listStyles,
 } from "@/lib/registry"
 import type { ViewKind } from "@/lib/routes"
-import { getPage, getPagesInSection } from "@/lib/source"
 import type { Status } from "@/lib/status"
 
 /**
@@ -99,10 +98,9 @@ interface UnbuiltFrame {
  *   so there is no such thing as a specified-but-unbuilt example and a miss is
  *   a 404. The caller has already tried that lookup, so a miss arrives here as
  *   `null`.
- * - `screen` is specified in the documentation corpus as a page under
- *   `content/docs/screens/`, and nothing else declares one. A screen page
- *   carries no release phase; the empty state names the screen and says
- *   nothing about a phase.
+ * - `screen` has no specification page of its own any more: a screen is
+ *   documented on the pattern page it illustrates, so an unbuilt screen has
+ *   nothing honest to frame here and 404s like any unknown name.
  */
 function describeUnbuilt(kind: ViewKind, name: string): UnbuiltFrame | null {
   if (kind === "component") {
@@ -110,11 +108,6 @@ function describeUnbuilt(kind: ViewKind, name: string): UnbuiltFrame | null {
     if (unresolved.reason === "unknown" || unresolved.status === null)
       return null
     return { status: unresolved.status }
-  }
-
-  if (kind === "screen") {
-    const page = getPage(["screens", name])
-    return page ? {} : null
   }
 
   return null
@@ -145,9 +138,9 @@ function describeUnbuilt(kind: ViewKind, name: string): UnbuiltFrame | null {
  * and the filter sees that, so those URLs are prerendered rather than stranded.
  *
  * Three rosters feed it, one per kind, and they are the three `describeUnbuilt`
- * consults: the catalogue for components, the generated index for examples, and
- * `content/docs/screens` for screens. The index contributes to all three as
- * well, because a built thing renders whether or not a roster still lists it.
+ * consults: the catalogue for components, and the generated index for examples
+ * and screens. The index contributes to components as well, because a built
+ * thing renders whether or not a roster still lists it.
  */
 export const dynamicParams = false
 
@@ -163,12 +156,7 @@ export function generateStaticParams(): {
       ...listByKind("component").map((entry) => entry.name),
     ]),
     example: new Set(listByKind("example").map((entry) => entry.name)),
-    screen: new Set([
-      ...listByKind("screen").map((entry) => entry.name),
-      ...getPagesInSection("screens")
-        .filter((page) => page.slugs.length === 2)
-        .map((page) => page.slugs[1]),
-    ]),
+    screen: new Set(listByKind("screen").map((entry) => entry.name)),
   }
 
   const params: { base: string; style: string; kind: string; name: string }[] =

@@ -52,7 +52,6 @@ import { source } from "@/lib/source"
 import {
   absoluteUrl,
   implementedComponents,
-  implementedScreens,
   SITE_NAME,
   SITE_URL,
 } from "./contracts"
@@ -72,170 +71,96 @@ export interface SectionDescriptor {
 }
 
 /**
- * The sixteen groups of the sidebar, in the order the root `meta.json`
- * declares them. `sectionOf` maps a page to exactly one of these, so a page
- * appears exactly once in `llms.txt`. That is what `check-llms.mts` asserts.
+ * The six sections of the sidebar, in the order the root `meta.json` declares
+ * them. `sectionOf` maps a page to exactly one of these, so a page appears
+ * exactly once in `llms.txt`. That is what `check-llms.mts` asserts. The
+ * top-level pages (the introduction and the guides beside it) form the first.
  */
 export const SECTIONS: SectionDescriptor[] = [
   {
     id: "",
-    title: "Introduction",
+    title: "Introduction and guides",
     blurb:
-      "What opsinjs is, who it is for, and the one claim it makes about health interfaces.",
-  },
-  {
-    id: "start",
-    title: "Start here",
-    blurb:
-      "Installation, the five-minute map of the site, and an honest fit checklist that says no to clinician-facing and regulated-device work.",
-  },
-  {
-    id: "recipes",
-    title: "Recipes",
-    blurb:
-      "Task-first pages: the components, tokens and copy rules for one job, in one scroll.",
-  },
-  {
-    id: "components",
-    title: "Components",
-    /* No count here, deliberately. This string is a module-level constant, so
-       it cannot call `implementedComponents()`. The count it used to carry
-       ("Twenty-four specifications. None is implemented") was wrong in both
-       halves within one release. It is also served verbatim as
-       `sections[].description` in `/r/docs.json`, which is read offline with
-       no way to check a number against anything. So it names the two fields
-       that do carry the answer instead. */
-    blurb:
-      "Every component opsinjs has claimed, in one list. Some have real source behind them and install from /r/<id>.json; the rest are specifications. A specification page states intent, when not to use it, the clinical contract, the API and the accessibility bar. Each entry's `status`, and `implemented` in /r/index.json, say which kind you are reading.",
-  },
-  {
-    id: "screens",
-    title: "Screens",
-    blurb:
-      "Whole-screen specimens showing the two colour axes, the material ladder and motion working together rather than in isolation.",
-  },
-  {
-    id: "health",
-    title: "Health",
-    blurb:
-      "The doctrine layer: clinical status semantics, reference ranges, numbers and units, alarm fatigue, consent, uncertainty. Real today, and independent of any component.",
+      "What opsinjs is and who it is for, then getting started, Next.js, theming, styling, the registry, agents and how to read these docs.",
   },
   {
     id: "foundations",
     title: "Foundations",
     blurb:
-      "What a token means in colour, materials, motion, typography, shape, space, data states and data visualisation.",
+      "Accessibility, colour, typography, space, shape, motion, materials, icons, imagery, data visualisation, states and writing.",
   },
   {
-    id: "accessibility",
-    title: "Accessibility",
+    id: "components",
+    title: "Components",
+    /* No count here, deliberately. This string is a module-level constant and
+       is served verbatim as `sections[].description` in `/r/docs.json`, which
+       is read offline with no way to check a number. So it names the fields
+       that carry the answer instead. */
     blurb:
-      "Split by role, with a curated path for compliance reviewers and generated, dated contrast measurements.",
+      "Every component in the catalogue. Each entry's `status`, and `implemented` in /r/index.json, say whether it installs; none has had an independent accessibility review or a clinical review.",
   },
   {
-    id: "content",
-    title: "Content & language",
+    id: "health",
+    title: "Health",
     blurb:
-      "Writing for a patient reader: voice and tone across the four status levels, health literacy, and the plain-English A to Z.",
+      "The doctrine layer: the two colour axes, alerts, numbers and units, reference ranges, trends, high-stakes moments, consent and privacy, and the safety review.",
   },
   {
     id: "patterns",
     title: "Patterns",
     blurb:
-      "Components, tokens and guidance assembled for exactly one user task such as disclosing a result, logging daily or escalating an alert.",
-  },
-  {
-    id: "handbook",
-    title: "Handbook",
-    blurb:
-      "Mechanics: styling hooks, data attributes, composition, forms, dark mode, error codes, and how to contribute a component.",
-  },
-  {
-    id: "theming",
-    title: "Theming & tokens",
-    blurb:
-      "How to change what a token means. This section covers the theme generator, preset codes, category and status palettes, and Tailwind v4 ordering traps.",
-  },
-  {
-    id: "agents",
-    title: "Agents & automation",
-    blurb:
-      "The surfaces that are contractually stable for machines, and the rules an assistant must follow to generate safe health UI.",
-  },
-  {
-    id: "registry",
-    title: "Registry & distribution",
-    blurb:
-      "Shipping as a shadcn-spec registry: namespaces, registry.json, preset codes and upgrade diffs.",
+      "Multi-screen sequences a health product keeps rebuilding, such as disclosing a result, logging daily or escalating an alert, plus forms.",
   },
   {
     id: "reference",
     title: "Reference",
     blurb:
-      "The generated list of every token, data attribute, CSS variable, key binding, type, contrast pair and glossary term.",
-  },
-  {
-    id: "project",
-    title: "Project",
-    blurb:
-      "State of the system, roadmap, release phases, versioning policy, decision records, changelog and licensing.",
+      "The generated list of every token, CSS variable, data attribute, key binding, contrast pair and type, plus error codes and the glossaries.",
   },
 ]
 
 const SECTION_BY_ID = new Map(SECTIONS.map((section) => [section.id, section]))
 
-const FALLBACK_SECTION: SectionDescriptor = {
-  id: "other",
-  title: "Other pages",
-  blurb: "Pages that do not sit under one of the sixteen documentation groups.",
-}
-
+/** A top-level page that is not a section folder belongs to the first section. */
 export function sectionOf(page: CorpusPage): SectionDescriptor {
-  const first = page.slugs[0] ?? ""
-  return SECTION_BY_ID.get(first) ?? FALLBACK_SECTION
+  const first = page.slugs.length > 1 || SECTION_BY_ID.has(page.slugs[0] ?? "")
+    ? (page.slugs[0] ?? "")
+    : ""
+  return SECTION_BY_ID.get(first) ?? (SECTIONS[0] as SectionDescriptor)
 }
 
 /** Shards published as their own `llms-*.txt` file. */
 export const SHARDS = {
   components: {
     file: "/llms-components.txt",
-    title: "Components and screens",
-    sections: ["components", "screens"],
+    title: "Components",
+    sections: ["components"],
     blurb:
-      "Every component page and every screen specimen is here: the built components and the specifications, each carrying its own status. Read this before answering a question about what opsinjs provides.",
+      "Every component page, each carrying its own status. Read this before answering a question about what opsinjs provides.",
   },
   health: {
     file: "/llms-health.txt",
-    title: "Health, accessibility and content doctrine",
-    sections: ["health", "accessibility", "content"],
+    title: "Health doctrine",
+    sections: ["health"],
     blurb:
-      "The rules that decide what a health interface may assert, how it must be operable, and how it must be worded.",
+      "The rules that decide what a health interface may assert and how it must say it.",
   },
   foundations: {
     file: "/llms-foundations.txt",
-    title: "Foundations and theming",
-    sections: ["foundations", "theming"],
+    title: "Foundations",
+    sections: ["foundations"],
     blurb:
-      "What each token means and how to change it. The generated list of every one is the reference shard.",
+      "What each token means, accessibility, and writing. The generated list of every token is the reference shard.",
   },
-  /**
-   * REFERENCE IS ITS OWN SHARD, AND IT IS WHY THE SPLIT HAPPENED.
-   *
-   * It used to ride with Foundations and Theming. Those three together are
-   * 1.48 MB, of which Reference is 899 kB and eight generated table pages are
-   * 800 kB of that, so the combined shard spent its budget on tables and
-   * truncated before it reached the doctrine it was named after. Foundations
-   * says what a token means, Theming says how to change it, and Reference is
-   * the measured list of every one: three homes for one subject, which is the
-   * arrangement that lets a reader find out what a variable is FOR without
-   * reading six hundred rows. The shards now cut where the corpus already does.
-   */
+  /* Reference is its own shard because its generated tables are most of the
+     corpus by bytes, and riding with Foundations they spent its budget before
+     the doctrine it is named after. */
   reference: {
     file: "/llms-reference.txt",
     title: "Generated reference",
     sections: ["reference"],
     blurb:
-      "Every token, CSS variable, measured contrast pair, defined term and exported type, generated from the same sources the build uses.",
+      "Every token, CSS variable, measured contrast pair and exported type, generated from the same sources the build uses.",
   },
 } as const
 
@@ -396,25 +321,13 @@ function builtIds(): Set<string> {
   return builtIdCache
 }
 
-/** The same lookup for screen specimens, and empty for the same honest reason. */
-let builtScreenIdCache: Set<string> | null = null
-
-function builtScreenIds(): Set<string> {
-  if (!builtScreenIdCache) builtScreenIdCache = new Set(implementedScreens())
-  return builtScreenIdCache
-}
-
 /**
  * The catalogue id this page documents, or `null` when it documents no single
  * component.
  *
  * Only `content/docs/components/<id>.mdx` carrying `kind: component` qualifies.
- * The same directory also holds the section index (`kind: reference`) and the
- * page-anatomy handbook (`kind: handbook`), and a screen page is a specimen
- * rather than a registry item. None of the three is a component, and none has a
- * catalogue id or anything to install. A screen is still a thing that can be
- * composed, so `pageImplemented()` answers for it separately, from the registry
- * rather than from here.
+ * The same directory also holds the section overview (`kind: guide`), which is
+ * not a component and has no catalogue id or anything to install.
  */
 export function componentIdOf(page: CorpusPage): string | null {
   if (page.slugs[0] !== "components" || page.slugs.length !== 2) return null
@@ -433,21 +346,14 @@ export function componentIdOf(page: CorpusPage): string | null {
  * answer at all while its own docblock said it did. One function, three
  * callers.
  *
- * A component page answers for its catalogue id. A screen page answers for the
- * screen, read from the registry by kind rather than written down as `false`,
- * so the day a screen is composed the answer moves with it. Everything else
- * documents nothing that can be built, and gets `undefined` rather than a
- * `false` that would assert something untrue about a page that is real today.
- * That covers a guide, a doctrine page, an ADR and a generated token reference.
+ * A component page answers for its catalogue id. Everything else documents
+ * nothing that can be built, and gets `undefined` rather than a `false` that
+ * would assert something untrue about a page that is real today. That covers a
+ * guide, a doctrine page, a pattern and a generated token reference.
  */
 export function pageImplemented(page: CorpusPage): boolean | undefined {
   const componentId = componentIdOf(page)
   if (componentId) return builtIds().has(componentId)
-  const meta = metaOf(page)
-  if (meta.kind === "screen") {
-    const name = page.slugs[1]
-    return name ? builtScreenIds().has(name) : false
-  }
   return undefined
 }
 

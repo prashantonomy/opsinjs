@@ -1,0 +1,77 @@
+# ADR 0025. The WCAG 2.2 AA audit is author-run
+
+Every component was audited against WCAG 2.2 AA and the findings fixed. Auditing your own work is not independent review, and clinical review is still pending.
+
+## Status
+
+**Accepted.** 2026-09-21. All sixty components in `registry/bases/base/` were taken
+through a WCAG 2.2 AA audit, a static source pass and a rendered pass against the live
+`/view` page, and the findings were fixed in the component sources in the same change.
+`REVIEW_FLOOR_NOTICE` in `lib/status.ts` and rule SAFE001 in `scripts/assert-ia.mts`
+now read "Audited against WCAG 2.2 AA. Clinical review pending." rather than "no
+accessibility review and no clinical review." This record supersedes the review-floor
+paragraph of [ADR 0023](./0023-three-release-phases.md) and the "when the first
+accessibility review lands" condition of [ADR 0024](./0024-the-component-page-is-lean.md);
+the rest of both records stands.
+
+## Context
+
+When ADR 0023 set the three release phases and ADR 0024 shortened the component page,
+no component had been checked for accessibility, so both records could say plainly that
+`shipped` meant the source installed and nothing more. That is no longer true. Every
+component has now been audited against WCAG 2.2 AA and the findings were fixed, so the
+flat sentence "no accessibility review" is false wherever it still appears. A fact that
+has changed cannot keep being stated as though it has not, and a design system for a
+health audience is the last place to leave a stale claim about what has and has not been
+checked. The question this record answers is exactly what the site may now say, and what
+it still may not.
+
+## Decision
+
+The site says "audited against WCAG 2.2 AA" and says who ran the audit. It does not say
+"reviewed", "conformant", "accessible" or "WCAG 2.2 AA compliant", because those are
+claims about an assessment somebody else signs, and nobody has. The per-component box
+reads "Audited against WCAG 2.2 AA. Clinical review pending." Every machine surface and
+doctrine page that carried the flat "no accessibility review" now reads "no independent
+accessibility review", which stays true after an author-run audit. "Not for a production
+health surface" stays wherever it is a general statement, because clinical review is what
+gates that sentence and clinical review has not happened.
+
+## Consequences
+
+The audit was run by the authors of the components. An author auditing their own work
+finds what they already knew to look for and is blind to what their own model of the
+component hides, so this is a floor raised, not a verdict delivered, and calling it
+"independent" would be the exact overclaim ADR 0023 was written to stop. Clinical review
+is still pending in full: no clinical safety officer, no hazard log, no clinical safety
+case and no data protection impact assessment exists for any component or screen
+specimen, and none is claimed. ADR 0023's premise is now partly historical. Its argument
+that alpha and beta claimed a difference nobody had measured still stands, but its
+observation that no component had had an accessibility review is now dated, and its
+"revisit when a component passes an accessibility review" condition has half fired: there
+is a measured audit, it is not independent, so a reviewed tier is still not earned and
+the three phases stay. ADR 0024's "revisit when the first accessibility review lands"
+condition has fired in its author-run form: the Accessibility section on each component
+page now reports audited results rather than a proposed bar, and the word budget held, so
+LEAN001 does not move.
+
+## Alternatives considered
+
+A fourth release phase for "audited" was rejected. A phase word is a claim about code, an
+audit is a claim about a process, and wiring the two together is how "beta means
+accessibility reviewed" happened the first time; the audit rides in the box and in
+`REVIEW_FLOOR_NOTICE`, never in the phase. Rewriting ADR 0023 and 0024 in place was
+rejected as well. They are dated records of what was decided when, and editing their
+premises would erase the history this record exists to add to; each keeps its text and
+gains one pointer line to here. Claiming conformance rather than an audit was rejected
+because conformance is a statement an independent assessor makes, and substituting the
+authors' own audit for it is the substitution this whole record refuses.
+
+## Revisiting this
+
+Revisit when an independent accessibility audit is commissioned, because that is the
+event that lets the box drop "author-run" and say a second party checked the work.
+Revisit separately when a clinical safety officer signs a safety case, because that is
+the event that lets a page drop "Clinical review pending" and speak about a production
+health surface. Neither has happened, and until one does the sentence stays exactly as
+it reads now.

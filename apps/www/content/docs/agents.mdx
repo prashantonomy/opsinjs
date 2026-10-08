@@ -1,0 +1,76 @@
+---
+title: Agents and LLMs
+description: The stable machine surfaces, the rules for generating safe health UI, and how to connect an agent
+kind: guide
+aliases: [llm, ai agent, llms.txt, markdown twin, mcp, skill, agent rules, system prompt]
+---
+
+Every page and every component id answers at a stable address, so an agent can look a fact up instead of guessing it.
+
+## Machine surfaces
+
+| Path | What it is |
+| --- | --- |
+| [`/llms.txt`](/llms.txt) | Index of every page, with absolute URLs and each component's `status`. Start here |
+| [`/llms-full.txt`](/llms-full.txt) | The whole corpus, size-capped. A `## Truncated` block at the end names any page it drops |
+| `/llms-components.txt`, `/llms-health.txt`, `/llms-foundations.txt`, `/llms-reference.txt` | Topic shards. Each carries its sections whole |
+| `<page URL>.md` | The markdown twin of any page. The home page is `/index.md` |
+| [`/r/index.json`](/r/index.json) | The roster: every component id with `status`, `implemented`, category and aliases |
+| [`/r/registry.json`](/r/registry.json) | The shadcn-spec catalogue, which the shadcn MCP server reads |
+| `/r/<name>.json` | One registry item, carrying its source and `meta.opsinjs.implemented` |
+| [`/r/docs.json`](/r/docs.json) | The corpus as one versioned, size-capped JSON file for offline use. `included` and `omitted` say whether it carries every page |
+
+Page HTML, class names, heading anchors and `/view` preview routes are not a contract, so link to a page rather than a fragment.
+
+## The markdown twin
+
+Append `.md` to any page URL. Documentation components stay as tags whose attributes are the content, such as `<ComponentPreview name="range-bar" />`, and the values they draw are published at `/r/index.json` and in [Reference](./reference/index.mdx). A component twin carries `status` and `implemented` in its frontmatter. Every twin sends the docs version in an `x-opsinjs-docs-version` header, which a saved file loses, so store it beside any cached copy.
+
+## Rules for agents
+
+1. **Tokens, not values.** Never emit a hex, `rgb()`, pixel radius or millisecond duration. Use a token or a utility that resolves to one.
+2. **Status, not colour.** Set a level (`steady`, `watch`, `attention`, `urgent`) and let the system choose the colour. Never render a status without its word.
+3. **One axis per element.** Category and status never colour the same element. See [Two colour axes](./health/two-colour-axes.mdx).
+4. **Never invent a component, prop or variant.** Read `/r/index.json` and the installed source. If an id is not in the catalogue, say so and stop. For a `planned` id, describe the specification and emit no import. No id is planned today.
+5. **Never assume a registry.** Check `components.json` for `@opsinjs` before emitting `add @opsinjs/<name>`, and offer the one-line addition first.
+6. **Never invent a number.** No threshold, reference range, contrast ratio or bundle size unless a generated source you read supplied it.
+7. **Never decide a threshold.** Whether a reading is high belongs to the product's clinical logic, not to opsinjs and not to you. See [Reference ranges](./health/reference-ranges.mdx).
+8. **Never soften a clinical message.** "Nothing to worry about" is a different clinical claim, not friendlier copy for `watch`.
+9. **Never generate an accessibility claim** such as "meets WCAG AA" in code, a comment or a commit message.
+10. **Say what `shipped` costs.** Every id is `shipped`. Its API may change in any release, its WCAG 2.2 AA audit was run by its own authors, and it has had no independent accessibility review and no clinical review. Nothing here is for a production health surface.
+11. **Install source, never import a package.** No opsinjs package is published, so `@opsinjs/react` never resolves.
+12. **Cite the page you used.**
+
+```tsx
+// Right: the level is data, the word and the colour are the system's business.
+<StatusPill status="watch" describes="HbA1c result" />
+
+// Wrong: a colour decision, an invented prop, and no word.
+<StatusPill color="#f59e0b" />
+```
+
+## Connect an agent
+
+Register the namespace in `components.json`:
+
+```json title="components.json"
+{
+  "registries": {
+    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"
+  }
+}
+```
+
+**MCP.** opsinjs has no MCP server of its own. The shadcn MCP server reads this registry and supplies inventory, not judgement. Substitute `cursor`, `vscode`, `codex` or `opencode` for your client.
+
+```bash
+npx shadcn@latest mcp init --client claude
+```
+
+**Skill.** The skill at `skills/opsinjs/` in the repository holds `SKILL.md`, four rule files and an eval set. `npx skills add prashantonomy/opsinjs` installs it once the repository is public, which it is not yet. Until then, paste the rules above into your system prompt. The skill cannot judge clinical correctness, and its presence is no evidence of a clinical review.
+
+## Evals
+
+`skills/opsinjs/evals/evals.json` holds 22 tasks that score the docs, not a model. Each asks a question an agent would ask and asserts what the answering page must and must not say. `pnpm run evals` scores them against a pass mark of 0.9. Scores are advisory and are not shown on this site yet.
+
+<NoDataYet script="scripts/run-evals.mts" />

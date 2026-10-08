@@ -1,0 +1,117 @@
+---
+title: Safety review
+description: Pre-ship checklist, regulatory boundary and evidence standard.
+kind: health
+evidence: mixed
+implements: [result-card, range-bar, status-pill, alert-banner, care-card, value, relative-time, consent-sheet, disclaimer-note, source-citation, dose-tracker, questionnaire, symptom-picker, term]
+reviewed: 2026-10-08
+reviewer: design
+---
+
+No screen that displays, interprets or collects health information ships without this checklist completed, dated and attributable to a person. Run it before design review and at release, never by the screen's author alone. Passing it is not clinical sign-off: it never checks whether thresholds, ranges or clinical content are correct. Nor does it replace clinical risk management, security, privacy, data protection or usability work, or the independent accessibility and clinical reviews no component has had ([Accessibility](../foundations/accessibility.mdx)).
+
+## Checklist
+
+### Values
+
+1. Every value shows its unit, adjacent and in its accessible name ([Numbers](./numbers.mdx)).
+2. Precision matches the source, never an unformatted float.
+3. Units follow the reader's stored preference; conversions are labelled.
+4. Zero, absent and failed are distinct; none renders as a number ([Trends](./trends.mdx)).
+5. Out-of-scale values show at magnitude, never clamped to a gauge.
+6. Listed or live-updating numbers use tabular figures.
+
+### Ranges
+
+7. A compared range is shown, naming whose it is ([Reference ranges](./reference-ranges.mdx)).
+8. No string about the reader's result says *normal*, *abnormal*, *healthy*, *good*, *bad*, *poor* or *optimal*.
+9. The range fits this reader's age, sex and other qualifiers, or none is shown.
+10. No surface asserts a cause, diagnosis or prognosis.
+11. Risk figures are absolute, with a population, time window and baseline.
+
+### Status
+
+12. Status is one of the four levels, used as defined ([Two colour axes](./two-colour-axes.mdx)).
+13. Status carries colour, icon and word, verified in greyscale.
+14. No element takes colour from both category and status namespaces.
+15. Category colour never changes with the value.
+16. At most one `urgent` and two `attention` surfaces per screen ([Alerts](./alerts.mdx)).
+17. Non-clinical messages never use the clinical status palette.
+
+### Trends
+
+18. Every value shows when it was measured; staleness shows without a caption.
+19. No trend below the metric's minimum window; gaps drawn as gaps.
+20. Direction and valence are distinct; no coloured arrow asserts an unsupported judgement.
+21. Nothing is extrapolated or projected.
+
+### Provenance
+
+22. Every value's provenance class is recorded and shown in plain words.
+23. No estimated or self-reported value drives a clinical status alone.
+24. No manufacturer accuracy claim is restated as the product's own.
+
+### Escalation
+
+25. No escalation rung is skipped; no fact escalates in parallel.
+26. De-escalation is communicated when a value returns to `steady`.
+27. Any possible emergency finding has a complete emergency path, tested this release ([High-stakes moments](./high-stakes-moments.mdx)).
+28. Any self-harm disclosure question has a clinically reviewed response pathway that always leads somewhere.
+29. A result that may distress is announced first and ends in a route to a person.
+
+### Motion and privacy
+
+30. No urgency rides on motion, sound or haptics; nothing flashes; no clinical value animates on reveal.
+31. Every animation has a reduced-motion behaviour that preserves information.
+32. Notifications carry no value or diagnosis and open this screen.
+33. Sensitive values mask without reflow; content is obscured on backgrounding ([Privacy](./consent-and-privacy.mdx)).
+
+### Consent and language
+
+34. Anything collected has a stated purpose, plain-language explanation and revocation where the data appears.
+35. Declining is possible, unpunished and no harder than accepting.
+36. Every clinical term has a plain-English expansion in place.
+37. Copy was read aloud by someone who did not write it.
+
+### Accessibility
+
+38. Contrast meets the published floor in both themes, measured, not assumed.
+39. Fully keyboard operable, with visible focus and sensible order.
+40. Screen-reader pass done; status changes announced at the right politeness.
+41. Legible and complete at 200% text, no clinical sentence clipped.
+42. Touch targets meet the floor with adequate separation.
+43. Comprehensible in greyscale and under colour-vision simulation.
+
+### Governance
+
+44. Every threshold traces to a dated, written clinical rule with a named owner.
+45. Every hazard found is in the hazard log.
+46. Every no is fixed or an accepted exception with a name, reason and review date; every "not applicable" has a reason.
+47. Reviewer name and date recorded.
+
+## Regulation
+
+Nothing here is legal, regulatory or clinical advice, or a compliance assessment. Before designing surfaces that could trigger a regime, establish with advisers which apply in current form, including HIPAA and accessibility law. Your copy evidences the intended purpose that decides device class.
+
+opsinjs confers, implies and supports no regulatory status, is not a clinical safety case, hazard log or evidence of clinical risk management, and never makes a product a non-device or keeps it one. Cite it as design rationale, not compliance evidence.
+
+## Evidence
+
+Never invent a citation, statistic, date or study; prefer honest opinion. Health pages declare `evidence` in frontmatter. `cited` means an opened source that says what we say: a DOI, a URL or a named published standard. `mixed` marks which sentence is which; the rest is `opinion`. Sources are linked, never pasted or paraphrased.
+
+- Systematic review of laboratory-result presentation formats, JMIR, 2024, DOI [10.2196/53993](https://doi.org/10.2196/53993): format changes what lay readers take away.
+- Presentation of results in patient portals, BMC Medical Informatics and Decision Making, 2018, DOI [10.1186/s12911-018-0589-7](https://doi.org/10.1186/s12911-018-0589-7): the same, for portals.
+- WCAG 2.2, in particular SC 1.4.1 Use of Colour, SC 2.2.2 Pause Stop Hide, SC 2.3.1 Three Flashes, SC 2.3.3 Animation from Interactions and SC 2.5.8 Target Size: checkable requirements, not reader research.
+- APCA and the WCAG 3 draft contrast work: a second contrast measure, not conformance.
+- NHS England information standards DCB0129 and DCB0160, on clinical risk management in the manufacture and in the deployment of health IT: that the obligations exist.
+- Regulation (EU) 2017/745 on medical devices, and the UK medical devices regime: software can be a medical device.
+- The FDA's clinical decision support guidance, and the software provisions of the 21st Century Cures Act: where US consumer health products sit.
+- UK GDPR and EU GDPR special-category provisions: special category; statutory consent requirements.
+- World Health Organization guidance on responsible communication about suicide, and the Samaritans media guidelines: safe-messaging practice outranks a design system.
+- The Joint Commission's Sentinel Event Alert on medical device alarm safety in hospitals (Issue 50), and ECRI's health technology hazards lists: clinical alarm fatigue is documented; app transfer is opinion.
+- The NHS Digital Service Manual: a comparison point; Crown copyright, never copied.
+- Apple's Human Interface Guidelines: platform behaviour, checked, not restated.
+
+<Todo>Generate this register from page frontmatter, not by hand.</Todo>
+
+The checklist is opinion; the evidence standard is policy. That design rationale can feed a safety case is opinion no clinical safety officer has assessed.

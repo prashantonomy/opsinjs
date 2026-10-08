@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-data-display
 aliases: [stat, kpi, tile, vitals, resting heart rate, spo2, summary tile, steps]
-governedBy: [category-identity, clinical-interaction-guidelines, clinical-status-semantics, data-provenance-and-device-accuracy, numbers-units-precision, on-screen-privacy, reference-ranges, trends-and-change, two-colour-axes, uncertainty-and-staleness, unit-systems]
-usedIn: [alert-escalation, choose-a-component, daily-log-screen, empty-and-first-use, health-metric-card, offline-and-stale-data, results-screen, trend-review, trends-screen]
+governedBy: [two-colour-axes, health/index, trends, numbers, consent-and-privacy, reference-ranges]
+usedIn: [alert-escalation, empty-and-first-use, result-disclosure, offline-and-stale-data, trend-review]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="metric-tile" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="metric-tile"
@@ -35,8 +31,6 @@ reviewer: engineering
   importPath="@/components/ui/metric-tile"
   registryDependencies={["surface", "value", "status-pill", "relative-time"]}
 />
-
-## Usage
 
 ```tsx
 import { MetricTile } from "@/components/ui/metric-tile"
@@ -53,6 +47,32 @@ import { MetricTile } from "@/components/ui/metric-tile"
   href="/results/example"
 />
 ```
+
+## Examples
+
+<ComponentPreview name="metric-tile" />
+
+### A summary grid
+
+Every tint is category. Exactly one tile carries a `status`, as a pill with the word in
+it, and the others say nothing about urgency.
+
+<ComponentPreview name="metric-tile-a-summary-grid" kind="example" align="start" />
+
+### No boundary was supplied
+
+Two readings, three hours and five weeks old, with no `staleAfterHours`. Only the printed
+date marks the older one.
+
+<ComponentPreview name="metric-tile-no-boundary-supplied" kind="example" align="start" />
+
+### States
+
+| Data state | What MetricTile renders |
+| --- | --- |
+| Error | A `measuredAt` the tile cannot locate beside a reading is refused, and nothing renders. |
+| Empty | `value={null}` keeps the label, drops the time line, and is not zero. |
+| Stale | Past `staleAfterHours` the parts mute and the time line adds *may be out of date*. |
 
 ## When to use it
 
@@ -78,129 +98,35 @@ this time, so `measuredAt` is required beside one. An absence is not a reading o
 
 **Never read as.** A current reading, unless it is one. Past the product's boundary the
 tile mutes and says so in words, as
-[Uncertainty and staleness](../health/uncertainty-and-staleness.mdx) requires.
+[Trends and uncertainty](../health/trends.mdx) requires.
 
 **Colour axis.** Category, on the icon and the label only. Status appears as an embedded
 [StatusPill](./status-pill.mdx), never the tile's background, so no element carries
-both ([The two colour axes](../health/two-colour-axes.mdx)).
+both ([Two colour axes](../health/two-colour-axes.mdx)).
 
 **Thresholds.** None. `staleAfterHours` has no default, because opsinjs holds no boundary
-for any measurement. Omitted, there is no stale treatment. The tile derives no level:
-`status` is the product's, under
-[Clinical status semantics](../health/clinical-status-semantics.mdx). Pair `attention` or
-`urgent` with an `href`, because nothing here enforces it.
+for any measurement, and omitting it means no stale treatment. The tile derives no level,
+because `status` is the product's under [Two colour axes](../health/two-colour-axes.mdx).
+Pair `attention` or `urgent` with an `href`, because nothing here enforces it.
 
 **Provenance and masking.** There is no provenance prop and no mask, so do not route a
 figure nobody measured through `measuredAt`.
-[Data provenance](../health/data-provenance-and-device-accuracy.mdx) and
-[On-screen privacy](../health/on-screen-privacy.mdx) name this component, and neither is met.
-
-## Anatomy
-
-<Anatomy
-  name="metric-tile"
-  parts={[
-    {
-      name: "MetricTile",
-      describes: "The root: an <a> with href, a container without. Carries neither axis.",
-      prop: "href",
-    },
-    {
-      name: "Surface",
-      describes: "One level down, the card rung supplies the material.",
-    },
-    {
-      name: "MetricTile.Header",
-      describes: "Icon and label on one row. Not a heading element.",
-    },
-    {
-      name: "MetricTile.Icon",
-      describes: "The product's glyph, category-tinted and aria-hidden, only when passed.",
-      prop: "icon",
-    },
-    {
-      name: "MetricTile.Label",
-      describes: "What was measured, in the reader's words. Carries data-category, and mutes when stale.",
-      prop: "label",
-    },
-    {
-      name: "MetricTile.Affordance",
-      describes: "A trailing aria-hidden chevron, only with href.",
-      prop: "href",
-    },
-    {
-      name: "MetricTile.Reading",
-      describes: "One Value at display size, the loudest thing here. An absence drops to muted headline.",
-      prop: "value",
-    },
-    {
-      name: "MetricTile.Time",
-      describes: "One RelativeTime: event word, exact date, staleness words. Dropped when value is null.",
-      prop: "measuredAt",
-    },
-    {
-      name: "StatusPill",
-      describes: "The product's level, embedded last, after the time line, and absent when no status was assigned.",
-      prop: "status",
-    },
-  ]}
-/>
-
-## Examples
-
-### A summary grid
-
-Every tint is category. Exactly one tile carries a `status`, as a pill with the word in
-it. The others say nothing about urgency.
-
-<ComponentPreview name="metric-tile-a-summary-grid" kind="example" align="start" />
-
-### No boundary was supplied
-
-Two readings, three hours and five weeks old, with no `staleAfterHours`. Only the printed
-date marks the older one.
-
-<ComponentPreview name="metric-tile-no-boundary-supplied" kind="example" align="start" />
-
-## States
-
-| Data state | What MetricTile renders |
-| --- | --- |
-| Error | A `measuredAt` the tile cannot locate beside a reading is refused, and nothing renders. |
-| Empty | `value={null}` keeps the label, drops the time line, and is not zero. |
-| Stale | Past `staleAfterHours` the parts mute and the time line adds *may be out of date*. |
-
-## Content guidelines
-
-Labels are two or three words in the reader's vocabulary: *resting heart rate*, not *RHR*.
-A caveat belongs on the surface the tile opens.
-
-<DoDont>
-  <DoDont.Do>
-    **"Resting heart rate"**, with the unit beside the number and the recency on the tile.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"RHR"** with a bare number: an unknown acronym, no unit and no date.
-  </DoDont.Dont>
-</DoDont>
+[Trends and uncertainty](../health/trends.mdx) and
+[Consent and privacy](../health/consent-and-privacy.mdx) name this component, and neither is met.
 
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is author-run,
-not an independent review, and clinical review is still pending. The rendered pass returned
-zero axe violations, no target-size hits, no `focus-visible` failure and no reflow at 320px;
-the source pass found no defect to fix.
+The rendered pass found no axe violation, target-size hit, `focus-visible` failure or
+reflow at 320px, and the source needed no fix.
 
-**Residual.**
+**Residual items.**
 
-- A linked tile can trip WCAG 2.5.3 Label in Name because `Value` speaks *kilograms* for a
-  visible *kg*. The repair belongs in `Value` and is deferred; the *steps* demo does not trip.
+- `Value` speaks *kilograms* for a visible *kg*, so a linked tile can trip WCAG 2.5.3
+  Label in Name. The repair belongs in `Value` and is deferred, and the *steps* demo does
+  not trip.
 - Nothing enforces the JSDoc rule that `attention` and `urgent` pair with an `href`.
-- The event word names when a reading happened, not how it was obtained; there is no
-  provenance prop, so an estimate and a lab result sound alike.
-
-**Beyond the audit.** Contrast as the tile composes it, `prefers-contrast: more`,
-`forced-colors`, 200% text, print, and masking all stay unverified.
+- Contrast as the tile composes it, `prefers-contrast: more`, `forced-colors`, 200% text,
+  print and masking are unverified.
 
 <KeyboardTable
   name="metric-tile"
@@ -230,7 +156,16 @@ the source pass found no defect to fix.
 
 <ContrastReport component="metric-tile" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="MetricTileProps" />
+
+A `measuredAt` the tile cannot locate beside a reading renders nothing, and development
+reports it once. `label`, `value`, `measuredAt`, `now` and `precision` are required with
+no default. `value` is `number | null`, so a compound reading takes two
+tiles. Read `now` once per screen and pass it to every tile.
+
+### Data attributes
 
 <DataAttributesTable
   name="metric-tile"
@@ -257,20 +192,3 @@ the source pass found no defect to fix.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="MetricTileProps" />
-
-A `measuredAt` this component cannot locate beside a reading is refused: nothing renders,
-and development reports it once. `label`, `value`, `measuredAt`, `now` and `precision` are
-required with no default. `value` is `number | null`, so a compound reading takes two
-tiles. Read `now` once per screen and pass it to every tile.
-
-## Related
-
-- [ResultCard](./result-card.mdx) is the same data with room to explain itself.
-- [Value](./value.mdx) is the formatting primitive inside the tile.
-- [Card](./card.mdx) is a different component, not a bigger tile.
-- [StatusPill](./status-pill.mdx) is the level inside a tile, never its background.
-- [TrendSparkline](./trend-sparkline.mdx) is not embedded, because a line needs a caption.

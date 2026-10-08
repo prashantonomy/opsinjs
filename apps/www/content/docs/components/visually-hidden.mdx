@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: utility
 aliases: ["sr only", "screen reader only", "clip"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,19 +21,13 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="visually-hidden" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="visually-hidden"
   unbuilt={false}
   importPath="@/components/ui/visually-hidden"
 />
-
-## Usage
 
 ```tsx
 import { VisuallyHidden } from "@/components/ui/visually-hidden"
@@ -46,6 +39,24 @@ import { VisuallyHidden } from "@/components/ui/visually-hidden"
   <VisuallyHidden>Close the panel</VisuallyHidden>
 </button>
 ```
+
+## Examples
+
+<ComponentPreview name="visually-hidden" />
+
+### A name for an icon-only button
+
+The button shows only a cross. The words inside VisuallyHidden become its accessible
+name, and the icon is `aria-hidden`.
+
+<ComponentPreview name="visually-hidden-a-name-for-an-icon-button" kind="example" align="start" />
+
+### Context for a repeated link
+
+Three rows end in the same two words, which a screen reader can list out of context.
+Appending the subject inside VisuallyHidden names each link without changing a pixel.
+
+<ComponentPreview name="visually-hidden-context-for-a-repeated-link" kind="example" align="start" />
 
 ## When to use it
 
@@ -62,74 +73,26 @@ import { VisuallyHidden } from "@/components/ui/visually-hidden"
   ]}
 />
 
-## Examples
-
-### A name for an icon-only button
-
-The button shows only a cross, so a screen-reader user meets a control with no
-name. The words inside VisuallyHidden become its accessible name, and the icon
-is `aria-hidden`.
-
-<ComponentPreview name="visually-hidden-a-name-for-an-icon-button" kind="example" align="start" />
-
-### Context for a repeated link
-
-Three rows end in the same two words, which a screen reader can list with no
-sentence around them. Appending the subject inside VisuallyHidden names each
-link without changing a pixel.
-
-<ComponentPreview name="visually-hidden-context-for-a-repeated-link" kind="example" align="start" />
-
-## Content guidelines
-
-Write the hidden words a sighted reader already has, no more. For an icon-only
-control, name the action in full. Keep the leading space when you splice hidden
-words into visible text, because a screen reader concatenates them. Never hide a
-caveat, a source or a clinical status, because everyone needs those.
-
-<DoDont>
-  <DoDont.Do>
-    **"Close the reminders panel"** names the action a sighted reader takes from the cross.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **An empty VisuallyHidden** names nothing, and the markup now looks labelled when it is not.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** The component sets no
-colour and no type size, so the gate's token and unit rules pass trivially.
+Content is announced because the span is clipped, not `display:none`,
+`visibility:hidden` or the `hidden` attribute, each of which removes content from the
+tree. The clip was checked against the WebAIM sr-only reference and stays hidden
+through 200% text and increased text spacing, because neither touches its overflow and
+clip-path. It
+paints nothing and sets no colour or type size, so there is nothing to reflow at 200%
+text, and as text rather than a control it is never focusable or a tab stop. Axe,
+target size, focus visibility and reflow at 320px raised nothing.
 
-**Audited against WCAG 2.2 AA in a source pass and a rendered pass.** The
-audit is author run, not an independent review, and clinical review is still
-pending. The source pass covered the clip technique, the accessibility tree
-and the two shipped examples; the rendered pass ran axe against the live
-preview and checked target size, focus visibility and reflow at 320px, and
-found nothing to flag.
+The audit added a development-only warning when a focusable control sits inside the
+always hidden clip, a keyboard trap with no visible focus ring. The component walks
+its children to find one, and the warning changes no markup, class or visual output.
 
-- Content is announced because the span is clipped, not `display:none`,
-  `visibility:hidden` or the `hidden` attribute, each of which removes content
-  from the tree. The clip pattern was checked against the WebAIM sr-only
-  reference and stays hidden through 200% text and increased text spacing,
-  because neither touches the clip's own overflow and clip-path.
-- It is text rather than a control, so it is never focusable and never a tab
-  stop.
-- The audit fixed one gap the component's own open question named: nothing
-  previously warned when a focusable control was placed inside the always
-  hidden clip, a keyboard trap with no visible focus ring. The component now
-  walks its children in development and warns when it finds a focusable
-  descendant, the same pattern it already used for empty children. The
-  warning is development only, so it changes no markup, class or visual
-  output.
-- The component paints nothing, so no colour or type size applies and there is
-  nothing to reflow at 200% text.
+**Residual items.**
 
-**Not checked by any gate.** Whether a screen reader announces the content
-across VoiceOver, NVDA, JAWS and TalkBack. Whether hidden text duplicates a
-visible name beside it is a per-usage question the component cannot see from
-its own source, so it stays a concern for the caller rather than something
-this audit could check.
+- No gate checks whether VoiceOver, NVDA, JAWS and TalkBack announce the content.
+- Whether hidden text duplicates a visible name beside it is a per-usage question the
+  component cannot see, so it stays a concern for the caller.
 
 <KeyboardTable
   name="visually-hidden"
@@ -149,18 +112,11 @@ this audit could check.
 
 <ContrastReport component="visually-hidden" />
 
-## API reference
+## Props interface
 
 <PropsTable name="VisuallyHiddenProps" />
 
-`children` is required, because a VisuallyHidden with nothing to announce is a
-silent no-op. Empty children, an empty string, `undefined` or `false` raise a
-development warning naming the mistake. The span still renders, because a
-presentation layer reports rather than throws. `className` reaches the span for
-positioning, and a class that makes the content visible defeats the component.
-
-## Related
-
-- [Link](./link.mdx) is the anchor a skip link is built from, and a skip link becomes visible on focus.
-- [Field](./field.mdx) names a visible input and wires its label, its hint and its error together.
-- [Term](./term.mdx) renders a definition every reader can see, not one for assistive technology alone.
+`children` is required. Empty children, an empty string, `undefined` or `false` raise
+a development warning naming the mistake, and the span still renders. `className`
+reaches the span for positioning, and a class that makes the content visible defeats
+the component.

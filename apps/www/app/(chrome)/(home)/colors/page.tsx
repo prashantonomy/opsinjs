@@ -82,11 +82,7 @@ export default function ColorsPage() {
               <li>
                 <Link
                   className="text-foreground underline underline-offset-4"
-                  href={routes.docs(
-                    "foundations",
-                    "colour",
-                    "contrast-and-apca"
-                  )}
+                  href={routes.docs("foundations", "colour")}
                 >
                   Contrast and APCA
                 </Link>{" "}
@@ -95,9 +91,9 @@ export default function ColorsPage() {
               <li>
                 <Link
                   className="text-foreground underline underline-offset-4"
-                  href={routes.docs("accessibility", "contrast-conformance")}
+                  href={routes.docs("reference", "generated", "contrast")}
                 >
-                  Measured conformance
+                  Measured contrast
                 </Link>{" "}
                 covers every token pair in both themes, generated and dated.
               </li>
@@ -141,8 +137,8 @@ export default function ColorsPage() {
             <p>
               Every token here also has a Tailwind utility, such as{" "}
               <Mono>bg-status-urgent-surface</Mono>.{" "}
-              <Link href={routes.docs("theming", "tailwind-v4")}>
-                Tailwind v4 and the order that silently breaks
+              <Link href={`${routes.docs("theming")}#tailwind-v4-and-css-variables`}>
+                Tailwind v4 and CSS variables
               </Link>{" "}
               explains how they are wired.
             </p>

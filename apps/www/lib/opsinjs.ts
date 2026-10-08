@@ -732,17 +732,17 @@ export const REFUSED_CONVERSIONS: RefusedConversion[] = [
   {
     between: ["kcal", "kJ"],
     reason: "There is more than one calorie. The thermochemical calorie is exactly 4.184 joules and the fifteen-degree calorie is not, and food energy labelling picks one by regulation rather than by physics. Naming a single factor here would hide which calorie was meant, so the pair is refused until this file can carry the choice explicitly.",
-    docs: "health/unit-systems",
+    docs: "health/numbers",
   },
   {
     between: ["mmol/L", "mg/dL"],
     reason: "Molar concentration and mass concentration are related by the molar mass of the substance being measured, which is a property of the SUBSTANCE and not of either unit. Glucose, cholesterol and creatinine each carry a different factor, and this table does not know which analyte a reading is. A single published factor here would be applied to all three by somebody in a hurry, and the answer would be wrong by a multiple rather than by a rounding.",
-    docs: "health/unit-systems",
+    docs: "health/numbers",
   },
   {
     between: ["mmol/mol", "%"],
     reason: "The two ways of reporting HbA1c are related by a fitted regression between two assay standardisations, not by an exact definition. A regression is a measurement with a residual, it is periodically re-fitted, and it belongs to the laboratory that reports the result. This table carries definitions only.",
-    docs: "health/unit-systems",
+    docs: "health/numbers",
   },
 ]
 
@@ -887,7 +887,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "safety",
     title: "A status was rendered without a word",
     message: "<{component}> has `status=\"{status}\"` and no accessible label. Status is carried by colour, icon and word together; colour alone does not survive grayscale, colour-vision deficiency or a black-and-white printout.",
-    docs: "health/clinical-status-semantics",
+    docs: "health/two-colour-axes",
     params: ["component", "status"],
   },
   "OPSIN-0003": {
@@ -895,7 +895,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "safety",
     title: "A value was rendered without a unit",
     message: "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems: the same digits are one reading in mmol/L and a very different one in mg/dL, and nothing on the surface tells the reader which was meant. Pass the unit the reading was measured in. If the number has no unit by design, such as a composite score, pass `unit={null}` to say so; the warning stays for a caller who simply forgot.",
-    docs: "health/unit-systems",
+    docs: "health/numbers",
     params: ["value", "null"],
   },
   "OPSIN-0004": {
@@ -911,7 +911,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "safety",
     title: "More than one urgent surface on a screen",
     message: "{count} surfaces on this screen have `status=\"urgent\"`. The escalation budget is one. When everything is urgent, nothing is.",
-    docs: "health/alarm-fatigue",
+    docs: "health/alerts",
     params: ["count"],
   },
   "OPSIN-0006": {
@@ -919,7 +919,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "safety",
     title: "A banned word appeared in a component's copy",
     message: "The string \"{text}\" contains \"{word}\", which this system does not use. Write \"{replacement}\" instead.",
-    docs: "content/plain-english-a-z",
+    docs: "reference/plain-english",
     params: ["text", "word", "replacement"],
   },
   "OPSIN-0007": {
@@ -927,7 +927,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "safety",
     title: "A health value was animated",
     message: "<{component}> is animating a health value with `{token}`. A value that overshoots has displayed, for one frame, a number that is not true. Use `spring-calm`, or render the final value immediately.",
-    docs: "health/motion-in-health-ui",
+    docs: "health/alerts",
     params: ["component", "token"],
   },
   "OPSIN-0008": {
@@ -935,7 +935,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "A raw colour value was passed where a token is required",
     message: "<{component}> received `{prop}=\"{value}\"`. Components take a category or a status, never a colour. A raw value cannot be re-derived for dark mode, for Display-P3, or for a reader who has asked for more contrast.",
-    docs: "foundations/token-architecture",
+    docs: "theming",
     params: ["component", "prop", "value"],
   },
   "OPSIN-0009": {
@@ -943,7 +943,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "A primitive token was referenced from a component",
     message: "`{token}` is a primitive-tier token. Components consume roles. Primitives may be re-tuned in a minor release; roles are covered by the versioning policy.",
-    docs: "foundations/token-architecture",
+    docs: "theming",
     params: ["token"],
   },
   "OPSIN-0010": {
@@ -951,7 +951,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "An unknown category was requested",
     message: "`category=\"{category}\"` is not one of {known}. Adding a category means adding a ramp, not passing a new string.",
-    docs: "theming/category-palettes",
+    docs: "theming",
     params: ["category", "known"],
   },
   "OPSIN-0011": {
@@ -959,7 +959,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "`unknown` was used as a status level",
     message: "`unknown` is the absence of an assertion, not a fifth level. Use it when there is no reading or no range; do not use it to mean 'probably fine'.",
-    docs: "health/uncertainty-and-staleness",
+    docs: "health/trends",
     params: [],
   },
   "OPSIN-0012": {
@@ -967,7 +967,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "A trend was drawn from too few points",
     message: "<TrendSparkline> received {count} points and `minimumPoints` is {minimum}. Two readings are not a trend, and drawing one implies a direction the data does not support.",
-    docs: "health/trends-and-change",
+    docs: "health/trends",
     params: ["count", "minimum"],
   },
   "OPSIN-0013": {
@@ -975,7 +975,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "A chart's y-axis was truncated",
     message: "<{component}> has `yAxisMin={min}` on a health value. Truncating the axis exaggerates change; a 2% move drawn across the full height of a card reads as a crisis.",
-    docs: "foundations/data-visualisation/chart-anatomy",
+    docs: "foundations/data-visualisation",
     params: ["component", "min"],
   },
   "OPSIN-0014": {
@@ -983,7 +983,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "Category colours were used as chart series colours",
     message: "This chart is colouring {count} series from the category ramps. Category colours identify what a reading is about; using them for series turns an identity into an arbitrary label.",
-    docs: "foundations/data-visualisation/chart-colour",
+    docs: "foundations/data-visualisation",
     params: ["count"],
   },
   "OPSIN-0015": {
@@ -991,7 +991,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "A touch target is below the floor",
     message: "<{component}> renders a {width}x{height} hit area. The floor is 44x44, applied to the hit area rather than to the visible box.",
-    docs: "accessibility/target-size-and-motor",
+    docs: "foundations/accessibility",
     params: ["component", "width", "height"],
   },
   "OPSIN-0016": {
@@ -999,7 +999,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "correctness",
     title: "A stale reading was rendered as current",
     message: "<{component}> was given a reading from {age} ago with no staleness treatment. A number with no time attached is read as 'now'.",
-    docs: "health/uncertainty-and-staleness",
+    docs: "health/trends",
     params: ["component", "age"],
   },
   "OPSIN-0017": {
@@ -1007,7 +1007,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "hygiene",
     title: "More than three translucent surfaces are composited",
     message: "{count} translucent material rungs are visible at once; the budget is 3. Beyond three the blur cost is measurable on mid-range devices and the backdrop is unreadable anyway.",
-    docs: "foundations/materials/performance-budget",
+    docs: "foundations/materials",
     params: ["count"],
   },
   "OPSIN-0018": {
@@ -1015,7 +1015,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "hygiene",
     title: "A deprecated token was referenced",
     message: "`{token}` was deprecated in {version} and is replaced by `{replacement}`. It will be removed in {removal}.",
-    docs: "project/deprecations",
+    docs: "changelog",
     params: ["token", "version", "replacement", "removal"],
   },
   "OPSIN-0019": {
@@ -1023,7 +1023,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "hygiene",
     title: "The token stylesheet was not loaded",
     message: "`--opsin-tokens-generated` is not set on :root. app/tokens.generated.css has not been imported, or `pnpm run generate` has not run, and every component is falling back to authored defaults.",
-    docs: "theming/tailwind-v4",
+    docs: "theming",
     params: [],
   },
   "OPSIN-0020": {
@@ -1031,7 +1031,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "hygiene",
     title: "Two theme providers are mounted",
     message: "More than one theme provider is writing the `dark` class. Two providers race on first paint and produce a flash of the wrong theme.",
-    docs: "handbook/dark-mode",
+    docs: "theming",
     params: [],
   },
   "OPSIN-0021": {
@@ -1039,7 +1039,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     severity: "safety",
     title: "A status outside the four levels was passed",
     message: "<{component}> received `status=\"{status}\"`, which is not one of the four levels. The vocabulary is fixed at steady, watch, attention and urgent; a component that accepted a fifth would be inventing a verdict. Nothing was rendered.",
-    docs: "health/clinical-status-semantics",
+    docs: "health/two-colour-axes",
     params: ["component", "status"],
   },
 }

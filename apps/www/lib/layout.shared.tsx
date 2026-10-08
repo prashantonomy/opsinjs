@@ -5,23 +5,12 @@ import { site } from "@/lib/routes"
 /**
  * THERE IS NO TOP NAVIGATION, AND THAT IS THE POINT.
  *
- * This file used to declare six frozen nav items. They are gone, along with the
- * landing page they sat on. opsinjs is a documentation site and nothing else,
- * so the sidebar is the navigation: a wordmark, a search box, and ten sections
- * that open into their pages. A horizontal bar repeating four of those ten
- * above it was a second, worse copy of the same map.
- *
- * What the nav bar used to carry, and where it went:
- *
- *   - Docs, Components, Health, Foundations. The sidebar, which shows all ten
- *     sections rather than four, and shows you which one you are in.
- *   - Playground and Colors. The global footer, with the rest of the tools.
- *   - GitHub and the theme switch. The global footer.
- *
- * So `baseOptions()` now returns a wordmark and a search toggle. `HomeLayout`
- * renders them as a thin bar over the tool pages; `DocsLayout` renders them at
- * the top of the sidebar. Both get the same two things, which is why they still
- * share this function.
+ * opsinjs is a documentation site and nothing else, so on a documentation page
+ * the sidebar in components/docs/shell.tsx is the navigation: a wordmark, a
+ * theme row, a search row and six sections. This file configures only the thin
+ * bar fumadocs' `HomeLayout` draws over the tool pages: a wordmark and a search
+ * toggle. The tools, the machine surfaces, GitHub and the theme switch are in
+ * the footer those pages render.
  *
  * ROUTE REACHABILITY DID NOT MOVE WITH THEM. `assert-ia.mts` requires every
  * `page.tsx` to be linked from somewhere in the source. The footer links every

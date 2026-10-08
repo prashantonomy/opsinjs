@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: ["stepper input", "quantity input"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="number-field" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="number-field"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/number-field"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { NumberField } from "@/components/ui/number-field"
@@ -52,86 +45,9 @@ import { NumberField } from "@/components/ui/number-field"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "A plain quantity or count with no clinical meaning, such as the number of copies to print.",
-    "A value the reader nudges one at a time as readily as types it.",
-    "A bounded count where a floor and a ceiling the product owns keep the reader inside a range.",
-  ]}
-  avoid={[
-    { case: "It is a clinical measurement, which carries a unit, needs an out-of-range warning and is typed in whole.", instead: "reading-input" },
-    { case: "The number is typed once and never nudged, such as a year or a reference code.", instead: "field" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="number-field"
-  parts={[
-    {
-      name: "NumberField",
-      describes: "The root, Base UI's NumberField.Root. Owns value, bounds, step and the keyboard contract. On neither colour axis.",
-      prop: "value",
-    },
-    {
-      name: "number-field-group",
-      describes: "The hairline frame, Base UI's NumberField.Group, holding the three controls as one object.",
-    },
-    {
-      name: "number-field-decrement",
-      describes: "A real button named Decrease with a Minus glyph. Floors its target at 44px and disables itself at min.",
-    },
-    {
-      name: "number-field-input",
-      describes: "The spinbutton input. label is applied here as aria-label. Centred, tabular-nums, body type step.",
-      prop: "label",
-    },
-    {
-      name: "number-field-increment",
-      describes: "A real button named Increase with a Plus glyph. Floors its target at 44px and disables itself at max.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="number-field"
-  tree={[
-    {
-      part: "NumberField",
-      cardinality: "1",
-      note: "the root",
-      children: [
-        {
-          part: "number-field-group",
-          cardinality: "1",
-          note: "the hairline frame",
-          children: [
-            {
-              part: "number-field-decrement",
-              cardinality: "1",
-              note: "disables at min",
-            },
-            {
-              part: "number-field-input",
-              cardinality: "1",
-              note: "the spinbutton",
-            },
-            {
-              part: "number-field-increment",
-              cardinality: "1",
-              note: "disables at max",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="number-field" />
 
 ### A quantity
 
@@ -147,43 +63,36 @@ decrement button disables at the floor and the increment button at the ceiling.
 
 <ComponentPreview name="number-field-with-bounds" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Name the thing being counted in `label`: *Number of copies*, never a bare
-*Number* or a unit. Set `step` to the smallest change the count is measured in,
-`1` for a whole count. Set `min` and `max` only where a real floor and ceiling
-exist. A count with no upper limit takes no `max`.
-
-<DoDont>
-  <DoDont.Do>
-    **`label="Number of copies"`, `step={1}`, `min={1}`.** Names the count, steps
-    by whole copies, floors at a real bound.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **`label="Systolic"` with a min and max around a reading.** A measurement
-    dressed as a count. It is a [ReadingInput](./reading-input.mdx).
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "A plain quantity or count with no clinical meaning, such as the number of copies to print.",
+    "A value the reader nudges one at a time as readily as types it.",
+    "A bounded count where a floor and a ceiling the product owns keep the reader inside a range.",
+  ]}
+  avoid={[
+    { case: "It is a clinical measurement, which carries a unit, needs an out-of-range warning and is typed in whole.", instead: "reading-input" },
+    { case: "The number is typed once and never nudged, such as a year or a reference code.", instead: "field" },
+  ]}
+/>
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA, source and rendered.** The audit is author-run,
-not independent, and clinical review is pending. The rendered
-pass was clean: no axe violations, focus visible, a 44px target floor, no loss at
-320px reflow. The source pass confirmed icons are `aria-hidden`, neither colour
-axis nor a colour-only state, role tokens with no `px` type, and Base UI’s own keyboard and names.
+The audit found no axe violation and no loss at 320px reflow, with focus visible
+and a 44px target floor. Icons are `aria-hidden`, there is neither colour axis
+nor a colour-only state, type uses role tokens with no `px` size, and Base UI
+supplies its own keyboard and names. The input could be named only through
+`aria-label`, so the audit made the wrapper also forward `id` and `aria-labelledby`,
+suppressing the redundant `aria-label` when a visible label is wired so it wins
+the name and Label in Name holds. `label` stays the required default, so the
+change is additive.
 
-**What the audit fixed.** The input could be named only through `aria-label`. The
-wrapper now also forwards `id` and `aria-labelledby`, suppressing the redundant
-`aria-label` when a visible label is wired so it wins the name and Label in Name
-holds. `label` stays the required default, so the change is additive.
+**Residual items.**
 
-**Residual.** The default still names the input through `aria-label`; a
-persistent visible label is a recommended enhancement, deferred to one central
-repair across the input wrappers. Base UI hard-codes `autoComplete="off"`,
-acceptable for a count with no WCAG token, and surfaces no error text, since it
-clamps to bounds and owns validation. Every contrast pair, including the disabled
-ink at a bound, is unmeasured, so the report below stands in.
+- The default still names the input through `aria-label`. A persistent visible label is a recommended enhancement, deferred to one central repair across the input wrappers.
+- Base UI hard-codes `autoComplete="off"`, acceptable for a count with no WCAG token, and surfaces no error text, since it clamps to bounds and owns validation.
+- Every contrast pair, including the disabled ink at a bound, is unmeasured, so the report below stands in.
 
 <KeyboardTable
   name="number-field"
@@ -218,7 +127,7 @@ ink at a bound, is unmeasured, so the report below stands in.
 
 <ContrastReport component="number-field" />
 
-## API reference
+## Props interface
 
 <PropsTable name="NumberFieldProps" />
 
@@ -227,12 +136,3 @@ value state. The caller stores the number, or `null` when the field is empty.
 `label` is required, because a spinbutton needs an accessible name. A `min`
 above `max` raises a development warning. `min`, `max` and `step` are the
 count's own bounds, never a clinical range.
-
-## Related
-
-- [ReadingInput](./reading-input.mdx) is the control for a clinical measurement,
-  with a unit and an out-of-range warning.
-- [Field](./field.mdx) with a numeric control is plainer for a number typed once
-  and never nudged.
-- [Slider](./slider.mdx) is for a value on a continuous track, where position
-  matters more than the exact number.

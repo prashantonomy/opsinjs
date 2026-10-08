@@ -195,91 +195,30 @@ const TOP_NAV: string[] = []
  * the two can be reconciled deliberately.
  */
 const MDX_VOCABULARY = [
-  "ComponentPreview",
-  "ComponentSource",
-  "ComponentInstall",
   "NotBuiltYet",
   "StubNotice",
   "NoDataYet",
   "Todo",
-  "PageTemplate",
-  "StatusBadge",
-  "StatusMatrix",
-  "SectionProgress",
-  "ComponentsList",
-  "WhenToUse",
-  "Anatomy",
-  "CompositionTree",
+  "ComponentPreview",
+  "IframePreview",
+  "ComponentInstall",
   "PropsTable",
   "DataAttributesTable",
   "CssVariablesTable",
   "KeyboardTable",
   "TokenTable",
-  "BundleSize",
+  "Kbd",
   "ContrastReport",
-  "A11yReport",
-  "ContrastOracle",
   "CvdSimulator",
-  "ColorScale",
-  "TokenSwatch",
   "StatusLadder",
   "StatusAxisDemo",
   "MaterialLadder",
-  "MotionCurve",
   "MotionDemo",
-  "TypeScaleSpecimen",
-  "SpaceSpecimen",
-  "RadiusSpecimen",
-  "DoDont",
-  "SafetyCallout",
-  "Callout",
-  "ClinicalNote",
-  "ResearchNote",
-  "Reviewed",
-  "LastUpdated",
-  "PlainLanguage",
-  "Term",
-  "Glossary",
-  "ReadingLevel",
   "RangeDemo",
-  "IframePreview",
-  "DeviceFrame",
-  "ViewportToolbar",
-  "CodeBlockCommand",
-  "CodeTabs",
-  "CodeCollapsible",
-  "CopyButton",
-  "PageActions",
-  "OpenInSandbox",
-  "BrowserSupport",
-  "RelatedComponents",
-  "ApiLink",
-  "FlowDiagram",
-  "RegistryItem",
-  "PromptRecipe",
-  "EvalResult",
-  "Feedback",
-  "StatusLegend",
-  "Steps",
-  "Tabs",
-  "Accordions",
-  "Files",
-  "Kbd",
-  "Figure",
-
-  /* Reconciled with components/mdx.tsx rather than removed from it. Each of
-     these is a real, exported component that content may legitimately reach
-     for, so the contract is widened to admit it instead of the export being
-     withdrawn. That choice is what MDX003 asks a human to make.
-
-     TypeTable is not optional: remarkAutoTypeTable rewrites `<auto-type-table>`
-     into it, so removing the export would break every generated API table.
-     PlannedApi is how a component page states an API that does not exist yet
-     without implying it does. CategoryGrid is the catalogue-driven index used
-     on section landing pages. */
-  "TypeTable",
-  "PlannedApi",
-  "CategoryGrid",
+  "Glossary",
+  "WhenToUse",
+  "Callout",
+  "SafetyCallout",
 ]
 
 /**
@@ -288,7 +227,7 @@ const MDX_VOCABULARY = [
  * rather than enumerating its parts, so these are admitted explicitly rather
  * than by widening the rule.
  */
-const MDX_CHILD_TAGS = ["Step", "Tab", "Accordion", "File", "Folder"]
+const MDX_CHILD_TAGS: string[] = []
 
 /**
  * Files allowed to contain an absolute /docs path in TypeScript (addendum A11).
@@ -302,6 +241,8 @@ const DOCS_PATH_ALLOWLIST = [
   "app/robots.ts",
   "app/sitemap.ts",
   "next.config.mjs",
+  /* It names the old `/docs` prefix in order to redirect it away. */
+  "proxy.ts",
 ]
 
 /**
@@ -329,16 +270,16 @@ const ROUTE_ALLOWLIST: Array<{ route: string; reason: string }> = [
  */
 const CANONICAL_TOPICS = [
   {
-    canonical: "content/plain-english-a-z",
+    canonical: "reference/plain-english",
     widget: "Glossary",
     reason:
       "the A-Z is rendered once, from tokens/glossary.json, on its canonical page; every other page links to it",
   },
   {
-    canonical: "health/numbers-units-precision",
+    canonical: "health/numbers",
     markers: ["significant figure", "decimal place", "rounding rule"],
     reason:
-      "numeric formatting is canonical on health/numbers-units-precision; content pages link to it rather than restating it",
+      "numeric formatting is canonical on health/numbers; other pages link to it rather than restating it",
   },
 ]
 
@@ -750,17 +691,11 @@ function loadSchema(): FrontmatterSchema | undefined {
  */
 const OUTLINE_POLICY: Record<string, "exact" | "fixed" | "header" | "free"> = {
   component: "exact",
-  foundation: "exact",
-  health: "exact",
-  accessibility: "exact",
-  content: "exact",
-  pattern: "exact",
-  recipe: "exact",
-  screen: "exact",
-  handbook: "exact",
-  guide: "fixed",
-  reference: "header",
-  project: "free",
+  guide: "free",
+  foundation: "free",
+  health: "free",
+  pattern: "free",
+  reference: "free",
 }
 
 /**
@@ -795,9 +730,7 @@ const CONDITIONAL_HEADINGS: Record<string, string[]> = {
  * task" in the template is an illustration, not a heading anyone should ship -
  * but the four structural sections and their order are the contract.
  */
-const REQUIRED_HEADINGS: Record<string, string[]> = {
-  guide: ["Overview", "Verify it worked", "Troubleshooting", "Next"],
-}
+const REQUIRED_HEADINGS: Record<string, string[]> = {}
 
 function loadOutlines(): Record<string, string[]> {
   const outlines: Record<string, string[]> = {}
@@ -828,7 +761,7 @@ function loadOutlines(): Record<string, string[]> {
  */
 function checkTemplateOutlines(): void {
   const cases: { kind: string; expected: string[] }[] = [
-    { kind: "component", expected: componentSections("planned", "health-") },
+    { kind: "component", expected: componentSections("shipped", "health-") },
   ]
   for (const kind of Object.keys(OUTLINE_POLICY)) {
     if (kind === "component") continue
@@ -1412,7 +1345,7 @@ function checkOutline(
         fail(
           "C6001",
           file,
-          "<StubNotice> must sit above the first H2 of a component page, before ## Preview. The lean outline has no ## Status heading; the notice is the page's opening and it carries the review floor and the open questions."
+          "<StubNotice> must sit above the first H2 of a component page, before ## Usage. The notice is the page's opening and it carries the review floor and the open questions."
         )
       }
       /* SAFE001. THE REVIEW FLOOR, IN AUTHORED MDX, ON EVERY COMPONENT PAGE.
@@ -1488,22 +1421,29 @@ function checkOutline(
       fail(
         "LEAN001",
         file,
-        `the body is ${wordCount} words and a component page is held to ${budget}${health ? " (a health- category, which owes a Clinical meaning section)" : ""}. A component page is read the way a Blueprint page is read: see it, install it, copy the usage, check the props, learn when not to use it. Cut argument and keep facts; doctrine belongs on a Health, Accessibility or Foundations page and is linked from here, and the reasoning behind a decision belongs in git history. ADR 0024 is the record and components/button.mdx is the exemplar.`
+        `the body is ${wordCount} words and a component page is held to ${budget}${health ? " (a health- category, which owes a Clinical meaning section)" : ""}. A component page is read the way a Blueprint page is read: see it, install it, copy the usage, check the props, learn when not to use it. Cut argument and keep facts; doctrine belongs on a Health or Foundations page and is linked from here, and the reasoning behind a decision belongs in git history. ADR 0026 is the record and components/button.mdx is the exemplar.`
       )
     }
   }
 
   /* Project pages carry their own freshness stamp (content-plan, kind: project). */
-  if (kind === "project") {
-    const body = stripCode(page.body)
-    if (!/<LastUpdated[\s/>]/.test(body) || !/<Reviewed[\s/>]/.test(body)) {
-      warn(
-        "OUT011",
+  /* LEAN002. Every other hand-written page is held to a budget too. The
+     corpus this replaced ran to four hundred pages and nearly half a million
+     words because nothing stopped a page growing; the clawscale shape it
+     follows now documents a topic in a few hundred words and links the rest.
+     Generated pages are exempt, because their length is the data's. */
+  if (kind !== "component" && !page.body.includes("opsinjs:generated:begin")) {
+    const budget = kind === "health" ? 1500 : 1200
+    const wordCount = page.body.split(/\s+/).filter(Boolean).length
+    if (wordCount > budget) {
+      fail(
+        "LEAN002",
         file,
-        "a project page ends with <LastUpdated /> and <Reviewed />. These pages are the ones readers check for currency, and an undated one is worse than an absent one."
+        `the body is ${wordCount} words and a ${kind} page is held to ${budget}. Keep the rules, the numbers and the code; cut the argument, the history and anything another page owns, and link that page instead. ADR 0026 is the record.`
       )
     }
   }
+
 
   /* Clinical meaning, in both directions. */
   if (kind === "component") {
@@ -2247,7 +2187,6 @@ function checkCatalogue(
         doctrine,
         `health/${doctrine}`,
         `foundations/${doctrine}`,
-        `accessibility/${doctrine}`,
       ]
       const target = candidates.find((slug) => bySlug.has(slug))
       if (!target) {
@@ -2316,7 +2255,7 @@ function checkCatalogue(
      the tree carries it, so it unambiguously denotes that page; an ambiguous
      one still resolves to nothing and is reported, because guessing which page
      it meant is worse than saying it is unclear. */
-  const REVERSE_INDEX_ROOTS = ["recipes", "screens", "patterns"]
+  const REVERSE_INDEX_ROOTS = ["patterns"]
   const bareToSlugs = new Map<string, string[]>()
   for (const slug of bySlug.keys()) {
     if (!REVERSE_INDEX_ROOTS.some((root) => slug.startsWith(`${root}/`)))
@@ -2327,12 +2266,9 @@ function checkCatalogue(
     bareToSlugs.set(last, owners)
   }
   const resolveUsedIn = (target: string): string | undefined => {
-    const direct = [
-      target,
-      `recipes/${target}`,
-      `screens/${target}`,
-      `patterns/${target}`,
-    ].find((candidate) => bySlug.has(candidate))
+    const direct = [target, `patterns/${target}`].find((candidate) =>
+      bySlug.has(candidate)
+    )
     if (direct) return direct
     const owners = bareToSlugs.get(target)
     return owners && owners.length === 1 ? owners[0] : undefined
@@ -2347,7 +2283,7 @@ function checkCatalogue(
         fail(
           "CAT004",
           rel(page.file),
-          `\`usedIn: ${target}\` does not resolve to a recipe, screen or pattern page.`
+          `\`usedIn: ${target}\` does not resolve to a pattern page.`
         )
         continue
       }
@@ -2417,7 +2353,7 @@ function checkCatalogue(
       )
     }
     for (const page of pages) {
-      const section = page.slug.match(/^(screens|recipes|patterns)\//)
+      const section = page.slug.match(/^(patterns)\//)
       if (!section) continue
       /* The id `usedIn` records is the slug with only the section segment
          removed, so a nested page such as patterns/forms/error-summaries is

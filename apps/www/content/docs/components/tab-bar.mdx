@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: navigation
 aliases: ["bottom navigation", "nav bar"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="tab-bar" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="tab-bar"
@@ -35,8 +30,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
   registryDependencies={["surface"]}
 />
-
-## Usage
 
 ```tsx
 import { TabBar } from "@/components/ui/tab-bar"
@@ -56,6 +49,26 @@ import { TabBar } from "@/components/ui/tab-bar"
 />
 ```
 
+## Examples
+
+<ComponentPreview name="tab-bar" />
+
+### Four destinations
+
+Four peer destinations, each an icon over a one-word label, with one current.
+`onValueChange` reports the chosen key, which the screen passes back as
+`value`.
+
+<ComponentPreview name="tab-bar-four-destinations" kind="example" align="start" />
+
+### Destinations as links
+
+An `href` on each item builds the bar from anchors, so a product router acts on
+the navigation. Pinned through `className`, with safe-area padding clearing the
+home indicator.
+
+<ComponentPreview name="tab-bar-with-links" kind="example" align="start" />
+
 ## When to use it
 
 <WhenToUse
@@ -70,117 +83,24 @@ import { TabBar } from "@/components/ui/tab-bar"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="tab-bar"
-  parts={[
-    {
-      name: "TabBar",
-      describes: "A nav element inside an overlay Surface, named by label. Neutral chrome only, with no status or category axis.",
-      prop: "label",
-    },
-    {
-      name: "TabBar.Item",
-      describes: "One destination. An anchor when href is set, a button otherwise. Floors its target at the 44pt minimum.",
-      prop: "items",
-    },
-    {
-      name: "TabBar.ItemIcon",
-      describes: "The destination's icon, aria-hidden, because the label carries the accessible name.",
-      prop: "items",
-    },
-    {
-      name: "TabBar.ItemLabel",
-      describes: "The destination's visible words, and the item's accessible name.",
-      prop: "items",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="tab-bar"
-  tree={[
-    {
-      part: "Surface",
-      cardinality: "1",
-      note: "rung=\"overlay\"; supplies the material and the hairline, and takes className",
-      children: [
-        {
-          part: "TabBar",
-          cardinality: "1",
-          note: "the nav element, aria-label from label, wrapping a role=\"list\" list",
-          children: [
-            {
-              part: "TabBar.Item",
-              cardinality: "2..5",
-              note: "anchor or button; aria-current=\"page\" on the current one",
-              children: [
-                { part: "TabBar.ItemIcon", cardinality: "1", note: "aria-hidden" },
-                { part: "TabBar.ItemLabel", cardinality: "1" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### Four destinations
-
-Four peer destinations, each an icon over a one-word label, with one current.
-`onValueChange` reports the chosen key, which the screen passes back as
-`value`. Read it in greyscale.
-
-<ComponentPreview name="tab-bar-four-destinations" kind="example" align="start" />
-
-### Destinations as links
-
-An `href` on each item builds the bar from anchors, so a product router acts on
-the navigation. Pinned through `className`, with safe-area padding clearing the
-home indicator.
-
-<ComponentPreview name="tab-bar-with-links" kind="example" align="start" />
-
-## Content guidelines
-
-One short noun per destination, in sentence case, paired with an icon that
-reinforces the word rather than replacing it. Do not change a destination's
-wording or its position between visits. Order from the default section outward,
-and keep any safety relevant action on a visible surface instead.
-
-<DoDont>
-  <DoDont.Do>
-    **"Home", "Trends", "Learn", "Settings"** Four peer nouns, ordered from the default screen outward.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"More"** as a fifth stop, hiding whatever the bar could not fit, including a safety action.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Audited against WCAG 2.2 AA in a source pass and a rendered pass.** The audit is
-author-run, so it is not an independent review, and clinical review is still
-pending. The rendered pass was clean, with no axe violation, target-size breach,
-focus gap, or reflow break at 320px, and the source pass found every top risk
-already handled, so the audit changed nothing here.
+Confirmed: a real `nav` landmark named by `label`, and icons `aria-hidden` with the
+label as the accessible name. The current destination carries `aria-current="page"`,
+a heavier label and a top indicator, so no cue rides on colour. Every target is
+floored at the 44pt minimum in rem. Axe, target-size, focus and 320px reflow checks
+were clean, and the audit changed nothing.
 
-Confirmed: a real `nav` landmark named by `label`; the current destination marked
-three non-colour ways, `aria-current="page"`, a heavier label, and a top
-indicator, so no cue rides on colour; every target floored at the 44pt minimum in
-rem; and icons `aria-hidden` with the label as the accessible name.
+**Residual items.**
 
-Recorded residuals: the colour and opacity fades carry no `prefers-reduced-motion`
-guard, which still meets AA since that guard is an AAA item;
-a `forced-colors` repaint may flatten the indicator bar, but `font-weight` and
-`aria-current` keep the current state legible; and a bottom-fixed bar can obscure
-focused content, but this component owns no position, so SC 2.4.11 is the
-product's concern. Contrast for the current treatment on the overlay
-material is still unmeasured; see below.
+- The colour and opacity fades carry no `prefers-reduced-motion` guard, which still
+  meets AA because that guard is an AAA item.
+- A `forced-colors` repaint may flatten the indicator bar, but `font-weight` and
+  `aria-current` keep the current state legible.
+- A bottom-fixed bar can obscure focused content, but this component owns no
+  position, so SC 2.4.11 is the product's concern.
+- Contrast for the current treatment on the overlay material is still unmeasured.
+  See the report below.
 
 <KeyboardTable
   name="tab-bar"
@@ -215,7 +135,7 @@ material is still unmeasured; see below.
 
 <ContrastReport component="tab-bar" />
 
-## API reference
+## Props interface
 
 <PropsTable name="TabBarProps" />
 
@@ -223,9 +143,3 @@ material is still unmeasured; see below.
 matching no item renders nothing current and warns in development.
 `onValueChange` is optional, because a bar of links can leave navigation to the
 `href`. `label` is required: an unnamed navigation landmark is a defect.
-
-## Related
-
-- [Tabs](./tabs.mdx) switch between views sharing one screen's space. If the choice stays inside one screen, it is tabs.
-- [SegmentedControl](./segmented-control.mdx) sets one parameter of a view that stays put, so nothing navigates.
-- [Menu](./menu.mdx) is a list of actions opened from a button. A tab bar's destinations are always visible.

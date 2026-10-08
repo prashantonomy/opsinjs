@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-data-display
 aliases: [results, lab result, test result, report card, blood pressure, a1c]
-governedBy: [two-colour-axes, reference-ranges, numbers-units-precision, uncertainty-and-staleness, clinical-status-semantics, data-provenance-and-device-accuracy, delivering-difficult-results, on-screen-privacy]
-usedIn: [choose-a-component, health-metric-card, result-disclosure, results-screen, sharing-with-a-clinician, value-against-a-range]
+governedBy: [two-colour-axes, reference-ranges, numbers, trends, high-stakes-moments, consent-and-privacy, safety-review]
+usedIn: [result-disclosure]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="result-card" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="result-card"
@@ -35,8 +31,6 @@ reviewer: engineering
   importPath="@/components/ui/result-card"
   registryDependencies={["status-pill", "value", "range-bar", "relative-time", "button"]}
 />
-
-## Usage
 
 ```tsx
 import { ResultCard } from "@/components/ui/result-card"
@@ -58,6 +52,31 @@ import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
 />
 ```
 
+## Examples
+
+<ComponentPreview name="result-card" />
+
+### A reading made of two numbers
+
+`segments` carries a compound reading, each part a real [Value](./value.mdx).
+The unit prints once, is spoken after every part, and no bar is drawn.
+
+<ComponentPreview name="result-card-a-compound-reading" kind="example" align="start" />
+
+### The smallest card, and the sentence it will not leave out
+
+No `range`, so no bar; no `status`, so no pill; no `provenance`, so no footnote.
+An absent `meaning` still renders a sentence saying there is none.
+
+<ComponentPreview name="result-card-no-explanation-supplied" kind="example" align="start" />
+
+### The same result at two ages
+
+Two cards differ only in `measuredAt` and share a level, because age lowers a
+reading's worth without raising the alarm.
+
+<ComponentPreview name="result-card-an-old-reading" kind="example" align="start" />
+
 ## When to use it
 
 <WhenToUse
@@ -76,136 +95,45 @@ import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
 
 ## Clinical meaning
 
-**Asserts.** A measurement was taken, at a time, in a unit. Where supplied, it
-also asserts a stated range and the level the product assigned.
-[Every number](../health/numbers-units-precision.mdx) goes through Value.
+**Asserts.** A measurement was taken, at a time, in a unit, with any stated range and
+the level the product assigned.
+[Every number](../health/numbers.mdx) goes through Value.
 
-**Never read as.** A diagnosis, a summary of the reader's health, or a clinician's advice. A next step is the
-product's, and who is speaking lives in the words you write in `meaning` and in
-an action's label. A result that may distress needs
-[Delivering difficult results](../health/delivering-difficult-results.mdx)
+**Never read as.** A diagnosis, a health summary or a clinician's advice. A next step
+is the product's, and your `meaning` and action labels say who is speaking. A result
+that may distress needs [High-stakes moments](../health/high-stakes-moments.mdx)
 around it.
 
-**Colour axis.** Both, on different elements, as
-[the two colour axes](../health/two-colour-axes.mdx) requires: status reaches
-only the [StatusPill](./status-pill.mdx), category only the title, and no prop
-tints the surface.
+**Colour axis.** Both, as [Two colour axes](../health/two-colour-axes.mdx) requires:
+status reaches only the [StatusPill](./status-pill.mdx), category only the title, and
+no prop tints the surface.
 
 **Thresholds.** The product's. No default [range](../health/reference-ranges.mdx),
-no [status](../health/clinical-status-semantics.mdx) derivation and no
-[staleness](../health/uncertainty-and-staleness.mdx) boundary exist here.
-`staleAfterHours` passes through to [RelativeTime](./relative-time.mdx).
-A reading you cannot vouch for must not drive `attention` or `urgent`.
+status derivation ([Two colour axes](../health/two-colour-axes.mdx)) or staleness
+boundary ([Trends and uncertainty](../health/trends.mdx)) exists here;
+`staleAfterHours` passes through to [RelativeTime](./relative-time.mdx). A reading you
+cannot vouch for must not drive `attention` or `urgent`.
 
 **Provenance and privacy.** `provenance` is free text with no
-[class](../health/data-provenance-and-device-accuracy.mdx), so keeping an
-estimated or self-reported value free of a `status` is your rule. There is no
-masking affordance; [On-screen privacy](../health/on-screen-privacy.mdx) is
+[class](../health/trends.mdx), so keep an estimated or self-reported value free of
+`status` yourself. It has no mask; [Consent and privacy](../health/consent-and-privacy.mdx) is
 built around the card.
-
-## Anatomy
-
-<Anatomy
-  name="result-card"
-  parts={[
-    {
-      name: "ResultCard",
-      describes: "An article named by its title. Neutral surface; layout through className.",
-    },
-    {
-      name: "ResultCard.Header",
-      describes: "Title, time and level. On a phone the level wraps beneath the time.",
-    },
-    {
-      name: "ResultCard.Title",
-      describes: "A real heading at titleLevel. The only element the category axis touches.",
-      prop: "category",
-    },
-    {
-      name: "ResultCard.Time",
-      describes: "Wraps RelativeTime with the absolute date. Carries the staleness words past a supplied boundary.",
-      prop: "staleAfterHours",
-    },
-    {
-      name: "StatusPill",
-      describes: "The only status-coloured element. Rendered only when the product assigned a level.",
-      prop: "status",
-    },
-    {
-      name: "ResultCard.Reading",
-      describes: "The number at display size through Value, one per segment when compound.",
-      prop: "value",
-    },
-    {
-      name: "RangeBar",
-      describes: "Drawn only with a range, a unit and a single value. Given no status.",
-      prop: "range",
-    },
-    {
-      name: "ResultCard.Meaning",
-      describes: "The plain-English paragraph. When absent, the sentence saying so.",
-      prop: "meaning",
-    },
-    {
-      name: "ResultCard.Actions",
-      describes: "At most two. An href renders a Link, onSelect a Button; the recommended one is bordered.",
-      prop: "actions",
-    },
-    {
-      name: "ResultCard.Footnote",
-      describes: "Provenance only, when supplied. No default disclaimer.",
-      prop: "provenance",
-    },
-  ]}
-/>
-
-## Examples
-
-### A reading made of two numbers
-
-`segments` carries a compound reading, each part a real [Value](./value.mdx).
-The unit prints once, is spoken after every part, and no bar is drawn.
-
-<ComponentPreview name="result-card-a-compound-reading" kind="example" align="start" />
-
-### The smallest card, and the sentence it will not leave out
-
-No `range`, so no bar; no `status`, so no pill; no `provenance`, so no footnote.
-An absent `meaning` still renders as a sentence saying there is none.
-
-<ComponentPreview name="result-card-no-explanation-supplied" kind="example" align="start" />
-
-### The same result at two ages
-
-Two cards differing only in `measuredAt`, with the same level, because age lowers
-what a reading is worth and does not raise the alarm.
-
-<ComponentPreview name="result-card-an-old-reading" kind="example" align="start" />
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA.** A source pass and a rendered browser pass were both
-clean: zero axe violations, no target below the 44px floor, no focus-visible gap. It
-found nothing to fix, is author-run rather than an independent review, and leaves
-clinical review pending.
+The audit changed nothing, finding no axe violation, target below the 44px floor or
+focus-visible gap. The title is a real heading at the caller's level, the
+[StatusPill](./status-pill.mdx) carries a word and an icon, and the card reflows
+unclipped at 320px and 200%.
 
-**What it confirmed.**
+**Residual items.**
 
-- The two colour axes stay separate: category tint reaches only the title, clinical
-  status only the [StatusPill](./status-pill.mdx), which carries a word and icon.
-- Units speak through [Value](./value.mdx) after each part of a compound reading, the
-  title is a real heading at the caller's level, and the card reflows at 320px and
-  200% without clipping.
-
-**Documented, by design.**
-
-- The root `<article>` takes `aria-label` from the title, not `aria-labelledby`. The
-  string matches the visible heading and the region is non-interactive, so there is no
-  name mismatch; a visible-heading reference is a future enhancement.
-- `className` merges onto the root, so a caller who passes `truncate` can clip a
-  reading. The component truncates nothing; the JSDoc warns of it.
-
-**Not checked by any gate.** Print, `forced-colors` and `prefers-contrast`.
+- By design, the root `<article>` takes `aria-label` from the title, not
+  `aria-labelledby`, matching the visible heading. A visible-heading reference is a
+  future enhancement.
+- `className` merges onto the root, so a caller's `truncate` can clip a reading. The
+  component truncates nothing; the JSDoc warns of it.
+- No gate checks print, `forced-colors` or `prefers-contrast`.
 
 <KeyboardTable
   name="result-card"
@@ -245,7 +173,16 @@ clinical review pending.
 
 <ContrastReport component="result-card" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="ResultCardProps" />
+
+`now` and `precision` are required: the card never reads the clock, so pass one
+`now` to every card on a screen. `value` is `number | null`, never a string; a
+pair is `segments`. A third action, a second `recommended` and a `titleLevel`
+outside 2 to 6 each warn once and fall back.
+
+### Data attributes
 
 <DataAttributesTable
   name="result-card"
@@ -272,20 +209,3 @@ clinical review pending.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="ResultCardProps" />
-
-`now` and `precision` are required: the card never reads the clock, so pass one
-`now` to every card on a screen. `value` is `number | null`, never a string; a
-pair is `segments`. A third action, a second `recommended` and a `titleLevel`
-outside 2 to 6 each warn once and fall back.
-
-## Related
-
-- [MetricTile](./metric-tile.mdx) is the same data with no room to explain itself.
-- [Card](./card.mdx) is a neutral box with no clinical contract.
-- [CareCard](./care-card.mdx) is a card whose subject is an instruction, not a measurement.
-- [AlertBanner](./alert-banner.mdx) is for something that must interrupt.
-- [DisclaimerNote](./disclaimer-note.mdx) is where the not-medical-advice note lives.

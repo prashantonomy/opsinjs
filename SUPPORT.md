@@ -12,21 +12,19 @@ them out loud.
 | You have | Take it to |
 | --- | --- |
 | A question about how to do something | A discussion on the repository (GitHub Discussions) |
-| A page that is wrong, unclear or out of date | The report-a-problem control at the foot of that docs page, which opens a prefilled issue |
+| A page that is wrong, unclear or out of date | An issue naming the page's address |
 | A bug in a component or in this site | An issue, with a reproduction |
 | A concern that a component or a piece of guidance could cause harm | A public issue, marked as a **safety concern** |
 | A security vulnerability | [SECURITY.md](./SECURITY.md). Report it privately, and never open a public issue. |
 
-The canonical repository is <https://github.com/prashantonomy/opsinjs>. When it is
-public, the docs site is served at <https://opsinjs.pensievelabs.org>. That
-subdomain is being attached to a fresh deployment and does not resolve yet.
+The canonical repository is <https://github.com/prashantonomy/opsinjs>. The docs site
+is served at <https://opsinjs.pensievelabs.org>.
 
 ## Not reachable yet
 
 The repository is not public at the time of writing. Until it is, GitHub
-Discussions, both kinds of issue, and the report-a-problem control at the foot of
-every docs page have nowhere to land, because each of those routes ends at that
-same repository. This is a known gap, not a mistake in this file. Opening the
+Discussions and both kinds of issue have nowhere to land, because each of those
+routes ends at that same repository. This is a known gap, not a mistake in this file. Opening the
 repository is what turns the table above from an intention into a working route.
 
 ## Asking a question that gets answered
@@ -55,7 +53,5 @@ routing it through the private security channel only slows it down.
 
 ## Contributing and community
 
-The wider picture, including what response you can honestly expect and how to
-contribute, is on the Community page in the docs. When the site is live it will
-be at <https://opsinjs.pensievelabs.org/docs/project/community>. The source is at
-[apps/www/content/docs/project/community.mdx](./apps/www/content/docs/project/community.mdx).
+How to contribute is in [CONTRIBUTING.md](./CONTRIBUTING.md). The documentation is at
+<https://opsinjs.pensievelabs.org>.

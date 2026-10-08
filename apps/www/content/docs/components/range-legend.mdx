@@ -6,7 +6,7 @@ kind: component
 category: health-data-display
 aliases: [key, chart legend, band legend]
 governedBy: [reference-ranges, two-colour-axes]
-usedIn: [trends-screen]
+usedIn: [trend-review]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="range-legend" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="range-legend"
@@ -35,8 +31,6 @@ reviewer: engineering
   importPath="@/components/ui/range-legend"
   dependencies={["lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { RangeLegend } from "@/components/ui/range-legend"
@@ -51,6 +45,22 @@ import { RangeLegend } from "@/components/ui/range-legend"
   ]}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="range-legend" />
+
+### The legend beside its bar
+
+The same container as the bars it names, `bands` holding the tones they draw. The swatches match the ticks above.
+
+<ComponentPreview name="range-legend-beside-its-bar" kind="example" align="start" />
+
+### The four levels, named once
+
+The whole vocabulary in one key: the neutral band and four status levels, each row's `tone` giving its word, glyph and colour.
+
+<ComponentPreview name="range-legend-the-four-levels" kind="example" align="start" />
 
 ## When to use it
 
@@ -71,128 +81,23 @@ import { RangeLegend } from "@/components/ui/range-legend"
 
 **Asserts.** The tones the bar beside it draws, and what each one means. Nothing about any reading, cause or next step.
 
-**Never read as.** A scale, a diagnosis or a verdict on the reader. "Needs attention" names a tone a product may assign, not the reader's result. "Normal" and "abnormal" are banned; [Reference ranges and normal](../health/reference-ranges.mdx) carries the list.
+**Never read as.** A scale, a diagnosis or a verdict on the reader. "Needs attention" names a tone a product may assign, not the reader's result. "Normal" and "abnormal" are banned; [Reference ranges](../health/reference-ranges.mdx) carries the list.
 
-**Colour axis.** The status axis and the neutral reference range band only. No element carries `data-category`, because [The two colour axes](../health/two-colour-axes.mdx) never mix. Every status row draws fill, glyph and word together, so the level survives greyscale.
+**Colour axis.** The status axis and the neutral reference range band only. No element carries `data-category`, because [Two colour axes](../health/two-colour-axes.mdx) never mix. Every status row draws fill, glyph and word together, so the level survives greyscale.
 
 **Thresholds.** The product owns every word, range and level. RangeLegend ships no band names; words arrive as props and the swatch colours are all it supplies.
 
-## Anatomy
-
-<Anatomy
-  name="range-legend"
-  parts={[
-    {
-      name: "RangeLegend",
-      describes: "The root list. No axis colour, no data.",
-      prop: "bands",
-    },
-    {
-      name: "RangeLegend.Item",
-      describes: "One row. data-status on a status row, none on the neutral band row.",
-      prop: "tone",
-    },
-    {
-      name: "RangeLegend.Swatch",
-      describes: "The colour chip in the bar's colour. Outlined for the neutral band, filled for a status.",
-    },
-    {
-      name: "RangeLegend.Label",
-      describes: "The row's word, the product's phrasing. The only part a screen reader announces.",
-      prop: "label",
-    },
-    {
-      name: "RangeLegend.Glyph",
-      describes: "The level's distinct lucide shape, status rows only, in neutral ink. Decorative; the word is the level.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="range-legend"
-  tree={[
-    {
-      part: "RangeLegend",
-      cardinality: "1",
-      note: "data-slot=\"range-legend\", a ul.",
-      children: [
-        {
-          part: "RangeLegend.Item",
-          cardinality: "1..n",
-          note: "data-slot=\"range-legend-item\", a li. data-status=\"<level>\" on a status row only.",
-          children: [
-            {
-              part: "RangeLegend.Swatch",
-              cardinality: "1",
-              note: "data-slot=\"range-legend-swatch\", aria-hidden=\"true\".",
-            },
-            {
-              part: "RangeLegend.Glyph",
-              cardinality: "0..1",
-              note: "A lucide glyph, aria-hidden=\"true\". Status rows only, no data-slot.",
-            },
-            {
-              part: "RangeLegend.Label",
-              cardinality: "1",
-              note: "data-slot=\"range-legend-label\". The description is a plain span, no slot.",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### The legend beside its bar
-
-The same container as the bars it names, `bands` holding the tones they draw. The swatches match the ticks above.
-
-<ComponentPreview name="range-legend-beside-its-bar" kind="example" align="start" />
-
-### The four levels, named once
-
-The whole vocabulary in one key: the neutral band and four status levels, each row's `tone` giving its word, glyph and colour.
-
-<ComponentPreview name="range-legend-the-four-levels" kind="example" align="start" />
-
-## Content guidelines
-
-Write each label in the reader's plain words, not a clinical register. The description is a short second line saying who set the range or what the tone means, and the neutral band's word stays about the range, not the reader.
-
-
-<DoDont>
-  <DoDont.Do>
-    **"The usual range" with a neutral swatch, then "Worth watching" with its word, glyph and colour.**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Normal" with a green swatch and "Abnormal" with a red one.** A verdict on the person, carried by colour alone.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source and a rendered pass. The audit is author-run, not independent, and clinical review is pending.
+Each swatch and glyph carries `aria-hidden`, so a screen reader skips the decoration. No element carries both `data-category` and `data-status`, and this file writes no category colour. Nothing takes focus, answers a key or animates, so `prefers-reduced-motion` has no state to reduce. At 200% text the swatches hold size and the words wrap with no ellipsis, and under `forced-colors: active` a status fill is stripped while the swatch keeps a `CanvasText` outline.
 
-**What the audit fixed.**
+The audit fixed two gaps. The legend `<ul>` had no accessible name, and optional `aria-label` and `aria-labelledby` props now forward onto the root, so a caller names the key or points it at the bar's heading. A blank status label would draw colour and glyph with no word, a colour-alone failure, and a guard now warns on it, with the empty-bands and invalid-tone guards.
 
-- The legend `<ul>` had no accessible name. Optional `aria-label` and `aria-labelledby` props forward onto the root, so a caller names the key or points it at the bar's heading.
-- A blank status label would draw colour and glyph with no word, a colour-alone failure. A guard warns on it, with the empty-bands and invalid-tone guards.
+**Residual items.**
 
-**What still holds from the source.**
-
-- Each swatch and glyph carries `aria-hidden`, so a screen reader skips the decoration.
-- No element carries both `data-category` and `data-status`, and this file writes no category colour.
-- Nothing takes focus, answers a key or animates, so `prefers-reduced-motion` has no state to reduce.
-- At 200% text the swatches hold size, the words wrap, and no ellipsis is set.
-- Under `forced-colors: active` a status fill is stripped and the swatch keeps a `CanvasText` outline.
-
-**Residual and deferred.**
-
-- Status swatches are fills of RangeBar's tick tones with no explicit border, so swatch-to-page contrast is unmeasured. Each swatch is `aria-hidden` decoration redundant to the word and glyph, so a low-contrast swatch loses nothing. Measuring the four fills and the neutral border in light and dark is a recommended enhancement.
+- Status swatches are fills of RangeBar's tick tones with no explicit border, so swatch-to-page contrast is unmeasured. Each is `aria-hidden` decoration redundant to the word and glyph, so a low-contrast swatch loses nothing, and measuring the four fills and the neutral border in light and dark is a recommended enhancement.
 - Label and description use the foreground and muted-foreground role tokens, not re-measured in this pass.
-- The legend cannot enforce in code that it sits beside its bar; `aria-labelledby` is the mechanism a caller uses to bind it, and the audit cannot verify callers do.
+- The legend cannot enforce in code that it sits beside its bar. `aria-labelledby` is how a caller binds it, and the audit cannot verify callers do.
 
 <KeyboardTable
   name="range-legend"
@@ -217,7 +122,13 @@ Audited against WCAG 2.2 AA in a source and a rendered pass. The audit is author
 
 <ContrastReport component="range-legend" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="RangeLegendProps" />
+
+`tone` is typed to the four `ClinicalStatus` levels in [Two colour axes](../health/two-colour-axes.mdx). A value outside the four is refused with a development warning and falls back to the neutral band. An empty `bands` array renders nothing and warns in development.
+
+### Data attributes
 
 <DataAttributesTable
   name="range-legend"
@@ -234,15 +145,3 @@ Audited against WCAG 2.2 AA in a source and a rendered pass. The audit is author
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="RangeLegendProps" />
-
-`tone` is typed to the four `ClinicalStatus` levels in [Clinical status semantics](../health/clinical-status-semantics.mdx). A value outside the four is refused with a development warning and falls back to the neutral band. An empty `bands` array renders nothing and warns in development.
-
-## Related
-
-- [RangeBar](./range-bar.mdx) renders the bar this legend explains, with its own summary sentence and status pill.
-- [StatusPill](./status-pill.mdx) names the level of one reading; RangeLegend names the whole vocabulary a group of bars shares.
-- [Term](./term.mdx) explains one clinical word in place, where a legend names a set of tones.

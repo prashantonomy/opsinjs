@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-formatting
 aliases: [ago, timestamp, last updated, freshness, staleness, time ago, date display]
-governedBy: [uncertainty-and-staleness, numbers-units-precision]
-usedIn: [choose-a-component, daily-log-screen, daily-logging, diabetes-medicines-app, health-metric-card, offline-and-stale-data, results-screen, sharing-with-a-clinician, trend-review, trends-screen]
+governedBy: [trends, numbers, alerts, safety-review]
+usedIn: [daily-logging, offline-and-stale-data, sharing-with-a-clinician]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,19 +23,13 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="relative-time" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="relative-time"
   unbuilt={false}
   importPath="@/components/ui/relative-time"
 />
-
-## Usage
 
 ```tsx
 import { RelativeTime } from "@/components/ui/relative-time"
@@ -49,6 +43,23 @@ import { RelativeTime } from "@/components/ui/relative-time"
   locale="en-GB"
 />
 ```
+
+## Examples
+
+<ComponentPreview name="relative-time" />
+
+### A column of entries
+
+Every row names its `event`, and no row passes `staleAfterHours`.
+
+<ComponentPreview name="relative-time-in-a-log-list" kind="example" align="start" />
+
+### Measured and synced are two different facts
+
+Both lines are true. The `event` prefix keeps a sync time from lending its reassurance
+to a reading taken eleven days earlier.
+
+<ComponentPreview name="relative-time-measured-and-synced" kind="example" align="start" />
 
 ## When to use it
 
@@ -70,24 +81,23 @@ import { RelativeTime } from "@/components/ui/relative-time"
 ## Clinical meaning
 
 **Asserts.** That the named event happened at that instant and, past `staleAfterHours`,
-that the product no longer considers the value current. It does not
-know what was measured. The phrase rounds down at every rung except the minute floor.
-The staleness verdict is computed from the exact elapsed time, not the phrase, as
-[Numbers, units and precision](../health/numbers-units-precision.mdx) requires.
+that the product no longer considers the value current. It does not know what was
+measured. The phrase rounds down at every rung except the minute floor, but the
+staleness verdict uses the exact elapsed time, not the phrase, as
+[Numbers and units](../health/numbers.mdx) requires.
 
 **Never read as.** Freshness of the data. *Synced 5 minutes ago* means the app spoke to
-a server, not that the readings are that new. That is why `event` is required.
+a server, not that the readings are that new, which is why `event` is required.
 
-**Colour axis.** Neither. The stale treatment is muted text carried by the
-words *may be out of date*, never a status tint on a fact about the clock.
+**Colour axis.** Neither. The stale treatment is muted text carried by the words *may
+be out of date*, never a status tint on a fact about the clock.
 
 **Thresholds.** Staleness belongs to the product: no default, no per-event default and
-nothing derived from `event`. Omit `staleAfterHours` and no stale treatment renders.
-Supply it and the words appear past the boundary, or wherever it could not be applied, as
-[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) asks.
-
-**Staleness boundary.** The muted treatment reaches the `time` element only. A surface
-embedding it still owes the value's de-emphasis and a route to refresh.
+nothing derived from `event`. Omit `staleAfterHours` and no stale treatment renders;
+supply it and the words appear past the boundary, or wherever it could not be applied,
+as [Trends and uncertainty](../health/trends.mdx) asks. The muted treatment reaches
+the `time` element only, so an embedding surface still owes the value's de-emphasis
+and a route to refresh.
 
 <SafetyCallout severity="attention" evidence="opinion">
 Never put a sync time where a measurement time belongs. *Synced 2 minutes ago* above a
@@ -95,96 +105,26 @@ reading taken four months ago is two true statements that together mislead. Rend
 each with its event word.
 </SafetyCallout>
 
-## Anatomy
-
-<Anatomy
-  name="relative-time"
-  parts={[
-    {
-      name: "RelativeTime",
-      describes: "The root, always a time element carrying the caller's exact timestamp in datetime. Not focusable and not interactive.",
-      prop: "at",
-    },
-    {
-      name: "RelativeTime.Prefix",
-      describes: "The event word: Measured, Recorded, Received, Synced or Issued. Required and never inferred.",
-      prop: "event",
-    },
-    {
-      name: "RelativeTime.Relative",
-      describes: "The human phrase, precision following recency. Absent for a future timestamp or when now cannot be parsed.",
-      prop: "now",
-    },
-    {
-      name: "RelativeTime.Absolute",
-      describes: "The exact date and time. Always in the accessibility tree and in print; on screen once older than absoluteAfterDays.",
-      prop: "showAbsolute",
-    },
-    {
-      name: "RelativeTime.Staleness",
-      describes: "The words 'may be out of date', past the threshold or wherever it could not be applied. Absent without one.",
-      prop: "staleAfterHours",
-    },
-  ]}
-/>
-
-## Examples
-
-### A column of entries
-
-Every row names its `event`, and an age reads faster down a column than dates side by
-side. No row passes `staleAfterHours`.
-
-<ComponentPreview name="relative-time-in-a-log-list" kind="example" align="start" />
-
-### Measured and synced are two different facts
-
-Both lines are true. The `event` prefix keeps a sync time from lending its reassurance
-to a reading taken eleven days earlier.
-
-<ComponentPreview name="relative-time-measured-and-synced" kind="example" align="start" />
-
-## Content guidelines
-
-Always name the event: *Measured 3 days ago* is a fact, *3 days ago* is a fragment. On a
-result, show *received* beside *issued*, never instead of it. It never says *just now*,
-*up to date* or *yesterday*, and its smallest phrase is *1 minute ago*.
-
-<DoDont>
-  <DoDont.Do>
-    **"Measured 3 days ago, on 11 March 2026 at 08:12 UTC"** names the event and keeps the
-    exact time beside it.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Updated 2 minutes ago"** above a reading taken four months ago. Both facts are true
-    and together they mislead.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Audited against WCAG 2.2 AA** in a source pass and a rendered pass. This audit is
-author-run, not an independent review, and clinical review is still pending.
+There is no axe, target-size, focus-visible or 320px reflow issue and no critical or
+serious defect in the source. The exact date is always in the accessibility tree and
+in print, never behind hover, focus or a disclosure; `showAbsolute` moves it on screen
+only. Staleness is stated in words, never by the muted tone alone, and the words stay
+at the surrounding foreground while the phrase recedes. The audit fixed one moderate
+item: the log-list example's `list-none` `<ul>` lost its list semantics under Safari
+with VoiceOver, so the rows read as generic text, and a `role="list"` now restores the
+role with no visual or API change.
 
-The rendered pass found no axe violations, no target-size hits, no focus-visible issue
-and no reflow at 320px. The source pass found one moderate item: the log-list example
-rendered its rows in a `<ul>` styled `list-none`, which drops list semantics under
-Safari with VoiceOver, so the rows read as generic text. A `role="list"` restores the
-role with no visual or API change. The component's own source held no critical or
-serious defect.
+**Residual items.**
 
-- The exact date is always in the accessibility tree and in print, never behind hover,
-  focus or a disclosure. `showAbsolute` moves it on screen only.
-- Staleness is stated in words, never by the muted tone alone, and the words stay at the
-  surrounding foreground while the phrase recedes.
-- It mounts no live region and owns no timer. Nothing changes at runtime to announce, so
-  a product re-rendering it should add no `aria-live`.
-- No `"use client"`, no effect and no clock read, so hydration is safe by determinism.
-  Pass an explicit `locale` or server and browser may differ.
-
-Two items remain open. The muted stale treatment's contrast against the muted or tinted
-grounds it may sit on is unmeasured, and no shipped preview renders the stale state.
-Screen readers in a language other than English are also unverified.
+- It mounts no live region and owns no timer, so nothing changes at runtime to
+  announce; a product re-rendering it should add no `aria-live`.
+- No `"use client"`, effect or clock read, so hydration is safe by determinism. Pass
+  an explicit `locale` or server and browser may differ.
+- The muted stale treatment's contrast on the muted or tinted grounds it may sit on is
+  unmeasured, and no shipped preview renders the stale state.
+- Screen readers in a language other than English are unverified.
 
 <KeyboardTable
   name="relative-time"
@@ -204,7 +144,7 @@ Screen readers in a language other than English are also unverified.
 
 <ContrastReport component="relative-time" />
 
-## API reference
+## Props interface
 
 <PropsTable name="RelativeTimeProps" />
 
@@ -212,12 +152,3 @@ Screen readers in a language other than English are also unverified.
 `event` outside the five, renders nothing and warns in development. An unparseable `now`
 renders the date alone. `absoluteAfterDays` defaults to `1`; `0` shows the
 date at every age. `TimeEvent` is exported.
-
-## Related
-
-- [Value](./value.mdx) covers quantities rather than instants, and renders an explicit
-  absence where this component renders nothing.
-- [MetricTile](./metric-tile.mdx) embeds a RelativeTime and still owes the value's
-  de-emphasis and a route to refresh it.
-- [ResultCard](./result-card.mdx) is where *measured* and *received* both apply and only
-  one is relevant.

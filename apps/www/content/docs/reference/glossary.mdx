@@ -1,0 +1,39 @@
+---
+title: Glossary
+description: The words opsinjs uses about itself, from axis and rung to tier and twin, each with the page that defines it.
+kind: reference
+aliases: [system glossary, rung, base vs style, system vocabulary]
+---
+
+This is the vocabulary of the system, not of health. For HbA1c or systolic, use the [Plain English A to Z](./plain-english.mdx), which is written for the people using your app. Where a word has two meanings, both are listed. The one that catches people out is status.
+
+This page is written by hand. A definition here may summarise the page it links but never contradicts it.
+
+| Term | What it means | See |
+| --- | --- | --- |
+| **alias** | A search synonym in a page's frontmatter. Aliases are indexed, emitted into `llms.txt` and `/r/index.json`, and unique across the docs. | [Agents and LLMs](../agents.mdx) |
+| **axis** | One of the two independent colour dimensions. The status axis carries clinical urgency and the category axis carries subject identity. They never combine on one element. | [Two colour axes](../health/two-colour-axes.mdx) |
+| **base** | The React code that implements a component's behaviour. `base` is the only one. Its URL segment means a second base would be additive rather than a migration. | [Registry](../registry.mdx) |
+| **catalogue** | The single list of every component id, with its category, release phase and aliases. `registry/catalogue.ts` is its only definition. | [Components](../components/index.mdx) |
+| **category** | The subject a value belongs to, which is the identity axis. A category colour says what a number is about, never how worried to be. | [Two colour axes](../health/two-colour-axes.mdx) |
+| **chrome** | The documentation site's own interface: sidebar, header and search. It is themed with lyra, deliberately unlike the product theme. | [Reading the docs](../reading-the-docs.mdx) |
+| **doctrine** | A rule page that constrains components rather than describing one. A Health page lists the components it governs in `implements`. | [Health](../health/index.mdx) |
+| **foundation** | A cross-cutting layer every component draws on, from colour to writing. Six have tokens of their own: colour, typography, space, shape, motion and materials. | [Foundations](../foundations/index.mdx) |
+| **generated marker** | The comment pair `opsinjs:generated:begin` and `opsinjs:generated:end`. A script writes everything between them and erases it on the next run. The error table uses `opsinjs:errors:begin` and `opsinjs:errors:end`. | [Reference](./index.mdx) |
+| **ladder** | The material rungs from canvas to scrim, an ordered set where position carries meaning rather than size. | [Materials](../foundations/materials.mdx) |
+| **namespace** | The `@opsinjs` prefix a consumer registers in `components.json` so that `npx shadcn add @opsinjs/result-card` resolves here. | [Registry](../registry.mdx) |
+| **pattern** | A multi-screen sequence a health product keeps rebuilding, such as result disclosure or daily logging. | [Patterns](../patterns/index.mdx) |
+| **preset** | A complete theme expressed as values rather than code. The values are the token overrides that turn the system a particular colour. | [Theming](../theming.mdx) |
+| **preset code** | The short opaque string, `opsinjs-*`, that encodes a preset for a URL or a CLI flag. It is decodable, versioned and not a secret. | [Theming](../theming.mdx) |
+| **product theme** | The theme components render under: squircle corners, `system-ui` and generous spacing. Every `/view` route and component preview uses it. The docs chrome does not. | [Reading the docs](../reading-the-docs.mdx) |
+| **ramp** | A perceptually even series of steps generated from one colour in OKLCH, clamped for gamut and checked for contrast. Each axis colour has one. | [Colour](../foundations/colour.mdx) |
+| **registry item** | The JSON for one distributable unit in the shadcn registry schema: its files, dependencies and target paths. Served from `/r`. | [Registry](../registry.mdx) |
+| **role** | A semantic colour slot filled by a ramp step. The four roles are surface, line, ink and accent. Components read roles, never ramp steps. | [Colour](../foundations/colour.mdx) |
+| **rung** | One step of the material ladder, identified by its position in the stacking order rather than by a blur radius. | [Materials](../foundations/materials.mdx) |
+| **scale** | An ordered set of sizes named by intent rather than by t-shirt size. The scales are type, space and radius. | [Theming](../theming.mdx) |
+| **screen** | A whole-screen specimen: several components under one layout, showing what the parts do together. | [Patterns](../patterns/index.mdx) |
+| **status (clinical)** | One of the four ordinal levels describing a value against what is expected for a person: steady, watch, attention and urgent. The product assigns it, and opsinjs only renders it. `unknown` means there is no reading. It is not a fifth level. | [Two colour axes](../health/two-colour-axes.mdx) |
+| **status (release)** | The phase a component page declares: planned, shipped or deprecated. Only a component page carries one. Shipped means the source installs and renders. It never means reviewed. | [Reading the docs](../reading-the-docs.mdx) |
+| **style** | A visual variant applied as CSS only, never as behaviour. `base-lyra` is the default, and styles are addressable in `/view` and `/r` URLs. | [Registry](../registry.mdx) |
+| **tier** | The level a token sits at: primitive (a raw value), semantic (a role) or component (a part). Components read the semantic and component tiers only. | [Theming](../theming.mdx) |
+| **twin** | The `.md` version of a documentation page, served by appending `.md` to its URL. It is processed Markdown, not raw MDX. | [Agents and LLMs](../agents.mdx) |

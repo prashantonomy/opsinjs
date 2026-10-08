@@ -3,9 +3,10 @@ title: Card
 description: A bounded group of related content with a border and consistent padding is the ordinary box that most of a screen is made of.
 status: shipped
 kind: component
+governedBy: [two-colour-axes]
 category: surfaces
 aliases: [panel, container, box, tile group, content box]
-usedIn: [choose-a-component, daily-log-screen, diabetes-medicines-app, health-metric-card, onboarding-screen, results-screen, trends-screen]
+usedIn: [result-disclosure, onboarding-and-first-run, trend-review]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="card" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="card"
@@ -35,8 +32,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
   registryDependencies={["surface"]}
 />
-
-## Usage
 
 ```tsx
 import { Card } from "@/components/ui/card"
@@ -48,6 +43,24 @@ import { Card } from "@/components/ui/card"
   <Card.Body>Card content</Card.Body>
 </Card>
 ```
+
+## Examples
+
+<ComponentPreview name="card" />
+
+### The whole card as one link
+
+`href` makes the card one anchor and one tab stop. A chevron marks it at rest,
+the title underlines on hover, and it holds no buttons.
+
+<ComponentPreview name="card-as-a-link" kind="example" align="start" />
+
+### Cards on a sheet, and the rung that stays put
+
+The sheet is the layer; the cards on it stay on the `card` rung, since a
+translucent rung never contains one.
+
+<ComponentPreview name="card-on-a-sheet" kind="example" align="start" />
 
 ## When to use it
 
@@ -66,135 +79,21 @@ import { Card } from "@/components/ui/card"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="card"
-  parts={[
-    {
-      name: "Card",
-      describes: "The root: a div, or an anchor when href is set. Carries the corner and print boundary.",
-      prop: "href",
-    },
-    {
-      name: "Card.Header",
-      describes: "Optional. An exported part the consumer fills.",
-    },
-    {
-      name: "Card.Title",
-      describes: "Holds the caller's heading element and resets its font and margin.",
-      prop: "title",
-    },
-    {
-      name: "Card.Description",
-      describes: "Optional line under the title. A paragraph, so inline content only.",
-      prop: "description",
-    },
-    {
-      name: "Card.Body",
-      describes: "Optional. The content, no contract of its own.",
-    },
-    {
-      name: "Card.Footer",
-      describes: "Optional. Actions or metadata in a wrapping row, split by the target minimum.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="card"
-  tree={[
-    {
-      part: "Card",
-      cardinality: "1",
-      children: [
-        {
-          part: "Surface",
-          cardinality: "1",
-          children: [
-            {
-              part: "Surface.Content",
-              cardinality: "1",
-              children: [
-                {
-                  part: "card-link-row",
-                  cardinality: "0..1",
-                  children: [
-                    {
-                      part: "Card.Header",
-                      cardinality: "0..1",
-                      children: [
-                        { part: "Card.Title", cardinality: "1" },
-                        { part: "Card.Description", cardinality: "0..1" },
-                        { part: "children", cardinality: "0..n" },
-                      ],
-                    },
-                    { part: "Card.Body", cardinality: "0..1" },
-                    { part: "Card.Footer", cardinality: "0..1" },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### The whole card as one link
-
-`href` makes the card one anchor and one tab stop. A chevron marks it at rest,
-the title underlines on hover, and it holds no buttons.
-
-<ComponentPreview name="card-as-a-link" kind="example" align="start" />
-
-### Cards on a sheet, and the rung that stays put
-
-The sheet is the layer; the cards on it stay on the `card` rung, since a
-translucent rung never contains one.
-
-<ComponentPreview name="card-on-a-sheet" kind="example" align="start" />
-
-## Content guidelines
-
-A card holds one idea. If the title needs *and*, it is two cards. Titles are
-noun phrases in sentence case. Card ships no copy, so every word inside is the
-product's, held to [Plain-English A to Z](../content/plain-english-a-z.mdx).
-
-<DoDont>
-  <DoDont.Do>
-    **"Recent readings"** as a card title, with the readings inside it.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Recent readings and upcoming appointments"** in one card. The boundary
-    then tells the reader nothing.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA across a source pass and a rendered pass. The audit
-is author-run, not an independent review, and clinical review is still pending.
+A card takes no role or name unless it is a link. It carries the page's heading level
+in a title slot that resets font and margin, floors a link target at
+`--opsin-target-minimum`, and keeps its edge under greyscale, `forced-colors` and print.
+The resting chevron is `aria-hidden`, backed by the title underline and anchor as
+redundant cues. There is no axe violation and no 320px reflow failure, and
+`pnpm run check:a11y` confirms on every commit that every colour is a role token, no
+type size is in `px`, and no banned word appears. The audit moved the link card's
+`focus-visible` ring from a hardcoded 2px outline to `--opsin-border-focus` and
+`--opsin-border-focus-offset`, so a product raising those gets a wider ring here, and
+the default stays 2px.
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears.
-
-**What the audit changed.** The link card's `focus-visible` ring used a
-hardcoded 2px outline instead of the house tokens. It now reads
-`--opsin-border-focus` and `--opsin-border-focus-offset`, so a product
-raising those gets a wider ring here; the default stays 2px. The rendered
-pass found no axe violation and no 320px reflow.
-
-**What it left standing.** A link card is one anchor, so its accessible name is
-all its text at once, a verbosity to weigh before putting `href` on a long
-card. The resting chevron is `aria-hidden`, backed by the title underline and
-anchor as redundant cues. A card otherwise takes no role or name
-unless it is a link, carries the page's heading level in a title slot that resets
-font and margin, floors a link target at `--opsin-target-minimum`, and keeps its
-edge under greyscale, `forced-colors` and print.
+**Residual items.** A link card is one anchor, so its accessible name is all its text
+at once. Weigh that verbosity before putting `href` on a long card.
 
 <KeyboardTable
   name="card"
@@ -224,7 +123,7 @@ edge under greyscale, `forced-colors` and print.
 
 <ContrastReport component="card" />
 
-## API reference
+## Props interface
 
 <PropsTable name="CardProps" />
 
@@ -238,11 +137,3 @@ no `status`, `variant`, `color` or `category`.
 <PropsTable name="CardBodyProps" />
 
 <PropsTable name="CardFooterProps" />
-
-## Related
-
-- [ResultCard](./result-card.mdx) is a Card with a clinical contract, any card holding a health value.
-- [CareCard](./care-card.mdx) is a Card whose subject is an authored instruction.
-- [MetricTile](./metric-tile.mdx) has a fixed grid contract, not a small Card.
-- [Surface](./surface.mdx) is the layer beneath; Card is a Surface with padding and a boundary.
-- [Callout](./callout.mdx) is bounded advisory prose, not grouped content.

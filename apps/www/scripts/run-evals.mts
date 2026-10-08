@@ -186,7 +186,7 @@ async function runTask(
       passed: text !== undefined,
       detail:
         text === undefined
-          ? `no page at content/docs/${expect.page}.mdx${base ? ` and no .md twin at ${base}/docs/${expect.page}.md` : ""}`
+          ? `no page at content/docs/${expect.page}.mdx${base ? ` and no .md twin at ${base}/${expect.page}.md` : ""}`
           : undefined,
     })
   }

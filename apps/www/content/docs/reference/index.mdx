@@ -1,90 +1,20 @@
 ---
 title: Reference
-description: Written by a script from the same source the build uses, covering every token, data attribute, CSS variable, key, exported type and defined term.
+description: Generated tables of every token, variable, attribute, key, contrast pair and type, with the error codes and both glossaries.
 kind: reference
-reviewed: 2026-09-02
-reviewer: engineering
-reviewEvery: 6m
 aliases: [generated reference, what is generated]
 ---
 
-<PageTemplate kind="reference" />
+The generated pages are written by scripts from the same sources the build ships, so a row cannot describe a token the build does not have. `pnpm run check` regenerates them and diffs the result, so a page that drifts from its source fails the build. To change a row, change the source. An edit between a page's generated markers is erased by the next `pnpm run generate`. A program should read the same lists from `/llms.txt`, the `.md` twin of each page, or `/r/index.json`.
 
-Three pillars describe the same tokens from three directions, and the split is
-deliberate:
-
-> **Foundations = what a token means. Handbook and Theming = how you change it.
-> Reference = the generated list of every one.**
-
-If you are reading to understand a decision, you are in the wrong pillar. This
-one exists so that a question with a finite answer can be answered by looking
-rather than by reading. *How many status levels are there, what does
-`data-stale` mean, which variable controls the ladder's third rung* are
-questions of exactly that kind.
-
-## How this is generated
-
-Nothing on the eight pages below is typed by a person. Each is written by
-`scripts/build-reference.mts` from a source that the application itself consumes,
-so a row cannot describe a token the build does not ship. `pnpm run check` runs
-`pnpm run generate` and then diffs the working tree; a page that has drifted from
-its source fails CI rather than quietly lying.
-
-### What is generated, and from what
-
-| Page | Source of truth | Produced by | Refreshed |
-| --- | --- | --- | --- |
-| Tokens | `tokens/*.json` | `build-tokens.mts` → `lib/generated/tokens.ts` | every build |
-| Data attributes | component sources and their registry items | `build-registry.mts` | every build |
-| CSS variables | `tokens/*.json` → `app/tokens.generated.css` | `build-tokens.mts` | every build |
-| Keyboard | the `<KeyboardTable>` block on each component page | `build-reference.mts` | every build |
-| Types | the published `.d.ts` of the `@opsinjs` packages | `build-reference.mts` (fumadocs-typescript) | every build |
-| Contrast | `tokens/color.json`, `tokens/material.json` | `check-contrast.mts` → `lib/generated/contrast.json` | nightly, and before a release |
-| Glossary | `tokens/glossary.json` | `build-reference.mts` | every build |
-| Catalogue | `registry/catalogue.ts` | `build-registry.mts` → `lib/generated/catalogue.json` | every build |
-| API, per symbol | the published `.d.ts` of the `@opsinjs` packages | `build-reference.mts` | every build |
-
-### The page contract
-
-Every generated page has the same shape. Above the marker comment
-`opsinjs:generated:begin` sits a short hand-written block that names the source
-and the script. You are reading it now. Everything below it is replaced
-wholesale. Editing below the marker is not a mistake the tooling tolerates: the
-next `pnpm run generate` erases it, and `check:generated` fails the pull request
-that contained it.
-
-To change a row, change the source. There is no exception to this, and the
-absence of an exception is the point: a table that can be hand-edited is a table
-you cannot trust when it matters.
-
-### Two pages here are hand-written, on purpose
-
-[System glossary](./system-glossary.mdx) defines the words this project uses about
-itself: rung, axis, role, base, style, preset. There is no machine-readable
-source for a project's own vocabulary, and inventing one to satisfy a rule would
-be worse than writing twenty definitions carefully. [The API index](./api/index.mdx)
-is likewise hand-written; only the per-symbol pages beneath it are generated.
-
-### Empty tables are honest, not broken
-
-Two of the eight lists are empty: [Data attributes](./generated/data-attributes.mdx)
-and [Keyboard](./generated/keyboard.mdx). They say so with a `<NoDataYet>`
-block naming the script that will fill them. The reason is a gap in the
-aggregator rather than an empty system: the implemented components do emit data
-attributes and every component page carries its own `<KeyboardTable>`, but
-`build-reference.mts` does not yet read the component sources for the first or
-parse those blocks for the second. Each page states that on itself, because
-"empty because nothing exists" and "empty because nobody wrote the extractor" are
-different problems and only one of them gets fixed by somebody reading this. What
-an empty table never means is that the page failed to load, and it is never
-padded with a plausible example row. A fake row in a reference table is
-indistinguishable from a real one, which is the exact failure this pillar exists
-to prevent.
-
-### Where these lists also appear
-
-Everything here is duplicated into machine surfaces on purpose: `/llms.txt` and
-its shards, the `.md` twin of every page, and `/r/index.json`. Prefer those if
-you are a program. If you are a person and the list is long, the search box
-(<Kbd>Ctrl</Kbd> <Kbd>K</Kbd>) indexes generated pages exactly like written ones.
-That is the whole reason these are committed MDX rather than a runtime API.
+| Page | Contents |
+| --- | --- |
+| [Tokens](./generated/tokens.mdx) | Every design token, what it controls and what reads it |
+| [CSS variables](./generated/css-variables.mdx) | Every `--opsin-*` custom property, with its light and dark defaults |
+| [Data attributes](./generated/data-attributes.mdx) | Every `data-*` attribute the components emit. Empty until the script reads the component sources |
+| [Keyboard](./generated/keyboard.mdx) | Every keyboard interaction. Empty until the script reads each component page's table |
+| [Contrast](./generated/contrast.mdx) | Measured WCAG 2.2 ratios and APCA Lc for every token pair, in both themes |
+| [Types](./generated/types.mdx) | Every TypeScript symbol the site's `lib/` exports. Not an installable API |
+| [Error codes](./error-codes.mdx) | Every development warning, its stable code and the page that prevents it |
+| [Glossary](./glossary.mdx) | The words opsinjs uses about itself, written by hand |
+| [Plain English A to Z](./plain-english.mdx) | The clinical terms a reader meets, and the plain words to use instead |

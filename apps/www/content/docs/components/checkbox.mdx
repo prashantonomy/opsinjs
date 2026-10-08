@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: ["tick box", "multi select"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="checkbox" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="checkbox"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/checkbox"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Checkbox } from "@/components/ui/checkbox"
@@ -48,6 +41,22 @@ import { Checkbox } from "@/components/ui/checkbox"
   onCheckedChange={setAgreed}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="checkbox" />
+
+### An optional agreement
+
+A lone box with `label` and `description`. The description says what ticking does.
+
+<ComponentPreview name="checkbox-an-optional-agreement" kind="example" align="start" />
+
+### A three-state parent
+
+The example passes `checked="indeterminate"` when some but not all children are ticked, so the box draws a Minus, not a Check.
+
+<ComponentPreview name="checkbox-a-three-state-parent" kind="example" align="start" />
 
 ## When to use it
 
@@ -64,118 +73,22 @@ import { Checkbox } from "@/components/ui/checkbox"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="checkbox"
-  parts={[
-    {
-      name: "Checkbox",
-      describes: "The root wrapper. Neutral chrome only, on neither colour axis.",
-      prop: "label",
-    },
-    {
-      name: "Checkbox.Control",
-      describes: "The box, a Base UI Checkbox.Root with role=\"checkbox\", aria-checked and a hidden form input.",
-      prop: "checked",
-    },
-    {
-      name: "Checkbox.Indicator",
-      describes: "The mark, mounted only while ticked or mixed: a lucide Check when ticked, a Minus when mixed.",
-    },
-    {
-      name: "Checkbox.Label",
-      describes: "The visible words. The label element wraps the box, so a tap anywhere on the row toggles it.",
-      prop: "label",
-    },
-    {
-      name: "Checkbox.Description",
-      describes: "Optional guidance beneath the label, tied to the box with aria-describedby.",
-      prop: "description",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="checkbox"
-  tree={[
-    {
-      part: "Checkbox",
-      cardinality: "1",
-      note: "The wrapper",
-      children: [
-        {
-          part: "Checkbox.Control",
-          cardinality: "1",
-          note: "role=\"checkbox\", wrapped by the label",
-          children: [
-            {
-              part: "Checkbox.Indicator",
-              cardinality: "0..1",
-              note: "Mounted only when ticked or mixed",
-            },
-          ],
-        },
-        {
-          part: "Checkbox.Label",
-          cardinality: "1",
-          note: "Wraps the control",
-        },
-        {
-          part: "Checkbox.Description",
-          cardinality: "0..1",
-          note: "Present when description is set",
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### An optional agreement
-
-A lone box with `label` and `description`. The description says what ticking does.
-
-<ComponentPreview name="checkbox-an-optional-agreement" kind="example" align="start" />
-
-### A three-state parent
-
-The example passes `checked="indeterminate"` when some but not all children are ticked, so the box draws a Minus, not a Check.
-
-<ComponentPreview name="checkbox-a-three-state-parent" kind="example" align="start" />
-
-## Content guidelines
-
-Phrase the label so a tick means yes. Keep it to a short line and put what ticking does in `description`. A clinical status word is a [StatusPill](./status-pill.mdx), never a label.
-
-<DoDont>
-  <DoDont.Do>
-    **"Email me a copy"** ticks to a plain yes, with the detail in the description.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Do not exclude me from reminders"** makes an empty box a double negative.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
-author-run, not an independent review, and clinical review is still pending.
+The description is tied with `aria-describedby`, and fill, border and the Check against
+Minus glyph move together, so colour is never the sole state carrier. Sizes are rem,
+and the colour transition moves no transform, so it needs no reduced-motion guard. The
+audit
+fixed a missing name (WCAG 4.1.2): Base UI draws the box as a `span` with
+`role="checkbox"`, and the wrapping `label` named only the hidden input. The box now
+points `aria-labelledby` at the visible label's `id`, so its name is the visible words
+verbatim (WCAG 2.5.3), in the demo and both examples.
 
-**What was fixed.** Base UI draws the box as a `span` with `role="checkbox"`, and
-the wrapping `label` named only the hidden input, so the box had no accessible name
-(WCAG 4.1.2). The visible label carries an `id` and the box points at it
-with `aria-labelledby`, so the name is the visible words verbatim (WCAG 2.5.3).
-The fix reaches the demo and both examples.
+**Residual items.**
 
-**What holds.** The description is tied with `aria-describedby`, colour is never
-the sole state carrier because fill, border and the Check against Minus glyph all
-move together, and sizes are rem.
-
-**Residual.** The rendered probe measured the inner box at 20 by
-20, under SC 2.5.8, but the pointer target is the 44px label row that toggles
-anywhere along it, so it clears the house floor. The colour transition moves no transform and needs no reduced-motion guard. Contrast pairs are not yet measured.
+- The inner box measures 20 by 20, under SC 2.5.8, but the pointer target is the 44px
+  label row, which toggles anywhere along it and so clears the house floor.
+- Contrast pairs are not yet measured.
 
 <KeyboardTable
   name="checkbox"
@@ -210,7 +123,17 @@ anywhere along it, so it clears the house floor. The colour transition moves no 
 
 <ContrastReport component="checkbox" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="CheckboxProps" />
+
+`label` is required. `checked`
+accepts `true`, `false` or `"indeterminate"`; omitted, the box is uncontrolled
+from an unticked start. `indeterminate` is the other route to the mixed state
+and wins when both are given. `onCheckedChange` reports a boolean, so a mixed
+box reports `true` when ticked.
+
+### Data attributes
 
 <DataAttributesTable
   name="checkbox"
@@ -242,20 +165,3 @@ anywhere along it, so it clears the house floor. The colour transition moves no 
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="CheckboxProps" />
-
-`label` is required. `checked`
-accepts `true`, `false` or `"indeterminate"`; omitted, the box is uncontrolled
-from an unticked start. `indeterminate` is the other route to the mixed state
-and wins when both are given. `onCheckedChange` reports a boolean, so a mixed
-box reports `true` when ticked.
-
-## Related
-
-- [RadioGroup](./radio-group.mdx) is for a choice where exactly one option can be chosen.
-- [Switch](./switch.mdx) turns one thing on or off immediately, and has no mixed state.
-- [Field](./field.mdx) wires a control to its label, hint, error and validity as one unit.
-- [StatusPill](./status-pill.mdx) is where a clinical level lives.

@@ -1,85 +1,26 @@
 import type { MDXComponents } from "mdx/types"
 import defaultMdxComponents from "fumadocs-ui/mdx"
-import { Accordion, Accordions } from "fumadocs-ui/components/accordion"
-import { File, Files, Folder } from "fumadocs-ui/components/files"
-import { Step, Steps } from "fumadocs-ui/components/steps"
-import { Tab, Tabs } from "fumadocs-ui/components/tabs"
-import { TypeTable } from "fumadocs-ui/components/type-table"
 
+import glossary from "@/lib/generated/glossary.json"
+import { ContrastReport, CvdSimulator } from "./docs/a11y"
+import { StatusAxisDemo, StatusLadder } from "./docs/colour"
+import { Callout, SafetyCallout, WhenToUse } from "./docs/guidance"
 import {
-  A11yReport,
-  ContrastOracle,
-  ContrastReport,
-  CvdSimulator,
-} from "./docs/a11y"
-import {
-  Anatomy,
-  ApiLink,
-  CompositionTree,
-  FlowDiagram,
-  RelatedComponents,
-} from "./docs/anatomy"
-import {
-  ColorScale,
-  StatusAxisDemo,
-  StatusLadder,
-  TokenSwatch,
-} from "./docs/colour"
-import { CopyButton, OpenInSandbox, PageActions } from "./docs/copy"
-import {
-  Callout,
-  ClinicalNote,
-  DoDont,
-  PlainLanguage,
-  ReadingLevel,
-  ResearchNote,
-  Reviewed,
-  SafetyCallout,
-  WhenToUse,
-} from "./docs/guidance"
-import { Glossary, RangeDemo, Term } from "./docs/health"
+  Glossary,
+  RangeDemo,
+  type GlossaryEntry,
+  type GlossaryProps,
+} from "./docs/health"
 import { MaterialLadder } from "./docs/material"
-import {
-  BrowserSupport,
-  EvalResult,
-  Feedback,
-  Figure,
-  LastUpdated,
-  PromptRecipe,
-  RegistryItem,
-} from "./docs/meta"
-import { MotionCurve, MotionDemo } from "./docs/motion"
-import { PageTemplate } from "./docs/page-template"
-import { DeviceFrame, ViewportToolbar } from "./docs/preview"
-/* ComponentPreview and IframePreview come from the SERVER wrapper, not from
-   ./docs/preview. The wrapper resolves the name against the generated registry
-   index and hands the client surface a single boolean; importing the index
-   into a "use client" module would put every built component's full source
-   text in the browser bundle of every page on this site. DeviceFrame and
-   ViewportToolbar have no lookup to do and come straight from the surface. */
+import { MotionDemo } from "./docs/motion"
+/* The two preview tags come from the server wrapper, not from ./docs/preview.
+   The wrapper resolves the name against the generated registry index and hands
+   the client surface a single boolean; importing the index into a "use client"
+   module would put every built component's source in every page's bundle. */
 import { ComponentPreview, IframePreview } from "./docs/preview-server"
+import { ComponentInstall } from "./docs/source"
+import { NoDataYet, NotBuiltYet, StubNotice, Todo } from "./docs/stub"
 import {
-  CodeBlockCommand,
-  CodeCollapsible,
-  CodeTabs,
-  ComponentInstall,
-  ComponentSource,
-} from "./docs/source"
-import {
-  ComponentsList,
-  SectionProgress,
-  StatusBadge,
-  StatusLegend,
-  StatusMatrix,
-} from "./docs/status"
-import {
-  NoDataYet,
-  NotBuiltYet,
-  StubNotice,
-  Todo,
-} from "./docs/stub"
-import {
-  BundleSize,
   CssVariablesTable,
   DataAttributesTable,
   KeyboardTable,
@@ -87,96 +28,49 @@ import {
   PropsTable,
   TokenTable,
 } from "./docs/tables"
-import { RadiusSpecimen, SpaceSpecimen, TypeScaleSpecimen } from "./docs/type"
 
 /* ==========================================================================
    mdx.tsx DEFINES THE CLOSED VOCABULARY.
 
-   Every tag an MDX page in this repository is allowed to use is in the object
-   below, and nothing else is. `scripts/assert-ia.mts` fails the build on an
-   unknown JSX tag, which makes this file the single definition of what a
-   content author can write, whether that author is a person or an agent.
+   Every tag an MDX page may use is registered below, and nothing else.
+   `scripts/assert-ia.mts` fails the build on an unknown tag (MDX001), which
+   makes this file the single definition of what an author can write, person
+   or agent. An unknown capitalised tag otherwise renders as nothing or throws,
+   and in a health document "silently dropped" is the outcome that matters.
 
-   Why closed rather than open. 280 content files are written in parallel. An
-   open vocabulary means a page invents <Warning> where <SafetyCallout> exists,
-   and the invented one renders as nothing: MDX silently drops an unknown
-   capitalised tag's children in some configurations and throws in others, and
-   in a health document "silently dropped" is the outcome that matters. Closing
-   the set turns that into a build failure with a name in it.
+   The set is exactly what the corpus uses. A tag no page uses is not
+   registered, because registering one is the same drift in the other
+   direction; add it back here, and to MDX_VOCABULARY in assert-ia, in the
+   change that first uses it.
 
-   Two rules for anyone extending this file:
-
-     1. A new tag is a change to the contract, not a convenience. It goes in
-        anatomy.txt first, then here, then into the templates, and only then
-        into a page.
-
-     2. fumadocs' `Card` is left UNSHADOWED. It is used by the docs chrome, by
-        the generated index cards and by `<Cards>` in Markdown, and replacing it
-        with an opsinjs-flavoured one would fork the chrome for no gain.
-
-   `Callout` IS shadowed, deliberately, so that the four clinical status levels
-   and fumadocs' info/warn/error types resolve through one component. Markdown
-   admonition syntax (`> [!NOTE]`) keeps working because the shadow accepts both
-   vocabularies.
+   `Callout` is shadowed deliberately, so that the four clinical status levels
+   and fumadocs' info, warn and error types resolve through one component.
    ========================================================================== */
 
-/* CategoryGrid and PlannedApi are intentionally NOT registered here. Contract
-   C4 declares the MDX vocabulary closed, and assert-ia fails the build on a tag
-   outside it; registering a tag no page may use is the same drift in the other
-   direction. Both components still exist and are exported from their own files -
-   PlannedApi is the intended host for anatomy section 9 once component pages
-   move off bare code fences. Add them to the vocabulary first, then to this map. */
+/** `lib/generated/glossary.json` in the shape <Glossary> filters. */
+const GLOSSARY_ENTRIES: GlossaryEntry[] = glossary.terms.map((entry) => ({
+  id: entry.term.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+  term: entry.term,
+  plain: entry.plain,
+  showBoth: entry.showBoth,
+  reason: entry.reason,
+}))
+
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
-    // fumadocs defaults: pre, headings, links, images, tables, Card/Cards and
-    // the code-block tab primitives. Left intact.
+    // fumadocs defaults: pre, headings, links, images and tables.
     ...defaultMdxComponents,
 
-    // fumadocs built-ins re-exported for sequences, tabs, FAQs and file trees.
-    Accordion,
-    Accordions,
-    File,
-    Files,
-    Folder,
-    Step,
-    Steps,
-    Tab,
-    Tabs,
-    // Emitted by remarkAutoTypeTable when a page uses <auto-type-table>. It is
-    // not part of the authored vocabulary. Pages use <PropsTable> instead.
-    TypeTable,
-
-    // ---- The page contract -------------------------------------------------
-    PageTemplate,
-
-    // ---- Nothing is built --------------------------------------------------
+    // ---- The honesty markers -----------------------------------------------
     NotBuiltYet,
     StubNotice,
     NoDataYet,
     Todo,
 
-    // ---- Status, release phase and the catalogue ---------------------------
-    StatusBadge,
-    StatusMatrix,
-    SectionProgress,
-    ComponentsList,
-    StatusLegend,
-
-    // ---- Preview and source ------------------------------------------------
+    // ---- Previews and installation -----------------------------------------
     ComponentPreview,
     IframePreview,
-    DeviceFrame,
-    ViewportToolbar,
-    ComponentSource,
     ComponentInstall,
-    CodeBlockCommand,
-    CodeTabs,
-    CodeCollapsible,
-
-    // ---- Copy, sharing and sandboxes ---------------------------------------
-    CopyButton,
-    PageActions,
-    OpenInSandbox,
 
     // ---- Generated tables ---------------------------------------------------
     PropsTable,
@@ -184,76 +78,27 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     CssVariablesTable,
     KeyboardTable,
     TokenTable,
-    BundleSize,
     Kbd,
 
-    // ---- Accessibility and colour measurement ------------------------------
-    A11yReport,
+    // ---- Measurement and specimens ------------------------------------------
     ContrastReport,
-    ContrastOracle,
     CvdSimulator,
-
-    // ---- Colour specimens ---------------------------------------------------
-    ColorScale,
-    TokenSwatch,
     StatusLadder,
     StatusAxisDemo,
-
-    // ---- Material, motion, type, space, shape ------------------------------
     MaterialLadder,
-    MotionCurve,
     MotionDemo,
-    TypeScaleSpecimen,
-    SpaceSpecimen,
-    RadiusSpecimen,
+    RangeDemo,
+    /* The A to Z renders the generated glossary. Registered bare, it had no
+       entries and showed its empty-state notice on the one page that uses it. */
+    Glossary: (props: GlossaryProps) => (
+      <Glossary entries={GLOSSARY_ENTRIES} {...props} />
+    ),
 
-    // ---- Guidance, evidence and review -------------------------------------
+    // ---- Guidance -----------------------------------------------------------
     WhenToUse,
-    DoDont,
     Callout,
     SafetyCallout,
-    ClinicalNote,
-    ResearchNote,
-    Reviewed,
-    LastUpdated,
-    PlainLanguage,
-    ReadingLevel,
 
-    // ---- Health vocabulary --------------------------------------------------
-    RangeDemo,
-    Term,
-    Glossary,
-
-    // ---- Anatomy and the component graph -----------------------------------
-    Anatomy,
-    CompositionTree,
-    RelatedComponents,
-    ApiLink,
-    FlowDiagram,
-
-    // ---- Page furniture -----------------------------------------------------
-    BrowserSupport,
-    RegistryItem,
-    Figure,
-    PromptRecipe,
-    EvalResult,
-    Feedback,
-
-    // Caller overrides last. This is where the docs route injects
-    // `a: createRelativeLink(source, page)` so that relative .mdx links in
-    // content resolve to real URLs. That resolution is why absolute /docs/
-    // paths are banned in MDX (addendum A11).
     ...components,
   }
-}
-
-/**
- * fumadocs-mdx looks for `useMDXComponents` when a page is rendered outside an
- * explicit provider. Same object, different name.
- */
-export const useMDXComponents = getMDXComponents
-
-declare global {
-  /** Consumed by fumadocs-mdx's generated types so MDX files typecheck. */
-  type MDXProvidedComponents = ReturnType<typeof getMDXComponents>
 }

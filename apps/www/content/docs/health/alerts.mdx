@@ -1,0 +1,89 @@
+---
+title: Alerts
+description: The escalation budget, the five-rung ladder, push notifications, and why motion may support a message but never be one.
+kind: health
+evidence: mixed
+implements: [alert-banner, care-card, status-pill, relative-time, score-dial, trend-sparkline, skeleton, sheet, dialog, goal-ring]
+reviewed: 2026-10-08
+reviewer: design
+---
+
+Alarm fatigue comes from the total of individually reasonable alerts, which no single screen's review sees, so escalation is budgeted per screen, session and day.
+
+## The rules
+
+### Budget
+
+1. Per screen, at most one `urgent` surface and at most two `attention` surfaces.
+2. Per session, at most one interruptive modal the reader did not initiate.
+3. Per day, at most one non-clinical push notification.
+4. `urgent` is reserved for clinical urgency, on every surface.
+5. No parallel escalation. One fact occupies the highest rung it justifies, and the surfaces below it are suppressed.
+6. When a value returns to `steady`, the surface that escalated it is removed and the reader is told once that it has gone.
+7. A surface re-raises on a change of state, never on a timer.
+8. Engagement, retention and commercial messages get a quiet channel, visually and structurally separate from the clinical one.
+
+### Notifications
+
+A notification discloses in public, cannot be recalled, and is switched off wholesale.
+
+9. The title names the subject at category level, such as "Blood pressure". The body adds an action, never a value, diagnosis, medication or condition, which stay in the app behind authentication.
+10. The body stays accurate and non-disclosing when a car, watch or smart speaker reads it aloud.
+11. A per-user disclosure setting defaults to the least, and the product never raises it for the reader.
+12. Clinical and non-clinical messages use separate operating-system channels where the platform allows, such as "Health alerts" and "Reminders and updates".
+13. A `steady` result is pushed only when the reader asked to be told.
+14. A push opens the in-app surface carrying the full message at the same level, never a dashboard. That surface is authoritative, and says so if the state has changed since sending.
+15. A push is stamped with the time the reading was taken, never the delivery time.
+16. Clearing a notification acknowledges nothing, and the in-app alert survives it.
+17. Quiet hours and interruption levels are respected. The highest level is for the clinical `urgent` path only, never a reminder, a digest or a `steady` result.
+18. Nothing is sent at 03:00 unless it is actionable at 03:00, and a clinical alert is never batched into a digest.
+19. The badge count is a disclosure surface, so a badge never appears only when something needs attention. A locked widget shows category-level information only, wherever the platform can hide the rest.
+
+### Motion
+
+Motion may support a message. It may never be the message.
+
+20. Urgency is never conveyed by motion. Nothing pulses, flashes, shakes or bounces to show status.
+21. A value is never revealed by animation, so there is no count-up, no dial sweep on first paint and no progressive reveal.
+22. Nothing that carries clinical meaning auto-dismisses.
+23. Nothing flashes. More than three flashes per second is a seizure risk and prohibited outright.
+24. Every animation has a reduced-motion behaviour, stated per token, that is instant, complete and equally informative and still shows where a surface came from.
+25. Motion never delays access to a result.
+26. A surface morphs rather than being swapped.
+
+Motion may confirm an input, show where a surface came from, keep scroll position clear and bound a loading state. A [Skeleton](../components/skeleton.mdx) reserves the exact layout and never implies a number, and no spinner keeps running after a request fails. Streak and reward animation never uses the status channel. Sound and haptics get a smaller budget than the visual one; see [Motion](../foundations/motion.mdx).
+
+<SafetyCallout severity="urgent" evidence="opinion">
+  A value that may need emergency care outranks every ceiling here and
+  suppresses all other alerts on the screen. A notification is never its only
+  channel, because notifications fail silently. See
+  [High-stakes moments](./high-stakes-moments.mdx).
+</SafetyCallout>
+
+## The escalation ladder
+
+Move up a rung only when the one below has proved insufficient, never because a rung looks more important. The staged pattern is [Alert escalation](../patterns/alert-escalation.mdx).
+
+1. **Ambient.** A [StatusPill](../components/status-pill.mdx) on the value. The default.
+2. **In-place.** A [CareCard](../components/care-card.mdx) beside the value, when it needs a named action.
+3. **Screen-level.** An [AlertBanner](../components/alert-banner.mdx) at the top, when rung 2 has proved insufficient.
+4. **Interruptive.** A modal or sheet the reader must dismiss, when the message is time-critical and cannot wait.
+5. **Off-screen.** A push notification, when rung 4 has proved insufficient. Never a first attempt.
+
+## In code
+
+- Nothing counts `urgent` or `attention` surfaces across a screen, so rule 1 is enforced by review today.
+- [Value](../components/value.mdx), [RangeBar](../components/range-bar.mdx) and [ScoreDial](../components/score-dial.mdx) never animate, and each motion token declares its own reduced-motion behaviour.
+- opsinjs renders no notifications. It provides the in-app surface a push opens, and no opsinjs tooling checks rules 9 to 19.
+- Track alert volume per user against a ceiling. Click-through alone measures novelty.
+
+<Todo>Specify the watch and wearable surface: what may appear on a wrist, and how the haptic budget interacts with the visual one.</Todo>
+
+## Evidence
+
+- The Joint Commission's Sentinel Event Alert on medical device alarm safety in hospitals (Issue 50) is cited for alarm fatigue as a documented hospital patient-safety problem.
+- ECRI's annual health technology hazards lists, in which alarm-related hazards have appeared repeatedly, are cited for the same.
+- WCAG 2.2 success criteria 2.2.2 (Pause, Stop, Hide), 2.3.1 (Three Flashes or Below Threshold) and 2.3.3 (Animation from Interactions) are normative for the motion rules, and 1.4.1 (Use of Colour) also underlies rule 20.
+- Apple's Human Interface Guidelines and Android's notification documentation are cited, not restated, for current lock-screen and permission behaviour, because it changes.
+
+The first two are named to be read, not quoted, and their transfer to a consumer phone app is our opinion. So are rules 1 to 19, whose numbers were chosen rather than derived, and rule 21.

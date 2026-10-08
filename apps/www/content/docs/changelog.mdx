@@ -1,0 +1,54 @@
+---
+title: Changelog
+description: What changed in each release, newest first, and the versioning and deprecation rules every release follows
+kind: guide
+aliases: [releases, release notes, semver, breaking change policy, what is next]
+---
+
+Breaking changes lead each entry. A changed presentation default, such as a status word, a default rounding or a unit, leads it on its own line labelled `SAFETY`, because a consumer who copied a file receives the change only when they copy it again. opsinjs owns no clinical threshold, and no entry reads as though it does. A feed is at [`/rss.xml`](/rss.xml).
+
+<Todo>
+Sixty components were built after 0.0.0 and no entry records them. Every catalogue row still reads `since: unreleased`, so the version number to file that entry under is the decision blocking it.
+</Todo>
+
+## 8 October 2026
+
+The documentation site was restructured into six sections modelled on Blueprint's docs: opsinjs, Foundations, Components, Health, Patterns and Reference. It has about 115 pages where there were 400, and each old URL redirects to the page that absorbed it. If a stored address stops answering, find the page again in [`/llms.txt`](/llms.txt). This entry carries no version number.
+
+## 2 September 2026
+
+Version 0.0.0 was the scaffold. It shipped a documentation site, a token layer, twenty-four component specifications at `planned`, eight decision records and the machine surfaces, which were the `.md` twins, `/llms.txt`, the `/r` catalogue and an offline bundle. It contained no components and published nothing to npm.
+
+## Versioning
+
+opsinjs follows semantic versioning, and the versioned surface is wider than the JavaScript API, because you own the source and your styles and tests reach into the markup. Five surfaces are covered:
+
+1. The exported API: components, hooks, functions, types, and their prop names, types and defaults.
+2. The rendered DOM: structure, nesting order, roles and accessible names.
+3. The `data-*` attributes listed in [Data attributes](./reference/generated/data-attributes.mdx).
+4. The CSS custom properties listed in [CSS variables](./reference/generated/css-variables.mdx).
+5. The registry contract: item names, the URLs they are served from and the files each installs.
+
+Removing or renaming any of these, or changing the condition that produces it, is a major version. Exact token values are not covered, though a token's meaning and its contrast floor are. Nor are class names, CSS variables without the `--opsin-` prefix, anything marked `@internal`, or this site's own chrome.
+
+Before 1.0, a minor release may break something, with a changelog entry and a migration note, and a patch never deliberately does. Token names are not stable yet, but token meanings are. A `shipped` component's API may change in any release, with a changelog entry rather than a deprecation cycle. Nothing in a copied file records its version, so run `shadcn add` in its own commit naming the item and the date.
+
+## Deprecation
+
+Nothing is removed without being deprecated first. A deprecated component, prop or token keeps working for at least one minor release before 1.0 and a full major after it. Its entry names the replacement, the version that deprecated it and the version that removes it. Treat it as absent for new work. Nothing has been deprecated yet.
+
+<NoDataYet what="The deprecation list" script="scripts/build-registry.mts">
+No script projects deprecations out of `registry/catalogue.ts` yet.
+</NoDataYet>
+
+## What is next
+
+There is no dated roadmap. Open items, in no order:
+
+- An independent accessibility review. The WCAG 2.2 AA audit so far was run by the components' own authors.
+- A clinical review. No component has had one, so nothing here is for a production health surface.
+- ESLint and Stylelint rules that enforce the two colour axes and tokens in your own project. They are planned, not built.
+- Source data for the [keyboard reference](./reference/generated/keyboard.mdx) and for bundle sizes.
+- Internationalisation, deferred rather than blocked. Unit systems such as mmol/L and mg/dL already ship.
+
+Not planned at all: clinician-facing components, a charting library, a general form library, an opsinjs CLI and native mobile.

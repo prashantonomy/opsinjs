@@ -25,15 +25,12 @@ does.
    under `registry/bases/`, or the emitting script. The authority for what is generated
    is the `check:generated` script in `apps/www/package.json`, not a prose copy of the
    list.
-3. Check the page's `kind` frontmatter. It fixes the headings and the order they come
-   in. On most kinds the outline is exact: do not add a heading it does not have, and
-   do not drop one it does. Two kinds are not exact. On a `kind: component` page the
-   outline is required plus optional, and the five sections in
-   `COMPONENT_OPTIONAL_SECTIONS` (`apps/www/lib/status.ts`) may be left out; omitting
-   one is not a defect, inventing content to fill it is. A `kind: guide` page requires
-   only the four headings in `REQUIRED_HEADINGS.guide`
-   (`apps/www/scripts/assert-ia.mts`) and names its own task sections between them. An
-   optional section still sits in its canonical position when it does appear.
+3. Check the page's `kind` frontmatter. Six kinds exist, one per sidebar section:
+   `guide`, `foundation`, `component`, `health`, `pattern` and `reference`. Only
+   `kind: component` fixes the headings: Usage, Examples, When to use it, Clinical
+   meaning (on a `health-*` category only), Accessibility, Props interface, in that
+   order (`apps/www/lib/status.ts`). Every other page names its own headings, the way a
+   clawscale page does; do not invent a section to look complete.
 
 ## Prose bar
 
@@ -44,9 +41,11 @@ past 1,000 words (1,250 on a `health-*` page). On a component page, cut argument
 keep facts; link the doctrine page rather than restating it; copy the shape of
 `content/docs/components/button.mdx`.
 
-Every other kind aims at the density of ui.shadcn.com and the NHS service manual.
-Concretely, for every required heading: at least one paragraph a working developer or
-designer would be glad to have read. No filler, no "this section describes…", no lorem ipsum, no `TODO: write
+Every other page aims at the density of the clawscale docs
+(`/Users/taramaa/clawscalejs/apps/docs`) and blueprintjs.com: a sentence or two, then a
+few short sections of facts, tables where the facts are parallel, and a link to the page
+that owns anything else. LEAN002 caps a hand-written page at 1,200 words (1,500 on a
+health page). No filler, no "this section describes…", no lorem ipsum, no `TODO: write
 this` (use `<Todo>`, which is counted). When a rule has an exception, name the exception.
 When you say "don't", name what to do instead.
 
@@ -130,8 +129,7 @@ do not fix it.
 ## Definition of done for a page
 
 Correct frontmatter (`kind` is mandatory everywhere, `status` only on a component page) ·
-the headings its `kind` prescribes, in canonical order, with that kind's optional
-sections left out rather than filled with invented prose · relative MDX links, never
+on a component page, the six sections in canonical order · relative MDX links, never
 absolute `/docs/` · every component id matched against the catalogue · every claim
 either generated, cited, or marked as opinion · and nothing anywhere that implies a
 component has been built when it has not. A component page reads `shipped` only once its file under `registry/bases/base/`

@@ -19,8 +19,8 @@ const generator = createGenerator({
 })
 
 /**
- * Release phase. Drives <StatusBadge>, the status gating in <PageTemplate> and
- * the phase column in <StatusMatrix>. The list mirrors `Status` in
+ * Release phase. Drives <StatusBadge> and the component outline that
+ * assert-ia checks. The list mirrors `Status` in
  * lib/status.ts; the two are checked against each other by assert-ia.
  *
  * Three words, and they answer one question: is there code, and is it on its
@@ -34,18 +34,12 @@ const statusEnum = z.enum(["planned", "shipped", "deprecated"])
  * page invents a heading its kind does not have or omits one it does.
  */
 const kindEnum = z.enum([
-  "component",
-  "foundation",
-  "health",
-  "accessibility",
-  "content",
-  "pattern",
-  "recipe",
-  "screen",
-  "handbook",
-  "reference",
-  "project",
   "guide",
+  "foundation",
+  "component",
+  "health",
+  "pattern",
+  "reference",
 ])
 
 export const docs = defineDocs({

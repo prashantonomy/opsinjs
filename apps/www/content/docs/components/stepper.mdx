@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: navigation
 aliases: ["wizard", "step indicator", "multi step"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="stepper" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="stepper"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/stepper"
   dependencies={["lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Stepper } from "@/components/ui/stepper"
@@ -52,75 +45,9 @@ import { Stepper } from "@/components/ui/stepper"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "Showing a reader where they are in a short, fixed sequence, beside the current step's own content.",
-    "Giving a multi step flow a sense of length, so the reader sees how many steps remain.",
-    "Reflecting progress the product already tracks, where each step's state comes from the product.",
-  ]}
-  avoid={[
-    { case: "You want several questions on one screen, with a bar of steps standing in for a real form.", instead: "field" },
-    { case: "The items are separate views the reader switches between at will, not a sequence taken in order.", instead: "tabs" },
-    { case: "You need one continuous measure of how far through a single task the reader is.", instead: "progress" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="stepper"
-  parts={[
-    {
-      name: "Stepper",
-      describes: "The root, an ordered list. Draws steps in the order supplied; carries no clinical axis.",
-      prop: "steps",
-    },
-    {
-      name: "Stepper.Step",
-      describes: "One step, a list item. State comes from its index against current: complete, current, or upcoming.",
-      prop: "current",
-    },
-    {
-      name: "Stepper.Marker",
-      describes: "The circular mark. Solid with a check glyph when complete, a heavier ring when current, faint otherwise.",
-    },
-    {
-      name: "Stepper.Label",
-      describes: "The step's words, with an sr-only state word beside them and an optional muted description beneath.",
-    },
-    {
-      name: "Stepper.Connector",
-      describes: "The line to the next marker. Stronger below a complete step, decorative, omitted after the last.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="stepper"
-  tree={[
-    {
-      part: "Stepper",
-      cardinality: "1",
-      note: "an ordered list; list order is reading order",
-      children: [
-        {
-          part: "Stepper.Step",
-          cardinality: "2..n",
-          note: "a list item; aria-current=\"step\" on the current one",
-          children: [
-            { part: "Stepper.Marker", cardinality: "1", note: "check glyph when complete, else the 1-based number" },
-            { part: "Stepper.Label", cardinality: "1", note: "carries an sr-only state word" },
-            { part: "Stepper.Connector", cardinality: "0..1", note: "aria-hidden; omitted after the last" },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="stepper" />
 
 ### A setup flow in progress
 
@@ -136,51 +63,38 @@ indicator cannot be operated.
 
 <ComponentPreview name="stepper-with-descriptions" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Keep labels short, parallel and in sentence case, with no terminal punctuation,
-named from the reader's side. Order them the way the reader moves, since list
-order is draw order. Write a description only when the label leaves a real
-question open.
-
-<DoDont>
-  <DoDont.Do>
-    **"Your details" then "Your preferences" then "Review"** reads as one set.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Step 1: fill in everything about yourself" then "Prefs"** mixes lengths and grammars.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "Showing a reader where they are in a short, fixed sequence, beside the current step's own content.",
+    "Giving a multi step flow a sense of length, so the reader sees how many steps remain.",
+    "Reflecting progress the product already tracks, where each step's state comes from the product.",
+  ]}
+  avoid={[
+    { case: "You want several questions on one screen, with a bar of steps standing in for a real form.", instead: "field" },
+    { case: "The items are separate views the reader switches between at will, not a sequence taken in order.", instead: "tabs" },
+    { case: "You need one continuous measure of how far through a single task the reader is.", instead: "progress" },
+  ]}
+/>
 
 ## Accessibility
 
-Audited against WCAG 2.2 AA, in a source pass and a rendered pass. The audit is
-author-run, not independent, and clinical review is still pending.
+The root is an `<ol>` with `<li>` steps, so a screen reader announces a list of
+known length, in order, and the current step carries `aria-current="step"`. State
+never rests on colour alone: glyph, fill weight, border weight, label weight,
+list position, and an sr-only "Completed", "Current step" or "Upcoming" all carry
+it. The check glyph is `aria-hidden`, and the indicator takes no tab stop, since
+it has nothing to operate. The audit fixed the root list's missing accessible
+name: an optional `label` now forwards to the root `<ol>` as `aria-label`, set on
+the default and both examples. When it is omitted, the attribute is dropped
+rather than shipping empty.
 
-**Fixed.** The root list had no accessible name. An optional `label` now
-forwards to the root `<ol>` as `aria-label`, set on the default and both
-examples; omitted, the attribute is dropped rather than shipping empty.
+**Residual items.**
 
-**Confirmed sound.**
-
-- `<ol>` root and `<li>` steps, so a screen reader announces a list of known
-  length, in order.
-- The current step carries `aria-current="step"`.
-- State never rests on colour alone: glyph, fill weight, border weight, label
-  weight, list position, and an sr-only "Completed", "Current step" or
-  "Upcoming" all carry it.
-- The check glyph is `aria-hidden`; the indicator takes no tab stop, since it
-  has nothing to operate.
-
-**Residual.**
-
-- The upcoming marker's hairline border against the page is an unmeasured
-  contrast pair. Meaning does not rest on it: number, position, the sr-only
-  word and label weight already carry upcoming state.
-- No live region announces a change of `current`. The parent flow owns focus
-  and announces each new page, so `aria-live` would fire on unrelated renders.
-- A consumer who omits `label` ships an unnamed list. The default and both
-  examples set it, the recommended usage.
+- The upcoming marker's hairline border against the page is an unmeasured contrast pair. Meaning does not rest on it, because number, position, the sr-only word and label weight already carry upcoming state.
+- No live region announces a change of `current`. The parent flow owns focus and announces each new page, so `aria-live` would fire on unrelated renders.
+- A consumer who omits `label` ships an unnamed list. The default and both examples set it, the recommended usage.
 
 <KeyboardTable
   name="stepper"
@@ -200,16 +114,10 @@ examples; omitted, the attribute is dropped rather than shipping empty.
 
 <ContrastReport component="stepper" />
 
-## API reference
+## Props interface
 
 <PropsTable name="StepperProps" />
 
 `current` is a 0-based index into `steps`; the product owns position, the
 component keeps no state of its own. An out-of-range or non-integer value is
 clamped to the nearest real step and raises a development warning.
-
-## Related
-
-- [Progress](./progress.mdx) is one continuous measure of a single task.
-- [Tabs](./tabs.mdx) is for views a reader picks in any order, with no before and no after.
-- [Field](./field.mdx) is where a question lives; a stepper reports position and never collects an answer.

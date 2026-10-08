@@ -7,8 +7,7 @@ reviewed: 2026-09-20
 reviewer: engineering
 category: health-communication
 aliases: [citation, evidence link, reviewed by]
-governedBy: [data-provenance-and-device-accuracy, evidence-and-references]
-usedIn: [diabetes-medicines-app, results-screen]
+governedBy: [trends, safety-review]
 ---
 
 <StubNotice
@@ -23,11 +22,7 @@ usedIn: [diabetes-medicines-app, results-screen]
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="source-citation" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="source-citation"
@@ -35,8 +30,6 @@ usedIn: [diabetes-medicines-app, results-screen]
   importPath="@/components/ui/source-citation"
   registryDependencies={["link"]}
 />
-
-## Usage
 
 ```tsx
 import { SourceCitation } from "@/components/ui/source-citation"
@@ -50,6 +43,22 @@ import { SourceCitation } from "@/components/ui/source-citation"
   locale="en-GB"
 />
 ```
+
+## Examples
+
+<ComponentPreview name="source-citation" />
+
+### A device estimate naming its own method
+
+The provenance names the device and the class of the figure, so it reads as an estimate. `more` points at the fuller accuracy document.
+
+<ComponentPreview name="source-citation-a-device-estimate" kind="example" align="start" />
+
+### When nobody said where it came from
+
+With no `source`, the citation prints an admission rather than rendering empty. Markup you wrap a source in is taken at its word.
+
+<ComponentPreview name="source-citation-no-source-supplied" kind="example" align="start" />
 
 ## When to use it
 
@@ -71,87 +80,24 @@ import { SourceCitation } from "@/components/ui/source-citation"
 
 **Asserts.** Where a health value came from, in the product's own plain words, with an optional checked date and a link to the fuller source.
 
-**Never read as.** A guarantee that the source is right, current, or checked by anybody. `checkedOn` is the date the product recorded. A value old enough to doubt is wrapped in [RelativeTime](./relative-time.mdx) beside it.
+**Never read as.** A guarantee that the source is right, current, or checked by anybody. `checkedOn` is the date the product recorded, and a value old enough to doubt is wrapped in [RelativeTime](./relative-time.mdx) beside it.
 
-**Colour axis.** Neither: no `status` prop and no `category` prop, and a class from either axis raises a development warning. See [The two colour axes](../health/two-colour-axes.mdx).
+**Colour axis.** Neither: no `status` prop and no `category` prop, and a class from either axis raises a development warning. See [Two colour axes](../health/two-colour-axes.mdx).
 
-**Thresholds.** None. No reference range, no threshold, no verdict, and no clinical number passes through.
-
-**Who owns the words.** The product. [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx) sets ten rules, and this component carries two. Rule 2 puts provenance in plain words at the value. Rule 6 attributes a manufacturer's claim rather than restating it. The other eight stay the caller's, and it renders a wrong string as readily as a right one. opsinjs ships no source, no date, no DOI and no study. See [Evidence and references](../health/evidence-and-references.mdx).
+**Thresholds.** None. No reference range, verdict or clinical number passes through, and the product owns the words. Of the ten provenance rules in [Trends and uncertainty](../health/trends.mdx), rules 22 to 31, this component carries two, provenance in plain words at the value (rule 23) and a manufacturer's claim attributed rather than restated (rule 27). The other eight stay the caller's, and it renders a wrong string as readily as a right one. opsinjs ships no source, date, DOI or study. See [Safety review](../health/safety-review.mdx).
 
 <SafetyCallout severity="attention" evidence="opinion">
 Never restate a manufacturer's accuracy figure as your own, and never invent one. Attribute the claim and link it through `more`, in the manufacturer's own terms.
 </SafetyCallout>
 
-## Anatomy
-
-<Anatomy
-  name="source-citation"
-  parts={[
-    {
-      name: "SourceCitation",
-      describes: "The root. Quiet and outside both colour axes: no fill, no radius, no role.",
-      prop: "className",
-    },
-    {
-      name: "SourceCitation.Source",
-      describes: "The product's plain words for where the value came from. Given nothing, it prints one line saying so.",
-      prop: "source",
-    },
-    {
-      name: "SourceCitation.Checked",
-      describes: "The checked date, one line down in quieter ink. The component prefixes it; a time element carries the machine date.",
-      prop: "checkedOn",
-    },
-    {
-      name: "SourceCitation.Link",
-      describes: "The fuller citation. Label and destination arrive together, on its own line, keeping the full target size.",
-      prop: "more",
-    },
-  ]}
-/>
-
-## Examples
-
-### A device estimate naming its own method
-
-The provenance names the device and the class of the figure, so it reads as an estimate. `more` points at the fuller accuracy document.
-
-<ComponentPreview name="source-citation-a-device-estimate" kind="example" align="start" />
-
-### When nobody said where it came from
-
-With no `source`, the citation prints an admission rather than rendering empty. Markup you wrap a source in is taken at its word.
-
-<ComponentPreview name="source-citation-no-source-supplied" kind="example" align="start" />
-
-## Content guidelines
-
-Name the concrete thing rather than the brand's marketing, and say the class of the figure: an estimate is called an estimate. Name the link for where it goes, since a screen reader may list it alone. A vague label raises a development warning in English only.
-
-<DoDont>
-  <DoDont.Do>
-    **"Estimated by your watch from movement and heart rate."** Names the device, the inputs and the class of the figure.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Powered by clinically validated technology."** Names no device and no method.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-This component was audited against WCAG 2.2 AA in two passes, one over the source and one over the rendered output. The audit is author-run, not independent, and clinical review is still pending. Both passes were clean: no axe violations, target sizes met, focus visible, and no loss at 320px reflow.
+The audit found no axe violation, missed target size, hidden focus or loss at 320px reflow. Both lines are set at `text-opsin-footnote`, a rem from the generated ramp and never a `px` size, in `--foreground` for the source and `--muted-foreground` for the date, with no raw colour literal or ramp step. `more` carries the label and the href together, so a link cannot be added without a label, and an external href adds an off-screen "opens in a new tab". The link is not inside a sentence, so it re-adds `--opsin-target-minimum` on both axes. See [Accessibility](../foundations/accessibility.mdx). It reflows at 200% text with no fixed height, and `min-w-0` with `wrap-break-word` breaks a long device name.
 
-- No `px` type size. Both lines are set at `text-opsin-footnote`, a rem from the generated ramp.
-- No raw colour literal and no ramp step. The source ink is `--foreground` and the date ink is `--muted-foreground`.
-- `more` carries the label and the href together, so a link cannot be added without a label. An external href adds an off-screen "opens in a new tab".
-- The link is not inside a sentence, so it re-adds `--opsin-target-minimum` on both axes. See [Target size and motor](../accessibility/target-size-and-motor.mdx).
-- It reflows at 200% text: no fixed height, `min-w-0` with `wrap-break-word`, so a long device name breaks.
+**Residual items.**
 
-**Residual, left for you to weigh.**
-
-- The source line, the last-checked time and the fuller-citation link render as loose siblings with no programmatic group binding them into one citation. Reading order keeps the association, so this is not an AA failure.
-- The "Last checked on" chrome is always English while the date follows the caller's `locale`; when they differ, the localized date carries no `lang` seam yet, per ADR 0005.
+- The source line, the last-checked time and the fuller-citation link render as loose siblings with no programmatic group binding them. Reading order keeps the association, so this is not an AA failure.
+- The "Last checked on" chrome is always English while the date follows the caller's `locale`, and when they differ the localised date carries no `lang` seam yet, per ADR 0005.
 
 <KeyboardTable
   name="source-citation"
@@ -181,15 +127,8 @@ This component was audited against WCAG 2.2 AA in two passes, one over the sourc
 
 <ContrastReport component="source-citation" />
 
-## API reference
+## Props interface
 
 <PropsTable name="SourceCitationProps" />
 
 `source` is typed optional but required by the contract, so the missing state can render. `checkedOn` is a strict `YYYY-MM-DD` string or epoch milliseconds, both pinned to UTC. A value that is not a real calendar date is refused, not rendered as a plausible wrong one.
-
-## Related
-
-- [DisclaimerNote](./disclaimer-note.mdx): the standing statement about the whole product, not one value.
-- [RelativeTime](./relative-time.mdx): when a reading was taken or synced, not where it came from.
-- [Callout](./callout.mdx): information about the content with no source to attribute.
-- [Term](./term.mdx): what a word means, rather than where a value came from.

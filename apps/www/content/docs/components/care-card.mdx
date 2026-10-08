@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-communication
 aliases: [next steps, what to do, advice, action card, what to do next, advice card, guidance card]
-governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, clinical-interaction-guidelines, emergency-and-escalation]
-usedIn: [alert-escalation, ask-users-for/contact-details, ask-users-for/symptoms, choose-a-component, consent-and-permissions, diabetes-medicines-app, empty-and-first-use, offline-and-stale-data, onboarding-and-first-run, onboarding-screen, result-disclosure, results-screen, sharing-with-a-clinician, staged-alert]
+governedBy: [two-colour-axes, alerts, health/index, high-stakes-moments, consent-and-privacy, numbers, safety-review]
+usedIn: [alert-escalation, empty-and-first-use, onboarding-and-first-run, result-disclosure]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="care-card" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="care-card"
@@ -35,8 +31,6 @@ reviewer: engineering
   importPath="@/components/ui/care-card"
   registryDependencies={["card", "button", "status-pill", "link"]}
 />
-
-## Usage
 
 ```tsx
 import { CareCard } from "@/components/ui/care-card"
@@ -49,6 +43,29 @@ import { CareCard } from "@/components/ui/care-card"
   attribution="Your clinic asks"
 />
 ```
+
+## Examples
+
+<ComponentPreview name="care-card" />
+
+### A steady card that still asks for something
+
+`status="steady"` with `urgency="when-convenient"` is the routine follow-up.
+
+<ComponentPreview name="care-card-steady-and-still-asking" kind="example" align="start" />
+
+### A deadline the reader is already behind
+
+`dueBy` renders as a written date and `overdue` is a product-supplied boolean. No
+`urgency` is set; the date is the timing.
+
+<ComponentPreview name="care-card-a-deadline-that-has-passed" kind="example" align="start" />
+
+### The author is missing
+
+The same instruction with and without `attribution`. Without one, the card says so.
+
+<ComponentPreview name="care-card-no-author-supplied" kind="example" align="start" />
 
 ## When to use it
 
@@ -77,158 +94,37 @@ says so. `attribution` is required.
 
 **Colour axis.** Status only, on the embedded [StatusPill](./status-pill.mdx). Surface,
 boundary and heading take no category colour. See
-[The two colour axes](../health/two-colour-axes.mdx).
+[Two colour axes](../health/two-colour-axes.mdx).
 
 **Thresholds.** None. `urgency` says when to act, `status` says how much attention the
 reading needs, neither is derived from the other, and all fifteen pairs render. See
-[Clinical status semantics](../health/clinical-status-semantics.mdx),
-[Alarm fatigue](../health/alarm-fatigue.mdx) and
-[Emergency and escalation](../health/emergency-and-escalation.mdx).
+[Two colour axes](../health/two-colour-axes.mdx),
+[Alerts](../health/alerts.mdx) and
+[High-stakes moments](../health/high-stakes-moments.mdx).
 
 **No clock.** *Do this today* still says so after midnight. `overdue` is a product-supplied
 boolean. See
-[Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
+[Health](../health/index.mdx).
 
 <SafetyCallout severity="urgent" evidence="opinion">
 At most one `urgent` surface per screen, counted on the status axis. If the step is ringing
 for help, give the number: the component ships none.
 </SafetyCallout>
 
-## Anatomy
-
-<Anatomy
-  name="care-card"
-  parts={[
-    {
-      name: "CareCard",
-      describes: "A section named by its heading. No colour from either axis.",
-      prop: "heading",
-    },
-    {
-      name: "CareCard.Heading",
-      describes: "The instruction, and the accessible name.",
-      prop: "headingLevel",
-    },
-    {
-      name: "CareCard.Timing",
-      describes: "One of three fixed phrases inside the heading. Unknown urgency renders none.",
-      prop: "urgency",
-    },
-    {
-      name: "CareCard.Attribution",
-      describes: "Who is asking. With no author, the slot says so.",
-      prop: "attribution",
-    },
-    {
-      name: "StatusPill",
-      describes: "The only status-coloured element, carrying word, glyph and data-status.",
-      prop: "status",
-    },
-    {
-      name: "CareCard.Reason",
-      describes: "What prompted the instruction.",
-      prop: "reason",
-    },
-    {
-      name: "CareCard.Deadline",
-      describes: "The due date in a time element, plus words for a passed date.",
-      prop: "dueBy",
-    },
-    {
-      name: "CareCard.Actions",
-      describes: "At most two controls: the recommended bordered, the alternative underlined. Extras drop.",
-      prop: "actions",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="care-card"
-  tree={[
-    {
-      part: "CareCard",
-      cardinality: "1",
-      note: "data-slot=\"care-card\"; a section with aria-label",
-      children: [
-        {
-          part: "Card",
-          cardinality: "1",
-          note: "data-slot=\"card\"",
-          children: [
-            {
-              part: "CareCard.Heading",
-              cardinality: "0..1",
-              note: "data-slot=\"care-card-heading\"; h2 to h6",
-              children: [{ part: "CareCard.Timing", cardinality: "0..1", note: "data-slot=\"care-card-timing\"" }],
-            },
-            { part: "CareCard.Attribution", cardinality: "1", note: "data-slot=\"care-card-attribution\"" },
-            { part: "StatusPill", cardinality: "0..1", note: "data-slot=\"status-pill\", data-status=\"<level>\"" },
-            { part: "CareCard.Reason", cardinality: "0..1", note: "data-slot=\"care-card-reason\"" },
-            { part: "CareCard.Deadline", cardinality: "0..1", note: "data-slot=\"care-card-deadline\"" },
-            { part: "CareCard.Actions", cardinality: "0..1", note: "data-slot=\"care-card-actions\"; 0 to 2 children" },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### A steady card that still asks for something
-
-`status="steady"` with `urgency="when-convenient"` is the routine follow-up.
-
-<ComponentPreview name="care-card-steady-and-still-asking" kind="example" align="start" />
-
-### A deadline the reader is already behind
-
-`dueBy` renders as a written date and `overdue` is a product-supplied boolean. No
-`urgency` is set; the date is the timing.
-
-<ComponentPreview name="care-card-a-deadline-that-has-passed" kind="example" align="start" />
-
-### The author is missing
-
-The same instruction with and without `attribution`. Without one, the card says so.
-
-<ComponentPreview name="care-card-no-author-supplied" kind="example" align="start" />
-
-## Content guidelines
-
-Start with a verb and let the card supply timing. Name the author in the reader's words:
-*your GP asks*. Never write *you must*, *you need to*, *failure to* or *it is important
-that you*. A telephone action carries the number in its label. Do not compare a reading to
-a range the card does not show; see [reference ranges](../health/reference-ranges.mdx).
-
-<DoDont>
-  <DoDont.Do>
-    **"Book a repeat blood test"**, with an author, a reason and a date.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Action required: abnormal result. Contact your provider."** No author, a banned
-    word, no reason, no timing.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Audited against WCAG 2.2 AA.** A source pass covered the rubric and a rendered pass ran
-axe, target size, focus visibility and reflow at 320px. The audit is author-run, not
-independent, and clinical review is pending.
+The card is a `section` named by `aria-label` from its heading, so entering it speaks the
+instruction, and it takes no tab stop. Urgency is text with no glyph or colour, and status
+is carried by [StatusPill](./status-pill.mdx) as word, glyph and tint, never colour alone.
+Of two actions, the recommended one is set apart by a bordered shape and a hidden
+qualifier, not by colour.
 
-Confirmed:
+**Residual items.**
 
-- The card is a `section` named by `aria-label` from its heading, so entering it speaks the
-  instruction.
-- Urgency is text with no glyph or colour, and status is carried by
-  [StatusPill](./status-pill.mdx) as word, glyph and tint, never colour alone.
-- The card takes no tab stop. Of two actions, the recommended one is set apart by a
-  bordered shape and a hidden qualifier, not by colour.
-
-Not confirmed in a browser: the `sm` quiet button and secondary quiet link variants, which
-inherit the 44px target floor but were not exercised. Contrast for the action tones and the
-timing phrase stays unmeasured, as the report below records.
+- The `sm` quiet button and secondary quiet link variants inherit the 44px target floor
+  but were not exercised in a browser.
+- Contrast for the action tones and the timing phrase stays unmeasured, as the report
+  below records.
 
 <KeyboardTable
   name="care-card"
@@ -268,7 +164,7 @@ timing phrase stays unmeasured, as the report below records.
 
 <ContrastReport component="care-card" />
 
-## API reference
+## Props interface
 
 <PropsTable name="CareCardProps" />
 
@@ -287,10 +183,3 @@ export interface CareAction {
 
 An `href` action renders a link and an `onSelect` action a button. Given both, the link
 wins. `headingLevel` defaults to 3. A `dueBy` without `locale` warns in development.
-
-## Related
-
-- [AlertBanner](./alert-banner.mdx) is an announcement that something changed, not an instruction with a deadline.
-- [Callout](./callout.mdx) covers information with no verb and no author.
-- [ResultCard](./result-card.mdx) is the measurement that prompted the instruction.
-- [DisclaimerNote](./disclaimer-note.mdx) is the standing note about what the product is not, never an instruction.

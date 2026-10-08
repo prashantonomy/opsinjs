@@ -34,25 +34,19 @@
         "shipped",
         "deprecated"
       ],
-      "description": "Release phase. Required on a `kind: component` page and forbidden on every other kind. Drives <StatusBadge> and the section gating in <PageTemplate>: a section required at the declared status must be present or the build fails."
+      "description": "Release phase. Required on a `kind: component` page and forbidden on every other kind. Drives <StatusBadge>."
     },
     "kind": {
       "type": "string",
       "enum": [
-        "component",
+        "guide",
         "foundation",
+        "component",
         "health",
-        "accessibility",
-        "content",
         "pattern",
-        "recipe",
-        "screen",
-        "handbook",
-        "reference",
-        "project",
-        "guide"
+        "reference"
       ],
-      "description": "Fully determines the page's headings. Pick the template that matches."
+      "description": "The section the page belongs to. Only `component` fixes the page's headings; every other kind names its own."
     },
     "category": {
       "type": "string",
@@ -95,21 +89,21 @@
       "items": {
         "type": "string"
       },
-      "description": "Doctrine page \u2192 the catalogue ids that implement this rule. Every entry must be a real catalogue id; assert-ia enforces the reverse direction too."
+      "description": "Doctrine page → the catalogue ids that implement this rule. Every entry must be a real catalogue id; assert-ia enforces the reverse direction too."
     },
     "governedBy": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Component page \u2192 the doctrine pages that govern it. Mandatory when category starts with 'health-'."
+      "description": "Component page → the doctrine pages that govern it. Mandatory when category starts with 'health-'."
     },
     "usedIn": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Component \u2192 the recipes and screens that use it. The reverse index; assert-ia checks both directions."
+      "description": "Component to the pattern pages that use it. The reverse index; assert-ia checks both directions."
     },
     "links": {
       "type": "object",

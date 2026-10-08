@@ -3,9 +3,10 @@ title: Surface
 description: The primitive behind every panel, sheet and card. It decides how solid or translucent a layer looks, and guarantees that whatever sits on it stays readable.
 status: shipped
 kind: component
+governedBy: [two-colour-axes]
 category: surfaces
 aliases: [material, blur, translucency, glass, vibrancy, elevation, layer]
-usedIn: [choose-a-component, daily-log-screen, diabetes-medicines-app, health-metric-card, onboarding-screen, results-screen, trends-screen]
+usedIn: [daily-logging, result-disclosure, onboarding-and-first-run]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,19 +23,13 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="surface" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="surface"
   unbuilt={false}
   importPath="@/components/ui/surface"
 />
-
-## Usage
 
 ```tsx
 import { Surface } from "@/components/ui/surface"
@@ -43,6 +38,25 @@ import { Surface } from "@/components/ui/surface"
 ```tsx
 <Surface rung="sheet">Everything the surface holds</Surface>
 ```
+
+## Examples
+
+<ComponentPreview name="surface" />
+
+### Chrome that content scrolls beneath
+
+`rung="overlay"` on a panel that opens already scrolled, so a dark row sits under
+the pinned header and the scrim holds the heading legible over it.
+
+<ComponentPreview name="surface-over-scrolling-content" kind="example" align="start" />
+
+### The degraded path, without changing a setting
+
+`opaque` renders the same fallback that reduced transparency, `prefers-contrast:
+more` and a missing `backdrop-filter` reach. The border, shadow and geometry
+stay, because they carry the layering once translucency goes.
+
+<ComponentPreview name="surface-opaque-fallback" kind="example" align="start" />
 
 ## When to use it
 
@@ -61,83 +75,23 @@ import { Surface } from "@/components/ui/surface"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="surface"
-  parts={[
-    {
-      name: "Surface",
-      describes: "The root. Resolves the rung's material properties, carries its shadow, and is position: relative, never isolation: isolate.",
-      prop: "rung",
-    },
-    {
-      name: "Surface.Backdrop",
-      describes: "Blur and saturation over the page. Removed on an opaque rung, under reduced transparency, increased contrast, forced colours, without backdrop-filter.",
-      prop: "opaque",
-    },
-    {
-      name: "Surface.Scrim",
-      describes: "The rung's tint at max(tint-alpha, minimum scrim opacity). On every rung, reachable by no prop, and why text stays readable.",
-    },
-    {
-      name: "Surface.Edge",
-      describes: "An outline in the rung's border colour, widened under increased contrast. Draws nothing where a rung's border token is none.",
-    },
-    {
-      name: "Surface.Content",
-      describes: "Everything the surface holds. Last in document order, so it paints above the other three. Carries no padding.",
-      prop: "children",
-    },
-  ]}
-/>
-
-## Examples
-
-### Chrome that content scrolls beneath
-
-`rung="overlay"` doing the job it is named for. The panel opens already scrolled,
-so a dark row sits under the pinned header and the scrim holds the heading
-legible over it.
-
-<ComponentPreview name="surface-over-scrolling-content" kind="example" align="start" />
-
-### The degraded path, without changing a setting
-
-`opaque` renders the same fallback that reduced transparency, `prefers-contrast:
-more` and a missing `backdrop-filter` reach. The border, shadow and geometry
-stay, because they carry the layering once translucency goes.
-
-<ComponentPreview name="surface-opaque-fallback" kind="example" align="start" />
-
 ## Accessibility
 
-**Audited against WCAG 2.2 AA.** A source pass over the full rubric and a
-rendered pass on `/view/base/base-lyra/component/surface`. This audit is
-author-run, so it is not an independent accessibility review, and clinical
-review is still pending. The rendered pass reported zero axe violations, no
-target-size hits, no focus-visible findings, and no horizontal scroll at 320px.
-The audit changed nothing in the source, because the source already met the
-checks: the surface is presentational with no role, no name and no tab stop, its
-three decorative layers are empty and `aria-hidden`, the Backdrop renders only
-in the branch where the Scrim is unconditional so no text sits over an unscrimmed
-blur, and reduced transparency, `prefers-contrast: more`, `forced-colors: active`
-and a missing `backdrop-filter` each reach a defined
-[opaque fallback](../accessibility/reduced-transparency.mdx) that keeps the
-border, shadow and geometry. The boundary is an outline, so `forced-colors`
-preserves it where a shadow would be dropped.
+The audit found zero axe violations, no target-size or focus-visible finding and
+no horizontal scroll at 320px, and changed nothing. The surface is
+presentational, with no role, name or tab stop, and its three decorative layers
+are empty and `aria-hidden`. The Backdrop renders only where the Scrim is
+unconditional, so no text sits over an unscrimmed blur. Reduced
+transparency, `prefers-contrast: more`, `forced-colors: active` and a missing
+`backdrop-filter` each reach a defined
+[opaque fallback](../foundations/accessibility.mdx) that keeps the border,
+shadow and geometry. The boundary is an outline, so `forced-colors` preserves it
+where a shadow would be dropped.
 
-**Two residual items belong to the token owner, not to this file.** Under
-`prefers-contrast: more` the edge [widens](../accessibility/increased-contrast.mdx)
-from a hairline to an emphasis width but keeps its published
-`--opsin-material-*-border` colour, and several rungs publish a low alpha, so
-whether the widened edge clears 3:1 for SC 1.4.11 is unmeasured. Substituting a
-solid colour would give `canvas` and `scrim` an edge they are specified not to
-have, so the fix sits in `tokens/material.json`, not here. Separately, `className`
-is merged unrestricted, so a caller can put a category tint and a status tint on
-one Surface. The component cannot detect that at render time, and the
-[two colour axes](../health/two-colour-axes.mdx) rule and its repair are stated
-on the API. No mix occurs on any element the component itself renders.
+**Residual items.** Both belong to the token owner, not to this file.
+
+- Under `prefers-contrast: more` the edge [widens](../foundations/accessibility.mdx) from a hairline to an emphasis width but keeps its published `--opsin-material-*-border` colour, and several rungs publish a low alpha, so whether it clears 3:1 for SC 1.4.11 is unmeasured. A solid colour would give `canvas` and `scrim` an edge they are specified not to have, so the fix sits in `tokens/material.json`.
+- `className` is merged unrestricted, so a caller can put a category tint and a status tint on one Surface, which the component cannot detect at render time. The [two colour axes](../health/two-colour-axes.mdx) rule and its repair are stated on the API, and no element the component itself renders mixes them.
 
 <KeyboardTable
   name="surface"
@@ -157,7 +111,7 @@ on the API. No mix occurs on any element the component itself renders.
 
 <ContrastReport component="surface" />
 
-## API reference
+## Props interface
 
 <PropsTable name="SurfaceProps" />
 
@@ -167,10 +121,3 @@ no large-text scrim floor has been measured. A rung outside the six is refused.
 Development warns and the children still render, with no material. `className`
 is merged unrestricted, so the [two colour axes](../health/two-colour-axes.mdx)
 rule applies in full.
-
-## Related
-
-- [Card](./card.mdx) is a bounded content group with padding and a border, sitting on the page rather than over it.
-- [Sheet](./sheet.mdx) is a Surface at the sheet rung with detents, drag and dismissal.
-- [Dialog](./dialog.mdx) is a Surface at the sheet rung, under a scrim, with focus management.
-- [Skeleton](./skeleton.mdx) is often placed on a Surface, where reduced transparency and reduced motion interact.

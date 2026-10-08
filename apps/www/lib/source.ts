@@ -21,24 +21,20 @@ import { docs } from "@/.source/server"
  * this file imports DOCS_BASE rather than repeating it.
  *
  * NO i18n. `loader()` accepts an `i18n` config and opsinjs deliberately does
- * not pass one. See /docs/project/decisions/0005-no-lang-segment-yet. The
- * retrofit is a config object here plus a locale segment in `docsPath()`, and
- * nothing else, which is the whole reason path construction is centralised.
+ * not pass one (decision record 0005). The retrofit is a config object here
+ * plus a locale segment in `docsPath()`, and nothing else, which is the whole
+ * reason path construction is centralised.
  *
- * THE PAGE TREE IS RESHAPED ON THE WAY OUT. `sidebarTree` turns the sixteen
- * authored folders into the ten sections the sidebar shows, and every
- * `---Separator---` run into a collapsible subsection. It changes no URL and
- * no page, only the shape of the tree the sidebar renders. lib/sidebar-tree.ts
- * is the single place to edit when the navigation is wrong.
+ * The page tree is used as authored. `lib/docs-nav.ts` reads it into the six
+ * sidebar sections, so the meta.json files are the one place that orders the
+ * corpus.
  */
 
 import { DOCS_BASE } from "./routes.ts"
-import { sidebarTree } from "./sidebar-tree.ts"
 
 export const source = loader({
   baseUrl: DOCS_BASE,
   source: docs.toFumadocsSource(),
-  pageTree: { transformers: [sidebarTree] },
   icon(icon) {
     if (!icon) return
     if (icon in icons) return createElement(icons[icon as keyof typeof icons])

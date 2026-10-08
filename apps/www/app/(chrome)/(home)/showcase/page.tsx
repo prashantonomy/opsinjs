@@ -114,18 +114,14 @@ export default function ShowcasePage() {
           <p className="mt-5 text-sm">
             <Link
               className="underline underline-offset-4"
-              href={routes.docs(
-                "project",
-                "decisions",
-                "0025-the-audit-is-author-run",
-              )}
+              href={routes.docs("foundations", "accessibility")}
             >
               Why the audit is author-run, not independent
             </Link>{" "}
             &middot;{" "}
             <Link
               className="underline underline-offset-4"
-              href={routes.docs("project", "roadmap")}
+              href={routes.docs("changelog")}
             >
               What has to happen first
             </Link>
@@ -189,7 +185,7 @@ export default function ShowcasePage() {
           <Prose className="mt-3">
             <p>
               Beside the app above,{" "}
-              <Link href={routes.docs("screens")}>the screen specimens</Link>{" "}
+              <Link href={routes.docs("patterns")}>the screen specimens</Link>{" "}
               are the other place to look. Each one is a whole-screen
               specification showing the two colour axes, the material ladder and
               the motion tokens working together rather than one component at a

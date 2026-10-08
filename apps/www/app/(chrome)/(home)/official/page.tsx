@@ -188,10 +188,10 @@ export default function OfficialPage() {
               of a health-adjacent project is worth reporting even when it looks
               harmless, because the audience for the impersonation is people
               building software that shows patients their own data.{" "}
-              <Link href={routes.docs("project", "security")}>
+              <Link href={routes.docs()}>
                 How to report a security issue
-              </Link>
-              .
+              </Link>{" "}
+              is in the Introduction.
             </p>
           </Prose>
         </section>
@@ -211,12 +211,12 @@ export default function OfficialPage() {
             <p>
               It is not a medical device, and it does not confer any regulatory
               status on software built with it.{" "}
-              <Link href={routes.docs("start", "safety-scope-and-limitations")}>
-                Safety, scope and limitations
+              <Link href={routes.docs("health")}>
+                Health
               </Link>{" "}
               states the boundary precisely, and{" "}
-              <Link href={routes.docs("health", "regulatory-context")}>
-                regulatory context
+              <Link href={routes.docs("health", "safety-review")}>
+                Safety review
               </Link>{" "}
               explains what the consuming product still owes its regulator.
             </p>

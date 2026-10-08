@@ -1,147 +1,97 @@
 ---
-title: Component Name
-description: One plain-English sentence saying what a reader sees, written for the patient and not for the engineer.
-status: planned
+title: ComponentName
+description: One plain sentence saying what a reader sees, written for the patient and not for the engineer.
+status: shipped
 kind: component
-category: health-result
+category: health-data-display
 aliases: [synonym, what a reader would type, the clinical word]
-governedBy: [two-colour-axes, clinical-status-semantics]
-usedIn: [read-a-lab-result]
+governedBy: [two-colour-axes]
+usedIn: [result-disclosure]
 ---
 
 {/*
-  TEMPLATE for kind: component. The lean anatomy, status-gated. ADR 0024.
+  TEMPLATE for kind: component. ADR 0026. Copy the shape of
+  content/docs/components/button.mdx, never its facts.
 
-  A component page is read the way a Blueprint page is read: see it, install
-  it, copy the usage, check the props, and learn when not to reach for it. Aim
-  at a few hundred words. Every section is a component call or a short
-  paragraph, never an essay; the doctrine a page used to restate lives on the
-  Health, Accessibility and Foundations pages and is linked, not repeated.
+  A component page is read the way a Blueprint page is read: install it, copy
+  the usage, see it, learn when not to reach for it, check the props. Every
+  section is a component call or a short paragraph. Doctrine is linked from
+  the Health and Foundations pages, never restated. LEAN001 holds the body to
+  1,000 words, 1,250 on a health- category.
 
-  At `status: planned` the sections below are the whole page. The rest are
-  OMITTED, not left empty: a heading with nothing under it is worse than an
-  absent heading, and <PageTemplate kind="component"> fails the build either way.
+  <StubNotice> opens the page above the first H2 and must say, in authored MDX,
+  that the component was audited against WCAG 2.2 AA by its authors and that
+  clinical review is pending (SAFE001). It carries at most three one-sentence
+  open questions.
 
-  What `shipped` and `deprecated` ADD, so you know what you are signing up for:
-    required     ## Usage · ## Examples · ## API reference
-    optional     ## States · ## Content guidelines · ## Data attributes ·
-                 ## CSS variables
-  ## Anatomy is optional at every phase: write it for a component with two or
-  more parts a developer can target through data-slot, and leave it out for a
-  component that is one element. `## Proposed API` is the `planned` stand-in
-  for `## API reference`, and the two never both appear.
-
-  There is no ## Status heading. <StubNotice> opens the page, above the first
-  H2, and it must say in authored MDX that the component was audited against
-  WCAG 2.2 AA by its own authors, that an independent accessibility review and
-  a clinical review are both still pending, and that it is not for a production
-  health surface; assert-ia rule SAFE001 fails the build otherwise.
-
-  The H1 and the one-sentence definition under it come from `title` and
-  `description` and are never hand-written. Nothing else around the sections is
-  generated: there is no header strip and no footer.
-
-  Category: `category` beginning with `health-` makes ## Clinical meaning and
-  the `governedBy` frontmatter MANDATORY, and their absence elsewhere is
-  enforced just as strictly, because assert-ia checks both directions.
+  The title and the description render as the H1 and the lead. ## Clinical
+  meaning is required on a health- category and forbidden elsewhere, and so is
+  the governedBy frontmatter.
 */}
-
-<PageTemplate kind="component" />
 
 <StubNotice
   name="component-name"
-  issue="prashantonomy/opsinjs#0"
+  status="shipped"
   questions={[
-    "Which axis owns the surface colour when the value is both a category and a verdict?",
-    "What does it render when the reference range is unknown?",
-    "Who owns the thresholds, and how does the component refuse to guess?",
+    "One open safety question, in one sentence.",
   ]}
 >
-  <code className="text-sm">component-name</code> is a specification. There is
-  no code, so do not generate against it. Audited against WCAG 2.2 AA. Clinical
-  review pending. That audit was run by the authors and not by an independent
-  reviewer, and no clinician has signed it, so it is not for a production health
-  surface. See [ADR 0025](../project/decisions/0025-the-audit-is-author-run.mdx).
+  Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
+## Usage
+
+<ComponentInstall
+  name="component-name"
+  unbuilt={false}
+  importPath="@/components/ui/component-name"
+  dependencies={["@base-ui/react"]}
+/>
+
+```tsx
+import { ComponentName } from "@/components/ui/component-name"
+```
+
+```tsx
+<ComponentName />
+```
+
+## Examples
 
 <ComponentPreview name="component-name" />
 
-## Installation
+### What the example shows
 
-<ComponentInstall name="component-name" />
+One or two sentences over each example.
+
+<ComponentPreview name="component-name-example-slug" kind="example" align="start" />
 
 ## When to use it
 
-{/*
-  Both lists are mandatory and every entry in the 'not' list names the
-  component to reach for instead. One line per entry. This is the section
-  shadcn has none of, and it is what stops an agent choosing AlertBanner when
-  it needs Callout.
-*/}
-
 <WhenToUse
-  use={[
-    "The single case this component exists for, stated concretely.",
-  ]}
-  avoid={[
-    { case: "The situation people get wrong.", instead: "other-component" },
-  ]}
+  use={["One line per case."]}
+  avoid={[{ case: "One line per case.", instead: "another-component" }]}
 />
 
 ## Clinical meaning
 
-{/* health-* categories only. Delete this whole section otherwise. Four short
-    facts, each one to two sentences, with links to the pages in `governedBy`. */}
-
-**Asserts.** What this component states about a person's health, and nothing more.
-
-**Never read as.** A diagnosis, a verdict or advice from a clinician.
-
-**Colour axis.** Which of the [two colour axes](../health/two-colour-axes.mdx) may reach which element.
-
-**Thresholds.** The consuming product owns them. The component derives no level and holds no default range.
-
-## Anatomy
-
-<Anatomy
-  name="component-name"
-  parts={[
-    { name: "ComponentName", describes: "The root. One sentence on what it carries.", prop: "variant" },
-  ]}
-/>
-
-## Proposed API
-
-{/*
-  A SPECIFICATION, not an implementation. Fenced TypeScript, explicitly marked,
-  carrying the not-implemented marker. Do not generate code against it.
-*/}
-
-<NotBuiltYet name="component-name" />
-
-```ts
-// Proposed. Not implemented. Subject to change without a deprecation cycle.
-export interface ComponentNameProps {
-  /** … */
-}
-```
+Four bold-led facts: what the component asserts, who owns the threshold, what
+it refuses to render, and which Health page governs it.
 
 ## Accessibility
 
-{/*
-  At `planned` this is the BAR THE IMPLEMENTATION MUST CLEAR, written as
-  requirements rather than as results. Once the component ships, the same
-  heading carries the results instead: three short labelled groups, checked by
-  a gate, argued from the source, and not measured, then the keyboard table
-  and the contrast report. Never delegate it upstream and never leave it out.
-*/}
+A few lines of triage: what the audit confirmed and the residual items to know.
 
-<KeyboardTable name="component-name" />
+<KeyboardTable name="component-name" rows={[]} />
 
 <ContrastReport component="component-name" />
 
-## Related
+## Props interface
 
-- [OtherComponent](./other-component.mdx) is the one people reach for by mistake, and this is why it is different.
+<PropsTable name="ComponentNameProps" />
+
+One short paragraph for the defaults and the props a reader gets wrong.
+
+### Data attributes
+
+<DataAttributesTable name="component-name" rows={[]} />

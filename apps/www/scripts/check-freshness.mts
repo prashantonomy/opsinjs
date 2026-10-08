@@ -56,16 +56,10 @@ const DOCS_DIR = join(APP_DIR, "content", "docs")
  */
 const DEFAULT_CADENCE: Record<string, "3m" | "6m" | "12m" | "never"> = {
   health: "6m",
-  accessibility: "6m",
-  content: "12m",
   component: "12m",
   foundation: "12m",
   pattern: "12m",
-  recipe: "12m",
-  screen: "12m",
-  handbook: "12m",
   guide: "12m",
-  project: "6m",
   reference: "never",
 }
 

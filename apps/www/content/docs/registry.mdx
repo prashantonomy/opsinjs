@@ -1,0 +1,83 @@
+---
+title: Registry
+description: opsinjs ships as a shadcn-spec registry of source you copy and own, not as an npm package you depend on.
+kind: guide
+aliases: [distribution, shadcn registry, "@opsinjs", self host, npm packages]
+---
+
+`npx shadcn add` writes a component's source into your repository. The registry follows shadcn's specification without extending it, so the shadcn CLI and its MCP server need no adapter.
+
+<Callout>
+All 60 catalogue ids are `shipped`, so each installs and renders. None has had an independent accessibility review or any clinical review, and none is for a production health surface. Nothing is released yet.
+</Callout>
+
+## What you get and what it costs
+
+| You get | You pay |
+| --- | --- |
+| Readable source, such as [RangeBar](./components/range-bar.mdx)'s answer to a missing reference range | Updates never arrive on their own |
+| No peer dependencies and no lockfile conflicts | Maintenance and security fixes, with no `npm audit` for copied files |
+| Changes made by editing a file | Copies of one component drift apart silently |
+
+## What is served
+
+| Path | Contents |
+| --- | --- |
+| [/r/registry.json](/r/registry.json) | Every item, without file contents. The CLI and MCP server read it first |
+| `/r/<name>.json` | One item, with its files inlined |
+| `/r/styles/<style>/<name>.json` | The same item at a named style |
+| `/r/themes/<preset>.json` | A theme, with `cssVars` and no files |
+| [/r/index.json](/r/index.json) | Status, category, aliases and the review notice for each id |
+
+The catalog and its items follow shadcn's schemas. An item's `name` is also its catalogue id, docs path and file name, and its `description` is plain English for a patient. Fields shadcn lacks, such as `implemented`, `status` and `since`, sit under `meta.opsinjs`, so items validate anywhere. A component is a `registry:ui` item that also carries `lib/opsinjs.ts` and `lib/status.ts`.
+
+## Namespace and commands
+
+```json title="components.json"
+{
+  "registries": {
+    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"
+  }
+}
+```
+
+`{name}` is required. Add the block even when you install by full URL, because 21 items name their siblings as `@opsinjs/<name>` in `registryDependencies`, and the CLI cannot follow them without it. A namespace is a local alias, not a reservation, so read the URL of any namespace you did not write.
+
+| Command | Use |
+| --- | --- |
+| `npx shadcn@latest add @opsinjs/result-card` | Install an item and its registry dependencies |
+| `npx shadcn@latest add @opsinjs/result-card --dry-run` | List the files it would write |
+| `npx shadcn@latest view @opsinjs/result-card` | Read the source before you accept it |
+| `npx shadcn@latest add @opsinjs/result-card --diff` | Compare your copy with the current upstream |
+| `npx shadcn@latest search @opsinjs -q "range"` | Search names, titles and descriptions |
+
+Never run `add --all` against opsinjs, and never `--overwrite` before reading `--diff`. There is no `opsinjs` CLI, and the `check-theme` and `doctor` commands are proposed, not built.
+
+## Taking upgrades
+
+There is no `npm update`, and nothing in a copied file records its version.
+
+1. Run `add` in its own commit, naming the item and the date. That commit is the only record of what you took.
+2. Read the [changelog](./changelog.mdx), then run `add --diff` to see what would change.
+3. Decide per hunk. Overwrite an unedited file, re-apply light edits on top, and three-way merge heavy ones against your install commit, for example with `git merge-file --diff3 mine.tsx base.tsx theirs.tsx`.
+4. Upgrade the token layer with the components, then re-run your tests, your contrast checks and a greyscale check.
+
+No upgrade has been exercised yet, because nothing has been released. Prefer composition to editing, because a wrapper never conflicts.
+
+## Running your own registry
+
+Publishing components beside opsinjs needs no fork. A registry is a flat `registry.json` plus one JSON file per item at a URL matching `{name}`, and `shadcn build` writes the item files. Pick a namespace nobody else will want, such as `@acme-health`, and reference opsinjs items by full URL or a configured namespace, never a bare name.
+
+Fork the repository only to change tokens, generators or doctrine. The GitHub repository is private today, so a fork needs access. First change its name, namespace, preset prefix and site URL. Never edit generated output, and run `pnpm run generate && pnpm run contrast && pnpm run check` after every upstream merge. Forking the status vocabulary or the clinical doctrine needs clinical sign-off.
+
+## Proposed packages
+
+Five npm packages are proposed as specifications, and none is published. The repository's `packages/` folder holds only a README, and the registry stays the way opsinjs is distributed.
+
+| Package | Proposed to hold |
+| --- | --- |
+| `@opsinjs/color` | OKLCH, gamut mapping, APCA, WCAG 2.2 and `deriveTheme()`, for a contrast check in CI. The maths already lives in `lib/color/` |
+| `@opsinjs/motion` | Spring solving and `linear()` generation |
+| `@opsinjs/react` | The components as a dependency, for teams that cannot vendor source. Whether to publish it is undecided |
+| `@opsinjs/preset` | The `@theme inline` mappings |
+| `@opsinjs/tailwind.css` | The token stylesheet as a versioned import |

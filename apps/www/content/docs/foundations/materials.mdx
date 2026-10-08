@@ -1,0 +1,81 @@
+---
+title: Materials
+description: The six named rungs that say what a surface is made of, and the contrast floor every translucent rung must clear.
+kind: foundation
+aliases: [surfaces, backdrop-filter, frosted, scrim, z-index, prefers-reduced-transparency, material rungs]
+---
+
+A material says what a surface is made of and what shows through it. The six rungs form an ordered ladder, not a palette, and translucency starts at `sheet`.
+
+<MaterialLadder />
+
+## The ladder
+
+| Rung | Opaque | Its job |
+| --- | --- | --- |
+| `canvas` | Yes | The page itself |
+| `card` | Yes | A bounded piece of content, edged by a line. The default home for a health value |
+| `raised` | Yes | Above the page without covering it: a menu, popover, tooltip or toast |
+| `sheet` | No | Covers the page and leaves it recognisable: a bottom sheet, side panel or modal |
+| `overlay` | No | Chrome that content scrolls beneath, such as a tab bar |
+| `scrim` | No | The dimming behind a `sheet` |
+
+Rung names are token names, so a sheet's blur is `--opsin-material-sheet-blur`, never a number. Each rung resolves eight properties: `-tint`, `-tint-alpha`, `-blur`, `-saturation`, `-border`, `-shadow`, `-scrim` and `-opaque`. People swap `overlay` and `sheet`, so translate by job, never by position. The token-only `inset` rung is the recessed well that [Callout](../components/callout.mdx) and [RangeBar](../components/range-bar.mdx) draw inside a card.
+
+[Surface](../components/surface.mdx) applies all eight together. In your own CSS, that is your job.
+
+```tsx
+<Surface rung="sheet">Everything the surface holds</Surface>
+```
+
+## Choosing a rung
+
+1. Does content scroll under it? It is `overlay`.
+2. Does it cover the page, so what is behind is unusable? It is `sheet`, over a `scrim`.
+3. Otherwise it is `raised` if it appears and is dismissed, `card` if it is a bounded part of the page, or else `canvas`.
+
+- Pick the lowest rung that works. A rung shows depth, never importance or [two colour axes](../health/two-colour-axes.mdx).
+- Never nest translucent rungs. A card inside a sheet is `card` or `raised`.
+- Show one `sheet` at a time. Its `scrim` is a sibling, never a child, and `overlay` chrome dims under it.
+- The only shadow you may add is `raised`'s.
+- A health value sits on an opaque rung, unless a sticky `overlay` summary repeats a value shown opaquely on the same screen.
+
+## The contrast floor
+
+Every translucent rung has a minimum backing tint, chosen so that text on it clears the contrast floor against the worst possible backdrop. The composite is `α × tint + (1 − α) × backdrop`, so the tint over black and over white bound every case, and `scripts/check-contrast.mts` measures text against both in both themes. [Contrast](../reference/generated/contrast.mdx) records each result, and today's one shortfall is `overlay` over a light backdrop in the dark theme.
+
+- Never author alpha inline. That includes `bg-white/70 backdrop-blur-xl` and `opacity` on a container, which makes the text translucent too.
+- Blur removes texture, not brightness, so it is never traded against tint.
+- Text never sits directly on an image. Put it on a translucent rung or a scrim, and ramp a gradient scrim to full opacity before the first baseline.
+
+<Todo>
+  Not yet measured: borders on translucent rungs as non-text pairs, the saturation boost on `sheet` and `overlay`, and anything in Display-P3. `contrast:verify` fails a below-floor result nightly, not on the pull request.
+</Todo>
+
+## Reduced transparency
+
+Under `prefers-reduced-transparency: reduce`, `sheet` and `overlay` become the opaque card colour with no blur, and `scrim` grows more opaque. Borders, shadows and layout stay put, and a browser without `backdrop-filter` gets the same fallback. Not every browser forwards the preference, so a product may offer its own setting. `Surface` alone answers `prefers-contrast: more` and `forced-colors: active`, in part, and forced colours still loses the scrim's dimming.
+
+## Performance budget
+
+At most three translucent surfaces may show at once, and `overlay`, `scrim` and `sheet` together is the designed worst case. Never give a repeating element a translucent rung, never set `will-change: backdrop-filter`, and never animate the blur radius. Over budget, shrink or drop the surface, never the alpha.
+
+<Todo>
+  The budget of three is an engineering judgement. No device-lab frame-time measurement backs it yet.
+</Todo>
+
+## Layering
+
+Layer decides which surface is in front, so a modal sits above a card because of its layer, not its blur. Each layer renders into a portal at the document root, in the order `base`, `sticky`, `raised`, `overlay`, `scrim`, `modal`, `notify` and `critical`. Layer names are not rung names.
+
+- Never cover the value a surface is about. A sheet opened from a result keeps the result visible above its edge, or restates it.
+- A modal traps focus, makes the page inert and returns focus to its trigger, which choosing `sheet` does not do for you. Never stack modals, and never let a toast take focus.
+- `critical` is reserved for an escalation the product's clinical governance says must never be covered. See [High-stakes moments](../health/high-stakes-moments.mdx).
+
+The proposed `--opsin-layer-<name>` tokens are not generated yet.
+
+<NoDataYet script="scripts/build-tokens.mts" />
+
+## Tokens
+
+<TokenTable scope="material" />

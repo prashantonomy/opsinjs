@@ -1,51 +1,37 @@
-# Page templates as the frozen contract
+# Page templates
 
-One skeleton per `kind`. A page's `kind` fully determines its headings; authors
-fill a template and never start from a blank file, and never invent a section.
-`assert-ia.mts` compares the H2s in every page against the outline for its `kind`
-and fails the build on a missing or an unexpected one.
+Two skeletons. `component.mdx` is the fixed outline every component page
+follows, and `assert-ia.mts` checks it against `lib/status.ts` (OUT012), so the
+two cannot drift. `page.mdx` is the shape of every other page: guides,
+foundations, health pages, patterns and reference pages name their own
+headings, the way a clawscale or Blueprint page does. ADR 0026 is the record.
 
-These files live OUTSIDE `content/docs/`, so fumadocs (`dir: "content/docs"`) does
-not index them and they never become routes. `handbook/contributing/documentation-templates`
-publishes them verbatim.
+These files live outside `content/docs/`, so fumadocs never indexes them.
 
-| `kind` | Template | Used by |
+| `kind` | Template | Section |
 | --- | --- | --- |
-| `component` | `component.mdx` | every component page under `content/docs/components/` |
-| `foundation` | `foundation.mdx` | Foundations, every page and sub-page |
-| `health` | `health.mdx` | the Health doctrine layer |
-| `accessibility` | `accessibility.mdx` | the Accessibility pillar |
-| `content` | `content.mdx` | Content & language |
-| `pattern` | `pattern.mdx` | Patterns, including forms and "Ask users for…" |
-| `recipe` | `recipe.mdx` | Recipes |
-| `screen` | `screen.mdx` | Screens |
-| `handbook` | `handbook.mdx` | Handbook, including tooling and contributing |
-| `reference` | `reference.mdx` | Reference, including generated pages |
-| `project` | `project.mdx` | Project: roadmap, changelog, decisions, community |
-| `guide` | `guide.mdx` | Start here, Installation, Registry, Theming, Agents |
+| `component` | `component.mdx` | Components |
+| `guide` | `page.mdx` | the top-level pages, and the Components overview |
+| `foundation` | `page.mdx` | Foundations |
+| `health` | `page.mdx` | Health |
+| `pattern` | `page.mdx` | Patterns |
+| `reference` | `page.mdx` | Reference |
 
-`frontmatter.schema.json` is the machine-readable form of the frontmatter contract
-declared in `source.config.ts`. The two must agree; `source.config.ts` is the one
-the build enforces.
+`frontmatter.schema.json` is the machine-readable form of the frontmatter
+contract in `source.config.ts`. The two must agree; `source.config.ts` is the
+one the build enforces.
 
-## Three rules that apply to every template
+## Rules for every page
 
-1. **Say only what is true, in either direction.** A page may not claim a
-   component exists when it does not, and may not claim nothing is built when
-   the catalogue says otherwise. `registry/catalogue.ts` is the authority: a row
-   at `shipped` has source under `registry/bases/base/` and installs through the
-   shadcn CLI, so a working example is the correct thing to show; a row at
-   `planned` has no code, and a page about it says so. A measured number is
-   never written by hand either way. It is generated or it is `<NoDataYet>`.
-   `<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>` are the honest
-   ways to say "not yet", and `<Todo>` is counted in the build's coverage report.
-   Promotion sheds exactly two of them: `<NotBuiltYet>` and `<Todo>` go in the
-   same commit that moves the page to `shipped`; `<StubNotice>` stays and gains a
-   real `status`; `<NoDataYet>` stays wherever a generator genuinely has no
-   source data.
-2. **Links are relative.** Use relative file paths resolved by fumadocs'
-   `createRelativeLink`. One such link reads
-   `[Two colour axes](../health/two-colour-axes.mdx)`. Absolute `/docs/...`
-   links are banned everywhere except the Sections rail in the root `meta.json`.
-3. **The MDX vocabulary is closed.** Only the tags in the anatomy contract exist.
-   Content authors use them; they never define one.
+1. **Say only what is true.** A shipped component installs and renders, and
+   that is all `shipped` means: no component has had an independent
+   accessibility review or a clinical review. A number is generated or it is
+   `<NoDataYet>`, never typed by hand.
+2. **Links are relative file links**, such as
+   `[Two colour axes](../health/two-colour-axes.mdx)`. An absolute link is for
+   a route outside the documentation, such as `/playground`.
+3. **The MDX vocabulary is closed.** Only the tags registered in
+   `components/mdx.tsx` exist.
+4. **Lean.** LEAN001 caps a component page at 1,000 words (1,250 on a health-
+   category) and LEAN002 caps every other hand-written page at 1,200 (1,500 on
+   a health page).

@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-communication
 aliases: [consent, permission, opt in, data sharing, agree]
-governedBy: [consent-and-disclosure, clinical-interaction-guidelines, crisis-and-self-harm, regulatory-context]
-usedIn: [ask-users-for/contact-details, consent-and-permissions, consent-before-collection, consent-flow, diabetes-medicines-app, forms/required-and-optional, onboarding-and-first-run, onboarding-screen, sharing-with-a-clinician]
+governedBy: [consent-and-privacy, health/index, high-stakes-moments, safety-review]
+usedIn: [consent-and-permissions, onboarding-and-first-run, sharing-with-a-clinician]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="consent-sheet" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="consent-sheet"
@@ -36,8 +32,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
   registryDependencies={["sheet", "button"]}
 />
-
-## Usage
 
 ```tsx
 import { ConsentSheet } from "@/components/ui/consent-sheet"
@@ -59,102 +53,9 @@ import { ConsentSheet } from "@/components/ui/consent-sheet"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "Asking permission to collect, use or share a specific kind of health data.",
-    "Re-asking for a permission whose scope has changed, so the earlier decision no longer covers it.",
-    "Confirming a decision with consequences the reader should see first, such as sharing a record.",
-  ]}
-  avoid={[
-    { case: "Showing permissions already given, to review or withdraw them.", instead: "card" },
-    { case: "The reader must simply acknowledge something before continuing, with no meaningful choice.", instead: "dialog" },
-    { case: "You need an operating-system permission, such as notifications; the platform owns that.", instead: "sheet" },
-    { case: "The message is the standing not-medical-advice note, not a request.", instead: "disclaimer-note" },
-    { case: "You are collecting the data itself rather than the permission to collect it.", instead: "field" },
-  ]}
-/>
-
-## Clinical meaning
-
-**Asserts.** One specific permission is being asked for. The reader has been told what is
-collected, what it is for, who sees it and how long it is kept.
-
-**Never read as.** A condition of using the product, unless it genuinely is one and the
-sheet says so. Never as permanent: the sheet says where to withdraw. See
-[Consent and disclosure](../health/consent-and-disclosure.mdx).
-
-**Colour axis.** Neither. No element carries `data-status` or `data-category`.
-See [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
-
-**Thresholds.** None; the sheet displays no reading. Every consent string arrives as a
-prop, because the wording is the product's legal statement
-([Regulatory context](../health/regulatory-context.mdx)).
-
-**Closing is not deciding.** `onDecision` fires only when a reader presses one of the two
-controls. Escape, scrim, drag and header Close call nothing, so *did not answer* is the
-absence of a call, never a stored `false`.
-
-<SafetyCallout severity="urgent" evidence="opinion">
-No pre-ticked boxes, no default-on switches, no *agree* that is also *continue*, and no
-sheet that cannot be closed without deciding.
-</SafetyCallout>
-
-## Anatomy
-
-<Anatomy
-  name="consent-sheet"
-  parts={[
-    {
-      name: "ConsentSheet",
-      describes: "Sheet's container. open, onOpenChange, detents, modal and dismissible pass through.",
-      prop: "open",
-    },
-    {
-      name: "ConsentSheet.Heading",
-      describes: "The question, as Sheet's title and the popup's aria-labelledby.",
-      prop: "heading",
-    },
-    {
-      name: "ConsentSheet.Purpose",
-      describes: "What the data is for, through Sheet.Description, the popup's aria-describedby.",
-      prop: "purpose",
-    },
-    {
-      name: "ConsentSheet.Scope",
-      describes: "A ul of three facts: collected, shared with, retention.",
-      prop: "scope",
-    },
-    {
-      name: "ConsentSheet.Details",
-      describes: "Optional full wording behind a named trigger, kept in the DOM while collapsed.",
-      prop: "details",
-    },
-    {
-      name: "ConsentSheet.Withdrawal",
-      describes: "Where to change this later. Mandatory, and text, not a link.",
-      prop: "withdrawalPath",
-    },
-    {
-      name: "ConsentSheet.Consequence",
-      describes: "What a refusal costs, read before the choice, not after.",
-      prop: "consequenceOfDeclining",
-    },
-    {
-      name: "ConsentSheet.Decisions",
-      describes: "Pinned footer, a two-track grid. Decline first, Accept second, same Button, same size.",
-      prop: "declineLabel",
-    },
-    {
-      name: "ConsentSheet.NotAsked",
-      describes: "One line replacing the controls when required wording is missing.",
-      prop: "notAskedMessage",
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="consent-sheet" />
 
 ### Closing is not consent
 
@@ -177,45 +78,66 @@ line and naming the missing fields in the console.
 
 <ComponentPreview name="consent-sheet-no-wording-supplied" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Ask a question, with *we* for the product and *you* for the reader. Say what the reader
-gets, not what the product does. Never write *by continuing you agree*, and never *not now*
-when it means *no*. The component warns in development, then renders it as written.
+<WhenToUse
+  use={[
+    "Asking permission to collect, use or share a specific kind of health data.",
+    "Re-asking for a permission whose scope has changed, so the earlier decision no longer covers it.",
+    "Confirming a decision with consequences the reader should see first, such as sharing a record.",
+  ]}
+  avoid={[
+    { case: "Showing permissions already given, to review or withdraw them.", instead: "card" },
+    { case: "The reader must simply acknowledge something before continuing, with no meaningful choice.", instead: "dialog" },
+    { case: "You need an operating-system permission, such as notifications; the platform owns that.", instead: "sheet" },
+    { case: "The message is the standing not-medical-advice note, not a request.", instead: "disclaimer-note" },
+    { case: "You are collecting the data itself rather than the permission to collect it.", instead: "field" },
+  ]}
+/>
 
-<DoDont>
-  <DoDont.Do>
-    **Both labels written as the answer they are**, the refusal naming what will not
-    happen, at the same size.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A large filled "Allow" with a small grey "Not now" beneath.** The hierarchy is the
-    question.
-  </DoDont.Dont>
-</DoDont>
+## Clinical meaning
+
+**Asserts.** One specific permission is being asked for, and the reader has been told
+what is collected, what it is for, who sees it and how long it is kept.
+
+**Never read as.** A condition of using the product, unless it genuinely is one and the
+sheet says so, and never as permanent, because the sheet says where to withdraw. See
+[Consent and privacy](../health/consent-and-privacy.mdx).
+
+**Colour axis.** Neither. No element carries `data-status` or `data-category`.
+See [Health](../health/index.mdx).
+
+**Thresholds.** None. The sheet displays no reading. Every consent string
+arrives as a prop, because the wording is the product's legal statement
+([Safety review](../health/safety-review.mdx)).
+
+**Closing is not deciding.** Only the two controls call `onDecision`. Escape, scrim,
+drag and header Close call nothing, so *did not answer* is the absence of a call, never
+a stored `false`.
+
+<SafetyCallout severity="urgent" evidence="opinion">
+No pre-ticked boxes, no default-on switches, no *agree* that is also *continue*, and no
+sheet that cannot be closed without deciding.
+</SafetyCallout>
 
 ## Accessibility
 
-Audited against WCAG 2.2 AA, source pass and rendered axe pass. The audit is author-run,
-not an independent review, and clinical review is still pending.
+`heading` is the dialog's accessible name and `purpose` its description, and focus lands
+on the sheet. The two decisions are one grid, one `Button` variant at one size, decline
+first and never stacked, and the copy carries every meaning so nothing rides on colour.
+The details trigger is a real button with `aria-expanded` and `aria-controls`. The
+audit's one fix put its focus ring on the decision buttons' `--opsin-border-focus`
+token, so a theme that thickens the ring reaches it too. A ring was already visible, so
+no gap closed. `pnpm run check:a11y` holds every commit to no `px` size, raw colour,
+banned word or element resolving a category or status property.
 
-**Gated on every commit by `pnpm run check:a11y`:** no `px` size, no raw colour, no banned
-word, no element resolving a category or status property.
+**Residual items.**
 
-- `heading` is the dialog's accessible name and `purpose` its description; focus lands on
-  the sheet. The two decisions are one grid, one `Button` variant at one size, decline first,
-  never stacked, and the copy carries every meaning so nothing rides on colour. The details
-  trigger is a real button with `aria-expanded` and `aria-controls`.
-
-**What the audit changed.** One fix: the disclosure trigger's focus ring now uses the
-`--opsin-border-focus` token the decision buttons share, so a theme that thickens the focus
-ring reaches it too. A ring was already visible, so this closes no gap.
-
-**Residual.** With `heading` omitted the sheet refuses to ask and the dialog then has no
-accessible name; the component dev-warns, so this is invalid usage, not a supported state.
-The open sheet could not be exercised on the stale port 4000 build, so those verdicts rest on
-source. Focus trap, focus return, dismissal and the swipe close alternative belong to
-[Sheet](./sheet.mdx) and are verified there.
+- With `heading` omitted the sheet refuses to ask and the dialog has no accessible name.
+  The component warns in development, so this is invalid usage, not a supported state.
+- The open sheet could not be exercised rendered, so its verdicts rest on source.
+- Focus trap, focus return, dismissal and the swipe close alternative belong to
+  [Sheet](./sheet.mdx) and are verified there.
 
 <KeyboardTable
   name="consent-sheet"
@@ -255,7 +177,7 @@ source. Focus trap, focus return, dismissal and the swipe close alternative belo
 
 <ContrastReport component="consent-sheet" />
 
-## API reference
+## Props interface
 
 <PropsTable name="ConsentSheetProps" />
 
@@ -267,14 +189,7 @@ interface ConsentDecision {
 }
 ```
 
-`ConsentSheetProps` extends [SheetProps](./sheet.mdx#api-reference) with `title`,
+`ConsentSheetProps` extends [SheetProps](./sheet.mdx#props-interface) with `title`,
 `children` and `footer` removed, because `heading` is the title. A whitespace-only string
 counts as missing. There is no `purposes`, `defaultGranted`, `required`, `hideDecline`,
 `acceptVariant` or `declineVariant`.
-
-## Related
-
-- [Sheet](./sheet.mdx) is the surface underneath, with none of the contract.
-- [Dialog](./dialog.mdx) is for a decision with no consent semantics and nothing to record.
-- [DisclaimerNote](./disclaimer-note.mdx) is a statement, not a request.
-- [CareCard](./care-card.mdx) asks the reader to act in the world, not to permit something.

@@ -1,0 +1,56 @@
+---
+title: Reading the docs
+description: How the site is arranged, how a component page is laid out, and what its notices promise
+kind: guide
+aliases: [how to read these docs, what shipped means, docs chrome, product theme]
+---
+
+Every component page has the same sections in the same order.
+
+## Navigation
+
+The sidebar has six sections: opsinjs (the guides), Foundations, Components, Health, Patterns and Reference. Only the section you are in is expanded, and the page you are on lists its own headings beneath it. There is no table of contents on the right and no breadcrumb.
+
+Cmd+K opens search on a Mac, and Ctrl+K opens it on Windows and Linux. The Search row in the sidebar opens it too, and the Theme row switches between light, dark and system.
+
+## Component pages
+
+| Section | What it holds |
+| --- | --- |
+| Review notice | The review state, then at most three open safety questions |
+| Usage | The install command, the import and a minimal use |
+| Examples | The default preview first, then named examples |
+| When to use it | Cases for and against. Every case against names an alternative |
+| Clinical meaning | Health components only. What the component asserts, what it must never be read as, and who owns the thresholds |
+| Accessibility | What was checked and what was not, then the keyboard table and the contrast report |
+| Props interface | The generated props table, then data attributes where the component documents them |
+
+## Previews
+
+Each preview renders in an iframe under the product theme, with switches for theme, density, text size and status. Text size changes the real font size, so at 200% the layout reflows.
+
+The docs chrome differs from the product theme on purpose, because density suits a developer at a desk and fails a patient holding a phone. The product theme is roomier, uses the reader's system font and keeps 44px touch targets, so take screenshots from a preview, not the page around it.
+
+## Release phases
+
+| Phase | It is | Its API |
+| --- | --- | --- |
+| `planned` | A written specification with no code | A sketch. Do not code against it |
+| `shipped` | Installable source in the registry | May change in any release, with a changelog entry |
+| `deprecated` | Installable source on its way out | Frozen, with a named replacement and a named removal version |
+
+Every component is `shipped`. That means the source installs and renders, and it never means reviewed. The review notice reads "Audited against WCAG 2.2 AA. Clinical review pending." The authors of the components ran that audit, so it is not an independent review, and no component has had a clinical review. Nothing here is for a production health surface.
+
+These phases describe software, while the clinical status levels describe a person's data.
+
+## Honesty markers
+
+| Marker | It reads | What it means |
+| --- | --- | --- |
+| `NotBuiltYet` | "is not built yet" | No code is behind this id, so nothing renders |
+| `NoDataYet` | "has not been generated" | A generated table has no source data yet. It names the script that fills it |
+| `Todo` | "Not written yet" | A known gap, counted by the build and still open |
+
+## Generated tables
+
+Props tables, token tables and contrast reports are generated from the source, and CI fails when one drifts from it. Copy a token's name, never its printed value. A contrast report gives two figures per pair. The WCAG 2.2 ratio is what conformance is measured against, and APCA Lc is a perceptual figure from the draft WCAG 3 work. Both are shown because they sometimes disagree.

@@ -1,18 +1,11 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import {
-  DocsBody,
-  DocsDescription,
-  DocsPage,
-  DocsTitle,
-} from "fumadocs-ui/layouts/docs/page"
 import { createRelativeLink } from "fumadocs-ui/mdx"
+import { Pencil } from "lucide-react"
 
-import { Reviewed, type ReviewedProps } from "@/components/docs/guidance"
-import { PageTemplate } from "@/components/docs/page-template"
 import { getMDXComponents } from "@/components/mdx"
 import { source } from "@/lib/source"
-import { docsMarkdownPath, docsPath, ogUrl } from "@/lib/routes"
+import { docsMarkdownPath, docsPath, editUrl, ogUrl, site } from "@/lib/routes"
 import { pageMetadata } from "@/app/_shared/seo"
 import {
   JsonLd,
@@ -25,10 +18,11 @@ import {
 /**
  * The breadcrumb trail for a page, built from its own slug.
  *
- * WHY NOT `getBreadcrumbItems` FROM fumadocs. That walks the PAGE TREE, and
- * `lib/sidebar-tree.ts` deliberately reshapes the tree into ten sidebar
- * sections that do not match the URL hierarchy. A breadcrumb in a search result
- * is a promise about the address bar, so it has to be built from the address.
+ * WHY NOT `getBreadcrumbItems` FROM fumadocs. That walks the PAGE TREE, and the
+ * top-level guides sit in the tree beside the section folders rather than
+ * under them. A breadcrumb in a search result is a promise about the address
+ * bar, so it has to be built from the address. There is no visible breadcrumb;
+ * this trail exists only in the structured data.
  * It also returns `name` as a ReactNode, which is the wrong type for a field
  * that has to end up as a JSON string.
  *
@@ -101,68 +95,40 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
   ])
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <div className="docs-page">
       <JsonLd data={structured} />
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
-      <DocsBody>
-        {/*
-          PageTemplate is the contract enforcer. A page declares its `kind` in
-          frontmatter, the kind fixes its headings, and on a component page the
-          declared `status` fixes which of those headings are required: a page
-          at `planned` owes one outline and a page with code behind it owes
-          the longer one, part of which is optional. Both outlines live in
-          `COMPONENT_SECTIONS_BY_STATUS` in `lib/status.ts`, and no count is
-          repeated here, because a number in a comment about a list in another
-          file is the duplication this contract exists to avoid. `status` is
-          absent on every page that is not a component, and PageTemplate falls
-          back to the outline that claims least. Handing it the table of
-          contents is what lets it check the page it is wrapping instead of
-          trusting the author, and a missing required section fails the build
-          rather than shipping a heading with three sentences under it.
-        */}
-        <PageTemplate
-          kind={page.data.kind}
-          status={page.data.status}
-          category={page.data.category}
-          toc={page.data.toc}
-          path={page.url}
+      {site.sourcePublic ? (
+        <a
+          className="docs-edit-link"
+          href={editUrl(page.path)}
+          target="_blank"
+          rel="noreferrer noopener"
+          data-print="hide"
         >
+          <Pencil aria-hidden="true" />
+          Edit this page
+        </a>
+      ) : null}
+      <article className="docs-article">
+        <h1 className="docs-title">{page.data.title}</h1>
+        {page.data.description ? (
+          <p className="docs-lead">{page.data.description}</p>
+        ) : null}
+        <div className="prose docs-prose">
           {/*
-            `createRelativeLink` resolves the relative file links that MDX pages
-            are required to use (`../health/alarm-fatigue.mdx`) into real URLs.
-            Absolute `/docs/...` links are banned in MDX precisely so that this
-            resolver is the only thing that knows what a documentation URL looks
-            like. Keeping that knowledge in one place is what makes a future
-            `[lang]` segment a one-file change instead of a corpus-wide
-            find-and-replace.
+            `createRelativeLink` resolves the relative file links MDX pages are
+            required to use (`../health/alerts.mdx`) into real URLs, so this
+            resolver is the only thing that knows what a documentation URL
+            looks like.
           */}
           <MDX
             components={getMDXComponents({
               a: createRelativeLink(source, page),
-              /*
-                `<Reviewed />` is authored bare on every page that ends with it,
-                and the component falls back to "Not yet reviewed." when it is
-                given no date. Nothing bound one, so 114 pages printed that
-                sentence under frontmatter that carried a real date. The spread
-                goes LAST so a page that passes an explicit prop still wins.
-                `reviewer` is deliberately NOT bound: it names the discipline
-                that owes the next read-through, not one that has signed
-                anything off. See the comment on the component.
-              */
-              Reviewed: (props: ReviewedProps) => (
-                <Reviewed
-                  date={page.data.reviewed}
-                  every={page.data.reviewEvery}
-                  path={page.url}
-                  {...props}
-                />
-              ),
             })}
           />
-        </PageTemplate>
-      </DocsBody>
-    </DocsPage>
+        </div>
+      </article>
+    </div>
   )
 }
 

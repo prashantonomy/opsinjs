@@ -38,7 +38,9 @@ Node 24 or newer is required: the build scripts are `.mts` files executed direct
 ## Layout
 
 ```
-apps/www          the documentation site (Next.js 16 App Router + fumadocs)
+apps/www          the documentation site (Next.js 16 App Router + fumadocs), in six
+                  sections modelled on the clawscale and Blueprint docs
+decisions         the architecture decision records (ADR 0026 is the site's shape)
 packages/*        reserved and empty. Nothing is published to npm today, and
                   components never will be (ADR 0002: distribution is copy-in)
 skills/opsinjs    the Agent Skill: rules an assistant must follow to use opsinjs
@@ -65,4 +67,4 @@ a regulatory file with a clear attribution path.
 
 opsinjs is a presentation layer. It does not diagnose, triage, or decide what a number
 means. Thresholds, reference ranges and clinical wording are always the owning product's
-responsibility. See `Start here → Safety, scope and limitations` on the docs site.
+responsibility. See the Health section of the docs site, starting at `/health`.

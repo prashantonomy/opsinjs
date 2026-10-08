@@ -1,0 +1,115 @@
+# ADR 0024. The component page is lean
+
+A component page drops from seventeen sections to fourteen, and the build holds its body to a thousand words, because nobody was reading the nine thousand.
+
+## Status
+
+**Accepted.** 2026-09-20. The outline below was superseded by
+[ADR 0026](./0026-the-site-takes-the-clawscale-shape.md) on 2026-10-08; the word budget stands. `COMPONENT_SECTIONS_BY_STATUS` and
+`COMPONENT_OPTIONAL_SECTIONS` in `lib/status.ts` hold the outline. `assert-ia` rules
+LEAN001 and C6001 hold the budget and the position of the notice. All sixty component
+pages were rewritten to the new shape in one change. This record supersedes the outline
+paragraph of [ADR 0023](./0023-three-release-phases.md); the rest of that record stands.
+Since this was accepted, every component has been audited against WCAG 2.2 AA by its
+authors, but not independently reviewed and not yet clinically reviewed, as
+[ADR 0025](./0025-the-audit-is-author-run.md) records.
+
+## Context
+
+Measured on the day this was written: sixty component pages and two hundred and
+seventy-seven thousand words between them, the shortest page at one thousand seven
+hundred and the longest at nine thousand eight hundred. The Accessibility sections alone
+came to sixty-nine thousand words, Anatomy to thirty-seven thousand, and the open
+questions under the Status heading to twenty-five thousand. Blueprint documents a Button
+in under eight hundred words and a Switch in under seventy, and a developer who came to
+an opsinjs page for a props table found it under two thousand words of argument.
+
+Three things had happened. The pages were written as specifications before any code
+existed, and they carried the argument for every decision; once the code existed, the
+argument stayed. Doctrine that lives once on the Health and Accessibility pages was
+restated on every component that obeyed it, and every restatement drifted a little.
+And the seventeen-section outline handed every page five sections (States, Motion, Data
+attributes, CSS variables, Tokens) that on most components had nothing to say and were
+filled anyway, because a heading in a checklist reads as a demand.
+
+## Decision
+
+**The outline for a page with code is fourteen sections**: Preview, Installation, Usage,
+When to use it, Clinical meaning, Anatomy, Examples, States, Content guidelines,
+Accessibility, Data attributes, CSS variables, API reference, Related. Status, Motion
+and Tokens are removed. Anatomy, States, Content guidelines, Data attributes and CSS
+variables are optional, and the rule for each says when it earns its place. Clinical
+meaning stays gated on a `health-*` category in both directions.
+
+**`<StubNotice>` opens the page**, above the first H2, with no heading of its own. It
+keeps the two sentences SAFE001 requires and at most three open safety questions of
+one sentence each. C6001 fails the build when the notice is missing or sits below a
+heading.
+
+**LEAN001 fails the build** when a component page's body passes a thousand words, or
+twelve hundred and fifty on a `health-*` page. The count is every whitespace-separated
+token in the body, JSX and code included, because a reader scrolls past those too.
+
+**Every section has a shape**, taught once on
+[Anatomy of a component page](https://opsinjs.pensievelabs.org/reading-the-docs): a
+component call with no prose (Preview, Installation), two code blocks (Usage), a list
+with one line per entry (When to use it, Related), four bold-led facts (Clinical
+meaning), one or two sentences per example, and a labelled triage of a few lines plus
+the keyboard table and the contrast report (Accessibility).
+
+**Doctrine is linked, never restated.** The argument for a decision lives on the Health,
+Accessibility and Foundations page that owns it, and the component page carries one
+sentence and a link.
+
+**The `planned` outline is eight sections**: Preview, Installation, When to use it,
+Clinical meaning, Anatomy, Proposed API, Accessibility, Related.
+
+## Consequences
+
+- **What was cut is not lost, and it is not closed either.** Git history holds every
+  long page in full. A page keeps three open questions; the others are still open, and
+  dropping their text from the page did not answer them. A review that lands on a
+  component should start from the long page in history, not from the three lines.
+- **The machine surfaces shrink with the pages.** The `.md` twins, the `llms-*.txt`
+  shards, `/r/docs.json` and the offline bundle carry the same contracts in a fraction
+  of the tokens, and an agent reading a page meets the notice before anything else.
+- **`<RelatedComponents>` is no longer rendered by any component page.** Nothing ever
+  passed it data, so it rendered three empty placeholders on every page. It stays
+  exported until it is either wired to frontmatter or deleted, and that is a separate
+  decision.
+- **`<MotionDemo>` and `<TokenTable>` leave the component pages.** The token reference
+  still renders `<TokenTable>`, and a reduced-motion behaviour that matters is one
+  bullet under Accessibility.
+- **The keyboard reference still has its source.** Every page keeps its
+  `<KeyboardTable>` with the same keys and actions; only the notes were shortened.
+- **The budget is a gate, so a page cannot regrow quietly.** A reviewer who wants more on
+  a page has to take something off it or move the material to a doctrine page, and the
+  doctrine page gets the link back.
+- **Contributors copy a short template.** `content/_templates/component.mdx` and the
+  Button page are the two shapes to start from, and both fit on a screen.
+
+## Alternatives considered
+
+**Keep seventeen sections and trim the prose.** Rejected. The optional sections would
+have been filled again, because a heading in a fixed outline reads as a demand, and
+the Status heading would have kept its five paragraphs of questions.
+
+**Go all the way to Blueprint's shape: intro, usage, examples, props.** Rejected. When
+to use it, Clinical meaning and the accessibility triage are the reason this system
+exists rather than a restyled shadcn, so they stay, as short sections. A little more
+than Blueprint, and not much more.
+
+**Move the reasoning to a second page per component.** Rejected. Nobody maintains two
+pages per component, and the second page would have been the long page under a new
+name. Git history is the archive, and it is complete.
+
+**A budget without a gate.** Rejected. The seventeen-section contract was also written
+down, and the pages grew to ten thousand words under it.
+
+## Revisiting this
+
+Revisit when the first accessibility review lands. The Accessibility section then gains
+a measured group with results a reader should see, and the budget may need to move to
+hold them. Revisit sooner if review keeps finding facts a developer needed that the cap
+squeezed out; the answer then is a higher cap for the section that needs it, not a
+return to the essay.

@@ -245,16 +245,6 @@ export default function MedicinesAppShowcasePage() {
                   source, and both are written down rather than quietly worked
                   around.
                 </p>
-                <p>
-                  The specimen page under Screens carries the rest: the
-                  composition tree, the safety notes, the accessibility
-                  contract, and the ten questions that stayed open.
-                </p>
-                <p>
-                  <Link href={routes.docs("screens", "diabetes-medicines-app")}>
-                    Read the specimen page
-                  </Link>
-                </p>
               </Prose>
             </section>
 

@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import { HomeLayout } from "fumadocs-ui/layouts/home"
 
+import { SiteFooter } from "@/components/site-footer"
 import { baseOptions } from "@/lib/layout.shared"
 import { site } from "@/lib/routes"
 
@@ -44,5 +45,10 @@ export const metadata: Metadata = {
  * because it is the only route to these five pages from anywhere else.
  */
 export default function HomeGroupLayout({ children }: { children: ReactNode }) {
-  return <HomeLayout {...baseOptions()}>{children}</HomeLayout>
+  return (
+    <>
+      <HomeLayout {...baseOptions()}>{children}</HomeLayout>
+      <SiteFooter />
+    </>
+  )
 }

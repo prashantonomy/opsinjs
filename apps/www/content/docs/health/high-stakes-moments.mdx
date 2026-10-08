@@ -1,0 +1,85 @@
+---
+title: High-stakes moments
+description: Handling an emergency, a disclosure of self-harm and a difficult result.
+kind: health
+evidence: opinion
+implements: [alert-banner, care-card, status-pill, dialog, disclaimer-note, questionnaire, consent-sheet, result-card, term]
+reviewed: 2026-10-08
+reviewer: design
+---
+
+opsinjs ships no emergency numbers, crisis services, opening hours or clinical wording, and no instrument, scoring, threshold or triage. Which values are emergencies, which answers disclose risk, what a result means, and whether and when it is released are your organisation's decisions, each reviewed by someone clinically accountable, written down and version controlled. Contacting services for the reader, safeguarding and legal duties sit outside a presentation layer. Children and young people, results about someone else and free-text moderation are out of scope.
+
+## Emergency and escalation
+
+When your clinical rules flag a possible emergency or same-day need, a distinct, unmistakable path overrides every alert budget, engagement, brand, layout and notification preference.
+
+1. **Action first.** "Call 999 now" precedes "Your reading was 210/125".
+2. **One action**, with no competing choice.
+3. **Configured, never hardcoded.** The product sets the route per region and names the service, with a way to reach it for readers who cannot call.
+4. **Everything else suppressed.** No other banner, alert, marketing, rating prompt or cookie notice.
+5. **It persists.** No auto-dismiss, timeout or accidental swipe; the calling screen keeps it through backgrounding and relaunch until explicitly acknowledged, and timestamps the acknowledgement.
+6. **Redundant.** In-app, push and on next open, since any channel can fail silently.
+7. **No diagnosis.** "This reading needs to be checked urgently" is the limit. Name no condition.
+8. **A route for disagreement.** The product supplies re-measurement, a non-emergency contact, or continuing. Never a dead end.
+
+Announce it assertively, make it reachable and operable by keyboard and switch control, hold focus without trapping, meet the contrast floor with no material translucency, and keep every sentence whole at 200% text. Never convey it by colour, motion or sound alone, gate it behind a paywall, login or onboarding, or raise it from an estimated or stale value, which needs a confirming measurement ([Trends and uncertainty](./trends.mdx)).
+
+Test it every release: a forcing fixture, a real device, 200% text, a screen reader, offline.
+
+## Crisis and self-harm
+
+A disclosure of risk of harm is never scored silently, never congratulated and never a dead end.
+
+<SafetyCallout severity="attention" evidence="opinion">
+  The organisation must design the response to any item that can elicit a disclosure of risk of harm with clinical mental health expertise, and record it as a specified pathway. Without that expertise, removing the item is the safer course: asking a question the product has no response to is itself a harm.
+</SafetyCallout>
+
+9. **Acknowledge first**, in place, immediately and without alarm, before any score, progress bar or thank-you.
+10. **Plain, warm, unshocked**: no clinical register, alarm, exclamation mark or red.
+11. **Off the escalation ladder.** Calm, prominent and distinct, sharing no `urgent` status, token, colour or icon with a clinical alert.
+12. **Four kinds of route**: someone now, someone later, something to read, and a way to tell a clinician already involved. Say which are open now; keep them reachable later from a quiet, persistent entry point.
+13. **Configured per region and kept current** by the product owner. A wrong or stale number is worse than none.
+14. **Free to continue, leave or say nothing more.** Nothing blocks, traps or compels an answer.
+15. **No gate.** Support sits outside every sign-in, payment and profile-completion gate.
+16. **Safe messaging.** No method detail, lethality information or graphic imagery, and no framing of suicide as a solution or an inevitability.
+17. **Say what happens to the answer**, before the item and on the response: who is contacted, who sees it, what else is triggered.
+18. **Write the repeat case before release**, for a second, fifth and twentieth disclosure: never the same interstitial weekly, never nothing.
+19. **No engagement mechanics**: no streak, badge or reward on a mood questionnaire, completed or abandoned.
+
+The product owner writes rules 17 and 18 with clinical, information-governance and mental health input.
+
+## Difficult results
+
+A result that may distress is disclosed deliberately, under the reader's control, and always ends in a route to a person.
+
+20. Announce an unrequested result before showing it, stating its weight, and open it only by a deliberate action.
+21. No notification opens straight into a full result, and no dashboard opened for something else shows one.
+22. Plain-language summary first, numbers behind a deliberate step, clinical detail behind another. Never reversed.
+23. Say what happens next, who arranges it and how to reach someone. The last element is never the number.
+24. State the finding: "Your result shows X", not "your result requires further discussion".
+25. Never "this is very serious" or "don't worry".
+26. Never "you failed to", "your poor control" or "you should have".
+27. Report the result and the next step, nothing about what it means for the reader's life.
+28. Short sentences, ordinary words, one idea each ([Writing](../foundations/writing.mdx)).
+29. Name what the result does not establish.
+30. Give the next step the result's type scale, reachable without scrolling.
+31. No cross-sell, rating prompt, streak or unrelated alert on that screen, under the suppression rules in [Alerts](./alerts.mdx).
+32. The result stays findable in the same words and shareable with someone the reader trusts ([Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx)).
+33. Offer deferral where clinically appropriate, never where delay could cause harm. An emergency finding takes the emergency path instead.
+
+## Components
+
+No component implements these paths whole. [AlertBanner](../components/alert-banner.mdx) at `urgent` uses `role="alert"`, never removes itself, and is dismissed only through an `onAcknowledge` callback the product records. No component can see or silence a sibling, so rule 4 is product code with a named owner, tested on every screen reaching the path. [Questionnaire](../components/questionnaire.mdx) has no risk-response slot, so the product owns the pathway and its testing. [ResultCard](../components/result-card.mdx)'s `actions` are optional, so rule 23 is the caller's.
+
+<Todo>Specify the suppression mechanism rule 4 needs: entering the emergency state, handling an alert already announced, and unwinding on acknowledgement.</Todo>
+
+<Todo>Specify, with clinical input, what a person who discloses weekly sees on the second, fifth and twentieth occasion.</Todo>
+
+<Todo>Find or commission patient-preference research on receiving results without a clinician, then move rules 20 to 33 to `evidence: mixed`.</Todo>
+
+## Evidence
+
+Every rule here is opinion; no study is cited.
+
+Rule 16 follows established practice: the World Health Organization's guidance on responsible communication about suicide and the Samaritans media guidelines. Read them directly; we name them and never paraphrase them, because paraphrase dilutes them. A clinical mental health specialist's written pathway outranks rules 9 to 12 and 18, and regulation outranks this page ([Safety review](./safety-review.mdx)).

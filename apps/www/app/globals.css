@@ -748,146 +748,439 @@
 }
 
 /* --------------------------------------------------------------------------
-   The documentation sidebar, and the three levels it has.
+   The documentation shell, modelled on blueprintjs.com.
 
-   `lib/sidebar-tree.ts` guarantees the tree is exactly three levels deep and
-   that only level 0 carries an icon. `components/docs/sidebar.tsx` renders each
-   row with `data-opsin-nav` and the level it sits at, and everything a reader
-   uses to tell one level from another is here.
+   A sidebar that fills the left of the viewport and holds a 300px column at
+   its right edge, and a main column of at most 840px beside it. The sidebar is
+   the whole navigation: a wordmark, a theme row and a search row, then six
+   sections, of which only the one you are in is expanded. The page you are on
+   lists its own headings under its row, so there is no right-hand table of
+   contents. Below 900px the sidebar becomes a drawer behind a top bar.
 
-   WHY THE STYLES ARE NOT ON THE ELEMENTS. Every link in the tree is in the HTML
-   of every page, which is what makes the corpus one crawlable graph and what
-   lets find-in-page reach a closed section. Four hundred rows each carrying the
-   same eight hundred characters of utility classes is four hundred kilobytes of
-   identical markup on every page. The same rules declared once here cost about
-   forty characters a row.
-
-   FOUR THINGS MOVE PER LEVEL, not one. Size, weight, colour and the rail. A
-   sidebar that distinguishes its levels by indentation alone asks the reader to
-   measure, and at a glance, on a narrow column, they will not: a section and a
-   page twelve pixels apart look like two rows of the same kind. So a pillar is
-   fifteen pixels and foreground-coloured, a section is fourteen and muted, a
-   page is thirteen and muted, and each nested level hangs off a one-pixel rail
-   drawn from the row above it.
-
-   THE RAIL IS ALSO THE ACTIVE MARKER. An open branch shows the reader a line
-   running from the pillar down to the page they are on, because the same
-   position that carries the border carries the primary-coloured bar. Level 0 has
-   no rail: the pillars are the trunk, and an active pillar is already the only
-   tinted row at the top of its own branch.
+   The canvas is the near-white `--sidebar` in light rather than a darker grey,
+   because `--muted-foreground` must keep 4.5:1 on whatever it sits on, and it
+   does on oklch(0.985) and stops doing so a little below it.
    -------------------------------------------------------------------------- */
 
+:root {
+  --docs-canvas: var(--sidebar);
+  --docs-sidebar-bg: var(--card);
+}
+
+.dark {
+  --docs-canvas: var(--background);
+  --docs-sidebar-bg: var(--card);
+}
+
 @layer components {
-  [data-opsin-nav] {
-    @apply relative flex w-full flex-row items-center gap-2.5 rounded-lg pe-2 text-start wrap-anywhere;
+  .docs-shell {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 100vh;
   }
 
-  [data-opsin-nav] svg {
-    @apply size-4 shrink-0;
+  .docs-skip-link {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 50;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background-color: var(--foreground);
+    color: var(--background);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transform: translateY(-200%);
   }
 
-  /* The disclosure chevron, which fumadocs marks `data-icon` so that clicking
-     it toggles the panel while clicking the label navigates. It is smaller and
-     dimmer than a pillar's own icon, because it is a control rather than a
-     label. */
-  [data-opsin-nav] [data-icon] {
-    @apply size-3.5 opacity-60;
+  .docs-skip-link:focus-visible {
+    transform: none;
   }
 
-  [data-opsin-nav]:is(a, button) {
-    @apply transition-colors;
+  .docs-sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex: none;
+    justify-content: flex-end;
+    width: max(300px, calc(50vw - 250px));
+    height: 100vh;
+    overflow-y: auto;
+    border-inline-end: 1px solid var(--border);
+    background-color: var(--docs-sidebar-bg);
   }
 
-  [data-opsin-nav]:is(a, button):hover {
-    @apply bg-fd-accent/50 text-fd-accent-foreground;
-    transition: none;
+  .docs-sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    padding: 24px 0 48px;
   }
 
-  [data-opsin-nav][data-active="true"] {
-    @apply bg-fd-primary/10 font-medium text-fd-primary;
+  .docs-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 16px 20px;
   }
 
-  /* The indent step is three spacing units, twelve pixels at the default
-     `--spacing`, which is what fumadocs indents by. Indentation was the one
-     level cue that was already right; the rest of this block is what gets
-     added to it. The rail sits half a step inside the parent's text, so it
-     reads as a line hanging off the section above rather than as a border
-     ruled down the page. */
-  [data-opsin-nav][data-level="0"],
-  [data-opsin-nav-heading][data-level="0"] {
-    padding-inline-start: calc(2 * var(--spacing));
+  .docs-brand-mark {
+    display: flex;
+    flex: none;
+    border-radius: 9px;
+    box-shadow: 0 0 0 1px var(--border);
   }
 
-  [data-opsin-nav][data-level="1"],
-  [data-opsin-nav-heading][data-level="1"],
-  [data-opsin-nav-panel][data-level="1"] {
-    padding-inline-start: calc(5 * var(--spacing));
-    --opsin-nav-rail: calc(2.5 * var(--spacing));
+  .docs-brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
-  [data-opsin-nav][data-level="2"],
-  [data-opsin-nav-heading][data-level="2"],
-  [data-opsin-nav-panel][data-level="2"] {
-    padding-inline-start: calc(8 * var(--spacing));
-    --opsin-nav-rail: calc(5.5 * var(--spacing));
+  .docs-brand-name {
+    color: var(--foreground);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
   }
 
-  [data-opsin-nav-panel] {
-    padding-inline-start: 0;
+  .docs-brand-link {
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
   }
 
-  [data-opsin-nav][data-level="0"] {
-    @apply py-1.5 text-[0.9375rem] font-medium text-fd-foreground;
+  .docs-brand-link:hover {
+    color: var(--foreground);
   }
 
-  [data-opsin-nav][data-level="1"] {
-    @apply py-1.5 text-sm text-fd-muted-foreground;
+  .docs-sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    border-block: 1px solid var(--border);
   }
 
-  [data-opsin-nav][data-level="2"] {
-    @apply py-1 text-[0.8125rem] text-fd-muted-foreground;
+  .docs-sidebar-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 40px;
+    padding: 0 16px;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    text-align: start;
   }
 
-  /* A pillar sits a little clear of the one above it, so ten sections still
-     read as ten things when one of them is open and thirty rows are showing. */
-  [data-opsin-nav-branch][data-level="0"] {
-    @apply mt-1;
+  .docs-sidebar-action + .docs-sidebar-action {
+    border-top: 1px solid var(--border);
   }
 
-  [data-opsin-nav-branch][data-level="0"]:first-child {
-    @apply mt-0;
+  button.docs-sidebar-action:hover {
+    background-color: var(--accent);
+    color: var(--foreground);
   }
 
-  [data-opsin-nav][data-active="true"]:not([data-level="0"])::before {
-    content: "";
-    @apply absolute inset-y-1.5 w-px bg-fd-primary;
-    inset-inline-start: var(--opsin-nav-rail);
+  .docs-sidebar-action-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
   }
 
-  /* A heading with no page behind it: a separator run that already held a
-     folder, a run of one, or a group unwrapped to keep the tree three levels
-     deep. Small capitals, so a heading is never read as a link that failed to
-     render. */
-  [data-opsin-nav-heading] {
-    @apply mt-5 mb-0.5 inline-flex items-center gap-2 pe-2 text-[0.6875rem] font-medium tracking-[0.08em] text-fd-muted-foreground/75 uppercase;
+  .docs-sidebar-action-label {
+    flex: 1;
   }
 
-  [data-opsin-nav-heading]:first-child {
-    @apply mt-0;
+  .docs-hint {
+    display: inline-flex;
+    gap: 2px;
+    color: var(--muted-foreground);
+    font-family: inherit;
+    font-size: 0.75rem;
   }
 
-  [data-opsin-nav-heading]:empty {
-    @apply mb-0;
+  .docs-theme-switch {
+    flex: none;
   }
 
-  [data-opsin-nav-panel] {
-    @apply relative flex flex-col gap-0.5 pt-0.5;
+  .docs-nav {
+    padding: 16px 0;
   }
 
-  [data-opsin-nav-panel]::before {
-    content: "";
-    @apply absolute inset-y-1 w-px bg-fd-border;
-    inset-inline-start: var(--opsin-nav-rail);
+  .docs-nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .docs-nav-section + .docs-nav-section {
+    margin-top: 4px;
+  }
+
+  .docs-nav-section-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 16px;
+    color: var(--foreground);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .docs-nav-section-link:hover,
+  .docs-nav-item:hover,
+  .docs-nav-heading:hover {
+    background-color: var(--accent);
+    color: var(--foreground);
+  }
+
+  .docs-nav-section-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+  }
+
+  .docs-nav-section-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .docs-nav-section[data-expanded] .docs-nav-section-icon {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  .docs-nav-section-title {
+    flex: 1;
+  }
+
+  .docs-nav-section-meta {
+    color: var(--muted-foreground);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .docs-nav-groups {
+    padding: 4px 0 12px;
+  }
+
+  .docs-nav-group-title {
+    padding: 18px 16px 6px 52px;
+    color: var(--foreground);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .docs-nav-item {
+    display: block;
+    padding: 5px 16px 5px 52px;
+    color: var(--foreground);
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .docs-nav-item[data-active] {
+    background-color: var(--accent);
+    font-weight: 600;
+    box-shadow: inset 2px 0 0 var(--foreground);
+  }
+
+  .docs-nav-section-link[data-active] {
+    background-color: var(--accent);
+  }
+
+  .docs-nav-heading {
+    display: block;
+    padding: 4px 16px 4px 68px;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .docs-nav-headings li[data-depth="3"] > .docs-nav-heading {
+    padding-inline-start: 84px;
+  }
+
+  .docs-nav-section-link + .docs-nav-headings li[data-depth="2"] > .docs-nav-heading {
+    padding-inline-start: 52px;
+  }
+
+  .docs-nav-section-link + .docs-nav-headings li[data-depth="3"] > .docs-nav-heading {
+    padding-inline-start: 68px;
+  }
+
+  .docs-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    background-color: var(--docs-canvas);
+  }
+
+  .docs-page {
+    position: relative;
+    max-width: 840px;
+    padding: 44px 40px 120px;
+  }
+
+  .docs-edit-link {
+    position: absolute;
+    top: 52px;
+    right: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .docs-edit-link:hover {
+    color: var(--foreground);
+  }
+
+  .docs-edit-link svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .docs-title {
+    margin: 0 0 12px;
+    color: var(--foreground);
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  .docs-page:has(> .docs-edit-link) .docs-title {
+    padding-inline-end: 140px;
+  }
+
+  .docs-lead {
+    max-width: 72ch;
+    margin: 0 0 32px;
+    color: var(--muted-foreground);
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  .docs-mobile-bar {
+    display: none;
+  }
+
+  .docs-icon-button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    color: var(--foreground);
+  }
+
+  .docs-icon-button:hover {
+    background-color: var(--accent);
+  }
+
+  .docs-icon-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .docs-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background-color: oklch(0 0 0 / 0.35);
+  }
+
+  .docs-drawer {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 41;
+    width: min(320px, 88vw);
+    overflow-y: auto;
+    background-color: var(--docs-sidebar-bg);
+    box-shadow: 0 0 24px oklch(0 0 0 / 0.2);
+  }
+
+  .docs-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 8px 0 16px;
+  }
+
+  .docs-drawer-title {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .docs-drawer .docs-sidebar-inner {
+    width: 100%;
+    padding-top: 12px;
+  }
+
+  @media (max-width: 900px) {
+    .docs-sidebar {
+      display: none;
+    }
+
+    .docs-mobile-bar {
+      position: fixed;
+      inset-inline: 0;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 56px;
+      padding: 0 8px 0 16px;
+      border-bottom: 1px solid var(--border);
+      background-color: var(--docs-sidebar-bg);
+    }
+
+    .docs-mobile-brand {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      gap: 10px;
+      color: var(--foreground);
+      font-size: 1.0625rem;
+      font-weight: 600;
+    }
+
+    .docs-page {
+      padding: 88px 16px 80px;
+    }
+
+    .docs-edit-link {
+      display: none;
+    }
+
+    .docs-page:has(> .docs-edit-link) .docs-title,
+    .docs-title {
+      padding-inline-end: 0;
+      font-size: 1.875rem;
+    }
   }
 }
 

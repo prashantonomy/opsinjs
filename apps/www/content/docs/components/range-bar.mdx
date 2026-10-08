@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-data-display
 aliases: [reference range, normal range, in range, range indicator, gauge bar]
-governedBy: [two-colour-axes, reference-ranges, numbers-units-precision, unit-systems]
-usedIn: [choose-a-component, result-disclosure, results-screen, trend-review, value-against-a-range]
+governedBy: [two-colour-axes, reference-ranges, numbers, safety-review]
+usedIn: [result-disclosure]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="range-bar" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="range-bar"
@@ -36,8 +32,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
   registryDependencies={["value", "status-pill"]}
 />
-
-## Usage
 
 ```tsx
 import { RangeBar } from "@/components/ui/range-bar"
@@ -54,92 +48,9 @@ import { RangeBar } from "@/components/ui/range-bar"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "One measurement with a published reference range, shown to its owner.",
-    "A value whose meaning is positional rather than absolute.",
-    "A reader who would otherwise compare two numbers in their head.",
-  ]}
-  avoid={[
-    { case: "There is no range, or it turns on facts you lack: age, sex, medication, assay.", instead: "value" },
-    { case: "You are showing change over time, not position.", instead: "trend-sparkline" },
-    { case: "The number is a score you calculated, not a measurement.", instead: "score-dial" },
-    { case: "Only the clinical status level matters.", instead: "status-pill" },
-    { case: "You want to say what to do about it.", instead: "care-card" },
-  ]}
-/>
-
-## Clinical meaning
-
-**Asserts.** This measurement, in this [unit](../health/unit-systems.mdx), at this
-position against this range, from this source. Nothing about cause or trend.
-
-**Never read as.** A diagnosis or verdict. Outside the range is not "abnormal", inside
-is not "normal": [Reference ranges](../health/reference-ranges.mdx) has the banned words.
-
-**Colour axis.** Status only, when the product supplies one. `category` tints the label
-alone; position never becomes a status.
-[The two colour axes](../health/two-colour-axes.mdx).
-
-**Thresholds.** The product owns every range, status and
-[precision](../health/numbers-units-precision.mdx). No built-in table, no
-`staleAfterHours`. Staleness comes from [RelativeTime](./relative-time.mdx).
-
-<SafetyCallout severity="urgent" evidence="opinion">
-Given no range, or one with neither bound or an empty `source`, RangeBar draws no band
-and substitutes no default.
-</SafetyCallout>
-
-## Anatomy
-
-<Anatomy
-  name="range-bar"
-  parts={[
-    { name: "RangeBar", describes: "The root. Colour from neither axis." },
-    { name: "RangeBar.Label", describes: "What was measured, the only category-tinted part.", prop: "category" },
-    { name: "StatusPill", describes: "The level the product assigned.", prop: "status" },
-    { name: "RangeBar.Track", describes: "The drawn extent, aria-hidden, never a slider.", prop: "range" },
-    { name: "RangeBar.Band", describes: "The range itself, outlined, never axis-coloured." },
-    { name: "RangeBar.Mark", describes: "A boundary and its number, at the metric's precision.", prop: "precision" },
-    { name: "RangeBar.Tick", describes: "The reading's position, the only status-coloured part.", prop: "value" },
-    { name: "RangeBar.Value", describes: "The reading and its unit, for the eye alone.", prop: "unit" },
-    { name: "RangeBar.Summary", describes: "Reading, position, range and source. Rewordable, never removable.", prop: "summary" },
-    { name: "RangeBar.Footnote", describes: "When the reading was taken, or that nobody knows.", prop: "measuredAt" },
-  ]}
-/>
-
-<CompositionTree
-  name="range-bar"
-  tree={[
-    {
-      part: "RangeBar",
-      cardinality: "1",
-      children: [
-        { part: "RangeBar.Label", cardinality: "1" },
-        { part: "StatusPill", cardinality: "0..1" },
-        {
-          part: "RangeBar.Track",
-          cardinality: "0..1",
-          children: [
-            { part: "RangeBar.Band", cardinality: "1" },
-            { part: "RangeBar.Mark", cardinality: "2" },
-            {
-              part: "RangeBar.Tick",
-              cardinality: "1",
-              children: [{ part: "RangeBar.Value", cardinality: "1" }],
-            },
-          ],
-        },
-        { part: "RangeBar.Summary", cardinality: "1" },
-        { part: "RangeBar.Footnote", cardinality: "0..1" },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="range-bar" />
 
 ### Beyond the top of the range
 
@@ -165,7 +76,7 @@ The extent stretches to contain `value`, so a far reading squeezes the band.
 
 <ComponentPreview name="range-bar-far-above-the-range" kind="example" align="start" />
 
-## States
+### States
 
 | Data state | What RangeBar renders |
 | --- | --- |
@@ -175,27 +86,49 @@ The extent stretches to contain `value`, so a far reading squeezes the band.
 | Partial | No range, or one bound, draws no track. The summary carries the comparison. |
 | Stale | It states when the reading was taken, or that nobody knows. No boundary. |
 
-## Content guidelines
+## When to use it
 
-The label is what was measured, in the reader's words. The summary states position,
-never a verdict.
+<WhenToUse
+  use={[
+    "One measurement with a published reference range, shown to its owner.",
+    "A value whose meaning is positional rather than absolute.",
+    "A reader who would otherwise compare two numbers in their head.",
+  ]}
+  avoid={[
+    { case: "There is no range, or it turns on facts you lack: age, sex, medication, assay.", instead: "value" },
+    { case: "You are showing change over time, not position.", instead: "trend-sparkline" },
+    { case: "The number is a score you calculated, not a measurement.", instead: "score-dial" },
+    { case: "Only the clinical status level matters.", instead: "status-pill" },
+    { case: "You want to say what to do about it.", instead: "care-card" },
+  ]}
+/>
 
-<DoDont>
-  <DoDont.Do>
-    **"26 mg/dL, above the range 10 to 20 mg/dL, from Example data."**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"26 mg/dL. Abnormal. Your result is poor."** A verdict with no basis.
-  </DoDont.Dont>
-</DoDont>
+## Clinical meaning
+
+**Asserts.** This measurement, in this unit ([Numbers and units](../health/numbers.mdx)),
+at this position against this range, from this source. Nothing about cause or trend.
+
+**Never read as.** A diagnosis or verdict. Outside the range is not "abnormal", inside
+is not "normal": [Reference ranges](../health/reference-ranges.mdx) has the banned words.
+
+**Colour axis.** Status only, when the product supplies one. `category` tints the label
+alone, and position never becomes a status. See
+[Two colour axes](../health/two-colour-axes.mdx).
+
+**Thresholds.** The product owns every range, status and precision
+([Numbers and units](../health/numbers.mdx)). No built-in table, no `staleAfterHours`.
+Staleness comes from [RelativeTime](./relative-time.mdx).
+
+<SafetyCallout severity="urgent" evidence="opinion">
+Given no range, or one with neither bound or an empty `source`, RangeBar draws no band
+and substitutes no default.
+</SafetyCallout>
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA** over the source and the rendered preview. The audit is
-author-run, not independent, and clinical review is pending. The rendered pass was
-clean: no axe violations, no focus-visible failure, no horizontal scroll at 320px. It is
-display-only, so nothing is focusable and the keyboard and target-size checks do not
-apply.
+It is display-only, so nothing is focusable and the keyboard and target-size checks do
+not apply. Rendered, it shows no axe violation, no focus-visible failure and no
+horizontal scroll at 320px.
 
 - The summary paragraph is unconditional: reading, range with its source, and within,
   above or below in words, so the picture is never named.
@@ -204,14 +137,22 @@ apply.
 - Status carries a word and a glyph through StatusPill, redundant to the tick colour.
 - Under `forced-colors` the tick keeps a `Highlight` fill and `CanvasText` outline.
 
-**Residual.** The band outline and the two boundary marks fall below the 3:1 non-text
-contrast floor. They stay because the graphic is `aria-hidden` and the summary carries
-the same facts. Its own text and colour pairs are not measured yet, so the report
-below stands in.
+**Residual items.** The band outline and the two boundary marks fall below the 3:1
+non-text contrast floor, and stay because the graphic is `aria-hidden` and the summary
+carries the same facts. Its own text and colour pairs are not measured yet, so the
+report below stands in.
 
 <ContrastReport component="range-bar" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="RangeBarProps" />
+
+`precision` is decimal places, not significant figures, and it is required. A `status`
+outside the four levels is dropped, never approximated. Omit `locale` and the server
+formats with its own while the browser uses the reader's, so the two disagree.
+
+### Data attributes
 
 <DataAttributesTable
   name="range-bar"
@@ -223,7 +164,7 @@ below stands in.
   ]}
 />
 
-## CSS variables
+### CSS variables
 
 <CssVariablesTable
   name="range-bar"
@@ -231,19 +172,3 @@ below stands in.
     { selector: "div:has(> [data-slot=\"range-bar-track\"])", variable: "--rb-label-half", controls: "How far the reading label's midpoint is clamped from either track edge. Set inline at 3.5em." },
   ]}
 />
-
-## API reference
-
-<PropsTable name="RangeBarProps" />
-
-`precision` is decimal places, not significant figures, and it is required. A `status`
-outside the four levels is dropped, never approximated. Omit `locale` and the server
-formats with its own while the browser uses the reader's, so the two disagree.
-
-## Related
-
-- [ScoreDial](./score-dial.mdx), a calculated score against its bands.
-- [TrendSparkline](./trend-sparkline.mdx), change over time.
-- [Progress](./progress.mdx), progress towards a goal.
-- [StatusPill](./status-pill.mdx), the level alone.
-- [MetricTile](./metric-tile.mdx), the compact dashboard form.

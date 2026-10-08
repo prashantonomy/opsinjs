@@ -84,9 +84,9 @@ export default function NotFound() {
                 Component catalogue and status matrix
               </Link>
               {" · "}
-              <Link href={routes.docs("project", "roadmap")}>Roadmap</Link>
+              <Link href={routes.docs("changelog")}>Roadmap</Link>
               {" · "}
-              <Link href={routes.docs("project", "state-of-the-system")}>
+              <Link href={routes.docs()}>
                 State of the system
               </Link>
             </p>
@@ -101,7 +101,7 @@ export default function NotFound() {
                   the corpus ever gains a language segment, and the file stays
                   free of the literal the IA gate bans. */}
               <code className="nf-code">
-                {routes.docs("health", "alarm-fatigue")}
+                {routes.docs("health", "alerts")}
               </code>
               . Search is on every documentation page. Press{" "}
               <kbd className="nf-code">⌘K</kbd> once you are on one.

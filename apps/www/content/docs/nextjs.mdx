@@ -1,0 +1,65 @@
+---
+title: Next.js
+description: The stylesheet, root layout, dark mode and client boundary for opsinjs in a Next.js App Router project.
+kind: guide
+aliases: [app router setup, use client, rsc boundary, server components, pages router]
+---
+
+The App Router is the reference target, and opsinjs is developed against it. Run [Getting started](./getting-started.mdx) with `rsc` set to `true` in `components.json`, so the CLI keeps `"use client"` where it is needed.
+
+## Stylesheet
+
+`app/globals.css` holds four things, in this order.
+
+1. `@import "tailwindcss"`.
+2. The opsinjs token layer. If it loads before Tailwind, Tailwind's preflight can overwrite parts of it.
+3. An `@source` line for every folder holding copied components, relative to the CSS file.
+4. Your overrides, in your own `@theme` block. Editing the token layer itself turns the next upgrade into a manual merge.
+
+## Root layout
+
+There is no opsinjs provider. Light and dark are a class on `<html>`, and the tokens resolve from it with no JavaScript.
+
+```tsx title="app/layout.tsx"
+import "./globals.css"
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+- **Set `lang`.** Screen readers choose a pronunciation dictionary from it, so numbers and units are read in the right language.
+- **`suppressHydrationWarning`** lets a theme script set the class before React hydrates without a mismatch warning. It covers `<html>` only, which is the one place it belongs.
+
+## Dark mode and first paint
+
+Set the theme class before first paint with a plain inline `<script>` in `<head>`. `next/script` with `beforeInteractive` runs after the Next client runtime loads, which is too late. Any theme library that sets a class on the root element also works.
+
+## Server and client components
+
+`"use client"` marks a boundary, not a file. Everything a client module imports becomes client code, so keep the directive on the interactive leaf and never on a page or a layout.
+
+**Server components.** 33 of the 60 carry no directive and ship no JavaScript of their own, including [ResultCard](./components/result-card.mdx), [RangeBar](./components/range-bar.mdx), [StatusPill](./components/status-pill.mdx), [Value](./components/value.mdx) and [TrendSparkline](./components/trend-sparkline.mdx). [Button](./components/button.mdx), [Field](./components/field.mdx) and [Progress](./components/progress.mdx) stay on the server too, but the Base UI parts they compose carry their own directive and hydrate as small islands.
+
+**Client components.** The other 27 hold state, a listener or a portal, and carry `"use client"`: [Accordion](./components/accordion.mdx), [Avatar](./components/avatar.mdx), [BodyMap](./components/body-map.mdx), [Checkbox](./components/checkbox.mdx), [Combobox](./components/combobox.mdx), [ConsentSheet](./components/consent-sheet.mdx), [Dialog](./components/dialog.mdx), [LogSheet](./components/log-sheet.mdx), [Menu](./components/menu.mdx), [NumberField](./components/number-field.mdx), [Popover](./components/popover.mdx), [Questionnaire](./components/questionnaire.mdx), [RadioGroup](./components/radio-group.mdx), [ReadingInput](./components/reading-input.mdx), [ScaleInput](./components/scale-input.mdx), [ScrollArea](./components/scroll-area.mdx), [SegmentedControl](./components/segmented-control.mdx), [Select](./components/select.mdx), [Sheet](./components/sheet.mdx), [Slider](./components/slider.mdx), [Switch](./components/switch.mdx), [SymptomPicker](./components/symptom-picker.mdx), [TabBar](./components/tab-bar.mdx), [Tabs](./components/tabs.mdx), [Term](./components/term.mdx), [Toast](./components/toast.mdx) and [Tooltip](./components/tooltip.mdx).
+
+- Pass server content into a client component as `children` to keep it out of the client bundle.
+- A function cannot cross the boundary, so an event handler needs a client component.
+- Import each component from its own module, never from a barrel file.
+- Never branch rendering on `typeof window`, because it produces different markup on each side.
+
+## Times and hydration
+
+[RelativeTime](./components/relative-time.mdx), [MetricTile](./components/metric-tile.mdx), [TimelineEntry](./components/timeline-entry.mdx), [DoseTracker](./components/dose-tracker.mdx) and ResultCard never read the clock, so each takes a required `now`. Read the clock once where the screen renders, with `new Date().toISOString()`, and pass the same value to every component, so no two timestamps disagree across a minute boundary.
+
+## Pages Router
+
+The Pages Router has no server components, so the split above does not apply. Import the stylesheet in `pages/_app.tsx` and set the theme class in `pages/_document.tsx`.

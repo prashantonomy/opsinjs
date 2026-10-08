@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-input
 aliases: [measurement input, numeric input, unit switch, enter a reading, numeric entry, manual entry]
-governedBy: [numbers-units-precision, unit-systems, uncertainty-and-staleness]
-usedIn: [ask-users-for/date-of-birth, ask-users-for/height-and-weight, ask-users-for/medications, daily-log-entry, daily-log-screen, daily-logging, forms/autocomplete-and-input-types, forms/question-pages, forms/units-and-numeric-entry, forms/validation-timing, onboarding-and-first-run, onboarding-screen]
+governedBy: [numbers, trends]
+usedIn: [ask-users-for, daily-logging, forms, onboarding-and-first-run]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="reading-input" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="reading-input"
@@ -36,8 +32,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
   registryDependencies={["field"]}
 />
-
-## Usage
 
 ```tsx
 import { ReadingInput } from "@/components/ui/reading-input"
@@ -56,6 +50,28 @@ import { ReadingInput } from "@/components/ui/reading-input"
   }}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="reading-input" />
+
+### Two numbers that are one measurement
+
+`segments` turns the field into a `<fieldset>` with a `<legend>`, one box per part.
+
+<ComponentPreview name="reading-input-a-compound-reading" kind="example" align="start" />
+
+### Switching the unit, and the sentence that follows it
+
+`precision` sets the decimal places a conversion rounds to.
+
+<ComponentPreview name="reading-input-switching-the-unit" kind="example" align="start" />
+
+### A sentence the product wrote
+
+`warning` shows the product's sentence without comparing anything.
+
+<ComponentPreview name="reading-input-a-warning-the-product-owns" kind="example" align="start" />
 
 ## When to use it
 
@@ -86,126 +102,35 @@ themselves. It is always self-reported.
 **Thresholds.** None. The component holds no bound. The product
 supplies the finished `warning`, which never sets `aria-invalid`, moves focus or blocks
 submission. Staleness belongs to
-[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx).
+[Trends and uncertainty](../health/trends.mdx).
 
 **Unit switches.** Only definitional conversions from `tokens/units.json`: kg, lb, st,
 °C and °F. mmol/L to mg/dL is refused, because the factor is the substance's molar mass,
 so that switch clears the entry and says so. See
-[Unit systems](../health/unit-systems.mdx) and
-[Numbers, units and precision](../health/numbers-units-precision.mdx).
+[Numbers and units](../health/numbers.mdx).
 
 <SafetyCallout severity="attention" evidence="opinion">
 Changing the unit must never silently change the stored value or keep the typed digits
 without saying so on screen.
 </SafetyCallout>
 
-## Anatomy
-
-<Anatomy
-  name="reading-input"
-  parts={[
-    {
-      name: "ReadingInput",
-      describes: "A div for a single reading, a fieldset for a compound one.",
-    },
-    {
-      name: "Field",
-      describes: "Embedded whole. Owns the label, descriptions, invalid state and 44px floor.",
-      prop: "label",
-    },
-    {
-      name: "ReadingInput.Legend",
-      describes: "Compound only: the measurement's name, as a legend.",
-      prop: "label",
-    },
-    {
-      name: "ReadingInput.Hint",
-      describes: "Compound only: the group's guidance, in every box's description.",
-      prop: "hint",
-    },
-    {
-      name: "ReadingInput.Control",
-      describes: "The row of boxes and the unit. It wraps at 200% text.",
-    },
-    {
-      name: "ReadingInput.Segment",
-      describes: "One labelled box carrying data-opsinjs-value, one per part.",
-      prop: "segments",
-    },
-    {
-      name: "ReadingInput.Unit",
-      describes: "A native select at the 44px floor, or plain text for one unit.",
-      prop: "units",
-    },
-    {
-      name: "ReadingInput.Warning",
-      describes: "The product's advisory, as a description rather than an error.",
-      prop: "warning",
-    },
-    {
-      name: "ReadingInput.Effect",
-      describes: "What a switch did: converted, cleared or restored. Gone once a box is touched.",
-    },
-  ]}
-/>
-
-## Examples
-
-### Two numbers that are one measurement
-
-`segments` turns the field into a `<fieldset>` with a `<legend>`, one box per part.
-
-<ComponentPreview name="reading-input-a-compound-reading" kind="example" align="start" />
-
-### Switching the unit, and the sentence that follows it
-
-`precision` sets the decimal places a conversion rounds to.
-
-<ComponentPreview name="reading-input-switching-the-unit" kind="example" align="start" />
-
-### A sentence the product wrote
-
-`warning` shows the product's sentence without comparing anything.
-
-<ComponentPreview name="reading-input-a-warning-the-product-owns" kind="example" align="start" />
-
-## Content guidelines
-
-Label the measurement in the reader's words and put the unit beside the field, not in
-the label. Hints show the shape of an answer, never a sample reading and never a
-bound. Advisories ask a question and offer the likely fix.
-
-<DoDont>
-  <DoDont.Do>
-    **"That is a long way above most readings. Did you mean to type a decimal point?"**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Invalid value. That reading is outside the accepted range."** blames the reader.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
-
-**Audited against WCAG 2.2 AA** in a source pass and a rendered pass, and
-`pnpm run check:a11y` runs on every commit. The author ran the audit, so it is not
-independent, and clinical review is pending.
-
-**Fixed in this pass.** `autoComplete` is now a prop reaching `Field.Control`, defaulting
-to `"off"`, because a self-reported reading has no WCAG autofill token and the component
-invents none (1.3.5).
 
 **From the source.** `Field` renders a real `<label for>`, and a compound reading is a
 `<fieldset>` of one `Field` per part. The unit's spoken form joins the box's description,
 each option carries its plural on `aria-label`, and the box is `type="text"` with
-`inputMode` defaulting to `decimal`. The advisory and the effect line are descriptions:
-no `aria-invalid` and no focus move.
+`inputMode` defaulting to `decimal`. The advisory and the effect line are descriptions,
+with no `aria-invalid` and no focus move. The audit made `autoComplete` a prop reaching
+`Field.Control`, defaulting to `"off"`, because a self-reported reading has no WCAG
+autofill token and the component invents none (1.3.5).
 
-**Left to the product.** The effect line reporting a switch sits in no live region, so a
-product must wire `effectText` to a polite announcer. Without that, a non-sighted reader
-hears the new unit but not that the number changed.
+**Residual items.**
 
-**Not gated.** No hit area is measured, and the boundary inherits `--border` without a
-gated pair.
+- The effect line reporting a switch sits in no live region, so a product must wire
+  `effectText` to a polite announcer. Without that, a non-sighted reader hears the new
+  unit but not that the number changed.
+- No hit area is measured.
+- The boundary inherits `--border` without a gated pair.
 
 <KeyboardTable
   name="reading-input"
@@ -245,7 +170,14 @@ gated pair.
 
 <ContrastReport component="reading-input" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="ReadingInputProps" />
+
+`unit` is required and `value` is in it. Without `precision` a conversion is not rounded.
+There is no `error` prop: an error belongs to `Field`.
+
+### Data attributes
 
 <DataAttributesTable
   name="reading-input"
@@ -272,18 +204,3 @@ gated pair.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="ReadingInputProps" />
-
-`unit` is required and `value` is in it. Without `precision` a conversion is not rounded.
-There is no `error` prop: an error belongs to `Field`.
-
-## Related
-
-- [Field](./field.mdx) is what this is built on, without a unit or an advisory.
-- [NumberField](./number-field.mdx) is a plain numeric input with no clinical semantics.
-- [Value](./value.mdx) is the display counterpart, and both must agree on precision and units.
-- [ResultCard](./result-card.mdx) is where a compound reading goes, in the same `segments` shape.
-- [ScaleInput](./scale-input.mdx) is for estimated scores such as pain, which are not measurements.

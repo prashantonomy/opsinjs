@@ -21,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="popover" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="popover"
@@ -33,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/popover"
   dependencies={["@base-ui/react"]}
 />
-
-## Usage
 
 ```tsx
 import { Popover } from "@/components/ui/popover"
@@ -48,6 +42,24 @@ import { Popover } from "@/components/ui/popover"
   </p>
 </Popover>
 ```
+
+## Examples
+
+<ComponentPreview name="popover" />
+
+### Anchored to a button
+
+A short note anchored to a button, left uncontrolled. Escape or an outside press
+closes it and returns focus.
+
+<ComponentPreview name="popover-anchored-to-a-button" kind="example" align="start" />
+
+### With a form fragment
+
+A labelled input and a save button. `open` and `onOpenChange` take the state over,
+since a control inside closes it.
+
+<ComponentPreview name="popover-with-a-form-fragment" kind="example" align="start" />
 
 ## When to use it
 
@@ -64,125 +76,23 @@ import { Popover } from "@/components/ui/popover"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="popover"
-  parts={[
-    {
-      name: "Popover",
-      describes: "Base UI's Popover.Root. Owns the open state, uncontrolled unless open is passed.",
-      prop: "open",
-    },
-    {
-      name: "Popover.Trigger",
-      describes: "The supplied button, with its target floor, focus ring and aria-expanded.",
-      prop: "trigger",
-    },
-    {
-      name: "Popover.Popup",
-      describes: "The floating panel, a role=\"dialog\" through a portal, capped at a readable measure.",
-      prop: "children",
-    },
-    {
-      name: "Popover.Title",
-      describes: "The heading, rendered when title is passed and wired to aria-labelledby.",
-      prop: "title",
-    },
-    {
-      name: "Popover.Arrow",
-      describes: "A card-coloured diamond pointing to the trigger, bordered on the outward edges.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="popover"
-  tree={[
-    {
-      part: "Popover",
-      cardinality: "1",
-      note: "renders no element",
-      children: [
-        {
-          part: "Popover.Trigger",
-          cardinality: "1",
-          note: "data-slot=\"popover-trigger\"",
-        },
-        {
-          part: "Popover.Popup",
-          cardinality: "1",
-          note: "data-slot=\"popover-popup\", role=\"dialog\"",
-          children: [
-            {
-              part: "Popover.Arrow",
-              cardinality: "1",
-              note: "data-slot=\"popover-arrow\", aria-hidden",
-            },
-            {
-              part: "Popover.Title",
-              cardinality: "0..1",
-              note: "data-slot=\"popover-title\", optional",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### Anchored to a button
-
-A short note anchored to a button, left uncontrolled. Escape or an outside press
-closes it and returns focus.
-
-<ComponentPreview name="popover-anchored-to-a-button" kind="example" align="start" />
-
-### With a form fragment
-
-A labelled input and a save button. `open` and `onOpenChange` take the state over,
-since a control inside closes it.
-
-<ComponentPreview name="popover-with-a-form-fragment" kind="example" align="start" />
-
-## Content guidelines
-
-Give every popover a `title`: the panel is a `role="dialog"`, and the title is the
-name a screen reader announces. Keep the body to a sentence or two, and never put a
-clinical reading or verdict loose inside one.
-
-<DoDont>
-  <DoDont.Do>
-    **"How readings are grouped"**, titled, short, easily dismissed.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A blood pressure reading and its status**, untitled: no name, no range, wrong surface.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA on `/view/base/base-lyra/component/popover`, in a source
-pass and a rendered pass. Author-run, not independent; clinical review is pending.
+The panel is `role="dialog"`, named by `aria-labelledby`, and a missing title warns.
+Base UI moves focus into the panel on open and back to the trigger on close. The arrow
+is `aria-hidden`, and under `prefers-reduced-motion` only opacity crossfades. The
+component uses only neutral chrome, the `overlay` shadow token and the `body` and
+`headline` steps, with no status colour, literal, ramp step or `px` size. The trigger's
+hit area was floored on height alone, so an icon-only trigger could clear the AA 24px
+minimum while still missing the house width floor. The audit added a matching `min-w`
+at `--opsin-target-minimum`, following the `icon-button` pattern, so the width is
+floored too.
 
-**Fixed.** The trigger's hit area was floored on height alone, so an icon-only
-trigger could clear the AA 24px minimum while still missing the house width floor.
-A matching `min-w` at `--opsin-target-minimum` now floors it too, following the
-`icon-button` pattern.
+**Residual items.**
 
-**Confirmed.**
-
-- The panel is `role="dialog"`, named by `aria-labelledby`; a missing title warns.
-- Focus moves into the panel on open and back to the trigger on close, by Base UI.
-- The arrow is `aria-hidden`; under `prefers-reduced-motion` only opacity crossfades.
-- No status colour, literal, ramp step or `px` size: neutral chrome, the `overlay`
-  shadow token, and the `body` and `headline` steps only.
-
-**Residual.** The wrapper takes no `aria-label` prop, so an icon-only trigger needs
-a name from the caller's trigger node; every shipped trigger already uses named text.
-Contrast pairs remain unmeasured, below.
+- The wrapper takes no `aria-label` prop, so an icon-only trigger needs a name from the
+  caller's trigger node. Every shipped trigger already uses named text.
+- Contrast pairs remain unmeasured, below.
 
 <KeyboardTable
   name="popover"
@@ -212,17 +122,10 @@ Contrast pairs remain unmeasured, below.
 
 <ContrastReport component="popover" />
 
-## API reference
+## Props interface
 
 <PropsTable name="PopoverProps" />
 
 `trigger` is the button's visible content; a button here would nest inside another.
 `side` defaults to `bottom`, a preference the primitive overrides on collision.
 `className` merges onto the panel and must resolve neither colour axis.
-
-## Related
-
-- [Dialog](./dialog.mdx) blocks the page until the reader answers.
-- [Sheet](./sheet.mdx) docks to an edge, built for touch and larger forms.
-- [Tooltip](./tooltip.mdx) is a passive hover label; a phone has no hover.
-- [Term](./term.mdx) shows a word's everyday meaning inline, nothing to open.

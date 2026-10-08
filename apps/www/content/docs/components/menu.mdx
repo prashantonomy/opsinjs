@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: overlay
 aliases: ["dropdown menu", "context menu", "overflow menu"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="menu" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="menu"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/menu"
   dependencies={["@base-ui/react"]}
 />
-
-## Usage
 
 ```tsx
 import { Menu } from "@/components/ui/menu"
@@ -52,77 +45,9 @@ import { Menu } from "@/components/ui/menu"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "A small set of commands on one thing, such as Share, Rename and Duplicate.",
-    "An overflow trigger on a dense list or toolbar, common actions left on screen.",
-    "A grouped set of neutral actions, with a separator marking a related run.",
-  ]}
-  avoid={[
-    { case: "The action is safety-relevant or destructive, and a reader cannot weigh a command they cannot see.", instead: "dialog" },
-    { case: "There is a single primary action, so a menu is a button in hiding.", instead: "button" },
-    { case: "You want a docked sheet of actions on a phone.", instead: "sheet" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="menu"
-  parts={[
-    {
-      name: "Menu.Trigger",
-      describes: "The caller's own button, merged with open behaviour and aria state.",
-      prop: "trigger",
-    },
-    {
-      name: "Menu.Popup",
-      describes: "The floating list, portalled below the trigger, capped with scroll.",
-      prop: "className",
-    },
-    {
-      name: "Menu.Item",
-      describes: "One action, muted when disabled, floored at 44pt.",
-      prop: "items",
-    },
-    {
-      name: "Menu.Separator",
-      describes: "A hairline above an item with separatorBefore set.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="menu"
-  tree={[
-    {
-      part: "Menu.Trigger",
-      cardinality: "1",
-      note: "data-slot=\"menu-trigger\", one tab stop",
-    },
-    {
-      part: "Menu.Popup",
-      cardinality: "1",
-      note: "data-slot=\"menu-popup\", role=\"menu\", holds focus",
-      children: [
-        {
-          part: "Menu.Separator",
-          cardinality: "0..n",
-          note: "data-slot=\"menu-separator\", never before the first item",
-        },
-        {
-          part: "Menu.Item",
-          cardinality: "1..n",
-          note: "data-slot=\"menu-item\", role=\"menuitem\"",
-        },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="menu" />
 
 ### Actions from a button
 
@@ -138,41 +63,37 @@ than colour. A `disabled` item shows muted rather than removed.
 
 <ComponentPreview name="menu-with-a-separator" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Name each action as an imperative, *Rename* not *Renaming*, common ones
-first. A destructive action carries its object, *Remove from list* not
-*Remove*: no tint marks it.
-
-<DoDont>
-  <DoDont.Do>
-    **"Share" · "Rename" · "Remove from list"** names the object.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A red "Delete" item** borrows the status axis.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "A small set of commands on one thing, such as Share, Rename and Duplicate.",
+    "An overflow trigger on a dense list or toolbar, common actions left on screen.",
+    "A grouped set of neutral actions, with a separator marking a related run.",
+  ]}
+  avoid={[
+    { case: "The action is safety-relevant or destructive, and a reader cannot weigh a command they cannot see.", instead: "dialog" },
+    { case: "There is a single primary action, so a menu is a button in hiding.", instead: "button" },
+    { case: "You want a docked sheet of actions on a phone.", instead: "sheet" },
+  ]}
+/>
 
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** No colour literal, no
-`px` type size, every item floored at `--opsin-target-minimum`.
+Base UI renders `aria-haspopup`, `role="menu"` and `role="menuitem"`, and wires the
+popup's accessible name to the trigger. The highlighted item takes real keyboard focus,
+so a house focus ring on `focus-visible` marks it, drawn inward so the scroll clip never
+cuts it. A disabled row drops to the muted ink, and Escape and a choice both return focus
+to the trigger. Axe, target size, focus and reflow came back clean, and
+`pnpm run check:a11y` confirms on every commit that there is no colour literal and no
+`px` type size, and that every item floors at `--opsin-target-minimum`.
 
-**Audited against WCAG 2.2 AA, source and rendered, author-run and not
-independent.** Clinical review is still pending. The rendered pass (axe,
-target size, focus, reflow) came back clean.
+**Residual items.**
 
-- Base UI renders `aria-haspopup`, `role="menu"` and `role="menuitem"`, and
-  wires the popup's accessible name to the trigger.
-- The highlighted item takes real keyboard focus, so a house focus ring on
-  `focus-visible` marks it, drawn inward so the scroll clip never cuts it.
-- A disabled row drops to the muted ink; Escape and a choice both return focus
-  to the trigger.
-
-**Known gaps.** The roving highlight fill sits near 1.13:1 against the card,
-short of the 3:1 a state cue needs; the focus ring covers that case for now.
-An icon-only trigger ships an unnamed menu, so give it a label. Every
-contrast pair remains unmeasured.
+- The roving highlight fill sits near 1.13:1 against the card, short of the 3:1 a state
+  cue needs, and for now the focus ring covers that case.
+- An icon-only trigger ships an unnamed menu, so give it a label.
+- Every contrast pair remains unmeasured.
 
 <KeyboardTable
   name="menu"
@@ -212,7 +133,15 @@ contrast pair remains unmeasured.
 
 <ContrastReport component="menu" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="MenuProps" />
+
+`trigger` must be a single focusable element. No items, one item, or an
+enabled item with no `onClick` raises a development warning. `className`
+merges last and carries no status or category tint.
+
+### Data attributes
 
 <DataAttributesTable
   name="menu"
@@ -234,18 +163,3 @@ contrast pair remains unmeasured.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="MenuProps" />
-
-`trigger` must be a single focusable element. No items, one item, or an
-enabled item with no `onClick` raises a development warning. `className`
-merges last and carries no status or category tint.
-
-## Related
-
-- [Select](./select.mdx) chooses one value and keeps it shown; a menu runs and forgets.
-- [Button](./button.mdx) is one action, where a safety-relevant command stays.
-- [Dialog](./dialog.mdx) confirms an irreversible action; a menu item runs on one press.
-- [Sheet](./sheet.mdx) docks actions to a phone's edge, large targets under the thumb.

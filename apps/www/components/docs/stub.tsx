@@ -1,8 +1,8 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { CircleDashed, FlaskConical, Ban, Hammer } from "lucide-react"
+import { CircleDashed, FlaskConical, Ban, ShieldAlert } from "lucide-react"
 
-import { docsPath, routes, site } from "@/lib/routes"
+import { routes, site } from "@/lib/routes"
 import { isNotImplemented, type Status } from "@/lib/status"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "./status"
@@ -249,84 +249,58 @@ export function StubNotice({
       {...marker}
       data-opsinjs-stub-notice=""
       data-release-phase={status}
-      aria-labelledby={name ? `stub-${name}` : undefined}
+      aria-label={isPlanned ? "Specification only" : "Review status"}
       className={cn(
-        "not-prose my-6 border border-dashed border-border",
+        "not-prose my-6 rounded-lg border border-border bg-fd-card px-4 py-3 text-sm",
         className
       )}
     >
       {isPlanned ? <MachineSentence name={name} /> : null}
 
-      <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2">
-        <Hammer aria-hidden="true" className="size-4 opacity-70" />
-        <h2
-          id={name ? `stub-${name}` : undefined}
-          className="m-0 text-sm font-medium"
-        >
-          {isPlanned
-            ? "Specification only. Nothing is implemented"
-            : "Audited for accessibility. Clinical review pending."}
-        </h2>
-        <StatusBadge status={status} plain className="ml-auto" />
-      </div>
-
-      <div className="flex flex-col gap-3 px-4 py-3 text-sm">
-        <div className="[&>p]:m-0 [&>p+p]:mt-2">
+      <div className="flex items-start gap-3">
+        <ShieldAlert
+          aria-hidden="true"
+          className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+        />
+        <div className="min-w-0 flex-1 [&>p]:m-0 [&>p+p]:mt-2">
           {children ?? (
             <>
               {name ? <code className="text-sm">{name}</code> : "This component"}{" "}
-              is described here so that its intent, its refusals and its
-              accessibility bar can be reviewed before a line of it is written.
-              Treat everything below as a proposal under review.{" "}
+              is a specification. Nothing is implemented, so treat everything
+              below as a proposal under review.{" "}
               <strong className="font-medium">
                 Do not generate code against it.
               </strong>
             </>
           )}
         </div>
-
-        {questions && questions.length > 0 ? (
-          <div>
-            {/* "before it ships" is true at `planned` and is a lie on the
-                other 60 pages, where the chip beside this heading says
-                Shipped. A reader who meets "questions this has to answer
-                before it ships" on installable code reads the questions as
-                hypothetical and discounts them, and they are the opposite:
-                they are open safety questions on source that installs today.
-                The heading has to say which of the two it is. */}
-            <p className="m-0 mb-1 font-medium text-foreground">
-              {isPlanned
-                ? "Questions this component has to answer before it ships"
-                : "Open questions this component has not answered"}
-            </p>
-            <ul className="m-0 list-disc pl-5 text-muted-foreground">
-              {questions.map((q) => (
-                <li key={q} className="m-0">
-                  {q}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-
-        <p className="m-0 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          {issueUrl ? (
-            <a href={issueUrl} rel="noreferrer noopener" target="_blank">
-              Tracking issue {issue}
-            </a>
-          ) : (
-            <span>No tracking issue yet.</span>
-          )}
-          <Link href={routes.roadmap()}>Roadmap</Link>
-          <Link
-            href={docsPath("handbook", "contributing", "proposing-a-component")}
-          >
-            {isPlanned
-              ? "Propose a change to this specification"
-              : "Propose a change to this component"}
-          </Link>
-        </p>
+        <StatusBadge status={status} plain className="shrink-0" />
       </div>
+
+      {questions && questions.length > 0 ? (
+        <div className="mt-2 pl-7">
+          <p className="m-0 text-muted-foreground">
+            {isPlanned
+              ? "Questions to answer before it ships:"
+              : "Open questions:"}
+          </p>
+          <ul className="m-0 mt-1 list-disc pl-5 text-muted-foreground">
+            {questions.map((q) => (
+              <li key={q} className="m-0">
+                {q}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {issueUrl ? (
+        <p className="m-0 mt-2 pl-7 text-xs text-muted-foreground">
+          <a href={issueUrl} rel="noreferrer noopener" target="_blank">
+            Tracking issue {issue}
+          </a>
+        </p>
+      ) : null}
     </aside>
   )
 }

@@ -1,0 +1,59 @@
+---
+title: Consent and privacy
+description: Consent per purpose, revocable where the data appears, and how much of that data a screen shows the room.
+kind: health
+evidence: mixed
+implements: [consent-sheet, care-card, disclaimer-note, term, field, log-sheet, value, result-card, metric-tile, sheet, dialog, empty-state]
+aliases: [withdraw consent, shoulder surfing]
+reviewed: 2026-10-08
+reviewer: design
+---
+
+Nothing here is legal advice or a compliance checklist, or a substitute for your data protection lead or your regulator's guidance. Which lawful basis applies is your organisation's decision. For direct care it is often not consent, and asking consent for processing that will happen anyway misrepresents the decision as optional. Research consent and records management are out of scope.
+
+## Consent
+
+1. One decision per purpose. "Store my readings", "share with my GP", "improve the app" and "send me health tips" are four questions, never bundled.
+2. Ask when the feature that uses the data is first used, not during onboarding.
+3. Collect no field without a stated purpose, shown where the field is asked. "For future use" is not a purpose.
+4. Name the recipient, the data and the reason in plain words ([Plain English A to Z](../reference/plain-english.mdx)): "so your GP can see your blood pressure readings in your record", not "to improve your experience".
+5. Declining a secondary purpose keeps every primary function and takes no more effort than accepting. No pre-ticked box, no consent carried by a Continue button, and accept and decline at equal visual weight.
+6. The withdrawal control sits on the screen showing the data, not only in settings.
+7. Before the reader withdraws, state what stops, what is deleted, what is kept and what cannot be undone.
+8. Record the purpose, the decision, the time and the version of the wording.
+9. A materially changed purpose is a new consent, and the request names what changed. Continued use is never agreement.
+10. Disclose sharing wherever the shared data is visible: "Your GP can see this" belongs on the data screen, not in a policy.
+11. Ask for, store and display sexual health, mental health, reproductive health, substance use, HIV status and genetic data separately, under the privacy rules below.
+12. The interface does not assess understanding. Write so that misunderstanding is unlikely, not so that agreement is likely.
+
+Rule 7, for sharing readings with a GP: "If you stop sharing: no new readings are sent, and nothing already sent is deleted. Your GP keeps the readings they have already seen. Your own history in the app is unchanged."
+
+## On-screen privacy
+
+13. A per-user privacy setting, easy to find. Private is the default, and categories the reader marks sensitive start at the more private option.
+14. Replace a hidden value with a fixed-width mask, never a blurred, shortened or distorted version of it.
+15. A masked value takes the same space as the real one, so revealing shifts nothing.
+16. Hide the label where the label is the disclosure: "Sexual health" collapses to "Results".
+17. On backgrounding, blur or replace the content before the system snapshot, and restore it on return.
+18. The reveal control has an accessible name ("Show your result") and requires re-authentication: the platform's biometric or passcode flow, a timeout short enough to matter, and always a non-biometric route.
+19. Never block screenshots. Warn once when a sensitive screen is captured, never on later captures, and make a redacted share the easier path.
+20. Notifications, badges and widgets follow the same rules ([Alerts](./alerts.mdx)).
+21. A reveal applies to one value and expires with the session.
+22. The app is fully usable with values masked, never requiring a reveal.
+23. Review every screen showing a sensitive category for what is legible at a metre and at an angle.
+
+## Components
+
+[ConsentSheet](../components/consent-sheet.mdx) asks one purpose per sheet. It requires `purpose`, `scope`, `withdrawalPath`, `textVersion` and both control labels, and when any required wording is missing it withholds both controls and says nothing was asked. Accept and decline have equal weight by construction, and closing the sheet without choosing calls nothing. `onDecision` receives the decision, its time, `consentId`, `textVersion` and scope; you store the record.
+
+No component has a masking, hiding or sensitivity prop, so rules 13 to 23 are built on each screen; one that keeps none of them looks exactly like one that keeps all. The screens are in [Consent and permissions](../patterns/consent-and-permissions.mdx).
+
+<Todo>Specify the masked state on `Value` and the sensitivity flag as real props, including what a mask renders as at every size and what the reveal control is called for a screen reader.</Todo>
+
+<Todo>Specify proxy and carer consent: what changes when the person using the app is not the person the data is about.</Todo>
+
+## Evidence
+
+- UK GDPR and EU GDPR special-category provisions (legislation): health data is a special category with additional conditions on processing, and consent as a lawful basis must be freely given, specific, informed, unambiguous, and as easy to withdraw as to give. Rules 1, 4, 5, 6 and 8 restate those requirements. Read the legislation and your regulator's current guidance; we name the frame and do not summarise the law.
+
+Rules 2, 3, 10 and 12 and every privacy rule are opinion, and rules 7, 9 and 11 cite nothing. Check two platform behaviours behind rules 17 and 20 against current platform documentation: the system snapshots the screen on backgrounding, and lock screens show notification content without authentication by default. Rule 19's warning is held weakly.

@@ -1,20 +1,14 @@
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
-import { DocsLayout } from "fumadocs-ui/layouts/docs"
 
-import { Folder, Item, Separator } from "@/components/docs/sidebar"
-import { baseOptions } from "@/lib/layout.shared"
+import { DocsShell } from "@/components/docs/shell"
+import { getDocsNav } from "@/lib/docs-nav"
 import { site } from "@/lib/routes"
-import { source } from "@/lib/source"
 
 /**
- * The title template for the whole site.
- *
- * `generateMetadata` in `[[...slug]]/page.tsx` returns the frontmatter title
- * unchanged. A title such as "Range bar" or "Colour roles" is right for the OG
- * card and wrong for a browser tab. This appends the system name once, in one
- * place, rather than in the four spots that page builds a title for. See the
- * note on `app/(chrome)/(home)/layout.tsx` for why it is not on the root layout.
+ * The browser-tab title template for every documentation page. The page's
+ * `generateMetadata` returns the bare frontmatter title, which is right for
+ * the social card, and the system name is appended here once.
  */
 export const metadata: Metadata = {
   title: {
@@ -24,86 +18,13 @@ export const metadata: Metadata = {
 }
 
 /**
- * The documentation shell, which is now the shell for the site.
+ * The documentation shell. This group owns `/`: `DOCS_BASE` is empty, so the
+ * introduction renders at the root and Components at `/components`.
  *
- * This group owns `/`. There is no landing page in front of it: `DOCS_BASE` in
- * lib/routes.ts is empty, so the corpus index renders at `/` and Components at
- * `/components`. A reader arrives inside the documentation, which is the only
- * thing opsinjs is.
- *
- * This is a NESTED layout. It must not render `<html>` or `<body>`. Those
- * belong to `app/(chrome)/layout.tsx`, which is one of the two root layouts and
- * also mounts the single theme provider and the global footer.
- *
- * THE SIDEBAR HOLDS THREE THINGS: the wordmark, the search box and the tree.
- * Everything else that used to be in it has gone somewhere it works better.
- * The pillar chip rail was a second copy of the tree's own top level, made
- * redundant the moment the tree stopped opening to four hundred rows. The six
- * nav links and the theme switch are in the global footer. The status legend
- * moved to `/start/reading-these-docs`, which is the page that explains what
- * the three statuses mean rather than a strip of chips with no room to say it.
- *
- * `tabs={false}` keeps that promise structural. fumadocs' Layout Tabs would
- * split the ten sections into top-level tabs and show one at a time, so
- * somebody reading `Button` could not see that a Health section exists. Hiding
- * the health doctrine behind a tab is how a design system ends up with
- * beautiful components and unread rules. Ten section names, always on screen,
- * is the alternative.
- *
- * `defaultOpenLevel: 0` is the other half of it, and it is the only setting
- * that makes a 404-page corpus navigable in one column: nothing is open except
- * the folders on the path to the page you are on. Arrive at `Button` and
- * Components is open at *Actions and forms*, with the other nine sections one
- * line each above and below. That works because `lib/sidebar-tree.ts` has
- * already reshaped the tree into ten sections with collapsible subsections
- * inside them, so there is somewhere to stop between a section and a page.
- *
- * THE THREE ROW RENDERERS ARE OURS. `sidebar.components` is the published seam
- * for replacing how a page, a folder and a heading are drawn, and
- * `components/docs/sidebar.tsx` uses it to give each of the three levels its
- * own size, weight, colour and rail, and to keep every collapsed panel in the
- * document instead of unmounting it. `lib/sidebar-tree.ts` says what the levels
- * are; that file says what they look like.
+ * This is a nested layout and renders no `<html>` or `<body>`; those belong to
+ * `app/(chrome)/layout.tsx`, which also mounts the one theme provider and the
+ * search dialog the sidebar opens.
  */
 export default function DocsGroupLayout({ children }: { children: ReactNode }) {
-  return (
-    <DocsLayout
-      tree={source.getPageTree()}
-      {...baseOptions()}
-      tabs={false}
-      sidebar={{
-        collapsible: true,
-        defaultOpenLevel: 0,
-        components: { Folder, Item, Separator },
-        /*
-          THE TREE IS A NAVIGATION LANDMARK, and it was not announcing itself
-          as one. fumadocs renders the sidebar as a bare `<aside>`, which
-          exposes `complementary`: the role for content related to the page but
-          separable from it. Four hundred links to the rest of the corpus are
-          not related content, they are the site's navigation, and the document
-          had no `navigation` landmark at all. A screen-reader user pressing
-          the shortcut for the next landmark skipped straight past the only way
-          around the site.
-
-          `role` on an `<aside>` overrides the implicit one rather than adding
-          to it, which is what is wanted: one landmark, correctly named. The
-          label is what distinguishes it from the header's own links once there
-          is more than one navigation region in the document.
-
-          It is also the honest answer to a crawler. Every page here ships the
-          same four hundred sidebar links and the same seven thousand
-          characters of section names before its own first sentence, and on
-          half the corpus that is more text than the page itself carries. That
-          boilerplate has to be identifiable as boilerplate, and the landmark
-          is the standard way to say so. Keeping the links in the document is
-          deliberate and is explained in components/docs/sidebar.tsx; marking
-          them as navigation is what makes it safe.
-        */
-        role: "navigation",
-        "aria-label": "Documentation",
-      }}
-    >
-      {children}
-    </DocsLayout>
-  )
+  return <DocsShell nav={getDocsNav()}>{children}</DocsShell>
 }

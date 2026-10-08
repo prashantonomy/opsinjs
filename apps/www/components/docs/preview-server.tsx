@@ -1,3 +1,6 @@
+import { highlight } from "fumadocs-core/highlight"
+import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock"
+
 import { getEntry } from "@/lib/catalogue"
 import { getRegistryEntry } from "@/lib/registry"
 import { DEFAULT_BASE, DEFAULT_STYLE } from "@/lib/routes"
@@ -84,6 +87,42 @@ export type ComponentPreviewServerProps = Omit<
 >
 
 /** The preview block on a component page. See `./preview` for the surface. */
+/**
+ * An example's source as a reader would paste it: the file's opening doc
+ * comment removed, a "use client" directive kept, and the registry's own
+ * import alias rewritten to the path `shadcn add` writes components to.
+ */
+export function displaySource(source: string): string {
+  const directive = /^\s*(["']use client["'];?)\s*\n/.exec(source)
+  const rest = directive ? source.slice(directive[0].length) : source
+  const body = rest
+    .replace(/^\s*\/\*\*[\s\S]*?\*\/\s*\n/, "")
+    .replace(/@\/registry\/base-lyra\/ui\//g, "@/components/ui/")
+    .trim()
+  return directive ? `${directive[1]}\n\n${body}` : body
+}
+
+/**
+ * The source under an example, as on blueprintjs.com: the live preview above,
+ * the file you would copy below it, highlighted on the server.
+ */
+async function ExampleSource({ name, source }: { name: string; source: string }) {
+  const code = displaySource(source)
+  const rendered = await highlight(code, {
+    lang: "tsx",
+    themes: { light: "github-light", dark: "github-dark" },
+    defaultColor: false,
+    components: {
+      pre: (props) => (
+        <CodeBlock title={`${name}.tsx`} allowCopy className="mt-0">
+          <Pre {...props} />
+        </CodeBlock>
+      ),
+    },
+  })
+  return <div data-opsinjs-example-source={name}>{rendered}</div>
+}
+
 export function ComponentPreview(props: ComponentPreviewServerProps) {
   const {
     name,
@@ -103,9 +142,21 @@ export function ComponentPreview(props: ComponentPreviewServerProps) {
    * the route that owns that fact rather than guessed at here.
    */
   const built = resolvesToARender(name, base, style, kind)
+  const surface = (
+    <ComponentPreviewSurface {...props} built={built} phase={phaseOf(name)} />
+  )
+
+  const source =
+    kind === "example" && built && name
+      ? getRegistryEntry(name, base, style, kind)?.source
+      : undefined
+  if (!name || !source) return surface
 
   return (
-    <ComponentPreviewSurface {...props} built={built} phase={phaseOf(name)} />
+    <div className="my-6 [&>*:first-child]:mb-0">
+      {surface}
+      <ExampleSource name={name} source={source} />
+    </div>
   )
 }
 

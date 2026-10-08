@@ -1,154 +1,41 @@
 ---
 title: Patterns
-description: A pattern is one user task spelled out across the screens it takes. It names the components, the copy and the failure cases, in the order the reader meets them.
+description: Multi-screen sequences a health product keeps rebuilding, each followed from entry to exit with its components, copy and failure cases
 kind: pattern
 aliases: [pattern library, user flows, multi-screen sequences]
-reviewEvery: 12m
-reviewed: 2026-09-20
-reviewer: engineering
 ---
 
-<PageTemplate kind="pattern" />
+A pattern is one user task followed across the screens it takes: the sequence, its states, the components it is built from and where the person can leave. A component page covers one part. A pattern covers the second screen, where the result arrives or validation fires. Patterns apply the rules in [Health](../health/index.mdx) rather than restating them.
 
-Foundations tells you what a token means. Components tell you what one part
-does. Neither of them tells you what happens on the second screen, and almost
-every failure in a consumer health product happens on the second screen. That
-is the one where the result arrives, the one where validation fires, the one
-where the network was gone and nobody said so.
+## The patterns
 
-Patterns are that layer. Each page here takes a single user task, follows it
-from entry to exit, and says what the system knows at each step, what it must
-not assume, and where the person can leave.
+| Pattern | Use it for |
+| --- | --- |
+| [Result disclosure](./result-disclosure.mdx) | Showing a result the reader may not want to see, from notification to number to next step |
+| [Daily logging](./daily-logging.mdx) | Repeated entry of the same reading, designed for the ninetieth entry rather than the first |
+| [Trend review](./trend-review.mdx) | Reading change over time without over-interpreting noise |
+| [Alert escalation](./alert-escalation.mdx) | Moving a message from ambient to interruptive only as far as it has earned |
+| [Onboarding and first run](./onboarding-and-first-run.mdx) | Collecting the minimum before the reader has seen anything about them |
+| [Consent and permissions](./consent-and-permissions.mdx) | Asking for access when it is needed, and making withdrawal as easy as agreement |
+| [Empty and first use](./empty-and-first-use.mdx) | The surface before there is anything to show, and which kind of nothing it is |
+| [Offline and stale data](./offline-and-stale-data.mdx) | What a screen shows when it cannot vouch for its numbers |
+| [Sharing with a clinician](./sharing-with-a-clinician.mdx) | Exports and summaries a clinician can read in ninety seconds, with no interpretation implied |
+| [Forms](./forms.mdx) | How a question behaves: questions per page, when validation fires, where errors go |
+| [Ask users for…](./ask-users-for.mdx) | One kind of detail at a time, such as a name, a date of birth or a list of medicines |
 
-<SectionProgress />
+## The joins between screens
 
-## When to use
+Every screen can pass its own audit while the journey fails, because the failures live in the joins.
 
-Reach for a pattern when the thing you are building spans more than one moment
-in time:
+- **Focus across a transition.** When a step replaces the last one, focus lands on the new heading.
+- **Announcing change.** A value that updates in place is a status message (WCAG 2.2 SC 4.1.3).
+- **Recovery.** Going back a step keeps what the person typed (WCAG 2.2 SC 3.3.7).
+- **Leaving.** Every pattern states where the exit is.
 
-- **More than one screen.** Onboarding, a consent flow, a result that arrives
-  after the reader has closed the app.
-- **More than one state.** The same surface has to be right when the data is
-  fresh, stale, partial, missing and wrong, and the interesting design work is
-  in the transitions between those.
-- **A decision with a consequence.** Disclosing a result, escalating an alert,
-  asking for a permission the reader can refuse. If getting it wrong costs the
-  reader something, it is a pattern, not a component.
-- **A shape you have built twice already.** Three teams inventing three
-  different validation timings is how a product stops feeling like one product.
+## What is built
 
-Two sub-families sit under this group because they are keyed differently from
-the rest:
+A pattern carries no `status`. Every component it names is shipped, which means it installs and renders. None has had an independent accessibility review or any clinical review, so nothing here is for a production health surface. A page whose sequence nobody has assembled carries a not-built marker. Two screen specimens render today: the results screen and the medicines app. The daily log, trends, consent and onboarding screens are still specifications.
 
-- [Form design](./forms/index.mdx) shows how a question behaves, as distinct
-  from how a form is wired up. One question per page or grouped, when validation
-  fires, where the error summary goes.
-- [Ask users for…](./ask-users-for/index.mdx) is keyed by the *data being
-  requested*: a date of birth, a name, a set of medications. This is the highest
-  reuse in the whole system, because every health product asks for the same
-  fifteen things and gets roughly the same eight of them wrong.
+## Whole-app specimens
 
-## When not to use
-
-- **The whole thing fits inside one component.** If your guidance is "the label
-  goes above the input", that belongs on the component page, not here. Write it
-  on [Field](../components/field.mdx).
-- **You want working steps, not a shape.** A pattern describes the shape of a
-  solution and the reasoning behind it. If you want an ordered list that ends
-  with something on screen, go to [Recipes](../recipes/index.mdx) instead. A
-  recipe is a task with an ending.
-- **You want the rule rather than the sequence.** "Never let motion carry
-  urgency" is doctrine and lives in [Health](../health/index.mdx). Patterns
-  apply doctrine; they do not restate it, and `assert-ia` will fail a build in
-  which they do.
-- **You want a whole composed surface.** A finished results screen with real
-  composition and a preview is a [Screen](../screens/index.mdx).
-- **It is a mechanics question.** "How do I write a transition against
-  `data-starting-style`" is [Handbook](../handbook/index.mdx).
-
-## How it works
-
-Every page in this group is written to the same six working sections, and they
-are the same six because they correspond to the six ways a sequence fails.
-
-<FlowDiagram>
-{`flowchart TD
-  A["Reader arrives"] --> B{"Is this the right pattern?"}
-  B -->|"no"| C["When not to use names the alternative"]
-  B -->|"yes"| D["How it works: the sequence and its states"]
-  D --> E["Content: the words, in the order they are met"]
-  E --> F["Accessibility: focus, announcement, recovery"]
-  F --> G["Research: why it is shaped this way"]`}
-</FlowDiagram>
-
-A pattern page is never a picture of a happy path. The interesting content is
-concentrated in three places: what the system does when it does not know
-something, what it does when the reader refuses, and what it does when the
-reader leaves halfway through and comes back a week later.
-
-### How a pattern says what a team can follow
-
-A pattern page carries no `status`; only a component page does. The question a
-pattern has to answer is narrower: **can a team follow this today?**
-
-Most of them can be followed with any component library, including one that is
-not opsinjs. The form-design and "Ask users for…" families are in that group, and
-they carry no honesty marker because there is nothing outstanding to mark. A
-pattern whose assembly nobody has built carries a `<Todo>` or a `<NotBuiltYet>`
-naming the specific gap, and that marker is the thing to read. The reasoning is
-real either way; the assembly is what varies.
-
-## Content
-
-Patterns do not own copy rules. [Content & language](../content/index.mdx) owns
-voice, tone and banned words; [Numbers, units and
-precision](../health/numbers-units-precision.mdx) is canonical for anything
-numeric; [Grammar and mechanics](../content/grammar-and-mechanics.mdx) is
-canonical for capitalisation, punctuation and abbreviation in UI strings.
-
-What a pattern page contributes is *sequence*: which sentence the reader meets
-first, what the second screen may assume the first one said, and which words
-must be repeated because a person arriving from a push notification never saw
-the first screen at all.
-
-## Accessibility
-
-A sequence fails differently from a component. Every screen can pass its own
-audit and the journey can still be unusable, because the failures live in the
-joins:
-
-- **Focus across a transition.** When the second screen replaces the first,
-  focus has to land somewhere deliberate, usually the new heading. If it does
-  not, it returns to the top of the document and a screen-reader user has to
-  re-orient from scratch on every step.
-- **Announcement of change.** A value that updates in place without a status
-  message is invisible to anyone not looking at it. WCAG 2.2 SC 4.1.3 is the
-  floor here, not the ambition.
-- **Recovery.** What happens when the reader gets it wrong on step three, and
-  can they get back to step two without losing what they typed. WCAG 2.2 SC
-  3.3.7 (Redundant Entry) exists because most products cannot.
-- **Leaving.** Every pattern in this group states where the exit is. A health
-  flow with no exit is a dark pattern regardless of intent.
-
-The per-page accessibility sections here name the specific failure; the general
-contract is in [Accessibility](../accessibility/index.mdx).
-
-## Research
-
-<ResearchNote evidence="opinion" date="2026-09-02">
-  The split between Patterns, Recipes and Screens is a design opinion, not a
-  finding. It comes from watching documentation sites collapse the three: a
-  single "Patterns" section ends up containing a decision rule, a tutorial and a
-  page-level specimen, and readers stop being able to predict what they will
-  find. Keeping the three separate costs an extra click and buys the ability to
-  say "this is doctrine, this is a task, this is a shape" without hedging.
-
-  What would change our mind: evidence that readers navigate by task rather than
-  by artefact kind, which would argue for merging Recipes into Patterns and
-  letting the outline vary by page.
-</ResearchNote>
-
-## Updates to this page
-
-<Reviewed />
+[/showcase](/showcase) holds whole products built with opsinjs. There is one so far: the [diabetes medicines app](/showcase/diabetes-medicines-app), with four destinations, five overlays and a working form built from thirty-five shipped components. It calculates no dose, changes no dose, never marks a dose as missed and stores nothing. Its composition has had no clinical safety review, so do not ship it to readers. Copy its refusals.

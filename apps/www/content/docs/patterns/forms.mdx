@@ -1,0 +1,118 @@
+---
+title: Forms
+description: How a question behaves in a health product, from how many go on a page to when validation runs, and how Field wires it.
+kind: pattern
+aliases: [form design, one question per page, validation timing, error summary, required and optional, react hook form]
+---
+
+The first decision is whether to ask at all. A field you do not ask for cannot be mistyped, fail validation, leak or need a retention policy.
+
+## When to use it
+
+Use it for every form. For one specific detail, see [Ask users for…](./ask-users-for.mdx).
+
+Do not use it for:
+
+- A reading logged every day. That is [Daily logging](./daily-logging.mdx).
+- Consent, which is never a form field. See [Consent and permissions](./consent-and-permissions.mdx).
+- A validated questionnaire, whose layout is fixed. Never re-paginate it.
+
+## How it works
+
+Decide in this order:
+
+1. Whether to ask at all.
+2. Questions per page.
+3. Required or optional.
+4. Input type and autofill token.
+5. The answer's shape and unit.
+6. When validation runs.
+7. What a failed submit does.
+
+## Components
+
+- [Field](../components/field.mdx) gives one control a visible label, hint and error, wired together.
+- [ReadingInput](../components/reading-input.mdx) takes a measurement with its unit beside it.
+- [Stepper](../components/stepper.mdx) shows read-only progress through question pages.
+- [Button](../components/button.mdx) submits, and needs `type="submit"` because it defaults to `type="button"`.
+
+## Question pages
+
+- Ask one question per page when it is hard, sensitive or unfamiliar, when a mistake has a consequence, or when the answer changes what comes next.
+- Group fields that are one thing to the reader, such as a systolic and diastolic reading, or that are copied from a meter or entered daily.
+- The question is the page's `<h1>`, and focus moves to it on navigation.
+- A grouped page is a `fieldset` with a `legend`.
+- State progress in text, such as "Step 3 of 6".
+- Back always works and keeps every answer (WCAG 2.2 SC 3.3.7).
+- Split a grouped page that branches. Never auto-advance.
+
+## Validation timing
+
+Stay silent while the reader first types, validate when they leave the field, then live while they fix it, and check everything on submit.
+
+- Never block a save because a value is implausible. Ask, keep the entry, and store what the reader confirms.
+- Reject only the impossible. A negative weight is an error, and a weight far below yesterday's is a question.
+- Never move focus to an error, and never announce success.
+- Clear `aria-invalid` the moment the error clears.
+
+Field's `validateOn` covers only native constraints, and its default needs `Field.Form`. With a form library, pass its message as `error`.
+
+## Error summaries
+
+After a failed submit, unless the form is one question with one error:
+
+- Put the summary first in the form's DOM, with a heading that states the count as a fact: "There are 2 problems".
+- Move focus to it, with `tabindex="-1"`. It is the only error that takes focus.
+- Link each entry to its control's `id`, in DOM order, using the same words as the inline message.
+- Keep the inline errors, and put server errors in the same summary.
+- Update the summary without taking focus again, and announce politely when it clears.
+- Do not put `role="alert"` on a summary that also takes focus.
+
+opsinjs has no error-summary component. A form error is not a clinical status, so the summary takes no status colour.
+
+## Required and optional
+
+Mark one convention across the product, never both. opsinjs recommends marking optional, so that every required field has to be defended.
+
+- Use the word, not an asterisk. Field's `optionality="optional"` puts "(optional)" inside the label, so it joins the accessible name.
+- The `required` attribute matches the label.
+- When skipping costs the reader something, say what next to the field.
+- Never make a field required to improve your data.
+
+## Autocomplete and input types
+
+- A field about the reader takes its HTML autofill token, such as `name`, `bday-day`, `email`, `tel`, `postal-code` or `one-time-code` (WCAG 2.2 SC 1.3.5).
+- No token exists for a health reading or a medication. Use `autocomplete="off"`, prefill from the reader's previous entry, and never invent a token.
+- For numbers, use `type="text"` with `inputmode="decimal"`, or `"numeric"` for whole numbers. `type="number"` lets the scroll wheel change a reading and mishandles a decimal comma.
+- Turn off autocapitalisation and spellcheck on codes, and autocorrect on medication names.
+- Never disable paste.
+
+Field.Control sets neither `autoComplete` nor `inputMode`, so pass both.
+
+## Units and numeric entry
+
+- Never make the reader type the unit into the value. Show it beside the field, or make it a control, and spell it out in the accessible name: "Weight in kilograms".
+- Remember the unit per measure. Switching converts the entered value visibly, so 12 st becomes 76.2 kg rather than 12 kg.
+- Compound units are separate fields under one legend.
+- When a glucose value fits one unit and not the other, ask which the reader meant. Never convert silently.
+- Accept a comma or a point as the decimal separator, and store in one canonical unit.
+
+ReadingInput converts kg, lb and st, and °C and °F. It refuses mmol/L to mg/dL, because the factor depends on the substance, and clears the entry. It rejects nothing. Pass the product's question as `warning`, which never blocks a save. Route its `effectText` to your own polite announcer.
+
+## Wiring a form
+
+```tsx
+import { Field } from "@/components/ui/field"
+```
+
+```tsx
+<Field label="Example measurement" hint="For example, 14">
+  <Field.Control name="example-measurement" inputMode="decimal" autoComplete="off" />
+</Field>
+```
+
+- Field owns the label, hint, error, `aria-describedby` and `aria-invalid`. Your form library owns state and validation.
+- The error appears above the control and never replaces the hint.
+- Keep the submit control enabled, and preserve values across a failed submit.
+- Map server errors onto the same fields and summary, and never reset the form.
+- A wrapper that drops `ref` breaks React Hook Form silently.

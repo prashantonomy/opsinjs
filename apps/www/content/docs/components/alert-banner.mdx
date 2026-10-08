@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-communication
 aliases: [warning, notification, alert, banner, warning banner, notification banner, inline alert]
-governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, motion-in-health-ui, emergency-and-escalation, notifications-and-off-screen-alerts, crisis-and-self-harm, delivering-difficult-results]
-usedIn: [alert-escalation, choose-a-component, forms/error-summaries, offline-and-stale-data, result-disclosure, results-screen, staged-alert]
+governedBy: [two-colour-axes, alerts, high-stakes-moments, safety-review]
+usedIn: [alert-escalation, offline-and-stale-data]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="alert-banner" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="alert-banner"
@@ -35,8 +31,6 @@ reviewer: engineering
   importPath="@/components/ui/alert-banner"
   registryDependencies={["status-pill", "button", "link"]}
 />
-
-## Usage
 
 ```tsx
 import { AlertBanner } from "@/components/ui/alert-banner"
@@ -56,6 +50,39 @@ import { AlertBanner } from "@/components/ui/alert-banner"
   asked us to tell you about.
 </AlertBanner>
 ```
+
+## Examples
+
+<ComponentPreview name="alert-banner" />
+
+### Two is the ceiling
+
+Two banners, the more serious first, because a reader meets them in DOM order.
+
+<ComponentPreview name="alert-banner-two-is-the-ceiling" kind="example" align="start" />
+
+### An urgent banner is acknowledged, not dismissed
+
+`dismissible` renders nothing without `onAcknowledge`, which at `urgent` is the record, and
+removing the banner drops focus to `<body>`, which the product must recover. One action,
+because the route is same-day.
+
+<ComponentPreview
+  name="alert-banner-acknowledging-an-urgent-banner"
+  kind="example"
+  align="start"
+/>
+
+### `steady` is for de-escalation
+
+The one honest use of the quietest level: withdrawing an alert the product raised earlier.
+No `actions`, because only `attention` and `urgent` require one.
+
+<ComponentPreview
+  name="alert-banner-steady-is-for-de-escalation"
+  kind="example"
+  align="start"
+/>
 
 ## When to use it
 
@@ -82,121 +109,44 @@ compares nothing: `status` is assigned from a range the product owns.
 
 **Never read as.** A clinical judgement about the reader, an instruction from a person, or
 a substitute for emergency services. A finding routed *stop and call for help now* leaves
-the banner. See [Emergency and escalation](../health/emergency-and-escalation.mdx).
+the banner. See [High-stakes moments](../health/high-stakes-moments.mdx).
 
-**Colour axis.** Status only. There is no `category` prop, so a banner never carries
-category colour. Urgency is never carried by motion either, and the component ships no
-transition. See [Motion in health UI](../health/motion-in-health-ui.mdx).
+**Colour axis.** Status only, with no `category` prop, so a banner never carries category
+colour. Urgency is never carried by motion either, and no transition ships. See
+[Alerts](../health/alerts.mdx).
 
 **Thresholds.** None. No staleness default and no number in the component. The level's
 word comes from the composed [StatusPill](./status-pill.mdx), never from `heading`.
 
-**Budget.** At most one `urgent` banner and two banners per screen, per
-[Alarm fatigue](../health/alarm-fatigue.mdx). The component cannot count across a screen.
-No live region mounts at `steady` or `watch`, a named departure from
-[Clinical status semantics](../health/clinical-status-semantics.mdx) rule 6.
+**Budget.** At most one `urgent` banner and two per screen, per
+[Alerts](../health/alerts.mdx), and the component cannot count across a screen. No live
+region mounts at `steady` or `watch`, a named departure from
+[Two colour axes](../health/two-colour-axes.mdx) rule 9.
 
 <SafetyCallout severity="urgent" evidence="opinion">
 An `urgent` banner must never be the only place a serious message appears, and never
 dismissible without an acknowledgement the product records.
 </SafetyCallout>
 
-## Anatomy
-
-<Anatomy
-  name="alert-banner"
-  parts={[
-    {
-      name: "AlertBanner",
-      describes: "The root, carrying data-status and the level's surface, ink and line roles.",
-      prop: "status",
-    },
-    {
-      name: "AlertBanner.Announcement",
-      describes: "The live region around the heading and body only. Its role follows the level.",
-    },
-    {
-      name: "AlertBanner.Heading",
-      describes: "A real h2 to h6: the level's word, then the caller's subject.",
-      prop: "headingLevel",
-    },
-    {
-      name: "StatusPill",
-      describes: "The level's word and glyph, composed as the heading's first child.",
-    },
-    {
-      name: "AlertBanner.Body",
-      describes: "One or two sentences, second person. Longer is a CareCard.",
-      prop: "children",
-    },
-    {
-      name: "AlertBanner.Actions",
-      describes: "At most two, each a composed Link or Button. The first takes the emphasis.",
-      prop: "actions",
-    },
-    {
-      name: "AlertBanner.Dismiss",
-      describes: "A quiet Button, last in the DOM. Rendered only with dismissible and onAcknowledge.",
-      prop: "dismissible",
-    },
-  ]}
-/>
-
-## Examples
-
-### Two is the ceiling
-
-Two banners, the more serious first, because a reader meets them in DOM order. A third
-teaches the reader to scroll past the second.
-
-<ComponentPreview name="alert-banner-two-is-the-ceiling" kind="example" align="start" />
-
-### An urgent banner is acknowledged, not dismissed
-
-`dismissible` renders nothing without `onAcknowledge`, and at `urgent` that callback is the
-record. One action, because the route is same-day. Removing the banner drops focus to
-`<body>`, which the product must recover.
-
-<ComponentPreview
-  name="alert-banner-acknowledging-an-urgent-banner"
-  kind="example"
-  align="start"
-/>
-
-### `steady` is for de-escalation
-
-The one honest use of the quietest level: withdrawing an alert the product raised earlier.
-No `actions`, because only `attention` and `urgent` require one.
-
-<ComponentPreview
-  name="alert-banner-steady-is-for-de-escalation"
-  kind="example"
-  align="start"
-/>
-
 ## Accessibility
-
-**Audited against WCAG 2.2 AA** in a source pass and a rendered pass. This is an author-run
-audit, not an independent review, and clinical review is still pending. The rendered pass
-was clean, with no axe violation and no target-size or focus-visible gap. The source pass
-found nothing to change.
 
 Confirmed: colour never carries meaning alone, because the word and glyph come from the
 composed [StatusPill](./status-pill.mdx) and shape and position separate the levels. The
-live region wraps the heading and body only, `role="alert"` at `urgent` and
-`aria-live="polite"` with `aria-atomic` at `attention`. Focus is never moved and every
-control clears the 44pt floor.
+live region wraps only the heading and body, `role="alert"` at `urgent` and
+`aria-live="polite"` with `aria-atomic` at `attention`. Focus never moves, every control
+clears the 44pt floor, axe and focus-visible checks were clean, and the audit changed
+nothing.
 
-Two residuals. At `steady` and `watch` the component mounts no live region, so a
-de-escalation banner inserted after a condition resolves is not announced to a reader
-already on the page. That is a deliberate departure from
-[Clinical status semantics](../health/clinical-status-semantics.mdx) rule 6 on
-alarm-fatigue grounds, a doctrine call left for a human reviewer. Escalating in place also
-relies on the caller passing `key={status}` to remount, which the component cannot
-enforce.
+**Residual items.**
 
-Still ungated: any real screen reader, `forced-colors`, and the root's missing accessible
-name.
+- At `steady` and `watch` no live region mounts, so a de-escalation banner inserted after
+  a condition resolves is not announced to a reader already on the page. That is a
+  deliberate departure from [Two colour axes](../health/two-colour-axes.mdx) rule 9 on
+  alarm-fatigue grounds, a doctrine call left for a human reviewer.
+- Escalating in place relies on the caller passing `key={status}` to remount, which the
+  component cannot enforce.
+- Still ungated: any real screen reader, `forced-colors`, and the root's missing
+  accessible name.
 
 <KeyboardTable
   name="alert-banner"
@@ -230,7 +180,26 @@ name.
 
 <ContrastReport component="alert-banner" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="AlertBannerProps" />
+
+A `status` outside the four levels renders nothing and reports OPSIN-0021 (OPSIN-0011 for
+`unknown`). `heading` names the subject, because the component renders the level's word.
+`headingLevel` outside 2 to 6 falls back to `h2`. A third action renders and is reported.
+`dismissible` needs `onAcknowledge` at every level. `now`, `locale` and `timeZone` render
+nothing. `AlertAction` is also exported:
+
+```ts
+export interface AlertAction {
+  label: string
+  href?: string
+  onSelect?: () => void
+  recommended?: boolean
+}
+```
+
+### Data attributes
 
 <DataAttributesTable
   name="alert-banner"
@@ -257,30 +226,3 @@ name.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="AlertBannerProps" />
-
-A `status` outside the four levels renders nothing and reports OPSIN-0021 (OPSIN-0011 for
-`unknown`). `heading` names the subject, because the component renders the level's word.
-`headingLevel` outside 2 to 6 falls back to `h2`. A third action renders and is reported.
-`dismissible` needs `onAcknowledge` at every level. `now`, `locale` and `timeZone` render
-nothing. `AlertAction` is also exported:
-
-```ts
-export interface AlertAction {
-  label: string
-  href?: string
-  onSelect?: () => void
-  recommended?: boolean
-}
-```
-
-## Related
-
-- [Callout](./callout.mdx) carries no clinical level and interrupts nothing.
-- [CareCard](./care-card.mdx) is the instruction itself, with steps and timing.
-- [StatusPill](./status-pill.mdx) is the same vocabulary on one item, not the screen.
-- [Toast](./toast.mdx) is transient confirmation. Nothing clinical belongs on a timer.
-- [Dialog](./dialog.mdx) is for when the reader cannot continue until they respond.

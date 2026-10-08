@@ -1,0 +1,104 @@
+---
+title: Theming
+description: Retheme opsinjs through its semantic tokens, and leave the status and category palettes that carry meaning as they are.
+kind: guide
+aliases: [theme, retheme, token tiers, brand colour, dark theme, "@theme inline"]
+---
+
+opsinjs draws every colour, radius, space step and duration from CSS custom properties, most of them generated from `tokens/*.json`. Change the token rather than the component, and every component follows.
+
+## Three tiers
+
+| Tier | Looks like | Read by |
+| --- | --- | --- |
+| Primitive | `--opsin-neutral-500`, `--opsin-status-watch-500` | The semantic tier only |
+| Semantic | `--primary`, `--card-foreground`, `--opsin-status-watch-ink` | Components and your code |
+| Component | `--rb-label-half` on [RangeBar](./components/range-bar.mdx) | One component, listed on its page |
+
+References point one way, from component to semantic to primitive. A primitive or a literal colour still renders, and silently drops out of every theme and contrast measurement. Status and category ramps have the slots `-surface`, `-line`, `-ink` and `-accent`, and an accent never carries meaning alone. Surface roles such as `--background` and `--card` resolve through `--opsin-chrome-*`. [Tokens](./reference/generated/tokens.mdx) lists every token.
+
+## A theme from your brand colour
+
+Enter your brand's primary action colour in the [theme generator](/playground/theme). It derives an 11-step ramp in your browser, measures each step against white and near-black text with the build's contrast code, and gives you the ramp as `--brand-50` to `--brand-950`. It is a preview, because the engine that also clamps chroma per hue, adds a Display-P3 value and assigns roles by measurement is not published.
+
+Set the roles in your own stylesheet, imported after the opsinjs one:
+
+```css title="app/globals.css"
+:root {
+  --primary: oklch(0.52 0.14 262);
+  --primary-foreground: oklch(0.99 0 0);
+}
+
+.dark {
+  --primary: oklch(0.72 0.12 262);
+  --primary-foreground: oklch(0.17 0.01 262);
+}
+```
+
+A theme sets `--primary`, `--primary-foreground`, `--ring` and the surface roles, never the status ramps, the category ramps or the contrast floor. Radius and space steps change only in `tokens/*.json`. Only one colour owns `--primary`, and a brand hue near a status hue stays off any surface that reports a result.
+
+## Presets and preset codes
+
+A preset is a whole theme as one `registry:theme` item, with `cssVars` for light and dark and no files. Only `opsinjs-default`, the generated token layer, is published.
+
+```npm
+npx shadcn@latest add https://opsinjs.pensievelabs.org/r/themes/opsinjs-default.json
+```
+
+<Todo>
+A higher-contrast preset and a large-type preset are specified and not built.
+</Todo>
+
+Preset names begin `opsinjs-` so they cannot collide with shadcn styles such as `lyra`. Prefix yours with your organisation. An encoder for short `opsinjs-*` codes is planned, not built. A shadcn preset code is opaque, so run `npx shadcn@latest preset decode <code>` before `npx shadcn@latest apply <code> --only theme`.
+
+## Status and category palettes
+
+1. The ramps `steady`, `watch`, `attention`, `urgent` and `unknown` are closed, because components, the registry, these docs and agents share the ids.
+2. Never add a fifth status level. Carry nuance in words.
+3. If a mandated clinical colour standard or a failing ramp forces a change, edit `tokens/color.json` in a fork, keep the urgency order, re-measure both themes and record it in your accessibility statement.
+4. A fork may add or retune a category. Keep a new hue at least 30° from the status hues 27, 45, 82 and 178, and test it under colour-blindness simulation. Retuning a shipped one is a versioned change.
+5. A category paints accent, line and ink, never a card fill, since a category tint and a status tint at one step look alike.
+6. Never name a token for a verdict, such as `--acme-normal`.
+
+No element carries both axes, and status always has a word. See [Two colour axes](./health/two-colour-axes.mdx).
+
+## Dark mode
+
+Dark mode is a `dark` class on `<html>`, and opsinjs ships no provider. Use at most one library that sets the class, add `suppressHydrationWarning` to `<html>`, and keep its script blocking to prevent a flash. Default to light, and offer light, dark and system. [Next.js](./nextjs.mdx) has the layout.
+
+Declare every token you add under both `:root` and `.dark`, set `color-scheme` so native controls follow, and pin `@custom-variant dark (&:where(.dark, .dark *));` last.
+
+## Tailwind v4 and CSS variables
+
+Map each custom property to a utility with `@theme inline`:
+
+```css
+@theme inline {
+  --color-status-watch-surface: var(--opsin-status-watch-surface);
+}
+```
+
+Plain `@theme` copies the value at build time, so `.dark`, Display-P3, the preference queries, `data-density` and `data-text-size` stop reaching the utility, silently. No registry item serves these mappings yet, the theme item included, so declare the ones your components use. opsinjs maps a bare `status-<level>` to the line role and a bare `category-<id>` to the accent.
+
+Without Tailwind, read `var(--opsin-status-watch-surface)` directly, and keep `var()` references, not resolved values, in CSS-in-JS.
+
+## Validating contrast
+
+Published contrast figures describe the shipped tokens, so a changed token needs your own measurement. Check pairs at [/playground/contrast](/playground/contrast), or post them:
+
+```bash
+curl -s https://opsinjs.pensievelabs.org/api/contrast \
+  -H "content-type: application/json" \
+  -d '{"fg":"oklch(0.99 0 0)","bg":"oklch(0.52 0.14 262)","size":"body"}'
+```
+
+`size` is `body`, `large` or `non-text`. The reply has APCA and WCAG 2.2 figures and a `pass`, `conditional` or `fail` verdict.
+
+- Measure both themes, because dark is derived and failures gather there.
+- Check by eye, in greyscale too, that levels still read in order and no category passes for a status.
+- A `check-theme` CI command is proposed for `@opsinjs/color`, which is not published, and `pnpm run contrast` measures only a fork's own tokens.
+- Check that `--opsin-tokens-generated` holds a hash and `--opsin-status-urgent-line` did not move.
+
+## Design handoff
+
+Keep `tokens/*.json` upstream of any design library, with roles as aliases of ramps and only `light` and `dark` modes. Display-P3, the `linear()` springs and opaque material fallbacks do not survive into design tools. A DTCG export is planned, not built.

@@ -292,6 +292,76 @@ export function ContrastReport({
     )
   }
 
+  const table = (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b border-border text-left">
+            <th scope="col" className="py-2 pr-4 font-medium">
+              Pair
+            </th>
+            <th scope="col" className="py-2 pr-4 font-medium">
+              Theme
+            </th>
+            <th scope="col" className="py-2 pr-4 font-medium">
+              APCA Lc
+            </th>
+            <th scope="col" className="py-2 pr-4 font-medium">
+              WCAG 2.2
+            </th>
+            <th scope="col" className="py-2 font-medium">
+              Floor
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr
+              key={`${row.pair}-${row.theme}`}
+              className="border-b border-border/60"
+            >
+              <td className="py-2 pr-4">{row.pair}</td>
+              <td className="py-2 pr-4">{row.theme}</td>
+              <td className="py-2 pr-4 font-mono text-xs">
+                {row.apcaLc?.toFixed(1) ?? "not measured"}
+              </td>
+              <td className="py-2 pr-4 font-mono text-xs">
+                {row.wcag ? `${row.wcag.toFixed(2)}:1` : "not measured"}
+              </td>
+              <td className="py-2">{row.passes ? "Pass" : "Below floor"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+
+  /* On a component page the measured pairs sit behind a summary that states
+     the count below floor, so the number that matters is never hidden and the
+     page stays short. The full report on the Reference page stays open. */
+  if (fromComponent) {
+    const below = rows.filter((row) => !row.passes).length
+    return (
+      <details
+        className={cn(
+          "not-prose my-4 rounded-lg border border-border bg-fd-card",
+          className
+        )}
+      >
+        <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
+          Contrast: {rows.length} measured token pairs, {below} below floor
+        </summary>
+        <div className="border-t border-border px-4 pb-3">
+          {table}
+          <p className="mt-2 mb-0 text-xs text-muted-foreground">
+            These are the measured token pairs this component draws colour from,
+            not a measurement of the component itself.
+          </p>
+        </div>
+      </details>
+    )
+  }
+
   return (
     <div className={cn("not-prose my-4", className)}>
       {showSummary ? (
@@ -332,53 +402,7 @@ export function ContrastReport({
           </p>
         </div>
       ) : null}
-      <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-border text-left">
-            <th scope="col" className="py-2 pr-4 font-medium">
-              Pair
-            </th>
-            <th scope="col" className="py-2 pr-4 font-medium">
-              Theme
-            </th>
-            <th scope="col" className="py-2 pr-4 font-medium">
-              APCA Lc
-            </th>
-            <th scope="col" className="py-2 pr-4 font-medium">
-              WCAG 2.2
-            </th>
-            <th scope="col" className="py-2 font-medium">
-              Floor
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr
-              key={`${row.pair}-${row.theme}`}
-              className="border-b border-border/60"
-            >
-              <td className="py-2 pr-4">{row.pair}</td>
-              <td className="py-2 pr-4">{row.theme}</td>
-              <td className="py-2 pr-4 font-mono text-xs">
-                {row.apcaLc?.toFixed(1) ?? "not measured"}
-              </td>
-              <td className="py-2 pr-4 font-mono text-xs">
-                {row.wcag ? `${row.wcag.toFixed(2)}:1` : "not measured"}
-              </td>
-              <td className="py-2">{row.passes ? "Pass" : "Below floor"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
-      {fromComponent ? (
-        <p className="mt-2 text-xs text-muted-foreground">
-          These are the measured token pairs this component draws colour from,
-          not a measurement of the component itself.
-        </p>
-      ) : null}
+      {table}
     </div>
   )
 }

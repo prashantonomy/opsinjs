@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: ["toggle"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="switch" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="switch"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/switch"
   dependencies={["@base-ui/react"]}
 />
-
-## Usage
 
 ```tsx
 import { Switch } from "@/components/ui/switch"
@@ -49,87 +42,9 @@ import { Switch } from "@/components/ui/switch"
 />
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "A single setting, such as a Larger text preference, that takes effect the moment it is flipped.",
-    "A binary state the product commits straight away, with nothing submitted later and the reader free to flip it back.",
-  ]}
-  avoid={[
-    { case: "The toggle would record that the reader agreed to something. Consent is a decision with a record.", instead: "consent-sheet" },
-    { case: "The value is proposed now and submitted later with a form.", instead: "checkbox" },
-  ]}
-/>
-
-## Anatomy
-
-<Anatomy
-  name="switch"
-  parts={[
-    {
-      name: "Switch",
-      describes: "The root, a label element floored at the 44pt target. The whole row is pressable.",
-      prop: "label",
-    },
-    {
-      name: "Switch.Label",
-      describes: "The visible words and the accessible name, applied to the control through aria-labelledby.",
-      prop: "label",
-    },
-    {
-      name: "Switch.Description",
-      describes: "The optional helper line, read as the control's description through aria-describedby.",
-      prop: "description",
-    },
-    {
-      name: "Switch.Control",
-      describes: "The track, a Base UI Switch.Root with role=\"switch\" and aria-checked. Muted when off, primary fill when on.",
-      prop: "checked",
-    },
-    {
-      name: "Switch.Thumb",
-      describes: "The disc that slides: left for off, right for on, so position carries the state too.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="switch"
-  tree={[
-    {
-      part: "Switch",
-      cardinality: "1",
-      note: "data-slot=\"switch\", the whole target",
-      children: [
-        {
-          part: "Switch.Label",
-          cardinality: "1",
-          note: "data-slot=\"switch-label\"",
-        },
-        {
-          part: "Switch.Description",
-          cardinality: "0..1",
-          note: "data-slot=\"switch-description\", only when description is set",
-        },
-        {
-          part: "Switch.Control",
-          cardinality: "1",
-          note: "data-slot=\"switch-control\", role=\"switch\"",
-          children: [
-            {
-              part: "Switch.Thumb",
-              cardinality: "1",
-              note: "data-slot=\"switch-thumb\"",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="switch" />
 
 ### A setting that applies now
 
@@ -145,29 +60,22 @@ changes. It is read as the description, so the accessible name stays the label.
 
 <ComponentPreview name="switch-with-a-description" kind="example" align="start" />
 
-## Content guidelines
+## When to use it
 
-Name the setting the switch turns on, not its state: *Larger text*, never *On* or
-*Turn on larger text*. Sentence case, a few words, no full stop. The helper line
-says what the setting does; it never repeats the label or carries a reading, a
-threshold or a unit.
-
-<DoDont>
-  <DoDont.Do>
-    **"Larger text"** names the setting and stays true whichever way the switch is flipped.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"I agree"** records consent, which belongs in a [ConsentSheet](./consent-sheet.mdx).
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "A single setting, such as a Larger text preference, that takes effect the moment it is flipped.",
+    "A binary state the product commits straight away, with nothing submitted later and the reader free to flip it back.",
+  ]}
+  avoid={[
+    { case: "The toggle would record that the reader agreed to something. Consent is a decision with a record.", instead: "consent-sheet" },
+    { case: "The value is proposed now and submitted later with a form.", instead: "checkbox" },
+  ]}
+/>
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA.** A source pass over the full rubric and a rendered
-pass with axe, both author-run rather than an independent review, with clinical
-review still pending. The audit found nothing to change in this component's source.
-
-**What the audit confirmed.**
+The audit found nothing to change in the source.
 
 - `role="switch"` comes from Base UI's Switch.Root, the accessible name is a visible
   label span tied by `aria-labelledby`, and state rides `aria-checked`.
@@ -177,11 +85,11 @@ review still pending. The audit found nothing to change in this component's sour
   enclosing label row, which toggles the control.
 - Focus sits on the track with the house ring, and both transitions collapse under
   `prefers-reduced-motion: reduce` through the fast-duration token.
-- `pnpm run check:a11y` runs on every commit: only neutral chrome and the bridged
-  primary fill, so no colour literal, no type size in `px`, and no banned word.
+- It uses only neutral chrome and the bridged primary fill, and `pnpm run check:a11y`
+  confirms on every commit that no colour literal, `px` type size or banned word appears.
 
-**Still unmeasured.** No contrast pair has been read yet, so the report below stands
-in for numbers nobody has produced.
+**Residual items.** No contrast pair has been read yet, so the report below stands in for
+numbers nobody has produced.
 
 <KeyboardTable
   name="switch"
@@ -216,7 +124,16 @@ in for numbers nobody has produced.
 
 <ContrastReport component="switch" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="SwitchProps" />
+
+`checked` and `onCheckedChange` make this a controlled component with no internal
+state. `label` is required: a missing or empty label raises a development warning.
+`disabled` keeps the switch visible and labelled while refusing focus and every
+key. `className` is merged onto the root row and must carry neither colour axis.
+
+### Data attributes
 
 <DataAttributesTable
   name="switch"
@@ -238,18 +155,3 @@ in for numbers nobody has produced.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="SwitchProps" />
-
-`checked` and `onCheckedChange` make this a controlled component with no internal
-state. `label` is required: a missing or empty label raises a development warning.
-`disabled` keeps the switch visible and labelled while refusing focus and every
-key. `className` is merged onto the root row and must carry neither colour axis.
-
-## Related
-
-- [Checkbox](./checkbox.mdx) proposes a value a form submits later. A switch commits on the flip.
-- [ConsentSheet](./consent-sheet.mdx) records a decision with a who and a when. A switch keeps no record.
-- [SegmentedControl](./segmented-control.mdx) chooses one of several options. A switch is the two-state case.

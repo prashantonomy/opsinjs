@@ -1,0 +1,62 @@
+---
+title: Migrating from shadcn/ui
+description: What maps one to one from shadcn/ui, what changes, and the order to move things in.
+kind: guide
+aliases: [shadcn migration, asChild to render, token mapping]
+---
+
+The registry mechanism, code ownership, `cn()` and Tailwind all carry over, and both registries install side by side under their own namespaces. Three things change.
+
+- **Radix becomes Base UI**, so `asChild` becomes `render`. See [Styling](./styling.mdx).
+- **`variant` splits in two.** `category` says what a reading is about and `status` says how urgent it is, and they never mix. See [Two colour axes](./health/two-colour-axes.mdx).
+- **`destructive` has no equivalent**, because nothing about a person's reading is destructive.
+
+## Components
+
+| shadcn/ui | opsinjs | Note |
+| --- | --- | --- |
+| `Alert` | [AlertBanner](./components/alert-banner.mdx) | Takes `status`, not `variant` |
+| `Badge` | [StatusPill](./components/status-pill.mdx) | Status only. A neutral label is [Badge](./components/badge.mdx) |
+| `Card`, `Dialog`, `Sheet`, `Skeleton`, `Button`, `Toast` | [Card](./components/card.mdx), [Dialog](./components/dialog.mdx), [Sheet](./components/sheet.mdx), [Skeleton](./components/skeleton.mdx), [Button](./components/button.mdx), [Toast](./components/toast.mdx) | Same role |
+| `Form` and `FormField` | [Field](./components/field.mdx) | Library-agnostic. See [Forms](./patterns/forms.mdx) |
+| `Progress` | [Progress](./components/progress.mdx) | Same role. [RangeBar](./components/range-bar.mdx) is a different component |
+
+## Props and attributes
+
+| shadcn/ui | opsinjs |
+| --- | --- |
+| `asChild` and a single child | `render={<element />}` |
+| `variant="destructive"` | `status="urgent"`, only where a clinical status genuinely applies |
+| `variant="secondary"` as a category tint | `category="sleep"` |
+| `data-state="open"` and `data-state="closed"` | `data-open` and `data-closed` |
+| Entry and exit animation on `data-state` | `data-starting-style` and `data-ending-style` |
+
+## Tokens
+
+opsinjs components use shadcn role utilities such as `bg-card` and `border-border`, so your role variables still reach them. To adopt the opsinjs values, point each role at its token.
+
+| shadcn/ui role | Point it at |
+| --- | --- |
+| `--background`, `--foreground` | `--opsin-chrome-background`, `--opsin-chrome-foreground` |
+| `--muted`, `--muted-foreground` | `--opsin-chrome-muted`, `--opsin-chrome-muted-foreground` |
+| `--border` | `--opsin-chrome-border` |
+| `--destructive` | Nothing. `--opsin-status-urgent-*` is for a clinical status only |
+
+`--opsin-status-<level>-*` and `--opsin-category-<name>-*` have no shadcn counterpart. Names may change before 1.0, and [Tokens](./reference/generated/tokens.mdx) lists every one.
+
+## Order of work
+
+1. Add the `@opsinjs` entry and the token layer from [Getting started](./getting-started.mdx), keeping shadcn/ui installed.
+2. Re-check contrast, because your shadcn values were never measured against the opsinjs floor. See [Theming](./theming.mdx).
+3. Migrate screens that show a health value first, a whole screen at a time.
+4. Rewrite each `variant` by hand as identity or severity. One that meant both was a bug.
+5. Move overlays as a group, because Radix and Base UI focus management can fight on one screen.
+6. Commit the files `shadcn add` writes in their own commit. Nothing in a copied file says which system it came from.
+
+## Pitfalls
+
+- **Keeping `variant` beside `status` on your own wrappers.** That is how the axes get mixed.
+- **Running two theme providers.** opsinjs adds none, because its theme is a class on `<html>`.
+- **Porting `globals.css` wholesale.** The import order differs, and it is load-bearing.
+- **Swapping `asChild` for `render` by find and replace.** `render` takes an element, so the result type-checks and renders one element too many.
+- **Expecting `--radius` to set the shape.** opsinjs derives a radius ladder and uses `corner-shape` where supported. See [Shape](./foundations/shape.mdx).

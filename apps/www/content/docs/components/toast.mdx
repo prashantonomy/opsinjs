@@ -21,11 +21,7 @@ aliases: ["snackbar", "transient message", "notification toast"]
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="toast" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="toast"
@@ -33,8 +29,6 @@ aliases: ["snackbar", "transient message", "notification toast"]
   importPath="@/components/ui/toast"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Toast } from "@/components/ui/toast"
@@ -58,6 +52,22 @@ function Screen() {
 }
 ```
 
+## Examples
+
+<ComponentPreview name="toast" />
+
+### A save confirmation
+
+A button pushes a "Saved" toast that stays a few seconds and then leaves. The words are fictional and name nothing measured.
+
+<ComponentPreview name="toast-a-save-confirmation" kind="example" align="start" />
+
+### With an action
+
+`actionProps` adds one quiet control beside the message, so a reader who removed a note by mistake can reverse it. Here Undo only closes the toast.
+
+<ComponentPreview name="toast-with-an-action" kind="example" align="start" />
+
 ## When to use it
 
 <WhenToUse
@@ -73,79 +83,23 @@ function Screen() {
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="toast"
-  parts={[
-    {
-      name: "Toast",
-      describes: "The region. Renders Base UI's provider and a fixed viewport, and mounts children inside so they can push a toast.",
-      prop: "position",
-    },
-    {
-      name: "Toast.Viewport",
-      describes: "The live region the stack sits in: role=\"region\", aria-live=\"polite\", named by label, reachable with F6.",
-      prop: "label",
-    },
-    {
-      name: "Toast.Item",
-      describes: "One toast, role=\"dialog\" labelled by its title. Card material, hairline and overlay shadow, so it reads as lifted.",
-    },
-    {
-      name: "Toast.Title",
-      describes: "The confirmation itself, such as \"Saved\". The full foreground, drawn only when the pushed toast carries one.",
-    },
-    {
-      name: "Toast.Description",
-      describes: "An optional second line of detail. The muted role at the footnote step.",
-    },
-    {
-      name: "Toast.Action",
-      describes: "An optional quiet text control such as Undo, drawn when the pushed toast carries actionProps.",
-    },
-    {
-      name: "Toast.Close",
-      describes: "The dismiss control, a lucide X named by closeLabel, floored at the 44px target on both axes.",
-      prop: "closeLabel",
-    },
-  ]}
-/>
-
-## Examples
-
-### A save confirmation
-
-A button pushes a "Saved" toast that stays a few seconds and then leaves. The words are fictional and name nothing measured.
-
-<ComponentPreview name="toast-a-save-confirmation" kind="example" align="start" />
-
-### With an action
-
-`actionProps` adds one quiet control beside the message, so a reader who removed a note by mistake can reverse it. Here Undo only closes the toast.
-
-<ComponentPreview name="toast-with-an-action" kind="example" align="start" />
-
-## Content guidelines
-
-Keep a toast to the fact of the action, past tense, a word or two: "Saved", "Reminder set", "Note removed". Never write a clinical word, a reading or a level of urgency into one. Give an action a verb, and make it safe to ignore.
-
-<DoDont>
-  <DoDont.Do>
-    **"Saved" with an optional "Undo".** The action still happened if the reader looks away.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A toast carrying a number, a result or an urgency.** Whoever needs it most misses it.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass that together raised no axe violation, no target-size hit and no 320px reflow failure. This is an author-run audit, not an independent review; clinical review is pending.
+Roles, names, the polite live region, pause on hover and focus, Escape and focus return
+all come correctly from `@base-ui/react`. The X icon is `aria-hidden` and the close
+carries a translatable `aria-label`. Colours are role tokens, type sizes are
+`text-opsin-*` tokens, and the controls floor their hit area at `--opsin-target-minimum`.
+There is no axe, target-size or 320px reflow failure.
 
-**The audit found nothing in the source to change.** Roles, names, the polite live region, pause on hover and focus, Escape and focus return all come correctly from `@base-ui/react`. The X icon is `aria-hidden` and the close carries a translatable `aria-label`. Colours are role tokens, type sizes are `text-opsin-*` tokens, and the controls floor their hit area at `--opsin-target-minimum`.
+**Residual items.**
 
-**Residual items to know.** A toast pushed with a description and no title yields a dialog with no accessible name, because `ToastList` rightly emits no empty title; the default and both examples always pass a title, and a description-only toast is still announced by the live region through `aria-describedby`. Whether an appearing toast overlaps a control focused elsewhere is a product-layout question outside component scope. Contrast pairs are unmeasured, so the report below carries what was measured.
+- A toast pushed with a description and no title yields a dialog with no accessible
+  name, because `ToastList` rightly emits no empty title. The live region still
+  announces it through `aria-describedby`, and the default and both examples always
+  pass a title.
+- Whether an appearing toast overlaps a control focused elsewhere is a product-layout
+  question outside component scope.
+- Contrast pairs are unmeasured, so the report below carries what was measured.
 
 <KeyboardTable
   name="toast"
@@ -180,13 +134,8 @@ Audited against WCAG 2.2 AA in a source pass and a rendered pass that together r
 
 <ContrastReport component="toast" />
 
-## API reference
+## Props interface
 
 <PropsTable name="ToastProps" />
 
 `position` defaults to `bottom-right`, `limit` to three and `timeout` to 5000ms. Passing `timeout={0}` stops every toast dismissing itself and raises a development warning, because a message that must persist is an AlertBanner or a Callout. `label` and `closeLabel` are props so they can be translated, and both default to English.
-
-## Related
-
-- [AlertBanner](./alert-banner.mdx) is for a message that needs attention now and stays until the reader deals with it.
-- [Callout](./callout.mdx) sets a standing note or caveat apart for as long as the reader is on the surface.

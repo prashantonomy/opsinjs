@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-communication
 aliases: [glossary term, jargon, plain english, definition, tooltip term, plain word]
-governedBy: [who-this-is-for, clinical-interaction-guidelines]
-usedIn: [ask-users-for/ethnicity, ask-users-for/medications, ask-users-for/sex-and-gender, ask-users-for/symptoms, choose-a-component, consent-and-permissions, consent-flow, diabetes-medicines-app, onboarding-screen, result-disclosure, results-screen, trends-screen, value-against-a-range]
+governedBy: [health/index, consent-and-privacy, high-stakes-moments, safety-review]
+usedIn: [ask-users-for, consent-and-permissions, result-disclosure]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,19 +23,13 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="term" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="term"
   unbuilt={false}
   importPath="@/components/ui/term"
 />
-
-## Usage
 
 ```tsx
 import { Term, TermGlossaryProvider } from "@/components/ui/term"
@@ -48,6 +42,24 @@ import { Term, TermGlossaryProvider } from "@/components/ui/term"
   </p>
 </TermGlossaryProvider>
 ```
+
+## Examples
+
+<ComponentPreview name="term" />
+
+### Reading a paragraph without leaving it
+
+Two terms is near the ceiling for one paragraph. A third carries `once`, so the word stays
+marked and reachable but its definition is not reprinted.
+
+<ComponentPreview name="term-in-a-sentence" kind="example" align="start" />
+
+### An abbreviation needs two things
+
+The expansion says what the letters stand for, the definition what the thing is. Both
+entries are marked `showBoth: "always"`, so both arrive inline, and `SpO2` adds `speech`.
+
+<ComponentPreview name="term-an-abbreviation" kind="example" align="start" />
 
 ## When to use it
 
@@ -70,15 +82,14 @@ import { Term, TermGlossaryProvider } from "@/components/ui/term"
 
 **Asserts.** That this word has this everyday meaning in the product's glossary. That
 translation is the product's claim, not a clinician's, and opsinjs ships an empty glossary.
-See [Who this is for](../health/who-this-is-for.mdx).
+See [Health](../health/index.mdx).
 
 **Never read as.** A statement about the reader's condition, or advice. *Chronic means
 long-lasting* is a translation; *chronic means you will have this for life* is a prognosis
 the glossary is not for.
 
-**Colour axis.** Neither. The mark is a dotted underline that survives greyscale, because
-tinting jargon by category or status would invent a clinical level nobody assigned. See
-[Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
+**Colour axis.** Neither. The mark is a dotted underline that survives greyscale. See
+[Health](../health/index.mdx).
 
 **Thresholds.** None. Term puts no reading on the screen, so it holds no threshold and
 stamps no value.
@@ -92,116 +103,22 @@ Review the glossary as clinical content, not as microcopy. A definition that sli
 guidance has nobody behind it, and nothing catches the drift.
 </SafetyCallout>
 
-## Anatomy
-
-<Anatomy
-  name="term"
-  parts={[
-    {
-      name: "Term",
-      describes: "The root. Resolves id against the provider's glossary and picks one of two presentations.",
-      prop: "id",
-    },
-    {
-      name: "Term.Trigger",
-      describes: "The word as it reads in the sentence. A dotted-underlined button, or an unmarked span inline.",
-      prop: "children",
-    },
-    {
-      name: "Term.Definition",
-      describes: "The plain-English sentence. In the accessibility tree whether open or not.",
-      prop: "present",
-    },
-    {
-      name: "Term.Expansion",
-      describes: "The full form of an abbreviation, inside the definition and before it.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="term"
-  tree={[
-    {
-      part: "Term",
-      cardinality: "1",
-      note: "data-slot=\"term\"",
-      children: [
-        {
-          part: "Term.Trigger",
-          cardinality: "0-1",
-          note: "A button with aria-expanded and aria-describedby, or a span. Absent on an unknown or plain-only entry.",
-          children: [],
-        },
-        {
-          part: "Term.Definition",
-          cardinality: "0-1",
-          note: "The trigger's next sibling. Absent on the same two paths.",
-          children: [
-            {
-              part: "Term.Expansion",
-              cardinality: "0-1",
-              note: "Present only when the entry carries an expansion.",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### Reading a paragraph without leaving it
-
-Two terms is near the ceiling for one paragraph. A third carries `once`, so the word stays
-marked and reachable but its definition is not reprinted.
-
-<ComponentPreview name="term-in-a-sentence" kind="example" align="start" />
-
-### An abbreviation needs two things
-
-The expansion says what the letters stand for, the definition what the thing is. Both
-entries are marked `showBoth: "always"`, so both arrive inline. `SpO2` adds `speech`.
-
-<ComponentPreview name="term-an-abbreviation" kind="example" align="start" />
-
-## Content guidelines
-
-Definitions are one sentence under about twenty words: define the word, not the condition,
-and never nest a second piece of jargon. Expansions are the full form
-and nothing else. `auto` keeps a definition of about eighty characters or less beside the
-word, so a tight sentence needs no press.
-
-<DoDont>
-  <DoDont.Do>
-    **"eGFR (estimated glomerular filtration rate, an estimate of how well your kidneys
-    are filtering)."** Expansion, then plain definition.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"eGFR (estimated glomerular filtration rate)."** Every word in the expansion needs
-    its own definition.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Audited against WCAG 2.2 AA in a source pass and a rendered pass. The audit is
-author-run, not independent, and clinical review is still pending.
+The disclosure is a real button named by its visible word, meeting SC 2.5.3 Label in
+Name. `present` has no `hover` value, so the definition never depends on hover, and
+collapsed it is `display: none` yet still reaches the reader as the trigger's
+description. The mark changes form, not colour: dotted at rest, solid while open. The
+audit made the trigger's focus ring honour `--opsin-border-focus` and
+`--opsin-border-focus-offset` in place of a hardcoded 2px width and offset, so the
+indicator grows with a reader's focus width.
 
-**Fixed by the audit.** The disclosure trigger's focus ring hardcoded a 2px width and
-offset, ignoring the `--opsin-border-focus` and `--opsin-border-focus-offset` tokens. It
-now honours them, so the indicator grows with a reader's focus width.
+**Residual items.**
 
-**Verified in source.** `present` has no `hover` value, so the definition never depends on
-hover. Collapsed, it is `display: none` yet still reaches the reader as the trigger's
-description. The disclosure is a real button named by its visible word, meeting SC 2.5.3
-Label in Name. The mark changes form, not colour: dotted at rest, solid while open.
-
-**Residual, and stated plainly.** The inline trigger falls under the 44 by 44 floor and
-relies on the SC 2.5.8 inline exception, and adjacent wrapped triggers can overlap. `aria-controls` deliberately points at the closed `display:
-none` panel. No assistive technology has been tested against it, so the lived experience
-is unverified.
+- The inline trigger falls under the 44 by 44 floor and relies on the SC 2.5.8 inline
+  exception, and adjacent wrapped triggers can overlap.
+- `aria-controls` deliberately points at the closed `display: none` panel. No assistive
+  technology has been tested against it, so the lived experience is unverified.
 
 <KeyboardTable
   name="term"
@@ -236,21 +153,13 @@ is unverified.
 
 <ContrastReport component="term" />
 
-## API reference
+## Props interface
 
 <PropsTable name="TermProps" />
 
 <PropsTable name="TermGlossaryProviderProps" />
 
 There is no way to supply a definition at a call site. Definitions live in the glossary
-and arrive once through `TermGlossaryProvider`, so they stay consistent and reviewable. An `id` the glossary does not hold renders unmarked and warns in
-development, printing `children` where a call site supplied any and otherwise the raw `id`.
-
-## Related
-
-- [Tooltip](./tooltip.mdx) is a general hover or focus popup. Term avoids it, because a
-  definition must not depend on hover.
-- [Callout](./callout.mdx) is for an explanation longer than a sentence or two.
-- [Value](./value.mdx) formats numbers and units. Term explains words.
-- [DisclaimerNote](./disclaimer-note.mdx) is a standing statement about the product, not
-  one word's meaning.
+and arrive once through `TermGlossaryProvider`, so they stay consistent and reviewable.
+An `id` the glossary does not hold renders unmarked and warns in development, printing
+`children` where a call site supplied any and otherwise the raw `id`.

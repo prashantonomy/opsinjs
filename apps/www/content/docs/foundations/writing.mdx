@@ -1,0 +1,111 @@
+---
+title: Writing
+description: How a product built on opsinjs sounds, and the rules every string follows.
+kind: foundation
+---
+
+Copy is part of the component. A [StatusPill](../components/status-pill.mdx) with the wrong word is as broken as one with the wrong colour. Five rules cover every string:
+
+1. **Answer first.**
+2. **Use the reader's words**, from [Plain English A to Z](../reference/plain-english.mdx).
+3. **Claim no more certainty than the data has.**
+4. **Match the tone to the status level, not the brand.**
+5. **Never say what a result means clinically.** Describe it and say who can interpret it.
+
+The writing rules here are our judgement, not findings from a study.
+
+## Voice and tone
+
+The voice is calm, plain and in the second person. The tone follows the [status level](../health/two-colour-axes.mdx).
+
+- `steady` states the fact and stops.
+- `watch` gives the comparison and what would make it matter, with no imperative.
+- `attention` gives the fact, one action, then a true reassurance if there is one.
+- `urgent` puts the action first, with no brand voice and no hedging.
+
+Never celebrate a health number.
+
+## Health literacy
+
+- Give the comparison with the figure: "72 bpm, within your usual range of 58 to 76".
+- Never make the reader do arithmetic.
+- Assume interruption. Each paragraph must stand alone.
+- Give risk as natural frequencies, such as "about 3 in every 100 people", never as a bare percentage the reader must act on.
+
+Aim no higher than a reading age of about 9 to 11, except in `urgent` copy. Treat a readability score as a smoke alarm. Fix the sentence, not the score.
+
+<Todo>
+Add a readability pass to `pnpm run check` that reports each page's longest sentence. Publish no reading-level score until it has run.
+</Todo>
+
+## Grammar and mechanics
+
+- Sentence case everywhere. No full stop on a label or heading. No exclamation marks, em dashes, en dashes or Latin abbreviations.
+- Expand an abbreviation on first use on each screen, and never abbreviate in a notification or alert.
+- Status words come verbatim from `CLINICAL_STATUS_META` in `lib/status.ts`: Steady, Watch, Needs attention, Urgent and Not known.
+
+## Numbers, dates and time
+
+[Numbers and units](../health/numbers.mdx) owns precision, rounding and units. Use relative time only within a day, and never alone in an export, a printout or a notification.
+
+| Write | Not |
+| --- | --- |
+| Your usual range is 90 to 120 mmHg. | Normal range: 90-120. |
+| 14 March 2026 at 08:12 | 14/03/2026 |
+| Taken 2 hours ago (today at 08:12) | Taken 2 hours ago |
+
+## Alt text
+
+Describe the answer, not the picture. Describe a [ScoreDial](../components/score-dial.mdx) by its number and comparison, never as "a needle in the amber zone". Give an accessible name, a caption with the window and source, and a table twin for a chart. [Data visualisation](./data-visualisation.mdx) requires the twin, and no chart in the registry ships one yet. Never interpret. A decorative image takes `alt=""`.
+
+## Status and alerts
+
+The level and the wording never disagree. If the sentence needs to be stronger, the level is wrong. [Alerts](../health/alerts.mdx) caps a screen at one `urgent` surface.
+
+Bad news goes first, says what it is rather than what it might be, and gives one next step. Never wrap it in praise or call a result nothing to worry about. A push notification never shows the value. Emergency wording is on [High-stakes moments](../health/high-stakes-moments.mdx).
+
+| Write | Not |
+| --- | --- |
+| Your reading was 152 over 96. That is higher than the range your GP set for you. Take another reading tomorrow morning. | Warning! Elevated blood pressure detected. This could indicate hypertension. |
+| Call 999 now. Tell them you have chest pain. | We'd recommend seeking urgent medical attention as soon as possible. |
+
+## Sensitive questions
+
+- Say why you are asking, in one clause beside the question.
+- Write "optional" or "required" on the label, never an asterisk.
+- Offer "Prefer not to say" and store it apart from "Not answered".
+- Never challenge a refusal with "Are you sure?".
+
+Read [High-stakes moments](../health/high-stakes-moments.mdx) before asking about mood, self-harm or safety at home. [Ask users for…](../patterns/ask-users-for.mdx) covers each kind of detail.
+
+## Errors and empty states
+
+Say what happened, whether the reader's data is safe, and what to do next. A stale value says so beside the value, never only in a toast. Name each [data state](./states.mdx) in words.
+
+| Write | Not |
+| --- | --- |
+| We could not save your reading. Your numbers are still here. Try again. | Something went wrong. Please try again later. |
+| These readings were last updated on 12 March at 07:40. We could not get anything newer. | Offline |
+
+## Inclusive language
+
+- Write "people with diabetes" and "lives with", not "diabetics" and "suffers from". Follow a community's preference for identity-first language.
+- Assume no default household: "a partner or someone who helps you".
+- Ask for sex assigned at birth only where a measurement uses it, and about gender separately.
+- State the measurement, never a verdict on a body.
+
+## Localisation
+
+- Pass `locale` to [Value](../components/value.mdx), [RelativeTime](../components/relative-time.mdx) and [RangeBar](../components/range-bar.mdx). Without it, the server's locale formats the first paint.
+- Use CSS logical properties. Never join translated fragments into a sentence.
+- Never translate a unit symbol or a medicine name.
+- Status words ship in English. A translation passed to StatusPill's `label` keeps the levels' order, carries no verdict, and is reviewed by someone who understands the clinical intent.
+
+## Words to avoid
+
+| Avoid | Use instead |
+| --- | --- |
+| normal, abnormal | in your usual range, outside your usual range |
+| elevated, reduced | higher than, lower than |
+| could indicate, may suggest | the reading, and who can interpret it |
+| critical, emergency | only at `urgent` |

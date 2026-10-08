@@ -43,7 +43,7 @@ What to do instead:
    the command, and `rules/registry.md` says why.
 2. **For an id opsinjs does not have, say so and stop.** "opsinjs does not have
    one" is a complete answer. The catalogue at `/r/registry.json` and the
-   generated page at `/docs/reference/generated/catalogue.md` are authoritative
+   generated page at `/components.md` are authoritative
    for what exists, and neither is a gap you should fill by inventing X.
 3. **If you write one anyway**, build it from a primitive the project already
    has, styled with opsinjs tokens, and do not call it opsinjs.
@@ -116,9 +116,9 @@ better answer than a page reconstructed from memory.
 
 ## Where the detail lives
 
-- `/docs/start/safety-scope-and-limitations.md` - what opsinjs is not
-- `/docs/project/release-phases.md` - what each status promises
-- `/docs/health/reference-ranges.md` - showing a range without implying a diagnosis
-- `/docs/health/evidence-and-references.md` - the evidence discipline
-- `/docs/health/uncertainty-and-staleness.md` - rendering "we do not know"
-- `/docs/reference/generated/catalogue.md` - every component opsinjs has
+- `/health.md` - what opsinjs is not
+- `/reading-the-docs.md` - what each status promises
+- `/health/reference-ranges.md` - showing a range without implying a diagnosis
+- `/health/safety-review.md` - the evidence discipline
+- `/health/trends.md` - rendering "we do not know"
+- `/components.md` - every component opsinjs has

@@ -1,0 +1,79 @@
+---
+title: Data visualisation
+description: Chart colour that respects the two colour axes, a fixed y-axis, and the table twin every chart needs.
+kind: foundation
+aliases: [charts, graphs, table twin]
+---
+
+opsinjs is not a charting library. [TrendSparkline](../components/trend-sparkline.mdx) shows change over time, [RangeBar](../components/range-bar.mdx) one value against a reference range and [ScoreDial](../components/score-dial.mdx) a composite score. Apply these rules to any plotting library.
+
+## Chart colour
+
+Chart colour follows the [two colour axes](../health/two-colour-axes.mdx), and neither axis may tell series apart.
+
+- **No series in a status colour.** It asserts urgency about the whole dataset and spends the colour kept for escalation ([Alerts](../health/alerts.mdx)).
+- **No series in a category colour either.** As thin lines the accents look alike.
+- **A flagged reading's status goes in words**, as a [StatusPill](../components/status-pill.mdx) beside the chart.
+- **Reference bands are neutral**, labelled and sourced, never green ([Reference ranges](../health/reference-ranges.mdx)).
+- **Colour comes third**, after direct labels and a dash, marker or thickness difference, so a greyscale print still parses.
+- **Pin series one to colour one**, and stop at about five series.
+- **A diverging ramp needs a labelled midpoint** set by the product's clinical governance rather than the mean of the visible data.
+
+<NotBuiltYet what="The third ramp">
+`tokens/color.json` declares no chart ramp, so no `--opsin-chart-*` property exists. TrendSparkline strokes its line with the category `-line` role in the meantime.
+</NotBuiltYet>
+
+Below, only each caption's StatusPill carries status.
+
+<ComponentPreview name="trend-sparkline-a-band-and-a-marked-reading" kind="example" align="start" />
+
+## Axes
+
+- **Fix the y-axis per metric**, with its units and precision ([Numbers and units](../health/numbers.mdx)). Never fit it to the visible data.
+- **Start at zero where zero means something**, such as steps, and always for bars and areas. Otherwise span the clinically relevant range and state that range beside the chart.
+- **A new window never rescales the y-axis**, and nothing animates.
+- **Gaps stay gaps** ([States](./states.mdx)). TrendSparkline takes one as an entry with `value: null`.
+- **Place readings by time taken**, not by index.
+- **Label the last value directly**, and give the axis its unit.
+- **No dual y-axes or projections.**
+- **Draw no trend from too few points.** The product sets the minimum ([Trends and uncertainty](../health/trends.mdx)), so TrendSparkline's `minimumPoints` has no default.
+
+<NotBuiltYet what="A chart that renders every part named here">
+TrendSparkline draws one series and an optional band, with no axes and no interaction.
+</NotBuiltYet>
+
+## Table twin
+
+Every chart must ship a table twin, which is the same data in a real table on the same screen. It is never behind a hover, in a modal or visually hidden. Put the summary first, the chart second and the table last.
+
+- **Summary.** One sentence generated from the data: metric, window, direction, magnitude, coverage and caveat. For example, "Systolic blood pressure, last 14 days: 11 readings, ranging from 118 to 134, with no clear direction. Three days have no reading."
+- **Chart.** One labelled image named by the summary, or hidden when the table sits beside it.
+- **Table.** Units in the header, a caption naming metric and window, and each missing reading as an empty cell with a reason.
+
+<NotBuiltYet what="A chart with a table twin">
+No chart in the registry provides a table twin yet.
+</NotBuiltYet>
+
+Build one with [Table](../components/table.mdx).
+
+```tsx
+<Table
+  caption="Example series by period, the readable twin of the chart above, showing an example count for each period"
+  columns={[
+    { key: "period", header: "Period" },
+    { key: "count", header: "Count", numeric: true },
+  ]}
+  rows={[
+    { period: "Period one", count: "12" },
+    { period: "Period two", count: "1,000" },
+  ]}
+/>
+```
+
+## Accessibility
+
+- WCAG 2.2 SC 1.1.1 is met by the table twin, not by alt text.
+- SC 1.4.11 applies to every mark, gridline and tick.
+- Whatever hover reveals, keyboard focus reveals.
+- The plot shrinks as axis labels grow with text size.
+- Test with the screen off: what does the chart show, and what was day three?

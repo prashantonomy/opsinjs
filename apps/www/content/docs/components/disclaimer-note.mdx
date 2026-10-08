@@ -5,8 +5,8 @@ status: shipped
 kind: component
 category: health-communication
 aliases: [not medical advice, disclaimer, legal note, safety note, small print]
-governedBy: [regulatory-context, clinical-interaction-guidelines, safety-review-checklist]
-usedIn: [ask-users-for/ethnicity, ask-users-for/height-and-weight, ask-users-for/medications, ask-users-for/sex-and-gender, ask-users-for/symptoms, choose-a-component, consent-and-permissions, consent-flow, diabetes-medicines-app, onboarding-and-first-run, onboarding-screen, result-disclosure, results-screen, sharing-with-a-clinician, value-against-a-range]
+governedBy: [safety-review, health/index, consent-and-privacy, high-stakes-moments, numbers, reference-ranges, trends]
+usedIn: [consent-and-permissions, onboarding-and-first-run, result-disclosure, sharing-with-a-clinician]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -23,11 +23,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="disclaimer-note" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="disclaimer-note"
@@ -36,8 +32,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
   registryDependencies={["link"]}
 />
-
-## Usage
 
 ```tsx
 import { DisclaimerNote } from "@/components/ui/disclaimer-note"
@@ -48,6 +42,24 @@ import { DisclaimerNote } from "@/components/ui/disclaimer-note"
   The product's own two sentences go here. opsinjs ships none of them.
 </DisclaimerNote>
 ```
+
+## Examples
+
+<ComponentPreview name="disclaimer-note" />
+
+### One note, at the foot of the surface
+
+Three rows and one `placement="footer"` note under all of them: not one per row, and
+never above them.
+
+<ComponentPreview name="disclaimer-note-once-at-the-foot-of-a-surface" kind="example" align="start" />
+
+### When nobody wrote the words
+
+`children` of `undefined`, `false`, `0`, an empty array or whitespace prints an admission
+and warns in development. Copy in an element is taken at its word.
+
+<ComponentPreview name="disclaimer-note-no-text-supplied" kind="example" align="start" />
 
 ## When to use it
 
@@ -72,113 +84,41 @@ import { DisclaimerNote } from "@/components/ui/disclaimer-note"
 does not replace a clinician's advice and, where relevant, is not a medical device.
 The component supplies position, type size, ink and boundary, and none of the content.
 
-**Never read as.** A waiver or a substitute for designing safely: a disclaimer does not
-make an unsafe screen safe. It is never *this number is unreliable*, since the note is
-about the product's role, not the measurement. The
-[safety review checklist](../health/safety-review-checklist.mdx) judges the screen.
+**Never read as.** A waiver or a substitute for designing safely, because a disclaimer
+does not make an unsafe screen safe and the
+[safety review](../health/safety-review.mdx) judges the screen. It is never *this number
+is unreliable*, since the note is about the product's role, not the measurement.
 
 **Colour axis.** Neither. There is no `status` or `category` prop, no `data-status` or
-`data-category`, and no fill. See
-[The two colour axes](../health/two-colour-axes.mdx).
+`data-category`, and no fill ([Two colour axes](../health/two-colour-axes.mdx)).
 
 **Thresholds.** None. No clinical number is written into the component and none passes
 through it: no threshold, reference range, score band or staleness boundary.
 
-**Words.** The consuming product's, under the
-[clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
+**Words.** The consuming product's, under the rules in [Health](../health/index.mdx).
 opsinjs ships no legal text: no default string, no placeholder, no vetted variant and
-no translation fallback. [Regulatory context](../health/regulatory-context.mdx) sets
+no translation fallback. [Safety review](../health/safety-review.mdx) sets
 out what DCB0129, DCB0160, the EU MDR and FDA SaMD ask of the product.
 
 <SafetyCallout severity="attention" evidence="opinion">
 This note sets expectations. It never transfers risk onto the reader.
 </SafetyCallout>
 
-## Anatomy
-
-<Anatomy
-  name="disclaimer-note"
-  parts={[
-    {
-      name: "DisclaimerNote",
-      describes: "The root, outside both colour axes: no status or category prop, no fill, no role, no live region.",
-      prop: "placement",
-    },
-    {
-      name: "DisclaimerNote.Icon",
-      describes: "Optional, off by default, decorative and aria-hidden. The glyph is fixed, so it is never a warning triangle.",
-      prop: "icon",
-    },
-    {
-      name: "DisclaimerNote.Text",
-      describes: "The product's one or two sentences, at body size in body ink. Prints an admission when nothing is supplied.",
-      prop: "children",
-    },
-    {
-      name: "DisclaimerNote.Link",
-      describes: "The fuller statement. Label and href arrive as one object, and a vague label warns in development.",
-      prop: "more",
-    },
-    {
-      name: "DisclaimerNote.Version",
-      describes: "The wording's id, rendered exactly as written at footnote size in secondary ink.",
-      prop: "textVersion",
-    },
-  ]}
-/>
-
-## Examples
-
-### One note, at the foot of the surface
-
-Three rows and one `placement="footer"` note under all of them: not one per row, and
-never above them.
-
-<ComponentPreview name="disclaimer-note-once-at-the-foot-of-a-surface" kind="example" align="start" />
-
-### When nobody wrote the words
-
-Copy from a content service can arrive empty. `children` of `undefined`, `false`, `0`,
-an empty array or whitespace prints an admission and warns in development. Copy in an
-element is taken at its word.
-
-<ComponentPreview name="disclaimer-note-no-text-supplied" kind="example" align="start" />
-
-## Content guidelines
-
-Two sentences at most: what the product does, then what it does not do. Use plain
-words, *this app* rather than *the Service*, and the job title a reader recognises.
-Name the link for where it goes, because *learn more* raises a development warning.
-
-<DoDont>
-  <DoDont.Do>
-    **Name what the product does, then the one limit that matters most, one sentence
-    each, in the product's register.**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **Open with the trading name, stack abstract nouns for what it is not, and close by
-    placing reliance on the reader.**
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Audited against WCAG 2.2 AA.** A source pass and a rendered pass, author-run rather
-than independent, clinical review still pending. The rendered pass on
-`/view/base/base-lyra/component/disclaimer-note` was clean: zero axe violations, the
-link kept its target floor, focus-visible held, and nothing scrolled sideways at 320px
-or 200% text. Nothing in the source needed changing. The standing guarantees hold: type
-sizes and colours are role tokens, the decorative glyph is `aria-hidden`, the statement
-is a real paragraph, and the only interactive element is a real anchor that warns on
-unhelpful labels.
+The rendered pass was clean, with zero axe violations, the link at its target floor,
+focus-visible holding and nothing scrolling sideways at 320px or 200% text, and nothing in
+the source needed changing. Type sizes and colours are role tokens, the decorative glyph
+is `aria-hidden`, the statement is a real paragraph, and the only interactive element is
+a real anchor that warns on unhelpful labels. Standing gates cover its one string on
+every commit: no `px` type size, no raw colour literal, no banned word.
 
-**One deferred item.** The root is a plain `<div>` with no `role` and no accessible
-name, so a screen reader meets the note as ordinary sentences rather than a bounded
-"note". Reading order and content are fully conveyed, so this is not an AA failure. The
-boundary is an enhancement left out on purpose: a `role` is a spec decision reserved to
-review, and an `aria-label` would inject an English string into a translation-neutral
-component. Standing gates still cover its one string on every commit: no `px` type size,
-no raw colour literal, no banned word.
+**Residual items.** The root is a plain `<div>` with no `role` and no accessible name, so
+a screen reader meets the note as ordinary sentences rather than a bounded "note".
+Reading order and content are fully conveyed, so this is not an AA failure. The boundary
+is an enhancement left out on purpose, because a `role` is a spec decision reserved to
+review and an `aria-label` would inject an English string into a translation-neutral
+component.
 
 <KeyboardTable
   name="disclaimer-note"
@@ -208,7 +148,7 @@ no raw colour literal, no banned word.
 
 <ContrastReport component="disclaimer-note" />
 
-## API reference
+## Props interface
 
 <PropsTable name="DisclaimerNoteProps" />
 
@@ -216,10 +156,3 @@ no raw colour literal, no banned word.
 render and print its admission. `placement` changes only the space above the note, and
 there is no `top` value: never above the result. There is no default text and no
 colour prop, and an axis class through `className` raises a development warning.
-
-## Related
-
-- [Callout](./callout.mdx) is information about the content. A disclaimer is about the product.
-- [AlertBanner](./alert-banner.mdx) is entitled to speak; styling a disclaimer as one is the commonest mistake.
-- [ConsentSheet](./consent-sheet.mdx) is a request the reader answers, not a statement they read.
-- [CareCard](./care-card.mdx) is an instruction with an author. A disclaimer asks for nothing.

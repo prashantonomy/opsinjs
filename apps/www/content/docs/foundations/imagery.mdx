@@ -1,0 +1,70 @@
+---
+title: Imagery
+description: When a health screen earns an image, and rules for illustration, photography, skin tone, avatars and body diagrams.
+kind: foundation
+aliases: [images, illustration, skin tone]
+---
+
+Most health screens are better with no image. Keep one only if it changes what the reader does.
+
+<NotBuiltYet />
+
+opsinjs ships no image assets, illustration set or photography.
+
+## Rules
+
+1. **An image does a job a sentence cannot.**
+2. **Nothing lives only in the image**, and no text sits inside one.
+3. **Never illustrate a result** or soften bad news with an image ([Result disclosure](../patterns/result-disclosure.mdx)).
+4. **Drawn images use the neutral colour roles**, never `--opsin-status-*` or `--opsin-category-*`.
+5. **Nothing flashes, loops or autoplays** ([Motion](./motion.mdx)).
+6. **Never let an image delay the reading.**
+
+## Illustration
+
+Draw to show how something is done or where it is, never to make a screen feel friendly.
+
+- Brief the reader's question, such as where a cuff goes on the upper arm, seen from their own point of view.
+- Draw specific people across a genuine range. Faceless uniform figures depict nobody.
+- A drawn device display is blank or obviously non-numeric, never a plausible reading.
+
+## Photography
+
+Use a photograph only for an object the reader must recognise, a real person or place the product is about, or the reader's own picture.
+
+- Never put a value over a photograph. Other text over one needs a scrim that meets the contrast floor at the image's worst region ([Materials](./materials.mdx)).
+- Never crop a symptom photograph, and show a warning with an explicit control before any clinical image.
+- Clinical photography needs clinical review, and releases, licensing and informed consent are the product's to settle.
+- A reader's own photographs are personal data ([Consent and privacy](../health/consent-and-privacy.mdx)).
+
+## Skin-tone representation
+
+Skin-tone representation is an equity requirement, not a style preference. For clinical signs it is a correctness requirement too. Signs that present as red on pale skin frequently do not on brown and black skin, where they may show as purple, grey or darker brown, or as a change in texture or warmth.
+
+1. A set showing people covers a genuine range of skin tones, not two extremes.
+2. A set showing a clinical sign covers the range for that sign, or it does not ship.
+3. Tone does not correlate with role or outcome anywhere in the set.
+4. Interface colour is never derived from skin tone.
+
+Audit the set, not the image, against a published dermatological scale. Describe each sign in words that work across tones. Ask for a reader's skin tone only where a clinical comparison genuinely needs it, once, explained, optional and revocable.
+
+<SafetyCallout severity="watch" evidence="opinion">
+  This section cites no study. Clinical imagery needs review by somebody clinically qualified across the skin tones you serve, which a design system cannot do.
+</SafetyCallout>
+
+## Avatars
+
+Prefer no avatar. Where one is needed, default to initials on a neutral surface, then an abstract mark. Never use a silhouette, which depicts a body. The reader may always choose a picture. [Avatar](../components/avatar.mdx) falls back to lucide's `User` glyph when `name` is empty, so always pass a name.
+
+- Never derive an avatar from health data or inferred demographics.
+- Show the person's name in text. Initials alone cannot tell two profiles apart.
+
+## Body diagrams
+
+A body diagram is the image most likely to be read as a diagnosis. [BodyMap](../components/body-map.mdx) is an abstract schematic that records marked regions and nothing else.
+
+- Always pair the diagram with a list of the same regions.
+- Name regions in plain English, with any clinical term secondary as a [Term](../components/term.mdx).
+- Say whose left is meant, and confirm each selection in words: "You selected: your left knee."
+- Never colour a region by status or label one with a condition.
+- Regions below the 44px target floor zoom to a sub-view or live only in the list.

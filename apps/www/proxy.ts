@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
+import { RETIRED_PAGES } from "@/lib/redirects"
 import { routes } from "@/lib/routes"
 
 /**
@@ -45,6 +46,9 @@ import { routes } from "@/lib/routes"
  * whatever the base is, which is the whole reason that function exists.
  */
 const API_PREFIX = `${routes.docs("reference", "api")}/`
+const TYPES_PAGE = routes.docs("reference", "generated", "types")
+/** Where the corpus lived before it moved to the root. */
+const LEGACY_DOCS_PREFIX = "/docs"
 
 /** Exact-match redirects. Keys are lower-cased paths without a trailing slash. */
 const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
@@ -63,8 +67,8 @@ const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
   // for /docs/installation; ours is a group, under Start here. 307, because if
   // a top-level installation page is ever written this URL becomes its own.
   [routes.docs("installation")]: {
-    to: routes.docs("start", "installation"),
-    permanent: false,
+    to: routes.docs("getting-started"),
+    permanent: true,
   },
 }
 
@@ -117,6 +121,35 @@ export default function proxy(request: NextRequest) {
       : pathname
   const lower = canonicalPath.toLowerCase()
 
+  /* A retired page, the .md twin of one, or either under the old `/docs`
+     prefix, answered in one hop. The corpus moved from `/docs` to the root
+     before ADR 0026 folded four hundred pages into about a hundred and
+     fifteen, and lib/redirects.ts names where each one went. A per-symbol API
+     page goes to its section on the Types page. */
+  const legacy =
+    lower === LEGACY_DOCS_PREFIX || lower.startsWith(`${LEGACY_DOCS_PREFIX}/`)
+  const unprefixed = legacy
+    ? lower.slice(LEGACY_DOCS_PREFIX.length) || "/"
+    : lower
+  const twin = unprefixed.endsWith(".md")
+  const page = twin ? unprefixed.slice(0, -3) : unprefixed
+  if (page.startsWith(API_PREFIX) || page === API_PREFIX.slice(0, -1)) {
+    const target = url.clone()
+    target.pathname = TYPES_PAGE
+    target.hash = page.slice(API_PREFIX.length)
+    return NextResponse.redirect(target, 308)
+  }
+  const destination = RETIRED_PAGES[page] ?? (legacy ? page : undefined)
+  if (destination) {
+    const target = url.clone()
+    target.pathname = twin
+      ? destination === "/"
+        ? "/index.md"
+        : `${destination}.md`
+      : destination
+    return NextResponse.redirect(target, 308)
+  }
+
   const exact = EXACT_REDIRECTS[lower]
   if (exact) {
     const target = url.clone()
@@ -131,7 +164,10 @@ export default function proxy(request: NextRequest) {
     const from = rule.from.replace(/\/$/, "")
     if (lower !== from && !lower.startsWith(`${from}/`)) continue
     const target = url.clone()
-    target.pathname = rule.to.replace(/\/$/, "") + lower.slice(from.length)
+    const rewritten = rule.to.replace(/\/$/, "") + lower.slice(from.length)
+    /* One hop, not two: a prefix rewrite that lands on a retired page goes
+       straight to the page that absorbed it. */
+    target.pathname = RETIRED_PAGES[rewritten] ?? rewritten
     return NextResponse.redirect(target, rule.permanent ? 308 : 307)
   }
 

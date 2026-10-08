@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: [anchor, hyperlink]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="link" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="link"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/link"
   registryDependencies={["button"]}
 />
-
-## Usage
 
 ```tsx
 import { Link } from "@/components/ui/link"
@@ -47,22 +40,9 @@ import { Link } from "@/components/ui/link"
 </Link>
 ```
 
-## When to use it
-
-<WhenToUse
-  use={[
-    "Navigation to another page or view, written in the reader's own words for the destination.",
-    "A card's or a banner's primary action when it produces a new URL, as the action emphasis.",
-    "A quieter secondary action beside that primary one, as the secondary emphasis, which differs by a smaller box and no boundary.",
-    "A reference inside a sentence that opens a source or a related page, as the inline emphasis, underlined and reflowing with the paragraph.",
-  ]}
-  avoid={[
-    { case: "The control does something rather than going somewhere: saving a reading, submitting a form, confirming a decision. Button refuses href.", instead: "button" },
-    { case: "The whole card is the destination and the entire surface should be one target. Card carries its own wrapper anchor.", instead: "card" },
-  ]}
-/>
-
 ## Examples
+
+<ComponentPreview name="link" />
 
 ### Each emphasis
 
@@ -102,58 +82,46 @@ import { Link } from "@/components/ui/link"
 </Link>
 ```
 
-## Content guidelines
+## When to use it
 
-Link text names the destination, in sentence case, without terminal punctuation.
-Write it to read alone, out of a screen reader's list of links. Never *click
-here*, *read more*, *learn more* or a bare *here*: each sends the reader back up
-the page to reconstruct what the link is about. A link that opens in a new tab
-says so in its own text; opsinjs does not add that word.
-
-<DoDont>
-  <DoDont.Do>
-    **"See your results"** names where it goes and survives being read out of context.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Click here"** heard three times in a link list tells the reader nothing about any of them.
-  </DoDont.Dont>
-</DoDont>
+<WhenToUse
+  use={[
+    "Navigation to another page or view, written in the reader's own words for the destination.",
+    "A card's or a banner's primary action when it produces a new URL, as the action emphasis.",
+    "A quieter secondary action beside that primary one, as the secondary emphasis, which differs by a smaller box and no boundary.",
+    "A reference inside a sentence that opens a source or a related page, as the inline emphasis, underlined and reflowing with the paragraph.",
+  ]}
+  avoid={[
+    { case: "The control does something rather than going somewhere: saving a reading, submitting a form, confirming a decision. Button refuses href.", instead: "button" },
+    { case: "The whole card is the destination and the entire surface should be one target. Card carries its own wrapper anchor.", instead: "card" },
+  ]}
+/>
 
 ## Accessibility
 
-**Audited against WCAG 2.2 AA** in a source pass and a rendered pass. The audit
-is author-run, so it is not an independent review, and clinical review is still
-pending. `pnpm run check:a11y` also runs on every commit: every colour is a role
-token, no type size is in `px`, and no banned word appears anywhere.
+On every commit `pnpm run check:a11y` confirms every colour is a role token, no type
+size is in `px` and no banned word appears. The audit fixed two moderate gaps.
 
-Two moderate gaps were fixed in this pass:
+- A `target="_blank"` link now defaults `rel` to `noopener noreferrer`, keeping any `rel`
+  the caller supplied, and appends an `sr-only` "(opens in a new tab)" tail so the change
+  of destination is spoken (2.4.4).
+- The `inline` focus ring now reads `--opsin-border-focus`, so it grows when a low-vision
+  consumer raises that token. It still defaults to 2px, so nothing changes visually
+  (2.4.7, 1.4.11).
 
-- A `target="_blank"` link now defaults `rel` to `noopener noreferrer`, keeping
-  any `rel` the caller supplied, and appends an `sr-only` "(opens in a new tab)"
-  tail so the change of destination is spoken (2.4.4).
-- The `inline` focus ring now reads `--opsin-border-focus`, so it grows when a
-  low-vision consumer raises that token instead of staying flat at 2px. It still
-  defaults to 2px, so nothing changes visually (2.4.7, 1.4.11).
+**Residual items.**
 
-Two items a reader should know are honestly left as they are:
-
-- The new-tab cue is spoken only through `sr-only` text, not a visible marker,
-  to preserve the visual design. A caller who wants a visible external cue adds
-  their own.
-- `inline` sits below the 24px target floor by design, because SC 2.5.8 exempts
-  an inline target inside a sentence and a full floor would inflate the line
-  box. `action` and `secondary` keep the `--opsin-target-minimum` floor in both
-  axes.
-
-Contrast for the three emphases and for the per-level boundary on a status tint
-is not yet measured, and whether the ladder holds in greyscale is argued rather
-than tested.
+- The new-tab cue is spoken only through `sr-only` text, not a visible marker, to
+  preserve the visual design. A caller who wants a visible external cue adds their own.
+- `inline` sits below the 24px target floor by design, because SC 2.5.8 exempts an inline
+  target inside a sentence and a full floor would inflate the line box. `action` and
+  `secondary` keep the `--opsin-target-minimum` floor in both axes.
+- Contrast for the three emphases and for the per-level boundary on a status tint is not
+  yet measured, and whether the ladder holds in greyscale is argued rather than tested.
 
 <ContrastReport component="link" />
 
-<ContrastReport component="link" />
-
-## API reference
+## Props interface
 
 <PropsTable name="LinkProps" />
 
@@ -161,8 +129,3 @@ than tested.
 defaults to `neutral` and is inert for `inline`. When `render` is passed, Link's
 own `href`, `data-slot` and attributes win over the router element's, and the
 two class lists are joined.
-
-## Related
-
-- [Button](./button.mdx) does something rather than going somewhere. It refuses `href`, so an action with no new URL stays a button.
-- [Card](./card.mdx) carries its own wrapper anchor when the whole surface is the destination, rather than a Link inside it.

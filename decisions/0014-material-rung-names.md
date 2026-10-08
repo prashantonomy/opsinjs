@@ -1,0 +1,154 @@
+# ADR 0014. The material rung names are the token names
+
+Three documents name the six material rungs three ways. The names in tokens/material.json win, because a stylesheet resolves them and a drift gate checks them.
+
+## Status
+
+**Accepted.** 2026-09-03.
+
+## Context
+
+The material ladder has six rungs and three sets of names for them, in three
+documents that all read as authoritative.
+
+| Source | The six rungs, in order |
+| --- | --- |
+| `tokens/material.json` | `canvas`, `card`, `raised`, `sheet`, `overlay`, `scrim` |
+| The `MaterialRung` union on [Surface](https://opsinjs.pensievelabs.org/components/surface) | `base`, `raised`, `panel`, `overlay`, `sheet`, `chrome` |
+| The rung table on [The ladder](https://opsinjs.pensievelabs.org/foundations/materials) | `ground`, `panel`, `raised`, `bar`, `overlay`, `scrim` |
+
+Only two names appear in all three, and one of them is a trap. `raised` is rung
+two in the token source and rung two on the ladder page, but rung two in the
+component union sits where the token source has `card`. A component written
+against one vocabulary and styled against another therefore compiles, renders,
+and sits at the wrong depth. `sheet` and `overlay` appear in two of the three
+sets in opposite order. `bar` and `chrome` exist in one set each and in neither
+of the others.
+
+Only one of the three sets has consequences. `scripts/build-tokens.mts` reads
+`tokens/material.json` and emits `--opsin-material-<rung>-<property>` into
+`app/tokens.generated.css`; `pnpm check:generated` regenerates that file and
+fails on a byte difference; and the token source states the naming rule itself,
+in a comment saying that rungs are addressed by name and never by number,
+"because a number invites arithmetic … and the ladder is not arithmetic". The
+other two sets are prose. Nothing resolves them, nothing checks them, and neither
+has ever been true of a rendered element, because no component exists yet.
+
+**Amendment, after the component layer shipped.** Two clauses above are stale and
+are left standing rather than rewritten: "because no component exists yet" here,
+and the aside under [Alternatives considered](#alternatives-considered) placing
+this decision "at a moment when none of the components that would use the names
+exists". Sixty components are now implemented and every catalogue row reads
+`shipped`, and two of them resolve these names in code. `surface.tsx` imports
+the `MaterialRung` union from the shared substrate, keys its translucency table off it so that adding a rung
+breaks the build rather than defaulting, and carries a table of the three retired
+names that can be told apart. That table maps `base` to `canvas`, `panel` to
+`raised` and `chrome` to `overlay`, by job and not by position, so that a caller
+who passes one gets a development warning naming the rung that now does that job,
+and gets their content rendered with no material rather than dropped. `card.tsx`
+defaults its `rung` to `card`, which is the correction the first Consequence
+below asks for. The clause "neither has ever been true of a rendered element"
+still holds: a rendered element resolves the token names and nothing else. What
+the shipped code changes is the cost of the outstanding half. The rung table,
+`description` and alias on [The ladder](https://opsinjs.pensievelabs.org/foundations/materials)
+still carry the losing vocabulary, and a reader who translates `bar` or `overlay`
+positionally against a component that now exists lands a surface at the wrong
+depth.
+
+## Decision
+
+**The token names win.** The material ladder is `canvas`, `card`, `raised`,
+`sheet`, `overlay`, `scrim`, ordinal zero to five, and the `MaterialRung` union
+is that list and nothing else, declared once in the substrate module of
+[ADR 0010](./0010-shared-code-ships-with-every-item.md).
+
+The reason is not that the token source is older or more official. It is that the
+token names are the ones a stylesheet resolves and a gate checks, and the other
+two are the ones a reader has to be told about. Choosing either prose set would
+mean renaming six generated custom properties, regenerating
+`app/tokens.generated.css`, and re-measuring every published figure keyed to
+those names. All of that buys one word.
+
+## Consequences
+
+- **`Card`'s documented default rung is wrong and must be corrected.** The
+  specification defaults `rung` to `"raised"`, and in the losing vocabulary that
+  reads as the rung a card sits on. In the token vocabulary `raised` is one rung
+  higher. The token source describes rung one, `card`, as the default home for a
+  health value and rung two, `raised`, as a thing lifted off the page. The
+  default almost certainly means the token layer's `card`. Fixing it belongs to
+  whoever owns that page; this record only settles which vocabulary the word is
+  read in.
+- **Two documentation pages are now wrong**, and must be corrected rather than
+  reinterpreted: the `MaterialRung` union on
+  [Surface](https://opsinjs.pensievelabs.org/components/surface) and the rung table on
+  [The ladder](https://opsinjs.pensievelabs.org/foundations/materials). The ladder page also
+  carries the losing names in its `description` and in one of its `aliases`,
+  which makes part of that correction an edit to the global alias namespace
+  rather than to prose.
+- **`bar` and `chrome` are renaming casualties, not gaps.** Both losing sets
+  reserve a rung for persistent edge chrome that content scrolls under, and so
+  does the token ladder: `overlay` asks "Is this chrome floating over scrolling
+  content?" and its stated use names "a pinned toolbar, a tab bar, a floating
+  action bar" as chrome that content scrolls beneath. A tab bar has a rung and it
+  is `overlay`. What the losing sets call `overlay` is the token ladder's `sheet`.
+  That rung is the one "covering the page while leaving it recognisable
+  underneath", a dismissible bottom sheet or side panel. **The vocabularies must
+  be mapped by job, never by ordinal**, and this pair is exactly where an ordinal
+  mapping goes wrong: `overlay` means different depths in the two schemes, so a
+  reader translating positionally lands a dismissible sheet on the chrome rung
+  and a tab bar on the sheet rung.
+- **The ladder is uniform, and it was not when this record was first written.**
+  The version of this consequence written on 2026-09-03 said that `card`,
+  `raised`, `sheet` and `overlay` had no border token at all. That was true of
+  the emitted CSS on the day it was written and false a few hours later:
+  `emitMaterial()` read `border` and `tintAlpha` with a string helper while
+  `tokens/material.json` stores several of them as `{light, dark}` objects, so
+  seven properties were silently never emitted. With the emitter fixed, all six
+  rungs carry all eight properties, and the literal `none` is the border on
+  `canvas` and `scrim` rather than on the other four. That is correct: the page
+  itself has no edge, and neither does a dimming layer. A component reads
+  `--opsin-material-<rung>-border` and gets a value; `none` is a legitimate one
+  and is invalid inside `box-shadow`, so a rung's edge is a `border-color` and
+  not a ring.
+- **No token is renamed and no generated file changes.** The entire cost of this
+  decision is prose, which is why it is cheap enough to take now and would not
+  have been in six months.
+
+## Alternatives considered
+
+**The component specification's names win.** That set is `base`, `raised`,
+`panel`, `overlay`, `sheet` and `chrome`. Rejected. It renames six generated
+custom properties, invalidates `app/tokens.generated.css` and every measured
+figure keyed to it, and buys a word. It also orders `sheet` above `overlay`, the
+opposite of the token ladder, which is the one difference in either losing set
+that would silently place a surface at the wrong depth rather than merely under
+the wrong name.
+
+**The ladder page's names win.** Those six are `ground`, `panel`, `raised`,
+`bar`, `overlay` and `scrim`. Rejected on the same ground. `bar` reads as the
+more descriptive word for the rung the token layer calls `overlay`, and if the
+ladder were being named from scratch it would be the better choice; it is not
+worth renaming six emitted custom properties and invalidating every measured
+figure keyed to them. Note what this alternative would cost beyond the rename: it
+uses `overlay` for the rung the token layer calls `sheet`, so adopting it would
+move the meaning of a word that is already in use, which is the one kind of
+change that breaks a component silently rather than loudly.
+
+**Keep all three and map between them.** Rejected outright. A mapping table is a
+fourth vocabulary; it has to be maintained in both directions; and its first
+stale row puts a health value on a translucent rung, which the token source
+forbids in a single sentence for a reason that has nothing to do with naming.
+
+**Rename the tokens and the prose to a fourth set that everybody likes.**
+Rejected as scope. It is the cost of the first option plus a naming debate, at a
+moment when none of the components that would use the names exists.
+
+## Revisiting this
+
+Revisit when a component needs a rung the ladder does not have; `bar` is the
+known candidate and the tab bar is the component that will ask for it. That is a
+change to `tokens/material.json` followed by a regeneration, and it is a design
+decision about what should remain visible behind persistent chrome rather than a
+renaming. Do not revisit in order to make one of the prose sets win: the prose is
+the part that changes.

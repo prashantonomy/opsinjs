@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: navigation
 aliases: ["disclosure", "expander", "collapsible"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="accordion" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="accordion"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/accordion"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-## Usage
 
 ```tsx
 import { Accordion } from "@/components/ui/accordion"
@@ -49,6 +42,22 @@ import { Accordion } from "@/components/ui/accordion"
   ]}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="accordion" />
+
+### A frequently asked list
+
+Three headers form an index; the reader opens one. Fictional copy.
+
+<ComponentPreview name="accordion-frequently-asked" kind="example" align="start" />
+
+### One section open at a time
+
+With `multiple` off (the default), opening one section closes the last.
+
+<ComponentPreview name="accordion-one-open-at-a-time" kind="example" align="start" />
 
 ## When to use it
 
@@ -65,123 +74,23 @@ import { Accordion } from "@/components/ui/accordion"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="accordion"
-  parts={[
-    {
-      name: "Accordion",
-      describes: "Base UI's Accordion.Root: one card surface with a hairline that manages open state. Neutral chrome, neither colour axis.",
-      prop: "items",
-    },
-    {
-      name: "Accordion.Item",
-      describes: "One section, a header with its panel. A top hairline divides it from the section above.",
-      prop: "items",
-    },
-    {
-      name: "Accordion.Header",
-      describes: "The section's heading, rendered by Base UI as an h3 so it sits in the document outline.",
-    },
-    {
-      name: "Accordion.Trigger",
-      describes: "The full-width button that toggles the section, with aria-expanded, aria-controls, a 44pt target floor, the title and chevron.",
-      prop: "value",
-    },
-    {
-      name: "Accordion.Panel",
-      describes: "The revealed content, unmounted while closed, so a shut panel costs nothing and leaves the tab order.",
-      prop: "content",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="accordion"
-  tree={[
-    {
-      part: "Accordion",
-      cardinality: "1",
-      children: [
-        {
-          part: "Accordion.Item",
-          cardinality: "1..n",
-          children: [
-            {
-              part: "Accordion.Header",
-              cardinality: "1",
-              children: [
-                {
-                  part: "Accordion.Trigger",
-                  cardinality: "1",
-                },
-              ],
-            },
-            {
-              part: "Accordion.Panel",
-              cardinality: "1",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### A frequently asked list
-
-Three headers form an index; the reader opens one. Fictional copy.
-
-<ComponentPreview name="accordion-frequently-asked" kind="example" align="start" />
-
-### One section open at a time
-
-With `multiple` off (the default), opening one section closes the last.
-
-<ComponentPreview name="accordion-one-open-at-a-time" kind="example" align="start" />
-
-## Content guidelines
-
-Write headers as a scannable index: a question, a noun phrase or a setting name,
-in sentence case, without terminal punctuation. Never fold a warning or a required
-step into a panel that starts closed. It belongs in a
-[Callout](./callout.mdx) that stays open.
-
-<DoDont>
-  <DoDont.Do>
-    **"When can I reach the team?"** The reader's own question, short enough to
-    scan against its siblings.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A "More" panel holding "Call your clinician if this reading keeps rising."**
-    An instruction the reader may never open.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Audited against WCAG 2.2 AA in a source pass and a rendered pass.** It is
-author-run, not independent, and clinical review is pending. The rendered pass
-(axe, target size, focus visible, 320px reflow) was clean.
+Axe, target-size, focus-visible and 320px reflow checks were clean. Base UI
+renders each header as an `h3` with a `button`, wires `aria-expanded` and
+`aria-controls` between trigger and panel, and hides the chevron with
+`aria-hidden`, so a reader relies on `aria-expanded`, not the glyph. The
+chevron's turn uses `--opsin-duration-fast`, collapsed under
+`prefers-reduced-motion`, and a closed panel is unmounted, leaving the tab order.
+The audit fixed one SC 2.4.7 defect: the trigger's focus ring was drawn outside
+the trigger, where the root's `overflow-hidden` clipped it, and it now renders
+inside, whole on every straight edge.
 
-**One defect was fixed.** The trigger's focus ring was drawn outside the trigger,
-where the root's `overflow-hidden` clipped it (2.4.7). It now renders inside,
-whole on every straight edge, with a small notch still clipped at the first and
-last sections' outer corners, a known residual.
+**Residual items.**
 
-- Base UI renders each header as an `h3` with a `button`, wires `aria-expanded`
-  and `aria-controls` between trigger and panel, and hides the chevron with
-  `aria-hidden`, so a reader relies on `aria-expanded`, not the glyph.
-- The chevron's turn uses `--opsin-duration-fast`, collapsed under
-  `prefers-reduced-motion`. A closed panel is unmounted, leaving the tab order.
-
-**Still unmeasured.** The rendered pass does not compute contrast, so every pair
-against the card surface is unmeasured, not known-failing. That no must-see
-content may sit in a closed panel stays a docs contract the wrapper cannot
-enforce.
+- A small notch of the focus ring is still clipped at the first and last sections' outer corners.
+- Every contrast pair against the card surface is unmeasured, not known-failing.
+- That no must-see content may sit in a closed panel stays a docs contract the wrapper cannot enforce.
 
 <KeyboardTable
   name="accordion"
@@ -211,7 +120,15 @@ enforce.
 
 <ContrastReport component="accordion" />
 
-## Data attributes
+## Props interface
+
+<PropsTable name="AccordionProps" />
+
+`multiple` defaults to `false`. `value` without `onValueChange` fixes the open
+sections as given. An empty `items` array renders nothing and warns in
+development, as does a duplicated `value`.
+
+### Data attributes
 
 <DataAttributesTable
   name="accordion"
@@ -238,19 +155,3 @@ enforce.
     },
   ]}
 />
-
-## API reference
-
-<PropsTable name="AccordionProps" />
-
-`multiple` defaults to `false`. `value` without `onValueChange` fixes the open
-sections as given. An empty `items` array renders nothing and warns in
-development, as does a duplicated `value`.
-
-## Related
-
-- [Tabs](./tabs.mdx) swap the whole panel for another, where an accordion reveals
-  detail in place.
-- [Card](./card.mdx) holds content that stays open, with no header to press.
-- [Callout](./callout.mdx) sets apart what a reader cannot miss. A warning never
-  goes in a collapsed panel.

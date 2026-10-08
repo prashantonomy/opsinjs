@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: navigation
 aliases: ["segmented buttons", "toggle group"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="segmented-control" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="segmented-control"
@@ -34,8 +29,6 @@ reviewer: engineering
   importPath="@/components/ui/segmented-control"
   dependencies={["@base-ui/react"]}
 />
-
-## Usage
 
 ```tsx
 import { SegmentedControl } from "@/components/ui/segmented-control"
@@ -54,6 +47,17 @@ import { SegmentedControl } from "@/components/ui/segmented-control"
 />
 ```
 
+## Examples
+
+<ComponentPreview name="segmented-control" />
+
+### Switching a chart window
+
+The three options set the window of one chart rather than swapping between three
+charts, which is why it is a radiogroup. The chart is a placeholder.
+
+<ComponentPreview name="segmented-control-switching-a-chart-window" kind="example" align="start" />
+
 ## When to use it
 
 <WhenToUse
@@ -69,98 +73,20 @@ import { SegmentedControl } from "@/components/ui/segmented-control"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="segmented-control"
-  parts={[
-    {
-      name: "SegmentedControl",
-      describes: "The root. A radiogroup on Base UI's Composite primitive, so the whole control is one tab stop.",
-      prop: "options",
-    },
-    {
-      name: "SegmentedControl.Segment",
-      describes: "One option, a Base UI Radio with role=\"radio\" and aria-checked. A disabled segment drops to muted ink.",
-      prop: "value",
-    },
-    {
-      name: "SegmentedControl.Label",
-      describes: "The option's words, the visible label and part of what a screen reader reads for the option.",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="segmented-control"
-  tree={[
-    {
-      part: "SegmentedControl",
-      cardinality: "1",
-      note: "role=\"radiogroup\", one roving tab stop",
-      children: [
-        {
-          part: "SegmentedControl.Segment",
-          cardinality: "2..n",
-          note: "role=\"radio\", aria-checked; one per option",
-          children: [
-            { part: "SegmentedControl.Label", cardinality: "1" },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-## Examples
-
-### Switching a chart window
-
-The three options set the window of one chart rather than swapping between three
-charts, which is why it is a radiogroup. The chart is a placeholder.
-
-<ComponentPreview name="segmented-control-switching-a-chart-window" kind="example" align="start" />
-
-## Content guidelines
-
-Keep the labels short, parallel and in sentence case, one or two words each, so
-the row reads as siblings. Name the value the option sets, not an
-instruction, and give it no terminal punctuation. Order them the way the reader
-thinks, shortest to longest, and keep one wording across screens.
-
-<DoDont>
-  <DoDont.Do>
-    **"Day" · "Week" · "Month"** Three parallel windows, one word each, ordered
-    shortest to longest.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"Today" · "This week's readings" · "Show me the month"** Three lengths and
-    three grammars, so the row stops reading as one set.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Audited against WCAG 2.2 AA**, in a source pass over the full rubric and a
-rendered pass in the browser. The audit is author-run, not an independent
-review, and clinical review is still pending.
-
-A radio group, so the row is one tab stop with a roving focus, with
+It is a radio group, so the row is one tab stop with a roving focus, with
 `radiogroup` plus `radio` and `aria-checked` per segment for name, role and
 value. Selection is carried three ways and never by colour alone: `aria-checked`,
-the card surface lifting the segment off the track, and a hairline.
+the card surface lifting the segment off the track, and a hairline. The audit
+moved the 44px hit-area floor from the height axis alone onto both axes, matching
+`scale-input` and `tab-bar`, because a single-character label or the `sm` size
+could shrink a segment below the house minimum.
 
-**What the audit changed here.** The 44px hit-area floor sat on the height axis
-only, so a single-character label or the `sm` size could shrink a segment below
-the house minimum. The floor now sits on both axes, matching `scale-input` and
-`tab-bar`.
+**Residual items.**
 
-**What a reader should still know.** `label` is applied only as the group's
-`aria-label`, so there is no persistent visible group heading. Every option
-carries visible text, so the choices are seen, but a visible group label is a
-recommended enhancement, deferred as one repair across the wrappers that share
-this pattern. No contrast pair has been measured, so greyscale legibility of the
-selected segment is argued, not confirmed.
+- `label` is applied only as the group's `aria-label`, so there is no persistent visible group heading. Every option carries visible text, so the choices are seen, but a visible group label is a recommended enhancement, deferred as one repair across the wrappers that share this pattern.
+- No contrast pair has been measured, so greyscale legibility of the selected segment is argued, not confirmed.
 
 <KeyboardTable
   name="segmented-control"
@@ -205,7 +131,7 @@ selected segment is argued, not confirmed.
 
 <ContrastReport component="segmented-control" />
 
-## API reference
+## Props interface
 
 <PropsTable name="SegmentedControlProps" />
 
@@ -213,11 +139,3 @@ selected segment is argued, not confirmed.
 state. A `value` matching no option renders the row with nothing chosen and
 raises a development warning. `label` is required: a radiogroup with no
 accessible name is a defect the type system cannot otherwise prevent.
-
-## Related
-
-- [Tabs](./tabs.mdx) swap between distinct panels of content. This control sets a
-  parameter of one view.
-- [Field](./field.mdx) with a select is the control for a choice too large or too
-  wordy for one row.
-- [Button](./button.mdx) performs an action rather than setting a value.

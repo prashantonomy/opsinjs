@@ -1,72 +1,169 @@
 ---
 title: Components
-description: Every component opsinjs has specified, with the status of each, listed in one table so nobody has to guess whether something exists.
-kind: reference
+description: Sixty components in twelve categories, each installed as source you own.
+kind: guide
 ---
 
-<PageTemplate kind="reference" />
+Every component is `shipped`, which means its source installs and renders and its API may change in any release. Each was audited against WCAG 2.2 AA by its own authors. None has had an independent accessibility review or a clinical review, so none is ready for a production health surface.
 
-**Every component in the catalogue is implemented and installable.** Each has a
-file under `registry/bases/base/`, a registry item the shadcn CLI copies into a project,
-and a page that documents the cases it refuses as carefully as the ones it serves. Every
-one is `shipped`, and no further: none has been through an independent
-accessibility or clinical review, none is ready for a production health surface, and each
-page lists what has not been measured rather than implying it has been. That status is on
-every component page in prose and in machine-readable form, at a URL you can guess
-from the component name.
+## Install
 
-That is what this page is for. The failure it exists to prevent is an agent, or a
-developer in a hurry, inferring an API from a plausible name and shipping it into a
-product that shows people their own health data. A definitive answer at a guessable URL
-is worth more than a 404, and far more than an invented answer.
+```bash
+npx shadcn@latest add @opsinjs/<name>
+```
 
-<SectionProgress />
+The CLI copies the component's source and the opsinjs `lib/` files it reads into your project, and adds its npm dependencies. `<name>` is the id in each link below. Add the `@opsinjs` entry to `components.json` first, as [Getting started](../getting-started.mdx) shows.
 
-Every id in the catalogue has code, a registry item and a hand-written page. Filter by
-category or status, or search the synonyms: `normal range`, `kpi`, `gauge`, `not medical
-advice`, `ago`.
+## Usage
 
-<StatusMatrix />
+```tsx
+import { Button } from "@/components/ui/button"
+```
 
-**Status is a promise about change, not a quality score.** `shipped` means the code
-exists and is documented, and the API may move in any release. It says nothing about
-whether anybody has reviewed it, and nobody has.
-[Release phases](../project/release-phases.mdx) sets out what the three phases promise
-about semver, the page's own outline and the registry.
+```tsx
+<Button variant="primary" onClick={save}>
+  Save reading
+</Button>
+```
 
-**Category does two jobs.** It groups the sidebar, and it is load-bearing: any category
-beginning with `health-` makes the **Clinical meaning** section and the `governedBy`
-frontmatter mandatory, and the build fails without them. It makes their absence mandatory
-elsewhere too, so [Button](./button.mdx) cannot acquire a clinical meaning by accident.
+The import path follows the `ui` alias in `components.json`.
 
-**Aliases are search synonyms**, unique across the whole corpus, because the person
-searching does not know our vocabulary. Someone typing *normal range* wants
-[RangeBar](./range-bar.mdx), and the first thing that page tells them is that
-[normal is a banned word](../health/reference-ranges.mdx), and why.
+## Health data display
 
-**Governed by links a component to the doctrine that constrains it.** Doctrine is written
-once in [Health](../health/index.mdx) and referenced from every component that must obey
-it, in both directions, so a rule cannot quietly end up applying to nothing.
+Component | Use it for
+--- | ---
+[ResultCard](./result-card.mdx) | One test result in full
+[RangeBar](./range-bar.mdx) | One reading against its range
+[ScoreDial](./score-dial.mdx) | A composite score and its band
+[TrendSparkline](./trend-sparkline.mdx) | One measurement over time
+[MetricTile](./metric-tile.mdx) | One reading at a glance
+[StatusPill](./status-pill.mdx) | A status your product assigned
+[RangeLegend](./range-legend.mdx) | The key to a RangeBar's tones
+[TimelineEntry](./timeline-entry.mdx) | One dated event in a history
+[GoalRing](./goal-ring.mdx) | Progress towards a goal the product set
 
-If you are choosing a component, the decision table in
-[Choose a component](../recipes/choose-a-component.mdx) maps the shape of your data to the
-component that displays it. Reading that table is faster than reading every page.
-If you are writing or reviewing one of these pages, read
-[Anatomy of a component page](./anatomy-of-a-component-page.mdx); it publishes the
-page contract once so you fill in a template instead of inventing a structure. If
-you are here to judge whether opsinjs is worth building on, read
-[RangeBar](./range-bar.mdx): it carries the most detailed clinical contract in the set and
-it is the component the rest of the system is arranged around.
+## Health communication
 
-## How this is generated
+Component | Use it for
+--- | ---
+[AlertBanner](./alert-banner.mdx) | Something the reader must know now
+[CareCard](./care-card.mdx) | One instruction at a stated urgency
+[Term](./term.mdx) | A clinical word, explained
+[ConsentSheet](./consent-sheet.mdx) | Asking permission for one thing
+[DisclaimerNote](./disclaimer-note.mdx) | The not-medical-advice note
+[SourceCitation](./source-citation.mdx) | Where health information came from
 
-The table above is not hand-maintained. Every row comes from `registry/catalogue.ts`,
-the single declaration of every component id, its category, its status and its alias
-namespace. `scripts/build-registry.mts` reads it and writes `lib/generated/catalogue.json`
-and `public/r/index.json`; `<StatusMatrix>` renders that JSON and `<SectionProgress>`
-counts it.
+## Health input
 
-Nothing here is typed twice. If a row is wrong the catalogue is wrong, and editing this
-page cannot fix it. `scripts/assert-ia.mts` fails the build when a catalogue id is missing
-the page it should have, when a page claims an id the catalogue does not know, or when two
-pages claim the same alias.
+Component | Use it for
+--- | ---
+[LogSheet](./log-sheet.mdx) | Recording one reading, dose or note
+[ReadingInput](./reading-input.mdx) | Typing a measurement with its unit
+[BodyMap](./body-map.mdx) | Pointing at a body region
+[ScaleInput](./scale-input.mdx) | A self-report on the product's scale
+[DoseTracker](./dose-tracker.mdx) | Doses already logged, shown as facts
+[Questionnaire](./questionnaire.mdx) | The product's questions, with progress
+[SymptomPicker](./symptom-picker.mdx) | Symptoms from the product's list
+
+## Health formatting
+
+Component | Use it for
+--- | ---
+[Value](./value.mdx) | Any number with its unit
+[RelativeTime](./relative-time.mdx) | When something happened
+
+## Actions and forms
+
+Component | Use it for
+--- | ---
+[Button](./button.mdx) | An action the reader presses
+[Link](./link.mdx) | Going somewhere else
+[Field](./field.mdx) | Label, hint and error for any input
+[IconButton](./icon-button.mdx) | An icon-only action
+[Switch](./switch.mdx) | A setting that applies at once
+[Checkbox](./checkbox.mdx) | One option ticked on or off
+[RadioGroup](./radio-group.mdx) | One choice from a short list
+[Select](./select.mdx) | One choice from a long list
+[NumberField](./number-field.mdx) | A non-clinical count with steppers
+[Textarea](./textarea.mdx) | A free-text note
+[Slider](./slider.mdx) | A coarse, non-clinical preference
+[Combobox](./combobox.mdx) | Typing to narrow a long list
+
+## Navigation
+
+Component | Use it for
+--- | ---
+[SegmentedControl](./segmented-control.mdx) | Switching between a few views
+[TabBar](./tab-bar.mdx) | Top-level destinations on a phone
+[Stepper](./stepper.mdx) | Where the reader is in a sequence
+[Tabs](./tabs.mdx) | Panels that share one region
+[Accordion](./accordion.mdx) | Sections that expand and collapse
+
+## Surfaces
+
+Component | Use it for
+--- | ---
+[Surface](./surface.mdx) | The layer under every panel and card
+[Card](./card.mdx) | A bordered group of related content
+[Sheet](./sheet.mdx) | A panel that slides up
+[Dialog](./dialog.mdx) | A question that must be answered first
+
+## Feedback
+
+Component | Use it for
+--- | ---
+[Callout](./callout.mdx) | A note, tip or caveat
+[EmptyState](./empty-state.mdx) | A screen with nothing on it yet
+[Skeleton](./skeleton.mdx) | The shape of content still loading
+[Toast](./toast.mdx) | Confirming the reader's own action
+[Progress](./progress.mdx) | How far through a task
+[Spinner](./spinner.mdx) | A brief wait of unknown shape
+
+## Overlay
+
+Component | Use it for
+--- | ---
+[Tooltip](./tooltip.mdx) | A label the reader can do without
+[Popover](./popover.mdx) | A small panel anchored to its control
+[Menu](./menu.mdx) | Actions opened from a button
+
+## Data display
+
+Component | Use it for
+--- | ---
+[Table](./table.mdx) | Rows and columns, and a chart's twin
+[Badge](./badge.mdx) | A neutral count or word, never status
+
+## Layout
+
+Component | Use it for
+--- | ---
+[Divider](./divider.mdx) | A hairline between two groups
+[ScrollArea](./scroll-area.mdx) | Scrolling inside a card or panel
+
+## Utility
+
+Component | Use it for
+--- | ---
+[Avatar](./avatar.mdx) | A person's picture or initials
+[VisuallyHidden](./visually-hidden.mdx) | Text only screen readers announce
+
+## Choosing a component
+
+Start from your data, and from who assigned any status it carries.
+
+- A measurement the reader interprets is a ResultCard, or a RangeBar when its place in the range is the point. A MetricTile that needs interpreting is a ResultCard at the wrong size.
+- A ScoreDial implies a composite index, so it never shows a single measurement.
+- Status appears only where a rule your product owns assigned it, and no component computes one. A category, a trend or a position against a range is not a status. See [Two colour axes](../health/two-colour-axes.mdx).
+- Allow at most one urgent surface per screen. See [Alerts](../health/alerts.mdx).
+- Decide what each component renders in all five data states: empty, loading, error, stale and partial. See [States](../foundations/states.mdx).
+
+<Todo>
+A rule for choosing between input components. Until then, read each component's page.
+</Todo>
+
+## Bundle size
+
+You copy source, so you ship only what you import. Per-component sizes are not measured yet. The limit more likely to bite is the budget of three overlapping composited surfaces in [Materials](../foundations/materials.mdx).
+
+<NoDataYet script="scripts/build-registry.mts" />

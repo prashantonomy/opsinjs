@@ -5,7 +5,6 @@ status: shipped
 kind: component
 category: actions-and-forms
 aliases: ["glyph button", "round button"]
-usedIn: [diabetes-medicines-app]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -22,11 +21,7 @@ reviewer: engineering
   Audited against WCAG 2.2 AA. Clinical review pending.
 </StubNotice>
 
-## Preview
-
-<ComponentPreview name="icon-button" />
-
-## Installation
+## Usage
 
 <ComponentInstall
   name="icon-button"
@@ -35,8 +30,6 @@ reviewer: engineering
   dependencies={["lucide-react"]}
   registryDependencies={["button"]}
 />
-
-## Usage
 
 ```tsx
 import { IconButton } from "@/components/ui/icon-button"
@@ -51,6 +44,24 @@ import { Search } from "lucide-react"
   onClick={openSearch}
 />
 ```
+
+## Examples
+
+<ComponentPreview name="icon-button" />
+
+### A toolbar of icon buttons
+
+A header row where each glyph is one the reader already knows, and each control still
+carries a distinct `label`.
+
+<ComponentPreview name="icon-button-toolbar" kind="example" align="start" />
+
+### Icon buttons in a list row
+
+Edit and Remove repeat on every row as icon buttons. Each `label` carries its row's
+context, so a voice-control user reaches one control.
+
+<ComponentPreview name="icon-button-list-row" kind="example" align="start" />
 
 ## When to use it
 
@@ -67,93 +78,23 @@ import { Search } from "lucide-react"
   ]}
 />
 
-## Anatomy
-
-<Anatomy
-  name="icon-button"
-  parts={[
-    {
-      name: "IconButton",
-      describes: "The root: a wrapper span carrying data-slot=\"icon-button\" and no styling. className goes to the composed Button, not here.",
-    },
-    {
-      name: "Button",
-      describes: "The pressable element, a composed Button. Square at the 44pt floor, with fill, ink, boundary and focus ring inherited.",
-      prop: "variant",
-    },
-    {
-      name: "IconButton.Icon",
-      describes: "The glyph and the only visible content. Always aria-hidden, inside Button's icon slot, with any child svg at 1em.",
-      prop: "icon",
-    },
-    {
-      name: "IconButton.Name",
-      describes: "The accessible name, a visually hidden text node carrying label. The same string is also aria-label on the button.",
-      prop: "label",
-    },
-  ]}
-/>
-
-
-## Examples
-
-### A toolbar of icon buttons
-
-A header row where each glyph is one the reader already knows. Each control
-still carries a distinct `label`, because a toolbar is where an unnamed icon
-button disappears.
-
-<ComponentPreview name="icon-button-toolbar" kind="example" align="start" />
-
-### Icon buttons in a list row
-
-Repeated row actions, where a labelled Edit and Remove on every row would crowd
-the reading out. Each `label` carries its row's context, so a voice-control user
-reaches one control.
-
-<ComponentPreview name="icon-button-list-row" kind="example" align="start" />
-
-## Content guidelines
-
-The label is the whole message for a reader who does not see the glyph. Name
-the action and its object, in sentence case, without terminal punctuation.
-Choose a glyph the audience already knows, and let the glyph and the name
-agree: a magnifier means search, a cross means close.
-
-<DoDont>
-  <DoDont.Do>
-    **`label="Close the reading details"`** with a cross glyph. A verb and its
-    object reads well aloud.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **`label="button"`, or no label at all.** A screen reader announces "button"
-    and nothing else.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
-token, no type size is in `px`, and no banned word appears anywhere.
+A real `button` element through [Button](./button.mdx) supplies Return, Space, the role
+and the tab stop. The control is icon-only by design, so `aria-label` plus a visually
+hidden text node is its correct and complete name route rather than a persistent visible
+label, and the glyph is `aria-hidden`, never announced as a second, pictorial name. The
+audit found no critical, serious or moderate defect in the source, and
+`pnpm run check:a11y` confirms on every commit that every colour is a role token, no
+type size is in `px`, and no banned word appears anywhere.
 
-**Audited against WCAG 2.2 AA, source and rendered passes, author-run and not
-independent.** Clinical review is pending. The audit found no critical, serious
-or moderate defect in the source.
+**Residual items.**
 
-- A real `button` element through [Button](./button.mdx) supplies Return, Space,
-  the role and the tab stop.
-- The name is `aria-label` plus a visually hidden text node; a missing or
-  whitespace-only `label` raises a development warning.
-- The glyph is `aria-hidden`, never announced as a second, pictorial name.
-- The target is a 44pt square in rem, with horizontal padding removed and
-  separation left to the caller's `--opsin-target-separation`.
-
-**Icon-only by design.** With no visible text, `aria-label` plus the hidden
-text node is the correct and complete name route rather than a persistent
-visible label. The docblock warns in development on a missing `label`.
-
-**Not measured.** Contrast on every variant, the focus ring, and forced
-colours, all inherited from Button.
+- A missing or whitespace-only `label` raises a development warning.
+- The target is a 44pt square in rem with horizontal padding removed, and separation is
+  left to the caller's `--opsin-target-separation`.
+- Contrast on every variant, the focus ring, and forced colours are not measured, and
+  all are inherited from Button.
 
 <KeyboardTable
   name="icon-button"
@@ -183,7 +124,7 @@ colours, all inherited from Button.
 
 <ContrastReport component="icon-button" />
 
-## API reference
+## Props interface
 
 <PropsTable name="IconButtonProps" />
 
@@ -192,10 +133,3 @@ colours, all inherited from Button.
 it. There is no `busy`, `busyLabel`, `fullWidth`, `iconPosition` or `type`.
 `className` must never resolve a `--opsin-status-*` or `--opsin-category-*`
 role; an IconButton carries no clinical axis.
-
-## Related
-
-- [Button](./button.mdx) is the labelled control this one defers to.
-- [Switch](./switch.mdx) turns something on or off; an icon button acts and
-  does not hold a setting.
-- [Tooltip](./tooltip.mdx) supplements a name and is never the name itself.

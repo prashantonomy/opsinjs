@@ -1,0 +1,103 @@
+---
+title: Motion
+description: Springs as CSS tokens, motion chosen by the job it does, and a reduced-motion fallback declared token by token.
+kind: foundation
+aliases: [easing, spring, "linear()", transition, stagger, count-up, prefers-reduced-motion, haptics]
+---
+
+Motion shows where things went, such as a sheet arriving from the row you tapped. It never celebrates, never carries urgency and never delays an answer. A new surface starts with none and gains it only when you can name what it explains.
+
+## Springs as tokens
+
+A spring is authored in `tokens/motion.json` as stiffness, damping and mass, sampled into a CSS `linear()` easing, and emitted by `scripts/build-tokens.mts` as two custom properties, `--opsin-ease-<name>` and `--opsin-duration-<name>`. The duration is the computed settling time, so always use the pair together. A damping ratio below 1 overshoots.
+
+| Spring | Overshoots | Use it for |
+| --- | --- | --- |
+| `spring-snap` | Yes | Direct manipulation, such as a switch flipped |
+| `spring-settle` | Yes | Popovers, tooltips and menus |
+| `spring-calm` | No | A health value on screen moving to a new reading |
+| `spring-sheet` | No | Sheets, dialogs and full-screen pushes |
+
+Never hand-write a `linear()` value or tune a spring inside a component. Change `tokens/motion.json` and regenerate.
+
+## Choosing by job
+
+A transition that does none of these five jobs probably should not exist.
+
+| Job | Behaviour | Tokens |
+| --- | --- | --- |
+| Enter | Decelerates into place | `ease-enter` with `duration-base`, or `duration-slow` for a full-width or full-height surface |
+| Exit | Accelerates, about two thirds as long as its enter | `ease-exit` with `duration-fast` |
+| Feedback | Acknowledges a touch on pointer-down | `duration-instant` |
+| Navigation | The surface beneath recedes and dims | `spring-sheet` |
+| Loading | Loops, so it alone uses keyframes | `duration-shimmer` |
+
+Duration follows distance, not importance, and `duration-deliberate` is the ceiling for anything a reader waits on. Use transitions wherever a reader can interrupt, because a transition reverses from wherever it is. Controls accept input while they animate.
+
+## Health values
+
+- Motion never signals urgency, so nothing pulses, flashes or shakes. [Alerts](../health/alerts.mdx) owns that rule.
+- A health value appears at its final figure, with no count-up and no dial sweep.
+- No overshooting spring touches a measurement, range position, status or count, because for one frame it would show a number nobody measured. A value already on screen moves on `spring-calm`, and its digits are replaced in place rather than rolled.
+
+## Choreography
+
+- **Morph, do not swap.** A tile that opens into a detail view becomes that view, and its value never leaves the screen.
+- **Depth, not translation.** An arriving surface comes forward while the one beneath recedes and dims. Nothing slides sideways or pans the screen.
+- **One thing moves at a time.** Stagger only a list arriving, most important first and capped, and never re-stagger what is already on screen.
+- **Exits leave together.** Focus moves once, when the sequence ends.
+
+## Reduced motion
+
+Six of the thirteen motion tokens declare a fallback, which `scripts/build-tokens.mts` emits inside `@media (prefers-reduced-motion: reduce)`. A fallback removes travel and keeps the cue that something changed.
+
+| Token | Under reduced motion |
+| --- | --- |
+| `spring-snap`, `spring-calm` | `linear` over `0ms`, so the end state arrives at once |
+| `spring-settle`, `spring-sheet` | `linear`, as a cross-fade of about a tenth of a second |
+| `ease-standard` | `linear` |
+| `duration-shimmer` | Zero, so a skeleton stops sweeping |
+
+`ease-enter`, `ease-exit` and the five plain durations declare nothing, so a component built on them reduces itself inside the media query. A component that travels far also swaps the travel for opacity, as [Sheet](../components/sheet.mdx) does.
+
+<MotionDemo
+  easing="--opsin-ease-spring-sheet"
+  duration="--opsin-duration-spring-sheet"
+  property="translate"
+  label="A sheet arriving, with and without the preference"
+/>
+
+<Todo>
+  Declare a fallback on the seven motion tokens that have none, then make `scripts/build-tokens.mts --check` fail when one is missing. What each becomes is a design decision nobody has taken.
+</Todo>
+
+## In practice
+
+Base UI keeps a leaving element mounted and marks it with `data-starting-style` and `data-ending-style`, so one transition covers both directions.
+
+```css
+.sheet {
+  transition:
+    opacity var(--opsin-duration-spring-sheet) var(--opsin-ease-spring-sheet),
+    translate var(--opsin-duration-spring-sheet) var(--opsin-ease-spring-sheet);
+  opacity: 1;
+  translate: 0 0;
+}
+.sheet[data-starting-style],
+.sheet[data-ending-style] {
+  opacity: 0;
+  translate: 0 1rem;
+}
+```
+
+Transition `opacity`, `translate`, `scale` or `filter`, never `width`, `height`, `top` or `margin`. An exit does not run if you unmount the element yourself.
+
+## Sound and haptics
+
+<NotBuiltYet />
+
+Sound and haptics may reinforce a message already on screen in words, and never carry one alone. opsinjs ships neither. Safari on iOS does not implement the Web Vibration API, so opsinjs specifies three haptic patterns for a native shell to implement: `acknowledge` when a user-initiated action commits, `warn` when the product has decided its result needs attention, and `reject` when it is refused. Fire one per action, make no sound by default, let people turn haptics off in the product, and share the escalation budget of visual alerts.
+
+## Tokens
+
+<TokenTable scope="motion" />
