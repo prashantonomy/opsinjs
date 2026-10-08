@@ -1,0 +1,47 @@
+name: Pull request title
+
+# Pull requests are squash merged, so the title becomes the commit on main. This
+# checks it against the format in CONTRIBUTING.md. The title is text anybody can
+# write, so it reaches the script through an environment variable, is never
+# interpolated into the script, and is never printed.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  title:
+    name: Title
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check the title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          # Dependabot capitalises "Bump" and writes long grouped titles. The
+          # maintainer rewrites the subject when squash merging, so for
+          # Dependabot only the type prefix is checked.
+          FROM_DEPENDABOT: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+        run: |
+          node -e '
+            const title = process.env.TITLE ?? ""
+            const relaxed = process.env.FROM_DEPENDABOT === "true"
+            const revert = /^Revert ".+"$/.test(title)
+            const format = relaxed
+              ? /^(build|ci|chore)(\([a-z0-9][a-z0-9.-]*\))?: \S/
+              : /^(feat|fix|docs|refactor|perf|test|build|ci|chore)(\([a-z0-9][a-z0-9.-]*\))?!?: [a-z0-9`@].*[^.]$/
+            const problems = []
+            if (!revert && !format.test(title)) {
+              problems.push("Write the title as type(scope): summary, for example fix(www): correct the contrast table source. The summary starts in lowercase and has no full stop.")
+            }
+            if (!revert && !relaxed && title.length > 72) {
+              problems.push("The title is " + title.length + " characters and the limit is 72.")
+            }
+            if (/[\u2014\u2013]/.test(title)) {
+              problems.push("The title contains U+2014 or U+2013. Rewrite it without the dash.")
+            }
+            for (const problem of problems) console.log("::error title=Pull request title::" + problem)
+            process.exit(problems.length > 0 ? 1 : 0)
+          '
