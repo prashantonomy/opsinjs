@@ -94,7 +94,7 @@ switcher is a **client** component using `useSearchParams()` that re-points an
 Every version in `apps/www/package.json` was resolved live and corresponds to a build
 that actually ran green. In particular: `typescript` is `5.9.3` and **never `^5`**,
 because npm `latest` is now the 7.x native port. `next` and `eslint-config-next` are
-`16.3.8` and move together, `react`/`react-dom` `19.2.8`, `zod` `4.4.3`. Do not float a
+`16.3.8` and move together, `react`/`react-dom` `19.3.0`, `zod` `4.6.5`. Do not float a
 range to "get the latest". A security advisory is the exception that moves a pin without
 waiting: 16.3.8 is the first release that fixes both GHSA-vcvr-r3jv-pc5j and
 GHSA-mcj8-r9mp-w47p.
