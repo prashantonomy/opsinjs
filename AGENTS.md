@@ -71,7 +71,7 @@ Next 16 App Router. Concretely, in this repo:
 
 ## 3. Do not read `searchParams` in the docs route
 
-`app/(chrome)/(docs)/[[...slug]]/page.tsx` must stay statically generated. Reading
+`app/(chrome)/(docs)/docs/[[...slug]]/page.tsx` must stay statically generated. Reading
 `searchParams` there deoptimises the entire docs corpus out of SSG. The `?base=&style=`
 switcher is a **client** component using `useSearchParams()` that re-points an
 `<IframePreview>` at a `/view/[base]/[style]/…` URL.
@@ -141,37 +141,43 @@ be comparing freshly written files with themselves.
 `app/tokens.generated.css` is emitted by `scripts/build-tokens.mts`. `app/globals.css`
 owns only the one `@import` line that pulls it in, at its fixed position.
 
-## 8. The corpus is rooted, and paths come from `lib/routes.ts`
+## 8. The corpus lives under `/docs`, and paths come from `lib/routes.ts`
 
-`DOCS_BASE` is **empty**. The documentation is the site: the introduction renders at `/`,
-Components at `/components`, a component at `/components/button`. There is no landing page
-in front of it and no `/docs` prefix behind it. The `.md` twin of a page is that page plus
-`.md`, and the index twin is `/index.md`.
+`DOCS_BASE` is **`/docs`**. The landing page renders at `/`, the introduction at `/docs`,
+Components at `/docs/components`, a component at `/docs/components/button`. The `.md` twin
+of a page is that page plus `.md`, and the index twin is `/docs.md`. ADR 0027
+(`decisions/0027-the-site-gets-a-landing-page.md`) is the record.
+
+From 2026-09-20 to 2026-10-12 the corpus was rooted and those URLs were public, so
+`proxy.ts` sends any path whose first segment is in `LEGACY_ROOT_SEGMENTS`
+(`lib/redirects.ts`) to the same path under `/docs`, and `/index.md` to `/docs.md`. That
+list is frozen: it records URLs that existed, so a new section never joins it.
 
 - In `.ts`/`.tsx`: build every path through `lib/routes.ts`, and **never by
-  concatenation**. `` `${routes.docs()}/reference/api` `` is `//reference/api`, which
-  matches nothing and fails silently; `routes.docs("reference", "api")` is right whatever
-  the base is. `assert-ia.mts` still fails the build on a literal `/docs/` outside
+  concatenation**. `routes.docs("reference", "api")` is right whatever the base is, and
+  the base has moved twice. `assert-ia.mts` fails the build on a literal `/docs/` outside
   `lib/routes.ts` and `lib/source.ts`, with a short allowlist for `next.config.mjs`,
   `app/robots.ts`, `app/sitemap.ts` and `lib/layout.shared.tsx`.
 - In `.mdx`: use **relative** file links resolved by fumadocs' `createRelativeLink`.
   An absolute site link is banned with no exception. IA005 still checks that a
   `[Label](/…)` Link entry in a `meta.json` resolves, for the day somebody adds one.
-- **No top-level folder under `content/docs/` may be named after a real route.** Next
-  resolves a static segment before the catch-all, so `content/docs/colors/` would be
-  shadowed whole by `/colors` and every page under it would serve the colour browser.
-  IA007 fails the build on that collision.
+- **No app route may take a name in `LEGACY_ROOT_SEGMENTS`.** The proxy would send it into
+  `/docs` before it rendered, so a tool page at `/components` would never be seen. IA007
+  fails the build on that collision; name the route something else.
 
-This is what keeps a future `[lang]` segment a bounded change instead of a migration, and
-it is what made moving the corpus to the root a one-line change to `DOCS_BASE` plus the
-two rewrite sources in `next.config.mjs`.
+This is what keeps a future `[lang]` segment a bounded change instead of a migration.
+Moving the base is `DOCS_BASE`, the two rewrite sources and the tracing key in
+`next.config.mjs`, and the route folder `app/(chrome)/(docs)/docs/`.
 
 ## 8a. The site has the clawscale shape
 
 The documentation is modelled on clawscale and blueprintjs.com, and ADR 0026
-(`decisions/0026-the-site-takes-the-clawscale-shape.md`) is the record. There is no top
-navigation, no breadcrumb, no right-hand table of contents and no footer on a
-documentation page. The sidebar is the navigation: a wordmark, a Theme row, a Search
+(`decisions/0026-the-site-takes-the-clawscale-shape.md`) is the record. The landing page
+at `/` (`app/(chrome)/(landing)/`) is the blueprintjs.com banner: the mark, the name, the
+tagline, a Documentation link and a GitHub link, over a dark backdrop, then a footer with
+the Pensieve lockup and www.pensievelabs.org. It states nothing the documentation states.
+There is no top navigation, no breadcrumb, no right-hand table of contents and no footer
+on a documentation page. The sidebar is the navigation: a wordmark, a Theme row, a Search
 row, then seven sections, which are opsinjs (the introduction and the guides at the
 root), Foundations, Components, Health, Patterns, Reference and Contribute, the
 plain-language guide to contributing with Claude Code. Only the section you

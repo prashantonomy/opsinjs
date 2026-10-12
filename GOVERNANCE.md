@@ -60,7 +60,7 @@ and the pin rules allow it.
 ## Releases
 
 Nothing is versioned or published to npm yet. The
-[changelog](https://opsinjs.pensievelabs.org/changelog) records every change a user would
+[changelog](https://opsinjs.pensievelabs.org/docs/changelog) records every change a user would
 notice.
 
 ## Changing this document

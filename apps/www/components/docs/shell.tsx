@@ -6,9 +6,10 @@ import { Dialog } from "@base-ui/react/dialog"
 import { Menu, Search, X } from "lucide-react"
 import { useSearchContext } from "fumadocs-ui/contexts/search"
 
+import { LogoMark } from "@/components/logo-mark"
 import type { DocsNav } from "@/lib/docs-nav"
 import { site } from "@/lib/routes"
-import { LogoMark, Sidebar } from "./sidebar"
+import { Sidebar } from "./sidebar"
 
 /**
  * The frame around every documentation page: the sidebar on wide screens, and

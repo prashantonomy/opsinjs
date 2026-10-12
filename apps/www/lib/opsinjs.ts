@@ -1062,11 +1062,12 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
 export type OpsinErrorParams = Record<string, string | number>
 
 /**
- * Where a code's page lives. The canonical origin, hardcoded on purpose: this
- * file ships to projects that have no `lib/routes.ts` and no way to resolve a
- * page id, and a warning whose link is a bare slug sends the reader nowhere.
+ * Where a code's page lives: the canonical origin and the docs base,
+ * hardcoded on purpose. This file ships to projects that have no
+ * `lib/routes.ts` and no way to resolve a page id, and a warning whose link
+ * is a bare slug sends the reader nowhere.
  */
-const OPSIN_DOCS_ORIGIN = "https://opsinjs.pensievelabs.org/"
+const OPSIN_DOCS_BASE = "https://opsinjs.pensievelabs.org/docs/"
 
 /**
  * Every message already emitted this session.
@@ -1253,7 +1254,7 @@ export function warnOnce(code: OpsinErrorCode, params: OpsinErrorParams = {}): v
   warnedKeys.add(key)
 
   const lines = [`[opsinjs] ${code} (${error.severity}): ${message}`]
-  if (error.docs !== "") lines.push(`  → ${OPSIN_DOCS_ORIGIN}${error.docs}`)
+  if (error.docs !== "") lines.push(`  → ${OPSIN_DOCS_BASE}${error.docs}`)
   if (missing.length > 0) {
     lines.push(
       `  No value was supplied for ${missing.map((name) => `{${name}}`).join(", ")}. ` +

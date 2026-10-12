@@ -91,6 +91,7 @@ argued with while arguing is cheap.
 | [0024](./0024-the-component-page-is-lean.md) | The component page is lean | Accepted, outline superseded by 0026 |
 | [0025](./0025-the-audit-is-author-run.md) | The WCAG 2.2 AA audit is author-run, not an independent review | Accepted |
 | [0026](./0026-the-site-takes-the-clawscale-shape.md) | The documentation site takes the clawscale shape | Accepted |
+| [0027](./0027-the-site-gets-a-landing-page.md) | The site gets a landing page, and the documentation moves under `/docs` | Accepted |
 
 The numbers are not contiguous. There is no 0008, no 0018 to 0020 and no 0022.
 0008 and 0022 were withdrawn and deleted; 0018 to 0020 were never written. The

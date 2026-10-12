@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-import { RETIRED_PAGES } from "@/lib/redirects"
-import { routes } from "@/lib/routes"
+import { LEGACY_ROOT_SEGMENTS, RETIRED_PAGES } from "@/lib/redirects"
+import { docsMarkdownPath, routes } from "@/lib/routes"
 
 /**
  * proxy.ts is Next 16's replacement for `middleware.ts`.
@@ -40,15 +40,17 @@ import { routes } from "@/lib/routes"
  * guard in the case-folding branch below.
  *
  * EVERY PATH IN THIS FILE IS BUILT WITH `routes.docs()`, NEVER BY CONCATENATION.
- * The corpus is rooted: `DOCS_BASE` is empty, so `routes.docs()` is `/` and
- * `${routes.docs()}/reference/api` would be `//reference/api`, which matches
- * nothing and fails silently. `routes.docs("reference", "api")` is `/reference/api`
- * whatever the base is, which is the whole reason that function exists.
+ * `routes.docs("reference", "api")` is right whatever the base is, and the
+ * base has already moved twice: from `/docs` to the root and back (ADR 0027).
+ * A concatenation against an empty base produced `//reference/api`, which
+ * matches nothing and fails silently.
  */
 const API_PREFIX = `${routes.docs("reference", "api")}/`
+/** The same prefix relative to the docs base, which is how a legacy path is read. */
+const API_RELATIVE = "/reference/api"
 const TYPES_PAGE = routes.docs("reference", "generated", "types")
-/** Where the corpus lived before it moved to the root. */
-const LEGACY_DOCS_PREFIX = "/docs"
+/** The docs base, `/docs`. */
+const DOCS_PREFIX = routes.docs()
 
 /** Exact-match redirects. Keys are lower-cased paths without a trailing slash. */
 const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
@@ -145,31 +147,44 @@ export default function proxy(request: NextRequest) {
       : pathname
   const lower = canonicalPath.toLowerCase()
 
-  /* A retired page, the .md twin of one, or either under the old `/docs`
-     prefix, answered in one hop. The corpus moved from `/docs` to the root
-     before ADR 0026 folded four hundred pages into about a hundred and
-     fifteen, and lib/redirects.ts names where each one went. A per-symbol API
-     page goes to its section on the Types page. */
-  const legacy =
-    lower === LEGACY_DOCS_PREFIX || lower.startsWith(`${LEGACY_DOCS_PREFIX}/`)
-  const unprefixed = legacy
-    ? lower.slice(LEGACY_DOCS_PREFIX.length) || "/"
-    : lower
-  const twin = unprefixed.endsWith(".md")
-  const page = twin ? unprefixed.slice(0, -3) : unprefixed
-  if (page.startsWith(API_PREFIX) || page === API_PREFIX.slice(0, -1)) {
-    const target = url.clone()
-    target.pathname = TYPES_PAGE
-    target.hash = page.slice(API_PREFIX.length)
-    return NextResponse.redirect(target, 308)
+  /* A retired page, the .md twin of one, or a page from the period when the
+     corpus was rooted, answered in one hop. The corpus lived under `/docs`,
+     moved to the root on 2026-09-20 and came back under `/docs` with ADR 0027,
+     so a documentation path can arrive in either form. `page` is the path
+     relative to the docs base in both cases, which is the form
+     lib/redirects.ts is keyed in. A rooted path is recognised by its first
+     segment, from the frozen list in that file, so the landing page and the
+     tool pages are never taken for one. The rooted index twin was
+     `/index.md`. A per-symbol API page goes to its section on the Types page. */
+  const twin = lower.endsWith(".md")
+  const bare = twin ? lower.slice(0, -3) : lower
+  let page: string | undefined
+  let rooted = false
+  if (bare === DOCS_PREFIX || bare.startsWith(`${DOCS_PREFIX}/`)) {
+    page = bare.slice(DOCS_PREFIX.length) || "/"
+  } else if (twin && bare === "/index") {
+    page = "/"
+    rooted = true
+  } else if (LEGACY_ROOT_SEGMENTS.has(bare.split("/")[1] ?? "")) {
+    page = bare
+    rooted = true
   }
-  const destination = RETIRED_PAGES[page] ?? (legacy ? page : undefined)
-  if (destination) {
-    const target = url.clone()
-    target.pathname = onThisSite(
-      twin ? (destination === "/" ? "/index.md" : `${destination}.md`) : destination
-    )
-    return NextResponse.redirect(target, 308)
+  if (page !== undefined) {
+    if (page === API_RELATIVE || page.startsWith(`${API_RELATIVE}/`)) {
+      const target = url.clone()
+      target.pathname = TYPES_PAGE
+      target.hash = page.slice(API_RELATIVE.length + 1)
+      return NextResponse.redirect(target, 308)
+    }
+    const destination = RETIRED_PAGES[page] ?? (rooted ? page : undefined)
+    if (destination) {
+      const segments = destination.split("/")
+      const target = url.clone()
+      target.pathname = onThisSite(
+        twin ? docsMarkdownPath(...segments) : routes.docs(...segments)
+      )
+      return NextResponse.redirect(target, 308)
+    }
   }
 
   const exact = EXACT_REDIRECTS[lower]
@@ -188,13 +203,20 @@ export default function proxy(request: NextRequest) {
     const target = url.clone()
     const rewritten = rule.to.replace(/\/$/, "") + lower.slice(from.length)
     /* One hop, not two: a prefix rewrite that lands on a retired page goes
-       straight to the page that absorbed it. */
-    target.pathname = onThisSite(RETIRED_PAGES[rewritten] ?? rewritten)
+       straight to the page that absorbed it. The table is keyed relative to
+       the docs base, so the base comes off for the lookup and back on for the
+       target. */
+    const retired = rewritten.startsWith(`${DOCS_PREFIX}/`)
+      ? RETIRED_PAGES[rewritten.slice(DOCS_PREFIX.length)]
+      : undefined
+    target.pathname = onThisSite(
+      retired ? routes.docs(...retired.split("/")) : rewritten
+    )
     return NextResponse.redirect(target, rule.permanent ? 308 : 307)
   }
 
-  // Case folding, documentation paths only. Query and hash are preserved so a
-  // deep link into a section survives the redirect.
+  // Case folding. Query and hash are preserved so a deep link into a section
+  // survives the redirect.
   //
   // The per-symbol API pages are the one exception, and they have to be. Their
   // slugs ARE TypeScript symbol names (addendum B11: <ApiLink> resolves to
@@ -204,10 +226,10 @@ export default function proxy(request: NextRequest) {
   // exactly what it did: 43 pages and every .md twin returned 404 while each
   // page itself built and prerendered perfectly.
   //
-  // THE GUARD USED TO NAME A `/docs` PREFIX AND NOW NAMES NOTHING, because the
-  // corpus is rooted and every path this proxy sees is a documentation path.
-  // The exclusions moved into `config.matcher` below, which already keeps the
-  // registry, the API, the preview shell and the metadata routes out.
+  // The fold applies to every path the matcher lets through, not only to the
+  // documentation, because the landing page and the tool pages are lower case
+  // too. `config.matcher` below keeps the registry, the API, the preview shell
+  // and the metadata routes out.
   if (!canonicalPath.startsWith(API_PREFIX) && canonicalPath !== lower) {
     const target = url.clone()
     target.pathname = onThisSite(lower)

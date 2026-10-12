@@ -4,16 +4,17 @@ import { createMDX } from "fumadocs-mdx/next"
  * Turbopack is the bundler. Do NOT add a `webpack` key here. Next 16 treats it
  * as a hard failure, not a warning.
  *
- * The `/:path*.md` rewrite is the `.md` twin of every documentation page: it
- * serves the PROCESSED markdown (JSX resolved into text) that agents read, at a
- * URL a human can guess by appending `.md`. It is a rewrite, not a redirect, so
- * the canonical HTML URL is unaffected.
+ * The `/docs/:path*.md` rewrite is the `.md` twin of every documentation page:
+ * it serves the PROCESSED markdown (JSX resolved into text) that agents read,
+ * at a URL a human can guess by appending `.md`. It is a rewrite, not a
+ * redirect, so the canonical HTML URL is unaffected.
  *
- * THE MATCHER IS ROOTED because the documentation is rooted: `DOCS_BASE` in
- * lib/routes.ts is empty, so a page lives at `/components/button` and its twin
- * at `/components/button.md`. The index twin is `/index.md`, since `/.md` is
- * not a path. Restoring a `/docs` prefix means changing `DOCS_BASE` and these
- * two sources together, and nothing else.
+ * The documentation lives under `DOCS_BASE` in lib/routes.ts, which is
+ * `/docs` (ADR 0027): a page lives at `/docs/components/button` and its twin
+ * at `/docs/components/button.md`, and the index twin is `/docs.md`. Moving
+ * the base means changing `DOCS_BASE`, these two sources and the tracing key
+ * together. The twins from the rooted period, such as `/index.md`, are
+ * redirected by `proxy.ts`, which runs before these rewrites.
  *
  * The path literals below are the allowlisted exception to the "route
  * construction lives in lib/routes.ts" rule: Next's rewrite matcher is config,
@@ -94,12 +95,12 @@ const config = {
    */
   agentRules: false,
   outputFileTracingIncludes: {
-    "/[[...slug]]": ["./content/**/*"],
+    "/docs/[[...slug]]": ["./content/**/*"],
   },
   async rewrites() {
     return [
-      { source: "/index.md", destination: "/llms.mdx" },
-      { source: "/:path*.md", destination: "/llms.mdx/:path*" },
+      { source: "/docs.md", destination: "/llms.mdx" },
+      { source: "/docs/:path*.md", destination: "/llms.mdx/:path*" },
     ]
   },
   /**
