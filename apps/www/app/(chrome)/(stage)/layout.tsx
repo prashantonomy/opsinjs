@@ -23,8 +23,8 @@ export const metadata: Metadata = {
  * `app/(chrome)/layout.tsx`. It adds no header, no footer and no search,
  * because a showcase screen is the screen and nothing else, the way the
  * clawscale showcase pages are the app and nothing else. The one control on
- * the page, the bar that switches the theme and the screen size, belongs to
- * the page itself. The index at `/showcase` stays in `(home)`, with the site
+ * the page, the bar that leads back to `/showcase` and switches the theme and
+ * the screen size, belongs to the page itself. The index at `/showcase` stays in `(home)`, with the site
  * header and footer around it.
  */
 export default function StageGroupLayout({

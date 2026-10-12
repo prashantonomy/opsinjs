@@ -1,17 +1,18 @@
 "use client"
 
 import { useEffect, useId, useRef, useState } from "react"
-import { Monitor, Moon, Smartphone, Sun, Tablet } from "lucide-react"
+import Link from "next/link"
+import { ArrowLeft, Monitor, Moon, Smartphone, Sun, Tablet } from "lucide-react"
 import { useTheme } from "fumadocs-ui/provider/base"
 
 import { useClientValue, useMediaQuery } from "@/app/_shared/use-client-value"
-import { viewPath } from "@/lib/routes"
+import { routes, viewPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
    stage.tsx defines <ShowcaseStage>, the whole of `/showcase/<slug>`: one
-   screen, and a floating bar in the top right corner that switches the theme
-   and the screen size.
+   screen, and a floating bar in the top right corner that leads back to
+   `/showcase` and switches the theme and the screen size.
 
    THE SCREEN IS FRAMED, AND THE FRAME IS WHAT MAKES THE SIZE SWITCH REAL. The
    kit's stylesheet, app/product.css, loads only under app/(view)/layout.tsx,
@@ -261,6 +262,17 @@ export function ShowcaseStage({ name, title }: ShowcaseStageProps) {
       <h1 className="sr-only">{title}</h1>
 
       <div className="fixed top-3 right-3 z-10 flex items-center gap-1 rounded-lg border border-border bg-background/90 p-1 shadow-lg backdrop-blur-sm">
+        {/* The way out, first in the bar and in the tab order, because a
+            reader can arrive here from search with no page behind them. */}
+        <Link
+          href={routes.showcase()}
+          title="Back to showcase"
+          className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
+        >
+          <ArrowLeft aria-hidden="true" className="size-4" />
+          <span className="sr-only">Back to showcase</span>
+        </Link>
+        <span aria-hidden="true" className="h-5 w-px bg-border" />
         <Choice
           legend="Theme"
           name={`${id}-theme`}
