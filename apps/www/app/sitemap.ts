@@ -99,17 +99,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ]
 
   /*
-    DEDUPLICATED, because the front door is reachable two ways from here and
-    always was. `DOCS_BASE` is empty, so the corpus index renders at `/` and
-    arrives in `docs` with that URL, while `routes.home()` is the same `/` in
-    the hand-written list above. A sitemap that submits one URL twice is not
-    fatal, and it is the kind of thing a validator flags and a maintainer then
-    has to re-derive from scratch.
+    DEDUPLICATED, because one URL can arrive from both lists. The landing page
+    at `routes.home()` and the docs index at `/docs` are two pages today (ADR
+    0027), but while `DOCS_BASE` was empty the corpus index rendered at `/`
+    and arrived in `docs` with the same URL as the front door. A sitemap that
+    submits one URL twice is not fatal, and it is the kind of thing a
+    validator flags and a maintainer then has to re-derive from scratch.
 
     The docs entry wins, because it is the one carrying a review date. `Map`
     preserves insertion order and a later `set` on an existing key replaces the
-    value without moving it, so the front door keeps its position at the head of
-    the file and gains its `lastmod`.
+    value without moving it, so an entry keeps its position in the file and
+    gains its `lastmod`.
   */
   const merged = new Map<string, MetadataRoute.Sitemap[number]>()
   for (const entry of [...staticRoutes, ...docs]) merged.set(entry.url, entry)

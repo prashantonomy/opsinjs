@@ -1,0 +1,299 @@
+/* ==========================================================================
+   landing.css styles the landing page at `/`, and nothing else.
+
+   The page is dark in both colour schemes, as the blueprintjs.com banner is.
+   It has no theme switch, so these values do not follow the docs tokens: the
+   canvas is the charcoal of the opsinjs mark's own tile, and the two accents
+   are the mark's band and reading, used as the mark uses them. Neither is a
+   status colour here and neither carries a meaning a reader has to decode.
+   ========================================================================== */
+
+.landing {
+  --landing-bg: #0f1012;
+  --landing-glow: #1c1e22;
+  --landing-grid-minor: rgb(255 255 255 / 0.03);
+  --landing-grid-major: rgb(255 255 255 / 0.06);
+  --landing-track: rgb(255 255 255 / 0.16);
+  --landing-band: #7fb77a;
+  --landing-reading: #e08a3c;
+  --landing-title: #ffffff;
+  --landing-text: #d4d6da;
+  --landing-link: #e6e8eb;
+  --landing-muted: #9a9ea6;
+  --landing-rule: rgb(255 255 255 / 0.2);
+  --landing-footer-bg: #0a0b0c;
+  --landing-footer-edge: rgb(255 255 255 / 0.07);
+  --landing-lockup-ink: #ffffff;
+
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--landing-bg);
+  color: var(--landing-text);
+}
+
+/* The canvas behind an overscroll, so a bounce past either end shows the
+   page's own colour rather than the docs' white. */
+html:has(.landing) {
+  background-color: #0a0b0c;
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------------------------
+   The banner
+   -------------------------------------------------------------------------- */
+
+.landing-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: min(760px, 88vh);
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 40%,
+    var(--landing-glow),
+    var(--landing-bg) 72%
+  );
+}
+
+.landing-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Measurement paper: a minor grid every 16px and a major one every 96px, both
+   centred so the page's axis falls on a major line. The mask fades the sheet
+   out towards the edges and holds it back behind the text. */
+.landing-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--landing-grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--landing-grid-major) 1px, transparent 1px),
+    linear-gradient(var(--landing-grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--landing-grid-minor) 1px, transparent 1px);
+  background-position: center;
+  background-size:
+    96px 96px,
+    96px 96px,
+    16px 16px,
+    16px 16px;
+  mask-image: radial-gradient(
+    ellipse 80% 75% at 50% 45%,
+    rgb(0 0 0 / 0.45) 0%,
+    #000 40%,
+    transparent 85%
+  );
+}
+
+/* The horizon is the mark unrolled: a track, the expected band laid along
+   its left part, and one reading to the right of it. */
+.landing-horizon {
+  position: absolute;
+  right: 0;
+  bottom: clamp(40px, 11vh, 104px);
+  left: 0;
+  height: 24px;
+}
+
+.landing-track {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--landing-track) 14%,
+    var(--landing-track) 86%,
+    transparent
+  );
+}
+
+.landing-band {
+  position: absolute;
+  top: calc(50% - 1.5px);
+  left: 18%;
+  width: 36%;
+  height: 3px;
+  border-radius: 3px;
+  background-color: var(--landing-band);
+  opacity: 0.5;
+  transform-origin: left center;
+  animation: landing-band-in 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.landing-reading {
+  position: absolute;
+  top: 50%;
+  left: 72%;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  border-radius: 50%;
+  background-color: var(--landing-reading);
+  box-shadow:
+    0 0 0 4px var(--landing-bg),
+    0 0 28px 6px rgb(224 138 60 / 0.3);
+  animation: landing-reading-in 600ms ease-out 700ms both;
+}
+
+@keyframes landing-band-in {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes landing-reading-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-band,
+  .landing-reading {
+    animation: none;
+  }
+}
+
+.landing-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 40rem;
+  padding: 64px 24px 144px;
+  text-align: center;
+}
+
+.landing-mark {
+  display: flex;
+  margin-bottom: 28px;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.12),
+    0 20px 48px -12px rgb(0 0 0 / 0.85);
+}
+
+.landing-title {
+  margin: 0;
+  color: var(--landing-title);
+  font-size: clamp(2.5rem, 6vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.landing-tagline {
+  max-width: 44ch;
+  margin: 18px 0 0;
+  color: var(--landing-text);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.landing-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.landing-links a {
+  padding: 10px 8px;
+  border-radius: 6px;
+  color: var(--landing-link);
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.landing-links a:hover {
+  color: var(--landing-title);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.landing-separator {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--landing-muted);
+}
+
+.landing a:focus-visible {
+  outline: 2px solid var(--landing-title);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   The footer
+   -------------------------------------------------------------------------- */
+
+.landing-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 64px 24px 72px;
+  border-top: 1px solid var(--landing-footer-edge);
+  background-color: var(--landing-footer-bg);
+  text-align: center;
+}
+
+/* The stacked lockup. The mark is twice the wordmark's size, centred on the
+   axis the two wings meet on, with the word set below it. Every dimension is
+   in rem, so the pair keeps its proportion when the reader enlarges text. */
+.landing-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  color: var(--landing-lockup-ink);
+}
+
+.landing-lockup-mark {
+  width: auto;
+  height: 3rem;
+}
+
+.landing-lockup-word {
+  font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-variation-settings: "wght" 358;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.landing-rule {
+  width: 40px;
+  height: 1px;
+  background-color: var(--landing-rule);
+}
+
+.landing-website {
+  padding: 6px 4px;
+  border-radius: 4px;
+  color: var(--landing-muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.landing-website:hover {
+  color: var(--landing-title);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -38,6 +38,8 @@ export const site = {
    */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.pensievelabs.org",
   github: "https://github.com/prashantonomy/opsinjs",
+  /** The company that publishes opsinjs, whose lockup closes the landing page. */
+  publisher: { name: "Pensieve", url: "https://www.pensievelabs.org" },
   /**
    * Whether the repository is public, which it has been since 8 October 2026.
    * It gates "Edit this page" and "View on GitHub", because a link to a
@@ -56,21 +58,19 @@ export const site = {
 /**
  * The docs base segment. Everything else derives from it.
  *
- * IT IS EMPTY, AND THAT IS THE WHOLE SITE DESIGN. The documentation is not a
- * section of opsinjs.org, it is opsinjs.org: the introduction renders at `/`,
- * Components at `/components`, a component at `/components/button`. There is no
- * landing page in front of it and no `/docs` prefix behind it.
+ * The site has the blueprintjs.com shape (ADR 0027): a landing page at `/`
+ * with links to the documentation and to GitHub, and the documentation under
+ * `/docs`. The introduction renders at `/docs`, Components at
+ * `/docs/components`, a component at `/docs/components/button`.
  *
- * The four non-docs routes (`/colors`, `/tokens`, `/icons`, `/showcase`,
- * `/official`, `/playground`) still win over the catch-all, because Next
- * resolves a static segment before a `[[...slug]]`. The rule that keeps it
- * that way: no top-level folder under `content/docs/` may be named after one
- * of them. `assert-ia.mts` checks that collision directly.
+ * From 2026-09-20 to 2026-10-12 the corpus was rooted and this was empty.
+ * `proxy.ts` answers every URL from that period with a permanent redirect to
+ * its `/docs` twin, using the frozen segment list in `lib/redirects.ts`.
  *
- * Restoring a prefix is still this one line plus the two `/` literals in
+ * Changing the base is this line plus the rewrite sources in
  * `next.config.mjs`, which is the property ADR 0005 wanted from this module.
  */
-export const DOCS_BASE = ""
+export const DOCS_BASE = "/docs"
 
 /* ── low-level helpers ──────────────────────────────────────────────────── */
 
@@ -129,14 +129,13 @@ export function docsPath(...slugs: (string | undefined)[]): string {
 }
 
 /**
- * The same page as processed markdown: `/components/range-bar.md`.
+ * The same page as processed markdown: `/docs/components/range-bar.md`.
  *
- * The index is `/index.md` rather than `/.md`, which is not a path. Every other
- * page appends `.md` to its own path.
+ * Every page appends `.md` to its own path, the index included, so the index
+ * twin is `/docs.md`.
  */
 export function docsMarkdownPath(...slugs: (string | undefined)[]): string {
-  const path = docsPath(...slugs)
-  return path === "/" ? "/index.md" : `${path}.md`
+  return `${docsPath(...slugs)}.md`
 }
 
 /** A component specification page, by catalogue id. */

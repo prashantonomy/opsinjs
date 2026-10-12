@@ -83,6 +83,11 @@ import {
   SECTION_OUTLINES,
   type Status,
 } from "../lib/status.ts"
+/* The same explicit-`.ts` specifier, for the same reason. Neither module
+   imports anything. IA007 reads the frozen list of root URLs the proxy
+   redirects, and names the docs base the way the site builds it. */
+import { LEGACY_ROOT_SEGMENTS } from "../lib/redirects.ts"
+import { docsPath } from "../lib/routes.ts"
 
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const DOCS_DIR = join(APP_DIR, "content", "docs")
@@ -241,7 +246,7 @@ const DOCS_PATH_ALLOWLIST = [
   "app/robots.ts",
   "app/sitemap.ts",
   "next.config.mjs",
-  /* It names the old `/docs` prefix in order to redirect it away. */
+  /* It redirects the root URLs of the rooted period into `/docs`. */
   "proxy.ts",
 ]
 
@@ -252,9 +257,9 @@ const DOCS_PATH_ALLOWLIST = [
  */
 const ROUTE_ALLOWLIST: Array<{ route: string; reason: string }> = [
   {
-    route: "/[[...slug]]",
+    route: "/docs/[[...slug]]",
     reason:
-      "the docs corpus, which is the whole site: it owns `/` as well as every section, and is reached through the sidebar on every page",
+      "the docs corpus: it owns `/docs` and every section under it, is linked from the landing page, and is reached through the sidebar on every page",
   },
   {
     route: "/view/[base]/[style]/[kind]/[name]",
@@ -1949,7 +1954,7 @@ function routeForPageFile(file: string): string {
   return `/${segments.join("/")}`.replace(/\/$/, "") || "/"
 }
 
-function checkRouteReachability(pages: ParsedPage[]): void {
+function checkRouteReachability(): void {
   const appDir = join(APP_DIR, "app")
   if (!isDirectory(appDir)) return
 
@@ -1977,7 +1982,6 @@ function checkRouteReachability(pages: ParsedPage[]): void {
     ROUTE_ALLOWLIST.map((entry) => [entry.route, entry.reason])
   )
   const navSet = new Set(TOP_NAV)
-  const docsSlugs = new Set(pages.map((page) => page.slug))
 
   for (const file of pageFiles) {
     const route = routeForPageFile(file)
@@ -2020,34 +2024,25 @@ function checkRouteReachability(pages: ParsedPage[]): void {
     }
   }
 
-  /* IA007. THE DOCUMENTATION OWNS THE ROOT, SO TWO THINGS CAN CLAIM ONE NAME.
-     `DOCS_BASE` is empty: the corpus renders at `/`, so `content/docs/health/`
-     is `/health` and `app/(chrome)/(home)/colors/` is `/colors`. Next resolves a
-     static segment before a `[[...slug]]`, so if somebody adds
-     `content/docs/colors/`, the tool page wins and an entire documentation
-     section returns the colour browser instead. Nothing else catches it: the
-     page exists, the sidebar links it, and the link 200s.
+  /* IA007. A ROOT URL FROM THE ROOTED PERIOD MUST NOT BECOME A REAL ROUTE.
+     From 2026-09-20 to 2026-10-12 the corpus rendered at `/`, so
+     `/components/button` was a documentation URL. The corpus is under `/docs`
+     again (ADR 0027), and proxy.ts redirects any path whose first segment is
+     in `LEGACY_ROOT_SEGMENTS` to the same path under `/docs`. An app route
+     that takes one of those names, such as a tool page at `/components`, would
+     be redirected away before it rendered, and nothing else catches it: the
+     page builds, the link exists, and every request leaves.
 
-     This is the check that makes a rooted corpus safe. The repair is to rename
-     one of the two, and renaming the docs folder is almost always the cheaper
-     side. */
-  const appTopSegments = new Map<string, string>()
+     The repair is to name the new route something else. The list records
+     URLs that were public, so shrinking it breaks bookmarks instead. */
   for (const file of pageFiles) {
     const segment = routeForPageFile(file).split("/")[1]
     if (!segment || segment.startsWith("[")) continue
-    appTopSegments.set(segment, rel(file))
-  }
-  const reportedCollisions = new Set<string>()
-  for (const slug of docsSlugs) {
-    const segment = slug.split("/")[0]
-    if (!segment || reportedCollisions.has(segment)) continue
-    const owner = appTopSegments.get(segment)
-    if (!owner) continue
-    reportedCollisions.add(segment)
+    if (!LEGACY_ROOT_SEGMENTS.has(segment)) continue
     fail(
       "IA007",
-      `content/docs/${segment}`,
-      `collides with ${owner}, which serves /${segment}. The docs corpus is rooted at / (DOCS_BASE is empty), and Next resolves a static route before the catch-all, so every page under this folder is unreachable. Rename one of the two.`
+      rel(file),
+      `serves /${segment}, which was a documentation URL while the corpus was rooted. proxy.ts redirects every path under /${segment} into ${docsPath()}, so this route never renders. Name it something else.`
     )
   }
 }
@@ -2838,7 +2833,7 @@ async function main(): Promise<void> {
 
   checkHardcodedDocsPaths()
   checkMetaTrees(pages)
-  checkRouteReachability(pages)
+  checkRouteReachability()
   checkPageMetadata()
   checkTitleCollisions(pages)
   checkCanonicality(pages)

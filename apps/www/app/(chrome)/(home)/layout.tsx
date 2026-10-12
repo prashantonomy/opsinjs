@@ -30,11 +30,11 @@ export const metadata: Metadata = {
  * Chrome for the five routes that are neither documentation nor the playground:
  * `/colors`, `/tokens`, `/icons`, `/showcase`, `/official`.
  *
- * THERE IS NO `/` HERE ANY MORE. The landing page was deleted and the
- * documentation took the root: `DOCS_BASE` in lib/routes.ts is empty, so the
- * introduction renders at `/` through `app/(chrome)/(docs)/[[...slug]]`. This
- * group is now only the tool pages, which is why it kept `HomeLayout` and the
- * documentation did not.
+ * THERE IS NO `/` HERE. The landing page at `/` is its own group,
+ * `app/(chrome)/(landing)`, because it has neither this header nor this
+ * footer (ADR 0027), and the documentation renders under `/docs` through
+ * `app/(chrome)/(docs)/docs/[[...slug]]`. This group is only the tool pages,
+ * which is why it kept `HomeLayout` and the documentation did not.
  *
  * This is a NESTED layout. The `<html>`/`<body>` pair, the theme provider and
  * the footer belong to `app/(chrome)/layout.tsx`. `HomeLayout` supplies the

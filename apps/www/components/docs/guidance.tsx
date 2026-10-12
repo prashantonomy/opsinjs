@@ -8,7 +8,7 @@ import { Check, ShieldAlert, Stethoscope, X } from "lucide-react"
 
 import { getEntry, type CatalogueEntry } from "@/lib/catalogue"
 import { isBuilt } from "@/lib/registry"
-import { componentPath } from "@/lib/routes"
+import { componentPath, docsPath } from "@/lib/routes"
 import {
   CLINICAL_STATUSES,
   CLINICAL_STATUS_META,
@@ -661,13 +661,14 @@ function resolveInstead(entry: WhenToUseAvoid): ResolvedInstead {
 /**
  * An `href` written as a relative `.mdx` link, as every other link on a
  * component page is, turned into the URL it names. `<WhenToUse>` appears only
- * on component pages, so the link is resolved from `/components/`.
+ * on component pages, so the link is resolved from the Components section,
+ * built through lib/routes.ts so that it follows the docs base.
  */
 function resolveHref(href: string): string {
   if (!href.startsWith(".") || !href.endsWith(".mdx")) return href
   const path = new URL(
     href.replace(/\.mdx$/, ""),
-    "https://opsinjs.invalid/components/"
+    `https://opsinjs.invalid${docsPath("components")}/`
   ).pathname
   return path.replace(/\/index$/, "") || "/"
 }

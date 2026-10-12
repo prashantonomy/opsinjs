@@ -31,7 +31,7 @@ Register the `@opsinjs` namespace in `components.json` once, then add a componen
 npx shadcn@latest add @opsinjs/button
 ```
 
-[Getting started](https://opsinjs.pensievelabs.org/getting-started) has the full setup.
+[Getting started](https://opsinjs.pensievelabs.org/docs/getting-started) has the full setup.
 
 ## Work on it
 
@@ -49,7 +49,7 @@ Run `pnpm typecheck`, `pnpm lint` and `pnpm check` before you open a pull reques
 ## Community
 
 - [Contributing](CONTRIBUTING.md) and [governance](GOVERNANCE.md)
-- [Contribute with Claude Code](https://opsinjs.pensievelabs.org/contribute), a plain-language guide for clinicians and health scientists
+- [Contribute with Claude Code](https://opsinjs.pensievelabs.org/docs/contribute), a plain-language guide for clinicians and health scientists
 - [Code of conduct](CODE_OF_CONDUCT.md)
 - [Support](SUPPORT.md). Questions go to [GitHub Discussions](https://github.com/prashantonomy/opsinjs/discussions)
 - [Security policy](SECURITY.md). Report a vulnerability privately, never in a public issue

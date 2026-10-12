@@ -139,7 +139,7 @@ with an explicit `.ts` extension, which is why `tsconfig.json` sets
 
 ## Do not
 
-- Read `searchParams` in `app/(chrome)/(docs)/[[...slug]]/page.tsx`. It deoptimises
+- Read `searchParams` in `app/(chrome)/(docs)/docs/[[...slug]]/page.tsx`. It deoptimises
   the whole corpus out of static generation.
 - Add a `webpack` key to `next.config.mjs`. Turbopack hard-fails on it.
 - Run `next lint`. It was removed; use `pnpm lint`.

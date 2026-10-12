@@ -42,12 +42,13 @@ import { type Dirent, readdirSync, readFileSync, statSync } from "node:fs"
 import { join, relative, sep } from "node:path"
 import { fileURLToPath } from "node:url"
 
-/* The corpus is rooted: `DOCS_BASE` is empty and a page lives at
-   `/components/button`. Every URL this script predicts is built with
-   `docsPath`, the same function the site builds its links with, so moving the
-   base cannot leave this file probing a prefix that no longer exists. That is
-   what it did before: it predicted `/docs/<slug>.md` for all 404 twins and
-   reported every one of them as a 404 of the site's rather than of its own. */
+/* The corpus lives under `DOCS_BASE`, which is `/docs` (ADR 0027), so a page
+   lives at `/docs/components/button`. Every URL this script predicts is built
+   with `docsPath`, the same function the site builds its links with, so
+   moving the base cannot leave this file probing a prefix that no longer
+   exists. That is what it did once: after the base moved to the root it still
+   predicted `/docs/<slug>.md` for every twin and reported each one as a 404 of
+   the site's rather than of its own. */
 import { componentPath, docsMarkdownPath, docsPath } from "../lib/routes.ts"
 
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
@@ -66,7 +67,7 @@ const REQUIRED_ROUTES = [
   { path: "llms-health.txt", purpose: "shard: health, accessibility and content doctrine" },
   { path: "llms-foundations.txt", purpose: "shard: foundations and theming" },
   { path: "llms-reference.txt", purpose: "shard: the generated reference tables" },
-  { path: "llms.mdx", purpose: "the processed-markdown twin behind the /:path*.md rewrite" },
+  { path: "llms.mdx", purpose: "the processed-markdown twin behind the /docs/:path*.md rewrite" },
   { path: join("r", "docs.json"), purpose: "the offline agent bundle" },
   { path: join("r", "registry.json"), purpose: "the catalog the shadcn MCP server requires" },
 ]
@@ -396,7 +397,15 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
   const seen = new Map<string, number>()
   for (const url of urls) {
     const path = url.slice(base.length).replace(/\.md$/, "")
-    const slug = path.replace(/^\//, "").replace(/\/$/, "")
+    /* The docs base comes off before the slug is compared with the corpus,
+       whose slugs are relative to it. */
+    const docsBase = docsPath() === "/" ? "" : docsPath()
+    const slug = (path === docsBase || path.startsWith(`${docsBase}/`)
+      ? path.slice(docsBase.length)
+      : path
+    )
+      .replace(/^\//, "")
+      .replace(/\/$/, "")
     seen.set(slug, (seen.get(slug) ?? 0) + 1)
   }
   for (const [slug, count] of seen) {
@@ -536,14 +545,13 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     if (components !== undefined && implemented.length > 0) {
       const absent = implemented
         .map((item) => item.name as string)
-        /* BUILT THROUGH `componentPath`, NOT WRITTEN OUT. This line used to
-           test for `/docs/components/<id>`, and the corpus is rooted: a
-           component page is at `/components/<id>` and has been since
-           `DOCS_BASE` emptied. The pattern matched nothing, so every built
-           component looked absent from the shard that carries it, and the
-           check reported the whole roster missing on every live run. That is
-           the same bug this file's header describes finding in the twin
-           probe, in the one place the fix did not reach. */
+        /* BUILT THROUGH `componentPath`, NOT WRITTEN OUT. This line once
+           tested for `/docs/components/<id>` while the corpus was rooted and
+           a component page was at `/components/<id>`. The pattern matched
+           nothing, so every built component looked absent from the shard that
+           carries it, and the check reported the whole roster missing on
+           every live run. That is the same bug this file's header describes
+           finding in the twin probe, in the one place the fix did not reach. */
         .filter(
           (name) =>
             !new RegExp(`${componentPath(name)}(?![a-z0-9-])`).test(components)

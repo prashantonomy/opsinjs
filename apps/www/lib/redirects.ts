@@ -1,13 +1,56 @@
 /**
+ * The first path segment of every documentation URL the site served from the
+ * root, between 2026-09-20 and 2026-10-12, when `DOCS_BASE` was empty.
+ * `proxy.ts` sends a path that starts with one of these to the same path under
+ * `/docs` (ADR 0027), so a bookmark such as `/components/button` still lands.
+ *
+ * THE LIST IS FROZEN. It records URLs that were public, so a section added
+ * after the corpus moved under `/docs` never had a root URL and does not
+ * belong here. It is the union of the top-level segments in `content/docs` on
+ * 2026-10-12 and the first segments of the keys in `RETIRED_PAGES` below.
+ * `assert-ia` rule IA007 fails the build if an app route ever takes one of
+ * these names, because the proxy would send that route into `/docs`.
+ */
+export const LEGACY_ROOT_SEGMENTS: ReadonlySet<string> = new Set([
+  "accessibility",
+  "agents",
+  "changelog",
+  "components",
+  "content",
+  "contribute",
+  "foundations",
+  "getting-started",
+  "handbook",
+  "health",
+  "migrating",
+  "nextjs",
+  "packages",
+  "patterns",
+  "principles",
+  "project",
+  "reading-the-docs",
+  "recipes",
+  "reference",
+  "registry",
+  "screens",
+  "start",
+  "styling",
+  "theming",
+])
+
+/**
  * Every documentation URL that stopped being a page when the site took the
  * clawscale shape (ADR 0026), and the page that absorbed it. `proxy.ts`
  * answers each with a permanent redirect, and the `.md` twin of each with a
  * redirect to the twin of its target, so no bookmark, search result or agent
  * cache lands on a 404.
  *
- * Keys are lower case and carry no trailing slash, which is the form the
- * proxy matches against. Per-symbol API pages are one rule in the proxy
- * rather than fifty-nine rows here.
+ * Keys and values are paths relative to the docs base, which is `/docs`
+ * since ADR 0027. The proxy matches a key whether it arrives under `/docs` or
+ * at the root, and builds the target with `routes.docs()`. Keys are lower
+ * case and carry no trailing slash, which is the form the proxy matches
+ * against. Per-symbol API pages are one rule in the proxy rather than
+ * fifty-nine rows here.
  */
 export const RETIRED_PAGES: Readonly<Record<string, string>> = {
   "/accessibility": "/foundations/accessibility",

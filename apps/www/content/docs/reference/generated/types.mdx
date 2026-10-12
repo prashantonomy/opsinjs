@@ -90,7 +90,7 @@ These are the site's own symbols. `lib/opsinjs.ts` is copied into a consumer's p
 | [`Detent`](#detent) | type | `lib/opsinjs.ts` | How far a sheet is open. |
 | `displayP3ToOklch` | function | `lib/color/oklch.ts` | Gamma-encoded Display-P3, 0 to 1 per channel → OKLCH. |
 | `DOCS_BASE` | const | `lib/routes.ts` | The docs base segment. Everything else derives from it. |
-| `docsMarkdownPath` | function | `lib/routes.ts` | The same page as processed markdown: `/components/range-bar.md`. |
+| `docsMarkdownPath` | function | `lib/routes.ts` | The same page as processed markdown: `/docs/components/range-bar.md`. |
 | [`DocsNav`](#docsnav) | interface | `lib/docs-nav.ts` | - |
 | `docsPath` | function | `lib/routes.ts` | The URL of a docs page from its slug segments. `docsPath()` is the docs index. This is the function a locale segment would be inserted into. |
 | `doctrinePath` | function | `lib/routes.ts` | A doctrine page reference as written in frontmatter, such as `two-colour-axes`, or `foundations/colour/contrast-and-apca` when it is not in Health. |
@@ -151,6 +151,7 @@ These are the site's own symbols. `lib/opsinjs.ts` is copied into a consumer's p
 | `joinPath` | function | `lib/routes.ts` | Join path segments into a root-relative path, dropping empties and stray slashes. |
 | [`Kind`](#kind) | type | `lib/status.ts` | A page's kind, one per sidebar section. Only `component` fixes the page's headings; every other kind names its own, as a page on blueprintjs.com does. |
 | `KINDS` | const | `lib/status.ts` | - |
+| `LEGACY_ROOT_SEGMENTS` | const | `lib/redirects.ts` | The first path segment of every documentation URL the site served from the root, between 2026-09-20 and 2026-10-12, when `DOCS_BASE` was empty. `proxy.ts` sends a path that starts with one of these to the same path under `/docs` (ADR 0027), so a bookmark such as `/components/button` still lands. |
 | `LIGHTNESS_STEP` | const | `lib/preset.ts` | The quantisation of lightness: 1% per step. |
 | `linearP3ToLinearSrgb` | function | `lib/color/oklch.ts` | Light-linear Display-P3 → light-linear sRGB, through XYZ (D65). |
 | `linearSrgbToLinearP3` | function | `lib/color/oklch.ts` | Light-linear sRGB → light-linear Display-P3, through XYZ (D65). |

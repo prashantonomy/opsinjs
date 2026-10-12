@@ -18,8 +18,9 @@ export const metadata: Metadata = {
 }
 
 /**
- * The documentation shell. This group owns `/`: `DOCS_BASE` is empty, so the
- * introduction renders at the root and Components at `/components`.
+ * The documentation shell. This group owns `/docs`: the introduction renders
+ * at `/docs` and Components at `/docs/components`. The landing page at `/`
+ * belongs to `(landing)` and has no sidebar (ADR 0027).
  *
  * This is a nested layout and renders no `<html>` or `<body>`; those belong to
  * `app/(chrome)/layout.tsx`, which also mounts the one theme provider and the
