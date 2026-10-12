@@ -156,8 +156,8 @@ export function pageMetadata(input: PageMetadataInput): Metadata {
  * IT CARRIES NO `title`, AND THAT IS LOAD-BEARING. `app/(chrome)/not-found.tsx`
  * hoists its own `<title>` from the render tree, because a `not-found` file is
  * neither a layout nor a page and so cannot export metadata. A `title.default`
- * here would put a second `<title>` in that document's head. The three nested
- * groups declare the template instead, where every descendant is a real page.
+ * here would put a second `<title>` in that document's head. The nested group
+ * layouts declare the template instead, where every descendant is a real page.
  *
  * `metadataBase` is the reason this export exists at all. Without it Next
  * resolves every relative URL in `openGraph`, `twitter` and `alternates`

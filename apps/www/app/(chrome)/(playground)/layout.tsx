@@ -8,7 +8,7 @@ import { site } from "@/lib/routes"
 import { ToolNav } from "./tool-nav"
 
 /**
- * The same title template the other two groups carry, for the same reason: the
+ * The same title template the other groups carry, for the same reason: the
  * three tools are titled "Playground", "Theme generator", "Contrast oracle" and
  * "Two-axis lab", none of which names the system on its own. See the note on
  * `app/(chrome)/(home)/layout.tsx` for why this is not on the root layout.

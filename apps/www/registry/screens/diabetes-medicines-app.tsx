@@ -480,7 +480,7 @@ const SLOT_OPTIONS = [
  * UI, which falls back to the raw value until the popup has been opened once, so an
  * id-shaped value reads as an id on first paint. Writing the words as the value is
  * the product's way round that; the finding itself belongs to Select and is
- * recorded on this screen's documentation page rather than patched here.
+ * filed as issue #19 rather than patched here.
  */
 const LEAD_OPTIONS = [
   { value: "At the time", label: "At the time" },
@@ -634,8 +634,8 @@ function Stack({ children }: { children: ReactNode }) {
 
 /**
  * The zero-prop default export (ADR 0009). `/view` renders this with no props and
- * the documentation page frames it, so it is reviewed code rather than a scratch
- * demo.
+ * `/showcase/diabetes-medicines-app` frames it, so it is reviewed code rather than
+ * a scratch demo.
  */
 export default function DiabetesMedicinesApp() {
   /* Which of the four destinations is showing. The bar keeps no state of its own. */
@@ -1691,8 +1691,8 @@ export default function DiabetesMedicinesApp() {
             And a select cannot be used here at all: its popup and the sheet's own
             surface both sit at the same stacking level, the sheet comes later in
             the document, so the sheet paints over the open list and a press lands
-            on the sheet instead of on an option. The specimen's documentation
-            page records that; this is the composition that works around it. */}
+            on the sheet instead of on an option. Issue #17 records that; this
+            is the composition that works around it. */}
         <RadioGroup
           label="Which medicine?"
           value={

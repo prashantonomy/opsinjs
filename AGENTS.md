@@ -193,6 +193,16 @@ surfaces and the licence are linked from `components/site-footer.tsx`, which the
 and `(playground)` layouts render. A URL that stopped being a page is answered by
 `proxy.ts` from `lib/redirects.ts`, and so is its `.md` twin.
 
+A showcase screen at `/showcase/<slug>` (`app/(chrome)/(stage)/`) has the shape of the
+clawscale showcase pages: the screen and nothing else. It has no header, no footer, no
+search and no prose, only a floating bar that switches the theme and the screen size.
+The screen fills the window, except that on a window narrower than 1024px it starts
+below the bar, so the bar cannot cover the screen's own top row. The screen renders in
+a frame onto its `/view` route, because product.css loads nowhere else. A new screen is
+an entry in `lib/showcases.ts`, which gives it a card on `/showcase` and a page under
+it. Put what a screen refuses and what it composes on a pattern page, never back on its
+showcase page.
+
 ## 9. Never invent evidence
 
 Never fabricate a citation, a statistic, a DOI, a date or a study. A page states either a

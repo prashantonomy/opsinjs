@@ -44,12 +44,16 @@ const ENTRY_TESTS: [string, string][] = [
 /**
  * `/showcase` has the shape of the clawscale showcase: a short header, then one
  * card per screen with a drawing of it, a tag, a sentence and the components
- * it leans on. The grid reads `lib/showcases.ts`.
+ * it leans on. The grid reads `lib/showcases.ts`, and each card opens its
+ * screen on its own at `/showcase/<slug>`, which draws nothing but the screen
+ * and a bar for the theme and the screen size.
  *
  * EVERY CARD IS OPSINJS'S OWN WORK, and the header says so before the grid
- * does. The bar a team's entry would have to clear is printed under the grid,
- * because the medicines app page links here for it and because a showcase is
- * the one page most tempted to fill itself with things nobody shipped.
+ * does. The header is also where a reader meets the review caveat before
+ * opening a screen, because the screen's own page carries no prose. The bar
+ * a team's entry would have to clear is printed under the grid, because a
+ * showcase is the one page most tempted to fill itself with things nobody
+ * shipped.
  */
 export default function ShowcasePage() {
   return (
@@ -91,7 +95,7 @@ export default function ShowcasePage() {
                     <h2 className="text-lg font-semibold tracking-tight">
                       {/* The title link covers the whole card, so the card is one target with one name. */}
                       <Link
-                        href={showcase.href}
+                        href={routes.showcaseScreen(showcase.slug)}
                         className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
                       >
                         {showcase.title}

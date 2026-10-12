@@ -20,7 +20,7 @@ import type { Status } from "@/lib/status"
  * `/view/base/base-lyra/example/range-bar-status`
  * `/view/base/base-lyra/screen/results-screen`
  *
- * WHAT THIS IS FOR. Three consumers, in order of importance:
+ * WHAT THIS IS FOR. Four consumers, in order of importance:
  *
  * 1. `<ComponentPreview>` and `<IframePreview>` on documentation pages. They
  *    embed this route in an iframe, which is the only way a preview can render
@@ -29,9 +29,11 @@ import type { Status } from "@/lib/status"
  *    targets. Rendering previews inline would show every component wearing the
  *    documentation site's clothes, which on a system whose thesis is "the docs
  *    chrome is not the product" would be a lie told by omission.
- * 2. The nightly Playwright job, which screenshots these URLs into the registry
+ * 2. `<ShowcaseStage>` at `/showcase/<slug>`, which frames one screen as the
+ *    whole page and switches its theme and its size without reloading it.
+ * 3. The nightly Playwright job, which screenshots these URLs into the registry
  *    and the OG assets. The markers below are its contract.
- * 3. A person debugging one component at one base and style, with nothing else
+ * 4. A person debugging one component at one base and style, with nothing else
  *    on the page.
  *
  * WHY THE MATRIX IS IN THE PATH HERE AND NOWHERE ELSE. A documentation page has
@@ -259,7 +261,19 @@ export default async function ViewPage(
        * capture never waits on a state that will not arrive.
        */
       data-opsin-view-state={Preview ? "ready" : "not-built"}
-      className="flex min-h-dvh w-full items-center justify-center p-6"
+      /*
+       * A component or an example is a specimen, so it sits centred with room
+       * around it. A screen is a whole viewport, so it fills this one edge to
+       * edge: a grid item stretches to the row, and a lone auto row stretches
+       * to the `min-h-dvh` floor. A gutter here would put a margin round a
+       * phone screen that no phone has, in every frame that shows one,
+       * `/showcase/<slug>` included.
+       */
+      className={
+        kind === "screen"
+          ? "grid min-h-dvh w-full"
+          : "flex min-h-dvh w-full items-center justify-center p-6"
+      }
     >
       {Preview ? (
         <Preview />

@@ -24,8 +24,10 @@ import { cn } from "@/lib/utils"
  * re-nest `(view)` inside globals.css and destroy that distinction. See
  * ../../AGENTS.md.
  *
- * `(home)`, `(docs)` and `(playground)` are nested groups UNDER this layout and
- * supply their own fumadocs chrome; they do not render <html>.
+ * `(landing)`, `(home)`, `(docs)`, `(playground)` and `(stage)` are nested
+ * groups UNDER this layout. Each supplies its own chrome, and `(stage)`, the
+ * showcase screens at `/showcase/<slug>`, supplies none; none of them renders
+ * <html>.
  *
  * THE FOOTER IS NOT HERE. The documentation pages have no footer, as on
  * blueprintjs.com: the sidebar holds the sections, the theme switch and search.
@@ -42,7 +44,7 @@ import { cn } from "@/lib/utils"
  * carries NO `title`: this layout is also what `app/(chrome)/not-found.tsx`
  * renders inside, that file hoists its own `<title>` from the render tree
  * because a `not-found` is neither a layout nor a page, and a `title.default`
- * here would put a second one in its head. The three nested groups declare the
+ * here would put a second one in its head. The nested group layouts declare the
  * title template instead, where every descendant is a real page. See the note on
  * `app/(chrome)/(home)/layout.tsx`.
  *
