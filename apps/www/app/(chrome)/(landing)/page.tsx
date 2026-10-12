@@ -11,7 +11,7 @@ import { PensieveLockup } from "./pensieve-lockup"
 
 /**
  * The landing page, in the shape of blueprintjs.com (ADR 0027): one dark
- * banner carrying the mark, the name, the claim and two links, then a footer
+ * banner carrying the mark, the name, the claim and three links, then a footer
  * carrying the publisher's lockup and address. It defines nothing the
  * documentation defines, which is what got the previous landing page deleted:
  * every fact a reader needs is one link away, under `/docs`.
@@ -74,6 +74,8 @@ export default function LandingPage() {
           <p className="landing-tagline">{site.tagline}</p>
           <nav className="landing-links" aria-label="Primary">
             <Link href={routes.docs()}>Documentation</Link>
+            <span className="landing-separator" aria-hidden="true" />
+            <Link href={routes.showcase()}>Showcase</Link>
             {site.sourcePublic ? (
               <>
                 <span className="landing-separator" aria-hidden="true" />

@@ -222,6 +222,8 @@ These are the site's own symbols. `lib/opsinjs.ts` is copied into a consumer's p
 | `searchTokens` | function | `lib/tokens.ts` | Substring match over name, description and value. The `/tokens` browser's filter. |
 | `SECTION_OUTLINES` | const | `lib/status.ts` | The H2s a page must have, by `kind`, for every kind but `component`. |
 | `SHIPPED_PRESETS` | const | `lib/preset.ts` | The shipped presets. Names, not codes, are what the documentation refers to; the code is what a reader copies. `build-tokens.mts` materialises each into `/r/themes/\<code\>.json`. |
+| [`Showcase`](#showcase) | interface | `lib/showcases.ts` | The screens on `/showcase`: whole screens assembled only from opsinjs components, each one rendered from a file under `registry/screens/`. |
+| `showcases` | const | `lib/showcases.ts` | The showcase grid, in the order it renders. |
 | `simulate` | function | `lib/color/cvd.ts` | Simulate a dichromacy. `severity` 0 returns the input unchanged and 1 returns full dichromacy; values between interpolate in linear light. |
 | `simulateOklch` | function | `lib/color/cvd.ts` | - |
 | `simulateRgb255` | function | `lib/color/cvd.ts` | - |
@@ -1330,6 +1332,40 @@ export interface RoleValue {
 | `css` | `string` | Yes | - |
 
 **Used by** [`RolePair`](#rolepair).
+
+### Showcase
+
+The screens on `/showcase`: whole screens assembled only from opsinjs components, each one rendered from a file under `registry/screens/`.
+
+Every entry here is opsinjs's own work. An entry from another team would have to clear the four tests printed on the showcase, and none has, so this list holds no product somebody else shipped. Add one only when a screen file exists and renders at its `/view` route.
+
+A interface in `lib/showcases.ts`.
+
+```ts
+export interface Showcase {
+  slug: "diabetes-medicines-app" | "results-screen"
+  title: string
+  description: string
+  href: string
+  domain: string
+  components: number
+  highlights: string[]
+}
+```
+
+**Members**
+
+| Member | Type | Required | What it is |
+| --- | --- | --- | --- |
+| `slug` | `"diabetes-medicines-app" \| "results-screen"` | Yes | - |
+| `title` | `string` | Yes | - |
+| `description` | `string` | Yes | - |
+| `href` | `string` | Yes | - |
+| `domain` | `string` | Yes | - |
+| `components` | `number` | Yes | - |
+| `highlights` | `string[]` | Yes | - |
+
+**Used by** `showcases`.
 
 ### Status
 

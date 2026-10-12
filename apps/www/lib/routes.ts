@@ -384,7 +384,7 @@ export const ORPHAN_ALLOWLIST: { path: string; reachedBy: string }[] = [
   {
     path: "/showcase",
     reachedBy:
-      "Linked from the landing page and the footer; deliberately not in the top nav while it is empty.",
+      "Linked from the landing page and the footer. The site has no top nav.",
   },
   {
     path: "/showcase/diabetes-medicines-app",
