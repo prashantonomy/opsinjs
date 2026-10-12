@@ -1,8 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
-import { Container, Grid, PageHeader, Panel, Prose } from "@/app/_shared/ui"
+import { Container, FactTable, PageHeader } from "@/app/_shared/ui"
+import { showcasePreviews } from "@/components/showcase/previews"
 import { routes, site } from "@/lib/routes"
+import { showcases } from "@/lib/showcases"
 import { pageMetadata } from "@/app/_shared/seo"
 import {
   JsonLd,
@@ -13,28 +15,41 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Showcase",
   description:
-    "Products built with opsinjs. One so far, and opsinjs built it. This page says what an entry from another team must prove before it appears here.",
+    "Whole screens built only from opsinjs components. opsinjs built both of them, every figure in them is invented, and none has had a clinical review.",
   path: routes.showcase(),
   type: "website",
   section: "Showcase",
 })
 
+/** The bar an entry from another team has to clear, set before anyone asked. */
+const ENTRY_TESTS: [string, string][] = [
+  [
+    "A real product with real readers",
+    "Shipped and reachable by somebody who is not on the team. Concept work and internal demos belong somewhere else.",
+  ],
+  [
+    "A named team who agreed to appear",
+    "Entries are opt in, attributed, and removed on request without discussion.",
+  ],
+  [
+    "Screens with the colour axes intact",
+    "A product that themed opsinjs into one colour axis is welcome to, and it is not an example of this system working.",
+  ],
+  [
+    "No patient data, ever",
+    "Screenshots use synthetic readings, because a plausible series beside a date and a place can identify somebody.",
+  ],
+]
+
 /**
- * `/showcase` carries one thing, and it is opsinjs's own.
+ * `/showcase` has the shape of the clawscale showcase: a short header, then one
+ * card per screen with a drawing of it, a tag, a sentence and the components
+ * it leans on. The grid reads `lib/showcases.ts`.
  *
- * A showcase is the one page on a design-system site that is pure social proof,
- * which makes it the one page most likely to be filled with side projects,
- * concept work and screenshots of the system's own examples. The bar for an entry
- * was published while there was nothing to put here, which is the only time it
- * could be set honestly, and it has not moved since.
- *
- * WHAT THE MEDICINES APP IS DOING AT THE TOP OF IT. It is the system assembled
- * into a product, and a reader who came to this page came to see exactly that. It
- * would still be dishonest to list it in the grid below as though somebody else
- * had shipped it, so it is named as opsinjs's own work, above the empty state
- * rather than beneath it, and the four tests it fails are printed directly
- * underneath. Burying it below an empty box was the earlier arrangement and it
- * hid the one piece of evidence the page has.
+ * EVERY CARD IS OPSINJS'S OWN WORK, and the header says so before the grid
+ * does. The bar a team's entry would have to clear is printed under the grid,
+ * because the medicines app page links here for it and because a showcase is
+ * the one page most tempted to fill itself with things nobody shipped.
  */
 export default function ShowcasePage() {
   return (
@@ -54,161 +69,86 @@ export default function ShowcasePage() {
         ])}
       />
       <PageHeader
-        eyebrow="One built, none submitted"
+        eyebrow="Built by opsinjs"
         title="Showcase"
-        lead="One thing has been built with opsinjs, and opsinjs built it. Nobody else has shipped anything yet, so there are no entries from other teams, and saying so is more useful than a grid of invented screenshots."
+        lead="Whole screens built only from opsinjs components. opsinjs built both of them and every figure in them is invented. No opsinjs component has had an accessibility review or a clinical review, so neither screen is for a production health surface."
       />
 
       <Container className="py-10">
-        <section>
+        <ul className="grid list-none gap-5 p-0 sm:grid-cols-[repeat(auto-fill,minmax(min(100%,26rem),1fr))]">
+          {showcases.map((showcase) => {
+            const Preview = showcasePreviews[showcase.slug]
+            return (
+              <li
+                key={showcase.slug}
+                className="relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-foreground/25 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring"
+              >
+                <div className="aspect-8/5 border-b border-border [&_svg]:block [&_svg]:size-full">
+                  <Preview />
+                </div>
+                <div className="flex flex-col gap-1.5 px-5 pt-4 pb-5">
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                    <h2 className="text-lg font-semibold tracking-tight">
+                      {/* The title link covers the whole card, so the card is one target with one name. */}
+                      <Link
+                        href={showcase.href}
+                        className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+                      >
+                        {showcase.title}
+                      </Link>
+                    </h2>
+                    <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[11px] tracking-wide whitespace-nowrap text-muted-foreground">
+                      {showcase.domain}
+                    </span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {showcase.description}
+                  </p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {showcase.components} components, among them{" "}
+                    {showcase.highlights.join(", ")}.
+                  </p>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+
+        <section className="mt-14 max-w-3xl">
           <h2 className="text-lg font-semibold tracking-tight">
-            One thing opsinjs built itself, which is not an entry
+            Entries from other teams
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            It is named as opsinjs&apos;s own work rather than listed as an
-            entry, deliberately. It clears none of the four tests below: nobody
-            uses it, no team shipped it, and every figure in it is invented. It
-            is here because a design system that has never assembled its own
-            parts into a product has not finished arguing its case, and because
-            the argument is more useful made in a running application than in
-            another page of prose.
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            None yet. An entry will have to clear four tests, published while
+            there was nothing to put here so that nobody&apos;s first request
+            set the bar.
           </p>
-          <div className="mt-6">
-            <Panel>
-              <h3 className="font-medium">A diabetes medicines app</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                One page, four destinations, thirty-five components. It records
-                the medicines somebody takes and reminds them at times they
-                chose. It calculates no dose, changes no dose, and says nothing
-                about what to do about a dose they did not take, and those three
-                refusals are in the code rather than in a disclaimer. It carries
-                neither colour axis, which is the finding rather than a gap.
-              </p>
-              <p className="mt-4 text-sm">
-                <Link
-                  className="underline underline-offset-4"
-                  href={routes.showcaseMedicinesApp()}
-                >
-                  Open the app and read why it refuses what it refuses
-                </Link>
-              </p>
-            </Panel>
+          <div className="mt-4">
+            <FactTable
+              caption="What an entry from another team will have to show."
+              columns={["Test", "What it means"]}
+              rows={ENTRY_TESTS}
+            />
           </div>
-        </section>
-
-        <div className="mt-14 rounded-lg border border-dashed border-border bg-muted/40 p-8 text-center">
-          <p className="text-lg font-medium">
-            No entries from other teams yet.
-          </p>
-          <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            opsinjs has no published packages, and every implemented component
-            has been audited against WCAG 2.2 AA by its own authors rather than
-            independently reviewed: the API may change in any release without a
-            deprecation cycle, neither an independent accessibility review nor a
-            clinical review has taken place, and none of it is ready for a
-            production health surface until a clinician signs it. Nothing can
-            have shipped to real readers on that, so an entry on this page today
-            would be a fiction. It would be a fiction on the page whose entire
-            purpose is evidence.
-          </p>
-          <p className="mt-5 text-sm">
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            Building something with opsinjs?{" "}
+            <a
+              className="underline underline-offset-4"
+              href={site.github}
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              Say so on GitHub
+            </a>
+            . Until then,{" "}
             <Link
               className="underline underline-offset-4"
-              href={routes.docs("foundations", "accessibility")}
+              href={routes.docs("patterns")}
             >
-              Why the audit is author-run, not independent
+              the patterns
             </Link>{" "}
-            &middot;{" "}
-            <Link
-              className="underline underline-offset-4"
-              href={routes.docs("changelog")}
-            >
-              What has to happen first
-            </Link>
+            show the components working together one screen at a time.
           </p>
-        </div>
-
-        <section className="mt-14">
-          <h2 className="text-lg font-semibold tracking-tight">
-            What an entry will have to show
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Published while there was nothing to put on this page, so that the
-            bar was not set by whoever asked first.
-          </p>
-
-          <Grid cols={2} className="mt-6">
-            <Panel>
-              <h3 className="font-medium">A real product with real readers</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Shipped and reachable by somebody who is not on the team.
-                Concept work, portfolio pieces and internal demos are
-                interesting and belong somewhere else. The value of a showcase
-                is that it is evidence the system survives contact with
-                production.
-              </p>
-            </Panel>
-            <Panel>
-              <h3 className="font-medium">A named team who agreed to appear</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Health products have regulatory and commercial sensitivities
-                that a marketing site does not get to decide on their behalf.
-                Entries are opt-in, attributed, and removable on request without
-                discussion.
-              </p>
-            </Panel>
-            <Panel>
-              <h3 className="font-medium">Screens with the axes intact</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                A product that has themed opsinjs into a single-axis colour
-                system is welcome to do so, because it is your product. It is
-                still not an example of this system working. The showcase is a
-                claim about the system, so the entry has to be one.
-              </p>
-            </Panel>
-            <Panel>
-              <h3 className="font-medium">No patient data, ever</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Screenshots use synthetic readings. Not a formality: a plausible
-                blood-glucose series is identifying in combination with a date
-                and a location, and a marketing page is exactly where that gets
-                forgotten.
-              </p>
-            </Panel>
-          </Grid>
-        </section>
-
-        <section className="mt-14">
-          <h2 className="text-lg font-semibold tracking-tight">
-            In the meantime
-          </h2>
-          <Prose className="mt-3">
-            <p>
-              Beside the app above,{" "}
-              <Link href={routes.docs("patterns")}>the screen specimens</Link>{" "}
-              are the other place to look. Each one is a whole-screen
-              specification showing the two colour axes, the material ladder and
-              the motion tokens working together rather than one component at a
-              time. Most of them are specifications, and they say so, but
-              together with the app they are the best available answer to “what
-              does a system built this way actually look like”.
-            </p>
-            <p>
-              Building something with these ideas before the components exist is
-              entirely possible, since the tokens and the doctrine are the
-              substantial part. If you are doing that,{" "}
-              <a href={site.github} rel="noreferrer noopener" target="_blank">
-                say so on GitHub
-              </a>
-              . The first entries here will come from people who did that.
-            </p>
-            <p>
-              You can also see the system applied to itself:{" "}
-              <Link href={routes.colors()}>the colour browser</Link> and{" "}
-              <Link href={routes.playground()}>the playground</Link> are drawn
-              entirely from the token layer.
-            </p>
-          </Prose>
         </section>
       </Container>
     </>
