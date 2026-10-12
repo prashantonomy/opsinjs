@@ -1337,7 +1337,7 @@ export interface RoleValue {
 
 The screens on `/showcase`: whole screens assembled only from opsinjs components, each one rendered from a file under `registry/screens/`.
 
-Every entry here is opsinjs's own work. An entry from another team would have to clear the four tests printed on the showcase, and none has, so this list holds no product somebody else shipped. Add one only when a screen file exists and renders at its `/view` route.
+Every entry here is opsinjs's own work. An entry from another team would have to clear the four tests printed on the showcase, and none has, so this list holds no product somebody else shipped. Add one only when a screen file exists and renders at its `/view` route. The entry's card links to `/showcase/<slug>`, which shows the screen on its own.
 
 A interface in `lib/showcases.ts`.
 
@@ -1346,7 +1346,6 @@ export interface Showcase {
   slug: "diabetes-medicines-app" | "results-screen"
   title: string
   description: string
-  href: string
   domain: string
   components: number
   highlights: string[]
@@ -1360,7 +1359,6 @@ export interface Showcase {
 | `slug` | `"diabetes-medicines-app" \| "results-screen"` | Yes | - |
 | `title` | `string` | Yes | - |
 | `description` | `string` | Yes | - |
-| `href` | `string` | Yes | - |
 | `domain` | `string` | Yes | - |
 | `components` | `number` | Yes | - |
 | `highlights` | `string[]` | Yes | - |
