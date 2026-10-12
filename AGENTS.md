@@ -195,7 +195,8 @@ and `(playground)` layouts render. A URL that stopped being a page is answered b
 
 A showcase screen at `/showcase/<slug>` (`app/(chrome)/(stage)/`) has the shape of the
 clawscale showcase pages: the screen and nothing else. It has no header, no footer, no
-search and no prose, only a floating bar that switches the theme and the screen size.
+search and no prose, only a floating bar that leads back to `/showcase` and switches the
+theme and the screen size.
 The screen fills the window, except that on a window narrower than 1024px it starts
 below the bar, so the bar cannot cover the screen's own top row. The screen renders in
 a frame onto its `/view` route, because product.css loads nowhere else. A new screen is

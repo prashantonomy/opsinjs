@@ -9,7 +9,8 @@ import { showcases, type Showcase } from "@/lib/showcases"
 
 /**
  * `/showcase/<slug>` is one showcase screen on its own: the screen, and a small
- * bar in the top right corner that switches the theme and the screen size.
+ * bar in the top right corner that leads back to `/showcase` and switches the
+ * theme and the screen size.
  * Nothing else is drawn. It has the shape of the clawscale showcase pages,
  * which are the app and nothing else. On a window 1024px or wider the screen
  * fills it and the bar floats over its corner. On a narrower window the screen
