@@ -17,15 +17,18 @@ that recall gets wrong.
 
 ```
 app/(chrome)/layout.tsx      <html>/<body>, imports globals.css, mounts RootProvider
+app/(chrome)/(landing)/…     the landing page at /, with its own banner and footer
 app/(chrome)/(home)/…        the tool pages (colours, tokens, icons, showcase), with the footer
 app/(chrome)/(docs)/…        DocsShell: the clawscale-style sidebar, no footer
 app/(chrome)/(playground)/…  full-bleed tool chrome, with the footer
+app/(chrome)/(stage)/…       /showcase/<slug>: one screen and a floating bar, no chrome
 app/(view)/layout.tsx        its OWN <html>/<body>, imports ONLY product.css, no provider
 ```
 
 `(view)` is the chrome-less preview surface: it renders under the **opsinjs product
 theme** (squircle radii, system-ui, generous spacing) rather than the lyra docs chrome,
-and `<ComponentPreview>`/`<IframePreview>` embed it. That isolation is only possible
+and `<ComponentPreview>`/`<IframePreview>` embed it, as does `<ShowcaseStage>` on
+`/showcase/<slug>`. That isolation is only possible
 because there is no top-level `app/layout.tsx`. Adding one back re-nests `(view)` under
 the docs stylesheet and silently destroys the distinction the site is built to
 demonstrate. Sibling root layouts force a full page load when navigating between the two

@@ -266,6 +266,11 @@ const ROUTE_ALLOWLIST: Array<{ route: string; reason: string }> = [
     reason:
       "the chrome-less render surface: an iframe and screenshot target, deliberately unlinked and disallowed in robots.txt",
   },
+  {
+    route: "/showcase/[slug]",
+    reason:
+      "one page for each screen in lib/showcases.ts, linked from that screen's card on /showcase through routes.showcaseScreen",
+  },
 ]
 
 /**

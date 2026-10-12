@@ -11,6 +11,10 @@ Breaking changes lead each entry. A changed presentation default, such as a stat
 Sixty components were built after 0.0.0 and no entry records them. Every catalogue row still reads `since: unreleased`, so the version number to file that entry under is the decision blocking it.
 </Todo>
 
+## 13 October 2026
+
+Each screen on the [showcase](/showcase) now opens on its own at `/showcase/<slug>`. The screen fills the window and nothing is drawn round it except a small bar in the top right corner, which switches between light and dark and between phone, tablet and desktop sizes without reloading the screen, so whatever you typed into it stays. On a window narrower than 1024px the screen starts below the bar, so the bar never covers it. The results screen has a page there too, so both cards open the same way. The essay that used to stand at `/showcase/diabetes-medicines-app` is gone, and the address now opens the app itself. The two component defects it recorded are tracked as issues [#16](https://github.com/prashantonomy/opsinjs/issues/16) and [#17](https://github.com/prashantonomy/opsinjs/issues/17). A screen framed on a documentation page also fills its frame edge to edge now, with no grey margin round it. This entry carries no version number.
+
 ## 12 October 2026
 
 The site has a landing page at `/`, with links to the documentation and to GitHub, and the documentation moved under `/docs`: this page is now `/docs/changelog`, and the index twin is `/docs.md`. Every address from the last three weeks, such as `/components/button`, redirects permanently to its `/docs` twin, and so does its `.md` twin. The registry under `/r` did not move. The development warnings in `lib/opsinjs.ts` now link to `/docs` pages; a copy installed earlier prints the old addresses, which still resolve. This entry carries no version number.

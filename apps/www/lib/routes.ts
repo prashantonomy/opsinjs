@@ -350,13 +350,13 @@ export const routes = {
   icons: () => "/icons",
   showcase: () => "/showcase",
   /**
-   * The one thing on the showcase that is not an entry: the medicines app opsinjs
-   * built out of its own parts. The literal is written here rather than composed
-   * from segments because `assert-ia.mts` proves a route is reachable by finding
-   * its path as a literal string somewhere under `app/`, `components/` or `lib/`,
-   * and this file is where every path in the application is spelled.
+   * One screen from the showcase on its own, filling the window:
+   * `routes.showcaseScreen("results-screen")`. The slug is the screen's file
+   * under `registry/screens/`, and `lib/showcases.ts` lists the ones that have
+   * a page. The route is dynamic, so `assert-ia.mts` allowlists it by name
+   * rather than finding its path spelled out here.
    */
-  showcaseMedicinesApp: () => "/showcase/diabetes-medicines-app",
+  showcaseScreen: (slug: string) => joinPath("showcase", slug),
   official: () => "/official",
 
   playground: () => "/playground",
@@ -387,9 +387,9 @@ export const ORPHAN_ALLOWLIST: { path: string; reachedBy: string }[] = [
       "Linked from the landing page and the footer. The site has no top nav.",
   },
   {
-    path: "/showcase/diabetes-medicines-app",
+    path: "/showcase/[slug]",
     reachedBy:
-      "Linked from /showcase and from the screen specimen page under Screens. It is a first-party specimen rather than a showcase entry, so it sits beneath the showcase rather than in it.",
+      "One page for each screen in lib/showcases.ts, linked from that screen's card on /showcase.",
   },
   {
     path: "/official",

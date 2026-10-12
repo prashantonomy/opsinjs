@@ -1,14 +1,16 @@
 import type { MetadataRoute } from "next"
 
 import { absoluteUrl, routes } from "@/lib/routes"
+import { showcases } from "@/lib/showcases"
 import { source } from "@/lib/source"
 
 /**
  * sitemap.xml.
  *
- * Contents: every documentation page, plus the ten hand-written routes that
- * live outside the corpus, each named through `routes` in `lib/routes.ts` so
- * that this file and the site footer cannot drift apart.
+ * Contents: every documentation page, plus the hand-written routes that live
+ * outside the corpus and one page for each showcase screen, each named
+ * through `routes` in `lib/routes.ts` so that this file and the site footer
+ * cannot drift apart.
  *
  * Three deliberate omissions.
  *
@@ -95,7 +97,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl(routes.playgroundStatus()) },
     { url: absoluteUrl(routes.official()) },
     { url: absoluteUrl(routes.showcase()) },
-    { url: absoluteUrl(routes.showcaseMedicinesApp()) },
+    ...showcases.map((showcase) => ({
+      url: absoluteUrl(routes.showcaseScreen(showcase.slug)),
+    })),
   ]
 
   /*
