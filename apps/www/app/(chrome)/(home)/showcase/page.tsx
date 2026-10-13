@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Showcase",
   description:
-    "Whole screens built only from opsinjs components. opsinjs built both of them, every figure in them is invented, and none has had a clinical review.",
+    "Whole screens built only from opsinjs components. opsinjs built every one of them, every figure in them is invented, and none has had a clinical review.",
   path: routes.showcase(),
   type: "website",
   section: "Showcase",
@@ -75,7 +75,7 @@ export default function ShowcasePage() {
       <PageHeader
         eyebrow="Built by opsinjs"
         title="Showcase"
-        lead="Whole screens built only from opsinjs components. opsinjs built both of them and every figure in them is invented. No opsinjs component has had an accessibility review or a clinical review, so neither screen is for a production health surface."
+        lead="Whole screens built only from opsinjs components. opsinjs built every one of them and every figure in them is invented. No opsinjs component has had an accessibility review or a clinical review, so no screen here is for a production health surface."
       />
 
       <Container className="py-10">

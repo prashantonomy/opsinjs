@@ -13,7 +13,7 @@ export interface Showcase {
    * The file under `registry/screens/`, the key of its preview, and the last
    * segment of its page under `/showcase`.
    */
-  slug: "diabetes-medicines-app" | "results-screen"
+  slug: "diabetes-medicines-app" | "patient-record-portal" | "results-screen"
   title: string
   /**
    * What the screen is, in one or two sentences. It is also the description
@@ -46,6 +46,23 @@ export const showcases: Showcase[] = [
       "ConsentSheet",
       "TimelineEntry",
       "TabBar",
+    ],
+  },
+  {
+    slug: "patient-record-portal",
+    title: "Patient record portal",
+    description:
+      "A patient's own view of the record their hospitals write, with who can see it, who looked, and a card a paramedic can read. It explains nothing it shows.",
+    domain: "Health records",
+    components: 24,
+    highlights: [
+      "TabBar",
+      "RadioGroup",
+      "Switch",
+      "Accordion",
+      "SegmentedControl",
+      "Dialog",
+      "Sheet",
     ],
   },
   {
