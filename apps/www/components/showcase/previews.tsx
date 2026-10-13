@@ -9,9 +9,10 @@ import type { Showcase } from "@/lib/showcases"
  * every drawing is hidden from assistive technology.
  *
  * Each drawing keeps the colour rules of the screen it stands for. The
- * medicines app carries neither colour axis, so its drawing is neutral
- * throughout. The results screen tints one title by category and states one
- * status in a pill, and the two never meet on one shape.
+ * medicines app and the patient record portal carry neither colour axis, so
+ * their drawings are neutral throughout. The results screen tints one title by
+ * category and states one status in a pill, and the two never meet on one
+ * shape.
  */
 
 /** A bar that stands in for a line of text. */
@@ -367,7 +368,253 @@ function ResultsPreview() {
   )
 }
 
+/**
+ * The portal at two sizes, because its layout is the point: a desktop window
+ * with the sidebar of five destinations and two columns of cards, beside a
+ * phone with the same screen in one column and the tab bar at its foot.
+ */
+function PortalPreview() {
+  const wx = 16
+  const cx = wx + 82
+  const px = 324
+  return (
+    <svg
+      viewBox="0 0 480 300"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
+      <Canvas id="showcase-grid-portal" />
+
+      {/* The window: a sidebar, then the content. */}
+      <rect
+        className="fill-background stroke-border"
+        x={wx + 0.5}
+        y={34.5}
+        width={299}
+        height={231}
+        rx={10}
+      />
+      <path className="fill-none stroke-border" d={`M${wx + 70.5} 35V265`} />
+      <Text x={wx + 10} y={46} width={38} strong />
+      <Text x={wx + 10} y={55} width={28} />
+      {[0, 1, 2, 3, 4].map((item) => {
+        const y = 72 + item * 13
+        return (
+          <g key={item}>
+            {item === 0 ? (
+              <>
+                <rect
+                  className="fill-muted"
+                  x={wx + 5}
+                  y={y - 3.5}
+                  width={60}
+                  height={11}
+                  rx={3}
+                />
+                <rect
+                  className="fill-foreground/80"
+                  x={wx + 5}
+                  y={y - 2.5}
+                  width={2}
+                  height={9}
+                  rx={1}
+                />
+              </>
+            ) : null}
+            <rect
+              className="fill-muted-foreground/45"
+              x={wx + 12}
+              y={y}
+              width={4}
+              height={4}
+              rx={1}
+            />
+            <Text
+              x={wx + 20}
+              y={y}
+              width={item === 3 ? 34 : 26}
+              strong={item === 0}
+            />
+          </g>
+        )
+      })}
+      {[0, 1].map((action) => (
+        <rect
+          key={action}
+          className="fill-none stroke-border"
+          x={wx + 6.5}
+          y={144.5 + action * 15}
+          width={57}
+          height={11}
+          rx={5.5}
+        />
+      ))}
+
+      <rect
+        className="fill-foreground/70"
+        x={cx}
+        y={44}
+        width={72}
+        height={6}
+        rx={3}
+      />
+      <Text x={cx} y={55} width={48} />
+      <rect
+        className="fill-foreground/80"
+        x={cx}
+        y={64}
+        width={101}
+        height={16}
+        rx={4}
+      />
+      <rect
+        className="fill-none stroke-border"
+        x={cx + 107.5}
+        y={64.5}
+        width={100}
+        height={15}
+        rx={4}
+      />
+
+      <Text x={cx} y={90} width={52} strong />
+      {[0, 1, 2].map((card) => (
+        <g key={card}>
+          <rect
+            className="fill-card stroke-border"
+            x={cx + 0.5}
+            y={98.5 + card * 36}
+            width={123}
+            height={30}
+            rx={5}
+          />
+          <Text x={cx + 7} y={105 + card * 36} width={54} strong />
+          <Text x={cx + 7} y={113 + card * 36} width={78} />
+          <Text x={cx + 7} y={121 + card * 36} width={30} />
+        </g>
+      ))}
+      <rect
+        className="fill-none stroke-border"
+        x={cx + 0.5}
+        y={207.5}
+        width={123}
+        height={12}
+        rx={6}
+      />
+
+      <Text x={cx + 132} y={90} width={46} strong />
+      {[0, 1].map((card) => (
+        <g key={card}>
+          <rect
+            className="fill-card stroke-border"
+            x={cx + 132.5}
+            y={98.5 + card * 36}
+            width={75}
+            height={30}
+            rx={5}
+          />
+          <Text x={cx + 139} y={105 + card * 36} width={48} strong />
+          <Text x={cx + 139} y={113 + card * 36} width={40} />
+          <Text x={cx + 139} y={121 + card * 36} width={28} />
+        </g>
+      ))}
+      <rect
+        className="fill-card stroke-border"
+        x={cx + 132.5}
+        y={170.5}
+        width={75}
+        height={36}
+        rx={5}
+      />
+      <Text x={cx + 139} y={178} width={56} />
+      <rect
+        className="fill-none stroke-border"
+        x={cx + 139.5}
+        y={189.5}
+        width={61}
+        height={10}
+        rx={5}
+      />
+
+      {/* The phone: one column, and the five destinations at its foot. */}
+      <Phone id="showcase-clip-portal" x={px}>
+        <Text x={px + 12} y={30} width={64} strong />
+        <Text x={px + 12} y={39} width={44} />
+        <rect
+          className="fill-foreground/80"
+          x={px + 10}
+          y={50}
+          width={120}
+          height={18}
+          rx={9}
+        />
+        <rect
+          className="fill-none stroke-border"
+          x={px + 10.5}
+          y={72.5}
+          width={119}
+          height={17}
+          rx={8.5}
+        />
+        <Text x={px + 12} y={100} width={56} strong />
+        {[0, 1, 2].map((card) => (
+          <g key={card}>
+            <rect
+              className="fill-card stroke-border"
+              x={px + 10.5}
+              y={108.5 + card * 46}
+              width={119}
+              height={38}
+              rx={7}
+            />
+            <Text x={px + 18} y={116 + card * 46} width={58} strong />
+            <Text x={px + 18} y={125 + card * 46} width={84} />
+            <Text x={px + 18} y={134 + card * 46} width={34} />
+          </g>
+        ))}
+        <rect className="fill-card" x={px} y={252} width={140} height={34} />
+        <path
+          className="fill-none stroke-border"
+          d={`M${px} 252.5H${px + 140}`}
+        />
+        <rect
+          className="fill-foreground/80"
+          x={px + 7}
+          y={252}
+          width={16}
+          height={1.5}
+          rx={0.75}
+        />
+        {[0, 1, 2, 3, 4].map((tab) => (
+          <g key={tab}>
+            <rect
+              className={
+                tab === 0 ? "fill-foreground/80" : "fill-muted-foreground/35"
+              }
+              x={px + 10 + tab * 26}
+              y={259}
+              width={10}
+              height={9}
+              rx={2.5}
+            />
+            <rect
+              className={
+                tab === 0 ? "fill-foreground/70" : "fill-muted-foreground/25"
+              }
+              x={px + 8 + tab * 26}
+              y={273}
+              width={14}
+              height={3}
+              rx={1.5}
+            />
+          </g>
+        ))}
+      </Phone>
+    </svg>
+  )
+}
+
 export const showcasePreviews: Record<Showcase["slug"], () => ReactNode> = {
   "diabetes-medicines-app": MedicinesPreview,
+  "patient-record-portal": PortalPreview,
   "results-screen": ResultsPreview,
 }

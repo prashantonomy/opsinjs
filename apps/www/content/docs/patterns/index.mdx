@@ -34,8 +34,14 @@ Every screen can pass its own audit while the journey fails, because the failure
 
 ## What is built
 
-A pattern carries no `status`. Every component it names is shipped, which means it installs and renders. None has had an independent accessibility review or any clinical review, so nothing here is for a production health surface. A page whose sequence nobody has assembled carries a not-built marker. Two screen specimens render today: the results screen and the medicines app. The daily log, trends, consent and onboarding screens are still specifications.
+A pattern carries no `status`. Every component it names is shipped, which means it installs and renders. None has had an independent accessibility review or any clinical review, so nothing here is for a production health surface. A page whose sequence nobody has assembled carries a not-built marker. Three screen specimens render today: the results screen, the medicines app and the patient record portal. The daily log, trends, consent and onboarding screens are still specifications.
 
 ## Whole-app specimens
 
-[/showcase](/showcase) holds the whole screens opsinjs has built from its own components: the results screen above and the [diabetes medicines app](/showcase/diabetes-medicines-app). Each opens on its own at `/showcase/<slug>`, with nothing round it but a bar in the top right corner that leads back to the showcase and switches between light and dark and between phone, tablet and desktop sizes. The app has four destinations, five overlays and a working form built from thirty-five shipped components. It calculates no dose, changes no dose, never marks a dose as missed and stores nothing. Its composition has had no clinical safety review, so do not ship it to readers. Copy its refusals.
+[/showcase](/showcase) holds the whole screens opsinjs has built from its own components: the results screen above, the [diabetes medicines app](/showcase/diabetes-medicines-app) and the [patient record portal](/showcase/patient-record-portal). Each opens on its own at `/showcase/<slug>`, with nothing round it but a bar in the top right corner that leads back to the showcase and switches between light and dark and between phone, tablet and desktop sizes.
+
+The medicines app has four destinations, five overlays and a working form built from thirty-five shipped components. It calculates no dose, changes no dose, never marks a dose as missed and stores nothing.
+
+The portal is a patient's view of the record their hospitals write, built from twenty-four shipped components: five destinations, a share a doctor opens once, and an emergency card with no navigation on it. It shows what doctors wrote and explains none of it, changes nothing medical, keeps every control it cannot offer on screen with the reason beside it, and stores nothing. Its layout switches on the width of the app in rem, so a phone gets TabBar, a desktop window gets a sidebar and two columns, and 200% text gets the narrower layout it needs. Below 19rem the five destinations move into a menu sheet, because TabBar cannot fit them there ([#16](https://github.com/prashantonomy/opsinjs/issues/16)).
+
+Neither composition has had a clinical safety review, so do not ship either to readers. Copy their refusals.
