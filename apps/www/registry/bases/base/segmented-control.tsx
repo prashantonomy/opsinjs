@@ -90,7 +90,7 @@ const SIZE: Record<"sm" | "md", string> = {
  * `fullWidth` is set, and tailwind-merge keeps the later `flex`.
  */
 const TRACK =
-  "inline-flex items-stretch gap-opsin-0-5 rounded-full border border-edge bg-muted p-opsin-1 align-middle"
+  "inline-flex items-stretch gap-opsin-0-5 rounded-full border border-edge bg-muted p-opsin-0-5 align-middle"
 
 /**
  * One segment, spelled once.
