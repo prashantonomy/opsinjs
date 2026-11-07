@@ -4,7 +4,7 @@ This site looks deliberately unlike the system it documents, and every preview r
 
 ## Status
 
-**Accepted.** 2026-09-02.
+**Accepted.** 2026-09-02. The lyra half is superseded by [ADR 0028](./0028-ink-paper-and-one-light.md) on 2026-11-08: the chrome takes the opsinjs visual language at desk density. The separate stylesheets and the isolated previews below stand.
 
 ## Context
 
