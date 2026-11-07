@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides the sitemap: the pages Google is asked to index. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { MetadataRoute } from "next"
 
 import { absoluteUrl, routes } from "@/lib/routes"

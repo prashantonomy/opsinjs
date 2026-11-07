@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides the 404 title and its noindex. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import Link from "next/link"
 
 import "./not-found.css"
@@ -46,7 +48,7 @@ export default function NotFound() {
           into the document head, which is the only way this file can have one.
           WCAG 2.2 SC 2.4.2: a page with no title is announced by its URL, and a
           URL is what the reader already could not make sense of. */}
-      <title>Page not found · opsinjs</title>
+      <title>Page not found</title>
       {/* Belt as well as braces. This response is a real 404 and a 404 is not
           indexed, but the status code is the only thing saying so, and a status
           code is the one signal a proxy, a preview host or a misconfigured

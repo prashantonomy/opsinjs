@@ -1,0 +1,204 @@
+{
+  "$comment": "SEO-CRITICAL. The single machine-readable source of truth for Google Search across every Pensieve Labs property. Rules: seo/MASTER.md. Edit ONLY here, in ~/pensievelabs/seo, then run `node seo/sync.mjs` to copy it into every repo. A vendored copy edited by hand is overwritten and fails `seo/check.mjs`.",
+  "version": "2026-11-07",
+  "rules": {
+    "titleMax": 60,
+    "descriptionMin": 70,
+    "descriptionMax": 155,
+    "bannedInSearchText": ["|", "\u2014", "\u2013", "\u00b7"],
+    "forbiddenHosts": [
+      "www.pensievelabs.org",
+      "pensievelabs.com",
+      "www.pensievelabs.com",
+      "docs.pensievelabs.org",
+      "prashant.pensievelabs.org",
+      "prashantonomy.com",
+      "jamunather.org",
+      "pensieve-orion.brainappdevelopers.workers.dev"
+    ],
+    "platformHostPatterns": ["\\.hosted\\.app$", "\\.vercel\\.app$", "\\.workers\\.dev$", "\\.pages\\.dev$", "\\.web\\.app$", "\\.firebaseapp\\.com$", "\\.netlify\\.app$"]
+  },
+  "organization": {
+    "@type": "Organization",
+    "@id": "https://pensievelabs.org/#organization",
+    "name": "Pensieve Labs",
+    "alternateName": ["Pensieve"],
+    "legalName": "Edsol Edtech Private Limited",
+    "url": "https://pensievelabs.org/",
+    "logo": "https://pensievelabs.org/brand/logo-primary.svg",
+    "description": "Pensieve Labs is a technology company. It builds Pensieve, the operating system for the hospital, and Pensieve Humane, the patient's own health app.",
+    "email": "info@pensievelabs.org",
+    "founder": {
+      "@type": "Person",
+      "@id": "https://www.prashantonomy.com/#person",
+      "name": "Dr. Prashant Bharadwaj",
+      "url": "https://www.prashantonomy.com/"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/company/pensieve-labs",
+      "https://x.com/pensievelabshq",
+      "https://www.instagram.com/pensievelabshq/",
+      "https://www.youtube.com/@pensievelabshq",
+      "https://www.reddit.com/user/pensievelabshq/"
+    ]
+  },
+  "brands": {
+    "Pensieve Labs": "The organisation: a technology company. Never a product.",
+    "Pensieve": "The software for hospitals, the company's main product. Also accepted as a short name for the company.",
+    "Pensieve Humane": "The patient app that complements Pensieve. Patients can use it without a hospital. Short form: Humane.",
+    "Pensieve Omega": "The defence software, at pensievelabs.org/omega."
+  },
+  "properties": [
+    {
+      "id": "pensievelabs", "repo": "pensievelabs", "seoDir": "seo", "status": "live", "relation": "company",
+      "name": "Pensieve Labs", "alternateName": ["Pensieve", "pensievelabs.org"],
+      "origin": "https://pensievelabs.org", "basePath": "",
+      "keywords": ["pensieve labs", "pensieve lab", "pensieve"],
+      "pages": [
+        { "path": "/humane", "keywords": ["pensieve humane"] },
+        { "path": "/omega", "keywords": ["pensieve omega"] },
+        { "path": "/expanse", "keywords": ["pensieve expanse", "pensieve community contributions"] },
+        { "path": "/open-source", "keywords": ["pensieve open source"] }
+      ],
+      "aliases": [
+        { "host": "www.pensievelabs.org", "to": "https://pensievelabs.org/" },
+        { "host": "docs.pensievelabs.org", "to": "https://pensievelabs.org/docs" }
+      ],
+      "critical": ["seo/registry.json", "components/JsonLd.tsx", "app/layout.tsx", "lib/seo.ts", "app/robots.ts", "app/sitemap.xml/route.ts", "des-penui/templates/pages/_chrome.tsx", "content/properties.ts", "next.config.ts", "app/docs/_lib/site.ts", "app/docs/_lib/seo.ts"],
+      "frontDoors": {
+        "/blog": "blog", "/pensieve-learn": "learn", "/store": "store", "/orion": "orion",
+        "/customer-support": "scaffold", "/customer-success": "scaffold", "/pensievology": "pensievology", "/trust": "trust"
+      },
+      "noindex": ["/search", "/careers/apply", "/impact", "/tribute", "/maintenance", "/hospital-live", "/docs/show"],
+      "canonicalElsewhere": [{ "pathPrefix": "/legal/", "host": "trust.pensievelabs.org", "except": ["/legal/candidate-privacy"] }],
+      "build": "next", "buildDir": ".next/server/app"
+    },
+    {
+      "id": "learn", "repo": "pensievelearn", "seoDir": "apps/web/seo", "status": "live", "relation": "company",
+      "name": "Pensieve Learn", "alternateName": ["Learn Pensieve"],
+      "origin": "https://learn.pensievelabs.org", "basePath": "",
+      "keywords": ["learn pensieve", "pensieve learn", "pensieve training", "pensieve courses"],
+      "noindex": ["/learn", "/search", "/my-learning", "/sign-in", "/forgot-password"],
+      "aliases": [{ "host": "pensievelearn.vercel.app", "to": "https://learn.pensievelabs.org/" }],
+      "critical": ["apps/web/seo/registry.json", "apps/web/lib/site.ts", "apps/web/lib/structured-data.ts", "apps/web/app/layout.tsx", "apps/web/app/(site)/page.tsx", "apps/web/app/(site)/courses/[slug]/page.tsx", "apps/web/app/(site)/tools/page.tsx", "apps/web/app/(site)/tools/[tool]/page.tsx", "apps/web/app/(site)/catalog/page.tsx", "apps/web/app/(site)/certifications/page.tsx", "apps/web/app/(site)/search/page.tsx", "apps/web/app/(site)/my-learning/layout.tsx", "apps/web/app/(auth)/sign-in/page.tsx", "apps/web/app/(auth)/forgot-password/page.tsx", "apps/web/app/learn/[slug]/[module]/[lesson]/page.tsx", "apps/web/app/robots.ts", "apps/web/app/sitemap.ts", "apps/web/next.config.ts", "apps/web/components/json-ld.tsx", "apps/web/components/site-footer.tsx"],
+      "build": "next", "buildDir": "apps/web/.next/server/app"
+    },
+    {
+      "id": "blog", "repo": "pensieveblog", "seoDir": "seo", "status": "live", "relation": "company",
+      "name": "Pensieve Blog", "alternateName": ["Pensieve Labs Blog"],
+      "origin": "https://blog.pensievelabs.org", "basePath": "",
+      "keywords": ["pensieve blog", "blog pensieve"],
+      "noindex": ["/search", "/tags", "/topics", "/admin", "/api"],
+      "critical": ["seo/registry.json", "src/lib/seo/organization.ts", "src/layouts/BaseLayout.astro", "src/components/home/IndexCover.astro", "src/components/SiteFooter.astro", "src/pages/index.astro", "src/pages/[slug].astro", "src/pages/topics/index.astro", "src/pages/topics/[topic].astro", "src/pages/tags/[tag].astro", "src/pages/search.astro", "src/pages/license.astro", "astro.config.mjs", "src/lib/seo/sitemap-serialize.mjs", "public/robots.txt"],
+      "build": "astro", "buildDir": ".vercel/output/static"
+    },
+    {
+      "id": "trust", "repo": "pensievetrust", "seoDir": "seo", "status": "live", "relation": "company",
+      "name": "Pensieve Trust Center", "alternateName": ["Pensieve Trust"],
+      "origin": "https://trust.pensievelabs.org", "basePath": "",
+      "keywords": ["pensieve trust"],
+      "noindex": ["/nda", "/request-access", "/signin", "/verify", "/updates/confirm", "/updates/unsubscribe", "/admin", "/workspace", "/not-in-register"],
+      "critical": ["seo/registry.json", "lib/seo.ts", "app/layout.tsx", "app/(public)/page.tsx", "app/robots.ts", "app/sitemap.ts", "lib/document-view.ts", "app/(public)/updates/[slug]/page.tsx", "app/(public)/jurisdictions/[code]/page.tsx", "components/trust/site-shell.tsx", "next.config.ts", "proxy.ts"],
+      "build": "next-dynamic", "buildDir": ".next/server/app"
+    },
+    {
+      "id": "opsinjs", "repo": "opsinjs", "seoDir": "apps/www/seo", "status": "live", "relation": "company",
+      "name": "opsinjs", "alternateName": ["Pensieve opsinjs"],
+      "origin": "https://opsinjs.pensievelabs.org", "basePath": "",
+      "keywords": ["opsinjs", "pensieve opsinjs"],
+      "noindex": ["/view"],
+      "critical": ["apps/www/seo/registry.json", "apps/www/app/_shared/seo.ts", "apps/www/app/_shared/structured-data.tsx", "apps/www/app/(chrome)/layout.tsx", "apps/www/app/(chrome)/(landing)/page.tsx", "apps/www/app/(chrome)/(home)/layout.tsx", "apps/www/app/(chrome)/(playground)/layout.tsx", "apps/www/app/(chrome)/(stage)/layout.tsx", "apps/www/app/(chrome)/(docs)/layout.tsx", "apps/www/app/(chrome)/(docs)/docs/[[...slug]]/page.tsx", "apps/www/app/(view)/view/[base]/[style]/[kind]/[name]/page.tsx", "apps/www/app/not-found.tsx", "apps/www/app/(chrome)/not-found.tsx", "apps/www/app/robots.ts", "apps/www/app/sitemap.ts", "apps/www/proxy.ts", "apps/www/next.config.mjs", "apps/www/lib/routes.ts"],
+      "build": "next", "buildDir": "apps/www/.next/server/app"
+    },
+    {
+      "id": "clawscale", "repo": "clawscalejs", "seoDir": "apps/docs/seo", "status": "live", "relation": "company",
+      "name": "Clawscale", "alternateName": ["clawscalejs", "Pensieve Clawscale"],
+      "origin": "https://prashantonomy.github.io", "basePath": "/clawscalejs",
+      "keywords": ["clawscale", "clawscalejs", "pensieve clawscale"],
+      "noindex": ["/gallery"],
+      "critical": ["apps/docs/seo/registry.json", "apps/docs/app/layout.tsx", "apps/docs/app/page.tsx", "apps/docs/app/sitemap.ts", "apps/docs/app/not-found.tsx", "apps/docs/app/gallery/page.tsx", "apps/docs/lib/site.ts", "apps/docs/next.config.mjs", "apps/docs/scripts/generate-docs-index.ts", "apps/docs/scripts/remark-page-description.mjs", ".github/workflows/docs.yml"],
+      "build": "next", "buildDir": "apps/docs/out"
+    },
+    {
+      "id": "expansecourses", "repo": "expansecourses", "seoDir": "apps/web/seo", "status": "live", "relation": "company",
+      "name": "Expanse Courses", "alternateName": ["Pensieve Expanse Courses"],
+      "origin": "https://expansecourses.pensievelabs.org", "basePath": "",
+      "keywords": ["expanse courses", "pensieve expanse courses"],
+      "noindex": ["/login", "/welcome", "/dashboard", "/account"],
+      "aliases": [{ "host": "web--expansecourses-ea1a4.asia-southeast1.hosted.app", "to": "https://expansecourses.pensievelabs.org/" }],
+      "critical": ["apps/web/seo/registry.json", "apps/web/lib/site.ts", "apps/web/lib/seo/jsonld.ts", "apps/web/lib/seo/metadata.ts", "apps/web/app/layout.tsx", "apps/web/app/robots.ts", "apps/web/app/sitemap.ts", "apps/web/next.config.ts", "apps/web/apphosting.yaml", "apps/web/components/seo/json-ld.tsx", "apps/web/components/site/site-footer.tsx", "apps/web/app/learn/[slug]/[module]/[lesson]/page.tsx", "apps/web/app/(site)/page.tsx", "apps/web/app/(site)/about/page.tsx", "apps/web/app/(site)/courses/page.tsx", "apps/web/app/(site)/courses/[course]/page.tsx", "apps/web/app/(site)/courses/[course]/paths/page.tsx", "apps/web/app/(site)/courses/[course]/paths/[pathway]/page.tsx", "apps/web/app/(site)/search/page.tsx", "apps/web/app/(site)/privacy/page.tsx", "apps/web/app/(site)/terms/page.tsx", "apps/web/app/(site)/login/page.tsx", "apps/web/app/(site)/welcome/page.tsx", "apps/web/app/(site)/dashboard/page.tsx", "apps/web/app/(site)/account/page.tsx"],
+      "build": "next", "buildDir": "apps/web/.next/server/app"
+    },
+    {
+      "id": "pensieveexpanse", "repo": "pensieveexpanse", "seoDir": "seo", "status": "retiring", "relation": "company",
+      "name": "Pensieve Expanse", "alternateName": ["Expanse"],
+      "origin": "https://expanse.pensievelabs.org", "basePath": "",
+      "movesTo": "https://pensievelabs.org/expanse",
+      "critical": ["seo/registry.json", "app/layout.tsx", "app/page.tsx", "content/expanse.ts", "app/robots.txt", "app/sitemap.xml", "next.config.ts"],
+      "keywords": [],
+      "build": "next", "buildDir": "out"
+    },
+    {
+      "id": "pensievology", "repo": "pensievecommunity", "seoDir": "apps/web/seo", "status": "live", "relation": "company",
+      "name": "Pensievology", "alternateName": ["Pensievology by Pensieve Labs"],
+      "origin": "https://pensievology.com", "basePath": "",
+      "keywords": ["pensievology", "pensievology pensieve labs"],
+      "noindex": ["/home", "/following", "/notifications", "/search", "/settings", "/sign-in", "/welcome", "/auth", "/report", "/grievance", "/admin", "/des"],
+      "critical": ["apps/web/seo/registry.json", "apps/web/next.config.ts", "apps/web/src/app/layout.tsx", "apps/web/src/app/page.tsx", "apps/web/src/app/robots.ts", "apps/web/src/app/sitemap.xml/route.ts", "apps/web/src/app/sitemap/[group]/route.ts", "apps/web/src/app/sitemap/posts.xml/route.ts", "apps/web/src/lib/metadata.ts", "apps/web/src/lib/schema-org/site.ts", "apps/web/src/lib/schema-org/organization.ts", "apps/web/src/lib/schema-org/sitemap-content.ts", "apps/web/src/domain/indexing.ts", "apps/web/src/copy/site.ts", "apps/web/src/copy/home.ts"],
+      "build": "next", "buildDir": "apps/web/.next/server/app"
+    },
+    {
+      "id": "scaffold", "repo": "pensievescaffold", "seoDir": "apps/web/seo", "status": "planned", "relation": "company",
+      "name": "Pensieve Scaffold", "alternateName": ["Scaffold"],
+      "origin": "https://scaffold.pensievelabs.org", "basePath": "",
+      "keywords": ["pensieve scaffold", "scaffold portal", "pensieve help", "pensieve customer care", "pensieve customer success"],
+      "noindex": ["/search", "/sign-in", "/signed-out", "/admin", "/r", "/handoff", "/home", "/tickets", "/settings", "/contacts", "/export", "/notifications", "/reports", "/schemas"],
+      "critical": ["apps/web/seo/registry.json", "apps/web/src/lib/seo.ts", "apps/web/src/components/json-ld.tsx", "apps/web/src/app/layout.tsx", "apps/web/src/app/(public)/layout.tsx", "apps/web/src/app/(public)/page.tsx", "apps/web/src/app/(customer)/layout.tsx", "apps/web/src/app/(admin)/layout.tsx", "apps/web/src/app/robots.ts", "apps/web/src/app/sitemap.ts", "apps/web/src/lib/security-headers.ts", "apps/web/src/nav/footer.ts", "apps/web/src/content/topics/registry.ts"],
+      "build": "next-dynamic", "buildDir": "apps/web/.next/server/app"
+    },
+    {
+      "id": "store", "repo": "pensievestore", "seoDir": "seo", "status": "planned", "relation": "company",
+      "name": "Pensieve Labs Store", "alternateName": ["Pensieve Store"],
+      "origin": "https://store.pensievelabs.org", "basePath": "",
+      "keywords": ["pensieve store", "pensieve labs store"],
+      "noindex": ["/cart"],
+      "critical": ["seo/registry.json", "src/lib/seo.ts", "src/app/layout.tsx", "src/app/(stage)/page.tsx", "src/app/(stage)/products/[slug]/page.tsx", "src/app/(site)/about/page.tsx", "src/app/(site)/cart/layout.tsx", "src/app/robots.ts", "src/app/sitemap.ts", "next.config.ts", "src/components/Footer.tsx"],
+      "build": "next", "buildDir": ".next/server/app"
+    },
+    {
+      "id": "orion", "repo": "3dfarm", "seoDir": "seo", "status": "planned", "relation": "company",
+      "name": "Pensieve Orion", "alternateName": ["Orion"],
+      "origin": "https://orion.pensievelabs.org", "basePath": "",
+      "keywords": ["pensieve orion", "orion"],
+      "noindex": ["/tower", "/lab"],
+      "critical": ["seo/registry.json", "src/content/seo.ts", "src/content/site.ts", "src/app/layout.tsx", "src/app/page.tsx", "src/app/robots.ts", "src/app/sitemap.ts", "src/app/tower/page.tsx", "src/app/lab/page.tsx", "src/site/closing/Closing.tsx", "public/_headers", "wrangler.jsonc"],
+      "note": "A Pensieve Labs subsidiary that is not yet a legal entity: Organization with parentOrganization, no legalName, copyright held by Pensieve Labs.",
+      "build": "next", "buildDir": "out"
+    },
+    {
+      "id": "jamunather", "repo": "jamunathernew", "seoDir": "seo", "status": "live", "relation": "personal",
+      "name": "Jamunather", "alternateName": ["जमुनाठेर", "jamunather.org"],
+      "origin": "https://www.jamunather.org", "basePath": "",
+      "keywords": ["jamunather", "ajay sharma jamunather", "kapil dev sharma", "kapil dev sharma jamunather"],
+      "aliases": [{ "host": "jamunather.org", "to": "https://www.jamunather.org/" }, { "host": "jamunathernew.vercel.app", "to": "https://www.jamunather.org/" }],
+      "critical": ["seo/registry.json", "lib/site.ts", "lib/schema.ts", "app/layout.tsx", "app/about/page.tsx", "app/gallery/page.tsx", "app/gallery/[slug]/page.tsx", "app/licence/page.tsx", "app/blog/page.tsx", "app/blog/[slug]/page.tsx", "app/robots.ts", "app/sitemap.ts", "components/JsonLd.tsx", "components/Footer.tsx"],
+      "linksTo": { "dr prashant bharadwaj": "prashantonomy", "prashantonomy": "prashantonomy" },
+      "build": "next", "buildDir": "out"
+    },
+    {
+      "id": "prashantonomy", "repo": "prashantsblog", "seoDir": "seo", "status": "live", "relation": "personal",
+      "name": "Prashantonomy", "alternateName": ["Dr. Prashant Bharadwaj"],
+      "origin": "https://www.prashantonomy.com", "basePath": "",
+      "keywords": ["prashantonomy", "prashant bharadwaj", "dr prashant bharadwaj"],
+      "aliases": [{ "host": "prashantonomy.com", "to": "https://www.prashantonomy.com/" }, { "host": "prashant.pensievelabs.org", "to": "https://www.prashantonomy.com/" }, { "host": "prashantsblog.vercel.app", "to": "https://www.prashantonomy.com/" }],
+      "critical": ["seo/registry.json", "lib/entity.ts", "lib/person-schema.ts", "lib/og.ts", "lib/feed.ts", "lib/search-text.ts", "lib/image-seo.ts", "app/layout.tsx", "app/page.tsx", "app/robots.ts", "app/sitemap.ts", "next.config.ts", "app/og/route.tsx", "app/blog/[slug]/page.tsx", "app/reading/[slug]/page.tsx", "app/gallery/[slug]/page.tsx"],
+      "build": "next", "buildDir": ".next/server/app"
+    }
+  ],
+  "excluded": [
+    {
+      "repo": "bellasio",
+      "reason": "Owner, 2026-11-07: left out of the SEO programme for now. The folder builds NISAJA TILO (an ultra luxury silk house) for nisajatilo.com, which does not resolve; 'Bellasio' appears nowhere in it and bellasio.com belongs to an unrelated person. Open before any SEO work: which brand name, which domain, and whether 'most expensive silk brand' is a verifiable claim. Requested keywords on hold: 'bellasio', 'pensieve bellasio', 'most expensive silk brand'."
+    }
+  ]
+}

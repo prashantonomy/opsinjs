@@ -69,7 +69,7 @@ export const showcases: Showcase[] = [
     slug: "results-screen",
     title: "Results screen",
     description:
-      "One example lab result, then what it means, the next step and where it came from, in screen reader order. It states one status and tints one title by category.",
+      "One example lab result, then what it means, the next step and its source, in screen reader order. It states one status and tints one title by category.",
     domain: "Lab results",
     components: 7,
     highlights: [

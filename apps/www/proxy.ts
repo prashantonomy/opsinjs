@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides redirects and response headers Google follows. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import { NextResponse, type NextRequest } from "next/server"
 
 import { LEGACY_ROOT_SEGMENTS, RETIRED_PAGES } from "@/lib/redirects"

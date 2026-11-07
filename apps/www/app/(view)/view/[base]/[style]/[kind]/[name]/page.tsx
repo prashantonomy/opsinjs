@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides the noindex on every component preview. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -52,10 +54,11 @@ import type { Status } from "@/lib/status"
  * id it invented is a specified opsinjs component awaiting implementation,
  * which is the hallucination this scaffold exists to close rather than confirm.
  *
- * ROBOTS. `/view` is the single disallowed path in robots.txt, and this page
- * additionally declares `noindex`. Every URL here duplicates content that has a
- * canonical home on a documentation page, stripped of the guidance that makes it
- * safe to copy.
+ * ROBOTS. robots.txt allows `/view`, so a crawler can read the `noindex` this
+ * page declares, and the sitemap leaves it out. `app/robots.ts` says why a
+ * disallow would index the bare URLs instead. Every URL here duplicates content
+ * that has a canonical home on a documentation page, stripped of the guidance
+ * that makes it safe to copy.
  */
 
 /**
@@ -199,7 +202,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { base, style, kind, name } = await props.params
   return {
-    title: `${kind} ${name} at ${base}/${style} · opsinjs product theme`,
+    title: `${kind} ${name} at ${base}/${style}, opsinjs product theme`,
     robots: { index: false, follow: false, nocache: true },
   }
 }

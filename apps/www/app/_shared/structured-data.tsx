@@ -1,8 +1,11 @@
+// SEO-CRITICAL: decides what Google reads about this site and its publisher. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import { absoluteUrl, site } from "@/lib/routes"
 import { SITE_DESCRIPTION, SITE_LANG } from "@/app/_shared/seo"
+import registry from "@/seo/registry.json"
 
 /**
- * schema.org JSON-LD: four small builders and the element that emits them.
+ * schema.org JSON-LD: five small builders and the element that emits them.
  *
  * It sits beside `seo.ts` under `app/_shared` for the reason given there. `lib/`
  * is the published runtime and every type it exports becomes a reference page;
@@ -49,6 +52,15 @@ import { SITE_DESCRIPTION, SITE_LANG } from "@/app/_shared/seo"
 /** Stable identities. Fragments, so they never collide with a real route. */
 const ORGANIZATION_ID = `${site.url}/#organization`
 const WEBSITE_ID = `${site.url}/#website`
+/**
+ * The publisher's identity, the one its own site and every sibling site use.
+ * Every value of the company comes from the vendored `seo/registry.json`, so
+ * every Pensieve Labs host publishes the same bytes.
+ */
+const COMPANY = registry.organization
+const PUBLISHER_ID = COMPANY["@id"]
+/** This property's entry in the registry: its name and alternate names. */
+const PROPERTY = registry.properties.find((p) => p.id === "opsinjs")
 
 /** Anything with an `@type`. Kept loose: schema.org is not a closed vocabulary. */
 export type JsonLdNode = Record<string, unknown>
@@ -82,19 +94,32 @@ export function organizationLd(): JsonLdNode {
       caption: `${site.name} mark`,
     },
     sameAs: [site.github],
+    parentOrganization: { "@id": PUBLISHER_ID },
   }
 }
 
-/** The site itself, owned by the organisation above. */
+/**
+ * The company that publishes opsinjs, the one whose lockup closes the landing
+ * page, in full. It is the node pensievelabs.org and the other Pensieve sites
+ * publish under this same `@id`, copied from the registry rather than typed, so
+ * a parser reads all of them as one company. Only the landing page emits it;
+ * every other page refers to it by `@id`.
+ */
+export function publisherLd(): JsonLdNode {
+  return { ...COMPANY }
+}
+
+/** The site itself, published by the company. */
 export function webSiteLd(): JsonLdNode {
   return {
     "@type": "WebSite",
     "@id": WEBSITE_ID,
-    name: site.name,
-    url: site.url,
+    name: PROPERTY?.name ?? site.name,
+    alternateName: PROPERTY?.alternateName,
+    url: `${site.url}/`,
     description: SITE_DESCRIPTION,
     inLanguage: SITE_LANG,
-    publisher: { "@id": ORGANIZATION_ID },
+    publisher: { "@id": PUBLISHER_ID },
   }
 }
 
@@ -175,7 +200,7 @@ export function techArticleLd(input: ArticleLdInput): JsonLdNode {
     image: input.image,
     isPartOf: { "@id": WEBSITE_ID },
     author: { "@id": ORGANIZATION_ID },
-    publisher: { "@id": ORGANIZATION_ID },
+    publisher: { "@id": PUBLISHER_ID },
     ...(dateModified ? { dateModified } : {}),
   }
 }

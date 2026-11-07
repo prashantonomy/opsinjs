@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides the 404 title and its noindex. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import Link from "next/link"
 
 import { builtComponentCount } from "@/lib/registry"
@@ -25,7 +27,7 @@ export default function NotFound() {
           `not-found` file is neither. React hoists a <title> rendered anywhere
           into the document head, so this is the one route to a titled 404.
           Otherwise the page is announced by its URL. See WCAG 2.2 SC 2.4.2. */}
-      <title>Page not found · opsinjs</title>
+      <title>Page not found</title>
       {/* See the note on app/not-found.tsx: the 404 status is what keeps this
           out of an index, and this is the directive that says so again in a
           place no edge rule can rewrite. React hoists it into the head. */}

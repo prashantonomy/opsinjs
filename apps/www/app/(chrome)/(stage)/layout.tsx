@@ -1,18 +1,18 @@
+// SEO-CRITICAL: sets the browser-tab and search title of every page in this group. Read SEO.md
+// and ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
 
-import { site } from "@/lib/routes"
-
 /**
- * The same title template the other groups carry, for the same reason: a
- * screen is titled "Results screen" or "Diabetes medicines app", neither of
- * which names the system on its own. See the note on
- * `app/(chrome)/(home)/layout.tsx` for why this is not on the root layout.
+ * The same title template the other groups carry: a screen is titled
+ * "Results screen" or "Diabetes medicines app", with no suffix. See the note
+ * on `app/(chrome)/(home)/layout.tsx` for why, and for why this is not on the
+ * root layout.
  */
 export const metadata: Metadata = {
   title: {
-    template: `%s · ${site.name}`,
-    default: `Showcase · ${site.name}`,
+    template: "%s",
+    default: "Showcase",
   },
 }
 

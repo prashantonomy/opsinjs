@@ -1,3 +1,5 @@
+// SEO-CRITICAL: sets the browser-tab and search title of every page in this group. Read SEO.md
+// and ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import { HomeLayout } from "fumadocs-ui/layouts/home"
@@ -16,13 +18,16 @@ import { site } from "@/lib/routes"
  * nested group instead, where every descendant is a real `page`.
  *
  * Pages below here set a bare noun such as "Tokens", "Icons" or "Official
- * resources". The template appends the system name, so a reader with a dozen
- * tabs open can tell ours apart.
+ * resources".
+ * NO SUFFIX. Every page carries only its own title, because Google already
+ * prints the site name above every result and a suffix spends the title's
+ * length on a repeat (~/pensievelabs/seo/MASTER.md section 4). `og:site_name`
+ * still names the site on every page.
  */
 export const metadata: Metadata = {
   title: {
-    template: `%s · ${site.name}`,
-    default: `${site.name} · a design system for consumer health apps`,
+    template: "%s",
+    default: `${site.name}`,
   },
 }
 

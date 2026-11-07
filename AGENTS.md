@@ -175,7 +175,8 @@ The documentation is modelled on clawscale and blueprintjs.com, and ADR 0026
 (`decisions/0026-the-site-takes-the-clawscale-shape.md`) is the record. The landing page
 at `/` (`app/(chrome)/(landing)/`) is the blueprintjs.com banner: the mark, the name, the
 tagline, and links to Documentation, Showcase and GitHub, over a dark backdrop, then a
-footer with the Pensieve lockup and www.pensievelabs.org. It states nothing the documentation states.
+footer with the Pensieve lockup, a "Pensieve Labs" link to pensievelabs.org and a link to its
+open source hub. It states nothing the documentation states.
 There is no top navigation, no breadcrumb, no right-hand table of contents and no footer
 on a documentation page. The sidebar is the navigation: a wordmark, a Theme row, a Search
 row, then seven sections, which are opsinjs (the introduction and the guides at the
@@ -249,8 +250,8 @@ dash and keep all of that, leave the sentence alone and say so in your summary.
 
 **Two marks are not this character and stay.** U+2212 MINUS SIGN is arithmetic notation
 and is house style in front of a negative number. U+00B7 MIDDLE DOT is the field
-separator in a browser-tab title template and in a machine index row, and it is
-forbidden in body copy, in a heading, in a table cell and in any string a patient reads.
+separator in a machine index row, and it is forbidden in body copy, in a heading, in a
+table cell, in any string a patient reads, and in any page title or description (§14).
 The ASCII hyphen keeps every job it already has in slugs, ids, custom properties,
 compound modifiers, frontmatter fences, horizontal rules and table delimiter rows. One
 mark is a permitted replacement in one named place: `<Term>` joins an expansion to its
@@ -290,6 +291,17 @@ Doctrine is linked, never restated. The argument for a decision lives in `decisi
 and in git history, not on the page. `content/docs/components/button.mdx` is the
 exemplar for a component page; copy its shape, never its facts. `content/_templates/`
 holds the two skeletons.
+
+## 14. Google Search (SEO)
+
+Any change to a title, a description, metadata, a canonical, robots, the sitemap, a
+redirect, structured data, a slug, the host or a name changes what Google shows for this
+site. Read `SEO.md` at the repository root and `~/pensievelabs/seo/MASTER.md` first. The
+files that decide these carry an `SEO-CRITICAL` comment at the top and are listed in
+`SEO.md`. Titles carry no suffix, and no title or description holds a pipe, U+2014, U+2013
+or U+00B7. Every company value comes from `apps/www/seo/registry.json`, never typed by
+hand, and that file is changed only in `~/pensievelabs/seo` and synced. After the change,
+build and run `pnpm --filter @opsinjs/www seo:check`.
 
 <!-- BEGIN:turborepo-agent-rules -->
 

@@ -1,3 +1,5 @@
+// SEO-CRITICAL: the site-wide metadata and structured data every page inherits. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -71,13 +73,15 @@ export default function ChromeRootLayout({
     >
       <body className="flex min-h-screen flex-col antialiased">
         {/*
-          THE PUBLISHER AND THE SITE, DECLARED ONCE, ON EVERY ROUTE.
+          THE ORGANISATION AND THE SITE, DECLARED ONCE, ON EVERY ROUTE.
 
           Both are fragment-identified entities, so the per-page blocks below
           this layout refer to them by `@id` instead of restating them. A
           breadcrumb on a component page and the article block beside it then
           resolve to the same organisation as the front page, rather than
-          describing a fourth one that happens to have the same name.
+          describing a fourth one that happens to have the same name. The
+          company that publishes opsinjs is declared in full on the landing page
+          alone, from seo/registry.json, and is referred to by `@id` here.
 
           It is in <body> rather than <head> on purpose: JSON-LD is valid in
           either, and React hoisting rules make an element rendered here a

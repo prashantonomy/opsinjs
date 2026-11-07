@@ -1,9 +1,13 @@
+// SEO-CRITICAL: the home page, whose title, description and structured data Google reads first.
+// Read SEO.md and ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Geist } from "next/font/google"
 
 import "./landing.css"
-import { pageMetadata } from "@/app/_shared/seo"
+import { HOME_DESCRIPTION, HOME_TITLE, pageMetadata } from "@/app/_shared/seo"
+import { JsonLd, graph, publisherLd } from "@/app/_shared/structured-data"
+import registry from "@/seo/registry.json"
 import { LogoMark } from "@/components/logo-mark"
 import { routes, site } from "@/lib/routes"
 import { cn } from "@/lib/utils"
@@ -34,12 +38,12 @@ const wordmark = Geist({
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: site.name,
-    description: site.tagline,
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
     path: routes.home(),
     type: "website",
   }),
-  title: { absolute: `${site.name} · a design system for consumer health apps` },
+  title: { absolute: HOME_TITLE },
 }
 
 /**
@@ -64,6 +68,7 @@ function Backdrop() {
 export default function LandingPage() {
   return (
     <div className="landing">
+      <JsonLd data={graph([publisherLd()])} />
       <main className="landing-hero">
         <Backdrop />
         <div className="landing-center">
@@ -89,8 +94,11 @@ export default function LandingPage() {
       <footer className={cn("landing-footer", wordmark.variable)}>
         <PensieveLockup name={site.publisher.name} />
         <span className="landing-rule" aria-hidden="true" />
-        <a className="landing-website" href={site.publisher.url}>
-          {site.publisher.url.replace(/^https:\/\//, "")}
+        <a className="landing-website" href={registry.organization.url}>
+          Pensieve Labs
+        </a>
+        <a className="landing-website" href={`${registry.organization.url}open-source`}>
+          Pensieve open source
         </a>
       </footer>
     </div>
