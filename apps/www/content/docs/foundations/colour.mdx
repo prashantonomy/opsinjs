@@ -32,6 +32,14 @@ A contrast guarantee attaches to a pair, never to a colour.
 
 Neutral UI uses the shadcn chrome roles, such as `--background`, `--card` and `--border`.
 
+## Ink and the brand light
+
+The two axes are the only colour that means anything, so nothing else on a product screen competes with them.
+
+- The primary action is ink. `--primary` is the darkest neutral by day and the lightest by night, so a filled control carries no hue.
+- One hue is left in the chrome, the brand light `--opsin-chrome-brand`, at hue 250 between `labs` and `sleep`. It is spent as light: the focus ring, the mark beside an eyebrow, the bar beside the current page and the bloom behind this site. It never fills anything that reports a result and never colours a word a reader has to read.
+- `--border` and `--input` are the 3:1 boundary of a control. `--edge` is the decorative line around a sheet that is not a control, a card or a table, which its drop lifts off the page.
+
 ## Derivation engine
 
 Give the engine one brand colour. It keeps the hue, lays it on the fixed lightness ladder every ramp shares, clamps chroma into sRGB step by step without moving lightness or hue, and assigns roles by measurement. If no step clears the floor, it says so rather than ship a failing theme. Derive your own in [Theming](../theming.mdx) or the [theme generator](/playground/theme).

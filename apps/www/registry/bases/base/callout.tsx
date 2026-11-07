@@ -128,7 +128,7 @@ const VARIANT_ICONS: Record<CalloutVariant, typeof Info> = {
  * file into a consumer's project.
  */
 const SURFACE =
-  "bg-(--opsin-material-inset-tint) text-foreground border border-border rounded-opsin-md " +
+  "bg-(--opsin-material-inset-tint) text-foreground border border-edge rounded-opsin-md print:border-border " +
   "[corner-shape:var(--opsin-corner-shape)]"
 
 /**

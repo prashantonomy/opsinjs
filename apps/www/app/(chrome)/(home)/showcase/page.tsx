@@ -85,14 +85,14 @@ export default function ShowcasePage() {
             return (
               <li
                 key={showcase.slug}
-                className="relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-foreground/25 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring"
+                className="docs-sheet relative flex flex-col overflow-hidden transition-[translate,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[inset_0_1px_0_0_var(--docs-sheen),var(--docs-shadow-float)] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
-                <div className="aspect-8/5 border-b border-border [&_svg]:block [&_svg]:size-full">
+                <div className="aspect-8/5 border-b border-border bg-[var(--opsin-chrome-background)] [&_svg]:block [&_svg]:size-full">
                   <Preview />
                 </div>
                 <div className="flex flex-col gap-1.5 px-5 pt-4 pb-5">
                   <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-                    <h2 className="text-lg font-semibold tracking-tight">
+                    <h2 className="text-xl font-extrabold tracking-[-0.025em]">
                       {/* The title link covers the whole card, so the card is one target with one name. */}
                       <Link
                         href={routes.showcaseScreen(showcase.slug)}

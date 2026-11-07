@@ -16,9 +16,9 @@
   ],
   "base": {
     "name": "radius-base",
-    "px": 14,
-    "rem": 0.875,
-    "$comment": "14px, not the 8px web default and not the 0px of the lyra docs chrome. The product theme is squircle and generous; see /docs/theming/lyra-and-the-docs-chrome for why the documentation you are reading looks nothing like it."
+    "px": 20,
+    "rem": 1.25,
+    "$comment": "20px, not the 8px web default. Read it with the squircle below in mind: a superellipse hugs its corner more closely than a circular arc, so a 20px squircle reads about as round as a 15px arc. The product theme is generous because its controls are pressed by a thumb and its cards are read at arm's length. ADR 0028 moved the base from 14px, where the near-square curve the old token drew made every card read as a box."
   },
   "ladder": [
     {
@@ -31,36 +31,36 @@
     {
       "name": "radius-xs",
       "multiplier": 0.25,
-      "px": 4,
-      "rem": 0.25,
+      "px": 5,
+      "rem": 0.3125,
       "use": "The floor for a nested corner. Tags inside a chip, a swatch inside a legend."
     },
     {
       "name": "radius-sm",
       "multiplier": 0.5,
-      "px": 7,
-      "rem": 0.4375,
-      "use": "Inputs and small controls inside a card."
+      "px": 10,
+      "rem": 0.625,
+      "use": "Inputs, small controls and a well inside a card."
     },
     {
       "name": "radius-md",
       "multiplier": 1,
-      "px": 14,
-      "rem": 0.875,
-      "use": "The default. Buttons, chips, cards."
+      "px": 20,
+      "rem": 1.25,
+      "use": "The default for a bounded surface: a card, a tile, a callout, a list row."
     },
     {
       "name": "radius-lg",
       "multiplier": 1.5,
-      "px": 21,
-      "rem": 1.3125,
-      "use": "Cards on a phone, where the card is nearly the width of the screen."
+      "px": 30,
+      "rem": 1.875,
+      "use": "A card nearly the width of a phone screen, and a banner."
     },
     {
       "name": "radius-xl",
       "multiplier": 2,
-      "px": 28,
-      "rem": 1.75,
+      "px": 40,
+      "rem": 2.5,
       "use": "Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side."
     },
     {
@@ -72,27 +72,37 @@
     }
   ],
   "cornerShape": {
-    "value": "superellipse(4)",
+    "value": "superellipse(2)",
     "fallback": "round",
     "property": "corner-shape",
-    "$comment": "superellipse(4) is a squircle in the Apple sense: the curvature is continuous into the straight edge instead of meeting it at a discontinuity, which is what makes a rounded rectangle look intentional at a large radius. Browsers without `corner-shape` fall back to `round`, which is why every radius above is chosen to look correct as a plain rounded corner first. Support is reported per feature on /docs/start/browser-support and rendered by <BrowserSupport>.",
+    "$comment": "superellipse(2) is the squircle in the Apple sense, and the same curve as the CSS keyword `squircle`: the curvature eases into the straight edge instead of meeting it at a discontinuity, which is what makes a rounded rectangle look intentional at a large radius. The argument is a power of two, so superellipse(1) is a circular arc and superellipse(2) an exponent of 4. Until ADR 0028 this token read superellipse(4), an exponent of 16, which draws a nearly square corner whatever the radius says. Browsers without `corner-shape` fall back to `round`, which is why every radius above is chosen to look correct as a plain rounded corner first. Support is reported per feature on /docs/start/browser-support and rendered by <BrowserSupport>.",
     "appliesTo": [
       "Surface",
       "Card",
       "Sheet",
       "Dialog",
-      "Button",
       "Field",
       "MetricTile",
       "ResultCard",
       "CareCard",
-      "AlertBanner"
+      "AlertBanner",
+      "Callout"
     ],
-    "doesNotApplyTo": ["StatusPill", "ScoreDial", "avatars"],
-    "doesNotApplyToNote": "Anything using radius-full is already a circle or a pill; a superellipse of a pill is a slightly wrong pill."
+    "doesNotApplyTo": [
+      "Button",
+      "StatusPill",
+      "Badge",
+      "SegmentedControl",
+      "ScoreDial",
+      "avatars"
+    ],
+    "doesNotApplyToNote": "Anything using radius-full is already a circle or a capsule, and a superellipse of a capsule is a slightly wrong capsule. Since ADR 0028 the things a reader presses are capsules, so Button left this list."
   },
   "borders": {
-    "hairline": { "px": 1, "use": "Every boundary in the system by default." },
+    "hairline": {
+      "px": 1,
+      "use": "Every boundary in the system by default."
+    },
     "emphasis": {
       "px": 2,
       "use": "The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status."

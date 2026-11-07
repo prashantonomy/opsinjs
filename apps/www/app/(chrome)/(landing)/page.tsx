@@ -3,6 +3,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Geist } from "next/font/google"
+import { ArrowRight, ArrowUpRight } from "lucide-react"
 
 import "./landing.css"
 import { HOME_DESCRIPTION, HOME_TITLE, pageMetadata } from "@/app/_shared/seo"
@@ -48,14 +49,17 @@ export const metadata: Metadata = {
 
 /**
  * The banner's backdrop, which is decoration and is hidden from assistive
- * technology. Two quiet layers: a sheet of measurement paper that fades out
- * towards the edges, and a horizon drawn from the mark itself, a track with
+ * technology. Four quiet layers: the light, a bloom of the brand light off the
+ * top right; a sheet of measurement paper that fades out towards the edges; a
+ * fine grain over both; and a horizon drawn from the mark itself, a track with
  * its expected band and one reading, stretched across the width of the page.
  */
 function Backdrop() {
   return (
     <div className="landing-backdrop" aria-hidden="true">
+      <div className="landing-light" />
       <div className="landing-grid" />
+      <div className="landing-grain" />
       <div className="landing-horizon">
         <span className="landing-track" />
         <span className="landing-band" />
@@ -73,19 +77,24 @@ export default function LandingPage() {
         <Backdrop />
         <div className="landing-center">
           <span className="landing-mark">
-            <LogoMark size={72} />
+            <LogoMark size={64} />
           </span>
+          <p className="landing-eyebrow">{site.shortTagline}</p>
           <h1 className="landing-title">{site.name}</h1>
           <p className="landing-tagline">{site.tagline}</p>
           <nav className="landing-links" aria-label="Primary">
-            <Link href={routes.docs()}>Documentation</Link>
-            <span className="landing-separator" aria-hidden="true" />
-            <Link href={routes.showcase()}>Showcase</Link>
+            <Link className="landing-button landing-button-primary" href={routes.docs()}>
+              Documentation
+              <ArrowRight aria-hidden="true" />
+            </Link>
+            <Link className="landing-button" href={routes.showcase()}>
+              Showcase
+            </Link>
             {site.sourcePublic ? (
-              <>
-                <span className="landing-separator" aria-hidden="true" />
-                <a href={site.github}>GitHub</a>
-              </>
+              <a className="landing-button landing-button-quiet" href={site.github}>
+                GitHub
+                <ArrowUpRight aria-hidden="true" />
+              </a>
             ) : null}
           </nav>
         </div>

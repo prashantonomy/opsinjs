@@ -21,7 +21,10 @@
       "question": "What is the page itself?",
       "blurPx": 0,
       "saturation": 1,
-      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-950" },
+      "tint": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-950"
+      },
       "tintAlpha": 1,
       "border": "none",
       "shadow": "none",
@@ -39,7 +42,10 @@
       "question": "Is this a recess carved into a card, not a surface lifted above it?",
       "blurPx": 0,
       "saturation": 1,
-      "tint": { "light": "--opsin-neutral-100", "dark": "oklch(0.178 0.006 250)" },
+      "tint": {
+        "light": "--opsin-neutral-100",
+        "dark": "oklch(0.178 0.006 250)"
+      },
       "tintAlpha": 1,
       "border": "none",
       "shadow": "none",
@@ -58,21 +64,27 @@
       "question": "Is this a distinct piece of content on the page?",
       "blurPx": 0,
       "saturation": 1,
-      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-900" },
+      "tint": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-900"
+      },
       "tintAlpha": 1,
       "border": {
-        "light": "--opsin-neutral-200",
-        "dark": "--opsin-neutral-800"
+        "light": "--opsin-chrome-edge",
+        "dark": "--opsin-chrome-edge"
       },
-      "shadow": "none",
+      "shadow": {
+        "light": "inset 0 1px 0 0 oklch(1 0 0 / 0.7), 0 1px 2px 0 oklch(0.205 0.006 250 / 0.05), 0 10px 30px -14px oklch(0.205 0.006 250 / 0.16)",
+        "dark": "inset 0 1px 0 0 oklch(1 0 0 / 0.05), 0 1px 2px 0 oklch(0 0 0 / 0.45), 0 14px 36px -16px oklch(0 0 0 / 0.7)"
+      },
       "minScrimOpacity": 0,
       "opaqueFallback": {
         "light": "--opsin-neutral-0",
         "dark": "--opsin-neutral-900"
       },
       "translucent": false,
-      "use": "The default home for a health value. Opaque, bounded by a line rather than a shadow, and the rung every ResultCard, MetricTile and RangeBar sits on.",
-      "note": "Deliberately shadowless. A grid of shadowed cards on a phone reads as clutter, and the shadow is doing work a 1px boundary does better and cheaper."
+      "use": "The default home for a health value. Opaque, edged by a decorative line, and lifted off the page by a soft drop and a line of light along its top. The rung every ResultCard, MetricTile and RangeBar sits on.",
+      "note": "Opaque on purpose: a value a reader is trying to read never has the page showing through it. Until ADR 0028 this rung was shadowless and bounded by the 3:1 control line, on the argument that a grid of shadowed cards reads as clutter. That held for a hard, dark shadow, and it made every screen a stack of grey boxes. The drop here is two soft layers, a contact shadow that seats the card and a long low drop that lifts it, at an opacity a grid of cards on a phone carries without noise. The edge is decorative and is not the only elevation cue, so WCAG 1.4.11 does not ask it to clear 3:1; the 3:1 boundary belongs to controls."
     },
     {
       "rung": 2,
@@ -80,13 +92,19 @@
       "question": "Is this temporarily above the page, but not covering it?",
       "blurPx": 0,
       "saturation": 1,
-      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-800" },
+      "tint": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-800"
+      },
       "tintAlpha": 1,
       "border": {
-        "light": "--opsin-neutral-200",
-        "dark": "--opsin-neutral-700"
+        "light": "--opsin-chrome-edge",
+        "dark": "--opsin-chrome-edge"
       },
-      "shadow": "0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.06)",
+      "shadow": {
+        "light": "inset 0 1px 0 0 oklch(1 0 0 / 0.8), 0 2px 8px -2px oklch(0.205 0.006 250 / 0.08), 0 22px 52px -20px oklch(0.205 0.006 250 / 0.28)",
+        "dark": "inset 0 1px 0 0 oklch(1 0 0 / 0.06), 0 2px 8px -2px oklch(0 0 0 / 0.55), 0 26px 60px -18px oklch(0 0 0 / 0.85)"
+      },
       "minScrimOpacity": 0,
       "opaqueFallback": {
         "light": "--opsin-neutral-0",
@@ -102,14 +120,23 @@
       "question": "Is this covering the page while leaving it recognisable underneath?",
       "blurPx": 20,
       "saturation": 1.6,
-      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-900" },
-      "tintAlpha": { "light": 0.93, "dark": 0.90 },
+      "tint": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-900"
+      },
+      "tintAlpha": {
+        "light": 0.93,
+        "dark": 0.9
+      },
       "$comment": "minScrimOpacity is published once per rung, but tintAlpha is published per theme, and the component renders each theme at max(tintAlpha, minScrimOpacity). The dark tintAlpha here (0.90) sits below the floor (0.93), so max() returns the floor and the authored dark alpha never renders. A dark tintAlpha may not be set below minScrimOpacity and be expected to take effect. To make a lower dark alpha effective, publish minScrimOpacity per theme, which is a build-tokens change.",
       "border": {
-        "light": "oklch(0 0 0 / 0.08)",
-        "dark": "oklch(1 0 0 / 0.10)"
+        "light": "--opsin-chrome-edge",
+        "dark": "--opsin-chrome-edge"
       },
-      "shadow": "0 -1px 2px oklch(0 0 0 / 0.05)",
+      "shadow": {
+        "light": "inset 0 1px 0 0 oklch(1 0 0 / 0.8), 0 4px 12px -4px oklch(0.205 0.006 250 / 0.1), 0 40px 96px -28px oklch(0.205 0.006 250 / 0.38)",
+        "dark": "inset 0 1px 0 0 oklch(1 0 0 / 0.07), 0 4px 12px -4px oklch(0 0 0 / 0.6), 0 48px 120px -24px oklch(0 0 0 / 0.9)"
+      },
       "minScrimOpacity": 0.93,
       "opaqueFallback": {
         "light": "--opsin-neutral-0",
@@ -123,16 +150,25 @@
       "rung": 4,
       "name": "overlay",
       "question": "Is this chrome floating over scrolling content?",
-      "blurPx": 28,
+      "blurPx": 16,
       "saturation": 1.8,
-      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-900" },
-      "tintAlpha": { "light": 0.74, "dark": 0.7 },
+      "tint": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-900"
+      },
+      "tintAlpha": {
+        "light": 0.74,
+        "dark": 0.7
+      },
       "$comment": "minScrimOpacity is published once per rung, but tintAlpha is published per theme, and the component renders each theme at max(tintAlpha, minScrimOpacity). The dark tintAlpha here (0.7) sits below the floor (0.74), so max() returns the floor and the authored dark alpha never renders. A dark tintAlpha may not be set below minScrimOpacity and be expected to take effect. To make a lower dark alpha effective, publish minScrimOpacity per theme, which is a build-tokens change.",
       "border": {
-        "light": "oklch(0 0 0 / 0.10)",
-        "dark": "oklch(1 0 0 / 0.12)"
+        "light": "--opsin-chrome-edge",
+        "dark": "--opsin-chrome-edge"
       },
-      "shadow": "0 8px 32px oklch(0 0 0 / 0.12)",
+      "shadow": {
+        "light": "inset 0 1px 0 0 oklch(1 0 0 / 0.55), 0 1px 2px 0 oklch(0.205 0.006 250 / 0.05), 0 12px 32px -14px oklch(0.205 0.006 250 / 0.2)",
+        "dark": "inset 0 1px 0 0 oklch(1 0 0 / 0.06), 0 1px 2px 0 oklch(0 0 0 / 0.5), 0 14px 36px -14px oklch(0 0 0 / 0.8)"
+      },
       "minScrimOpacity": 0.74,
       "opaqueFallback": {
         "light": "--opsin-neutral-0",
@@ -140,7 +176,7 @@
       },
       "translucent": true,
       "use": "A pinned toolbar, a tab bar and a floating action bar are all chrome that content scrolls beneath.",
-      "note": "The thinnest material in the system, and therefore the one whose contrast floor is hardest to hold. Anything on it is measured against the darkest and the lightest backdrop the product can produce, not against the tint alone."
+      "note": "The thinnest material in the system, and therefore the one whose contrast floor is hardest to hold. Anything on it is measured against the darkest and the lightest backdrop the product can produce, not against the tint alone. Its blur is 16px rather than the 28px it once was: a backdrop blur reaches only as far as the surface's own edge and is mirrored there, so on a bar about 56px tall a radius much past a quarter of its height folds the sharp content beneath back in as a ghost."
     },
     {
       "rung": 5,
@@ -152,7 +188,10 @@
         "light": "--opsin-neutral-950",
         "dark": "--opsin-neutral-1000"
       },
-      "tintAlpha": { "light": 0.44, "dark": 0.6 },
+      "tintAlpha": {
+        "light": 0.44,
+        "dark": 0.6
+      },
       "border": "none",
       "shadow": "none",
       "minScrimOpacity": 0.44,

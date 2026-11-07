@@ -42,9 +42,11 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-chrome-muted-foreground` | `oklch(0.439 0.009 250)` | Chrome role mutedForeground, resolved to the ladder step it names. |
 | `--opsin-chrome-border` | `oklch(0.556 0.009 250)` | Chrome role border, resolved to the ladder step it names. |
 | `--opsin-chrome-input` | `oklch(0.556 0.009 250)` | Chrome role input, resolved to the ladder step it names. |
-| `--opsin-chrome-ring` | `oklch(0.55 0.13 250)` | Chrome role ring, resolved to the ladder step it names. |
-| `--opsin-chrome-primary` | `oklch(0.51 0.135 250)` | Chrome role primary, resolved to the ladder step it names. |
-| `--opsin-chrome-primary-foreground` | `oklch(0.99 0 0)` | Chrome role primaryForeground, resolved to the ladder step it names. |
+| `--opsin-chrome-edge` | `oklch(0.205 0.006 250 / 0.1)` | Chrome role edge, resolved to the ladder step it names. |
+| `--opsin-chrome-ring` | `oklch(0.53 0.155 250)` | Chrome role ring, resolved to the ladder step it names. |
+| `--opsin-chrome-brand` | `oklch(0.53 0.155 250)` | Chrome role brand, resolved to the ladder step it names. |
+| `--opsin-chrome-primary` | `oklch(0.145 0.005 250)` | Chrome role primary, resolved to the ladder step it names. |
+| `--opsin-chrome-primary-foreground` | `oklch(1 0 0)` | Chrome role primaryForeground, resolved to the ladder step it names. |
 | `--opsin-category-sleep-50` | `oklch(0.972 0.013 275)` | Sleep ramp, step 50. |
 | `--opsin-category-sleep-100` | `oklch(0.941 0.028 275)` | Sleep ramp, step 100. |
 | `--opsin-category-sleep-200` | `oklch(0.884 0.057 275)` | Sleep ramp, step 200. |
@@ -226,36 +228,36 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-material-inset-shadow` | `none` | Rung 0.5 (inset): the shadow that separates it from what is behind. |
 | `--opsin-material-inset-scrim` | `0` | Rung 0.5 (inset): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-inset-opaque` | `var(--opsin-neutral-100)` | Rung 0.5 (inset): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
-| `--opsin-material-card-tint` | `var(--opsin-neutral-0)` | Rung 1 (card): the tint over what is behind it. The default home for a health value. Opaque, bounded by a line rather than a shadow, and the rung every ResultCard, MetricTile and RangeBar sits on. |
+| `--opsin-material-card-tint` | `var(--opsin-neutral-0)` | Rung 1 (card): the tint over what is behind it. The default home for a health value. Opaque, edged by a decorative line, and lifted off the page by a soft drop and a line of light along its top. The rung every ResultCard, MetricTile and RangeBar sits on. |
 | `--opsin-material-card-tint-alpha` | `1` | Rung 1 (card): how opaque that tint is. |
 | `--opsin-material-card-blur` | `0px` | Rung 1 (card): backdrop blur radius. |
 | `--opsin-material-card-saturation` | `1` | Rung 1 (card): backdrop saturation multiplier. |
-| `--opsin-material-card-border` | `var(--opsin-neutral-200)` | Rung 1 (card): the boundary. |
-| `--opsin-material-card-shadow` | `none` | Rung 1 (card): the shadow that separates it from what is behind. |
+| `--opsin-material-card-border` | `var(--opsin-chrome-edge)` | Rung 1 (card): the boundary. |
+| `--opsin-material-card-shadow` | `inset 0 1px 0 0 oklch(1 0 0 / 0.7), 0 1px 2px 0 oklch(0.205 0.006 250 / 0.05), 0 10px 30px -14px oklch(0.205 0.006 250 / 0.16)` | Rung 1 (card): the shadow that separates it from what is behind. |
 | `--opsin-material-card-scrim` | `0` | Rung 1 (card): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-card-opaque` | `var(--opsin-neutral-0)` | Rung 1 (card): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-raised-tint` | `var(--opsin-neutral-0)` | Rung 2 (raised): the tint over what is behind it. Menus, popovers, tooltips, a dragged card. Still opaque: the shadow, not translucency, is what says 'above'. |
 | `--opsin-material-raised-tint-alpha` | `1` | Rung 2 (raised): how opaque that tint is. |
 | `--opsin-material-raised-blur` | `0px` | Rung 2 (raised): backdrop blur radius. |
 | `--opsin-material-raised-saturation` | `1` | Rung 2 (raised): backdrop saturation multiplier. |
-| `--opsin-material-raised-border` | `var(--opsin-neutral-200)` | Rung 2 (raised): the boundary. |
-| `--opsin-material-raised-shadow` | `0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.06)` | Rung 2 (raised): the shadow that separates it from what is behind. |
+| `--opsin-material-raised-border` | `var(--opsin-chrome-edge)` | Rung 2 (raised): the boundary. |
+| `--opsin-material-raised-shadow` | `inset 0 1px 0 0 oklch(1 0 0 / 0.8), 0 2px 8px -2px oklch(0.205 0.006 250 / 0.08), 0 22px 52px -20px oklch(0.205 0.006 250 / 0.28)` | Rung 2 (raised): the shadow that separates it from what is behind. |
 | `--opsin-material-raised-scrim` | `0` | Rung 2 (raised): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-raised-opaque` | `var(--opsin-neutral-0)` | Rung 2 (raised): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-sheet-tint` | `var(--opsin-neutral-0)` | Rung 3 (sheet): the tint over what is behind it. A bottom sheet or side panel the reader can dismiss by dragging. Its tint is now near opaque, so the panel lands close to the card colour and a white control inside it no longer floats above a greyer surface. What keeps the covered page recognisable is the scrim around the panel rather than the page reading through the panel, because at this opacity very little of the page shows through the tint. |
 | `--opsin-material-sheet-tint-alpha` | `0.93` | Rung 3 (sheet): how opaque that tint is. |
 | `--opsin-material-sheet-blur` | `20px` | Rung 3 (sheet): backdrop blur radius. |
 | `--opsin-material-sheet-saturation` | `1.6` | Rung 3 (sheet): backdrop saturation multiplier. |
-| `--opsin-material-sheet-border` | `oklch(0 0 0 / 0.08)` | Rung 3 (sheet): the boundary. |
-| `--opsin-material-sheet-shadow` | `0 -1px 2px oklch(0 0 0 / 0.05)` | Rung 3 (sheet): the shadow that separates it from what is behind. |
+| `--opsin-material-sheet-border` | `var(--opsin-chrome-edge)` | Rung 3 (sheet): the boundary. |
+| `--opsin-material-sheet-shadow` | `inset 0 1px 0 0 oklch(1 0 0 / 0.8), 0 4px 12px -4px oklch(0.205 0.006 250 / 0.1), 0 40px 96px -28px oklch(0.205 0.006 250 / 0.38)` | Rung 3 (sheet): the shadow that separates it from what is behind. |
 | `--opsin-material-sheet-scrim` | `0.93` | Rung 3 (sheet): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-sheet-opaque` | `var(--opsin-neutral-0)` | Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-overlay-tint` | `var(--opsin-neutral-0)` | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar and a floating action bar are all chrome that content scrolls beneath. |
 | `--opsin-material-overlay-tint-alpha` | `0.74` | Rung 4 (overlay): how opaque that tint is. |
-| `--opsin-material-overlay-blur` | `28px` | Rung 4 (overlay): backdrop blur radius. |
+| `--opsin-material-overlay-blur` | `16px` | Rung 4 (overlay): backdrop blur radius. |
 | `--opsin-material-overlay-saturation` | `1.8` | Rung 4 (overlay): backdrop saturation multiplier. |
-| `--opsin-material-overlay-border` | `oklch(0 0 0 / 0.10)` | Rung 4 (overlay): the boundary. |
-| `--opsin-material-overlay-shadow` | `0 8px 32px oklch(0 0 0 / 0.12)` | Rung 4 (overlay): the shadow that separates it from what is behind. |
+| `--opsin-material-overlay-border` | `var(--opsin-chrome-edge)` | Rung 4 (overlay): the boundary. |
+| `--opsin-material-overlay-shadow` | `inset 0 1px 0 0 oklch(1 0 0 / 0.55), 0 1px 2px 0 oklch(0.205 0.006 250 / 0.05), 0 12px 32px -14px oklch(0.205 0.006 250 / 0.2)` | Rung 4 (overlay): the shadow that separates it from what is behind. |
 | `--opsin-material-overlay-scrim` | `0.74` | Rung 4 (overlay): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-overlay-opaque` | `var(--opsin-neutral-0)` | Rung 4 (overlay): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-scrim-tint` | `var(--opsin-neutral-950)` | Rung 5 (scrim): the tint over what is behind it. The dimming layer behind a modal dialog or a consent sheet. Its job is to remove the page from consideration, not to look like glass. |
@@ -287,31 +289,31 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-font-mono` | `ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace` | The mono family stack. |
 | `--opsin-font-numeric` | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` | The numeric family stack. |
 | `--opsin-text-large-title-size` | `2.125rem` | The largest step in the scale, reserved for a surface whose entire subject is one number or one word. No component in the system sets a value at this step yet. |
-| `--opsin-text-large-title-leading` | `1.206` | Line height for largeTitle, unitless so it scales with the size. |
-| `--opsin-text-large-title-tracking` | `-0.011em` | Letter spacing for largeTitle. |
-| `--opsin-text-large-title-weight` | `700` | Font weight for largeTitle. |
+| `--opsin-text-large-title-leading` | `1.118` | Line height for largeTitle, unitless so it scales with the size. |
+| `--opsin-text-large-title-tracking` | `-0.032em` | Letter spacing for largeTitle. |
+| `--opsin-text-large-title-weight` | `800` | Font weight for largeTitle. |
 | `--opsin-text-title1-size` | `1.75rem` | A screen title, and the hero treatment a value's number takes at size display. |
-| `--opsin-text-title1-leading` | `1.214` | Line height for title1, unitless so it scales with the size. |
-| `--opsin-text-title1-tracking` | `-0.009em` | Letter spacing for title1. |
-| `--opsin-text-title1-weight` | `700` | Font weight for title1. |
+| `--opsin-text-title1-leading` | `1.143` | Line height for title1, unitless so it scales with the size. |
+| `--opsin-text-title1-tracking` | `-0.026em` | Letter spacing for title1. |
+| `--opsin-text-title1-weight` | `800` | Font weight for title1. |
 | `--opsin-text-title2-size` | `1.375rem` | Section title; the floor for a primary health value inside a card. |
-| `--opsin-text-title2-leading` | `1.273` | Line height for title2, unitless so it scales with the size. |
-| `--opsin-text-title2-tracking` | `-0.006em` | Letter spacing for title2. |
-| `--opsin-text-title2-weight` | `600` | Font weight for title2. |
+| `--opsin-text-title2-leading` | `1.227` | Line height for title2, unitless so it scales with the size. |
+| `--opsin-text-title2-tracking` | `-0.018em` | Letter spacing for title2. |
+| `--opsin-text-title2-weight` | `700` | Font weight for title2. |
 | `--opsin-text-title3-size` | `1.25rem` | A Dialog or Sheet title, and the unit beside a value's number at size display. |
 | `--opsin-text-title3-leading` | `1.25` | Line height for title3, unitless so it scales with the size. |
-| `--opsin-text-title3-tracking` | `-0.004em` | Letter spacing for title3. |
-| `--opsin-text-title3-weight` | `600` | Font weight for title3. |
+| `--opsin-text-title3-tracking` | `-0.014em` | Letter spacing for title3. |
+| `--opsin-text-title3-weight` | `700` | Font weight for title3. |
 | `--opsin-text-headline-size` | `1.0625rem` | An emphasised line of body text, such as a status sentence or a question in a form. |
-| `--opsin-text-headline-leading` | `1.294` | Line height for headline, unitless so it scales with the size. |
-| `--opsin-text-headline-tracking` | `-0.003em` | Letter spacing for headline. |
+| `--opsin-text-headline-leading` | `1.412` | Line height for headline, unitless so it scales with the size. |
+| `--opsin-text-headline-tracking` | `-0.006em` | Letter spacing for headline. |
 | `--opsin-text-headline-weight` | `600` | Font weight for headline. |
 | `--opsin-text-body-size` | `1.0625rem` | Everything a reader reads as prose. The anchor of the scale. |
-| `--opsin-text-body-leading` | `1.294` | Line height for body, unitless so it scales with the size. |
+| `--opsin-text-body-leading` | `1.412` | Line height for body, unitless so it scales with the size. |
 | `--opsin-text-body-tracking` | `-0.003em` | Letter spacing for body. |
 | `--opsin-text-body-weight` | `400` | Font weight for body. |
 | `--opsin-text-callout-size` | `1rem` | Secondary prose inside a card or a callout. |
-| `--opsin-text-callout-leading` | `1.313` | Line height for callout, unitless so it scales with the size. |
+| `--opsin-text-callout-leading` | `1.375` | Line height for callout, unitless so it scales with the size. |
 | `--opsin-text-callout-tracking` | `-0.002em` | Letter spacing for callout. |
 | `--opsin-text-callout-weight` | `400` | Font weight for callout. |
 | `--opsin-text-subheadline-size` | `0.9375rem` | A supporting line under a title. |
@@ -331,9 +333,9 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-text-caption1-tracking` | `0.002em` | Letter spacing for caption1. |
 | `--opsin-text-caption1-weight` | `400` | Font weight for caption1. |
 | `--opsin-text-caption2-size` | `0.6875rem` | The smallest text the system permits, and only for text that repeats a label already present elsewhere. Never the only place a fact appears. |
-| `--opsin-text-caption2-leading` | `1.182` | Line height for caption2, unitless so it scales with the size. |
-| `--opsin-text-caption2-tracking` | `0.005em` | Letter spacing for caption2. |
-| `--opsin-text-caption2-weight` | `500` | Font weight for caption2. |
+| `--opsin-text-caption2-leading` | `1.273` | Line height for caption2, unitless so it scales with the size. |
+| `--opsin-text-caption2-tracking` | `0.01em` | Letter spacing for caption2. |
+| `--opsin-text-caption2-weight` | `600` | Font weight for caption2. |
 | `--opsin-numerals` | `tabular-nums` | Every component that renders a number sets this, so a changing value does not shift its own layout. |
 | `--opsin-space-0` | `0rem` | 0px. |
 | `--opsin-space-1` | `0.25rem` | Gap between an icon and its label. |
@@ -365,16 +367,16 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-safe-right` | `env(safe-area-inset-right, 0px)` | The right safe-area inset, for installed web apps where browser chrome does not protect the edge. |
 | `--opsin-safe-bottom` | `env(safe-area-inset-bottom, 0px)` | The bottom safe-area inset, for installed web apps where browser chrome does not protect the edge. |
 | `--opsin-safe-left` | `env(safe-area-inset-left, 0px)` | The left safe-area inset, for installed web apps where browser chrome does not protect the edge. |
-| `--opsin-radius-base` | `0.875rem` | The one radius the whole ladder is derived from. |
+| `--opsin-radius-base` | `1.25rem` | The one radius the whole ladder is derived from. |
 | `--opsin-radius-none` | `0rem` | Full-bleed media and anything that meets a screen edge. |
-| `--opsin-radius-xs` | `0.25rem` | The floor for a nested corner. Tags inside a chip, a swatch inside a legend. |
-| `--opsin-radius-sm` | `0.4375rem` | Inputs and small controls inside a card. |
-| `--opsin-radius-md` | `0.875rem` | The default. Buttons, chips, cards. |
-| `--opsin-radius-lg` | `1.3125rem` | Cards on a phone, where the card is nearly the width of the screen. |
-| `--opsin-radius-xl` | `1.75rem` | Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side. |
-| `--opsin-radius-inner-card` | `max(calc(0.875rem - 5 * var(--spacing)), var(--opsin-radius-xs))` | A box inside a card at the comfortable density (card padding p-5). |
-| `--opsin-radius-inner-card-compact` | `max(calc(0.875rem - 4 * var(--spacing)), var(--opsin-radius-xs))` | A box inside a card at the compact density (card padding p-4). |
-| `--opsin-corner-shape` | `superellipse(4)` | The squircle curvature. Degrades to `round` where corner-shape is unsupported. |
+| `--opsin-radius-xs` | `0.3125rem` | The floor for a nested corner. Tags inside a chip, a swatch inside a legend. |
+| `--opsin-radius-sm` | `0.625rem` | Inputs, small controls and a well inside a card. |
+| `--opsin-radius-md` | `1.25rem` | The default for a bounded surface: a card, a tile, a callout, a list row. |
+| `--opsin-radius-lg` | `1.875rem` | A card nearly the width of a phone screen, and a banner. |
+| `--opsin-radius-xl` | `2.5rem` | Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side. |
+| `--opsin-radius-inner-card` | `max(calc(1.25rem - 5 * var(--spacing)), var(--opsin-radius-xs))` | A box inside a card at the comfortable density (card padding p-5). |
+| `--opsin-radius-inner-card-compact` | `max(calc(1.25rem - 4 * var(--spacing)), var(--opsin-radius-xs))` | A box inside a card at the compact density (card padding p-4). |
+| `--opsin-corner-shape` | `superellipse(2)` | The squircle curvature. Degrades to `round` where corner-shape is unsupported. |
 | `--opsin-border-hairline` | `1px` | Every boundary in the system by default. |
 | `--opsin-border-emphasis` | `2px` | The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status. |
 | `--opsin-border-focus` | `2px` | The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed. See /docs/accessibility/keyboard-and-focus. |
@@ -392,9 +394,11 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-chrome-muted-foreground` | `oklch(0.871 0.005 250)` | Chrome role mutedForeground, resolved to the ladder step it names. |
 | `--opsin-chrome-border` | `oklch(0.556 0.009 250)` | Chrome role border, resolved to the ladder step it names. |
 | `--opsin-chrome-input` | `oklch(0.556 0.009 250)` | Chrome role input, resolved to the ladder step it names. |
-| `--opsin-chrome-ring` | `oklch(0.68 0.115 250)` | Chrome role ring, resolved to the ladder step it names. |
-| `--opsin-chrome-primary` | `oklch(0.72 0.12 250)` | Chrome role primary, resolved to the ladder step it names. |
-| `--opsin-chrome-primary-foreground` | `oklch(0.16 0.01 260)` | Chrome role primaryForeground, resolved to the ladder step it names. |
+| `--opsin-chrome-edge` | `oklch(1 0 0 / 0.1)` | Chrome role edge, resolved to the ladder step it names. |
+| `--opsin-chrome-ring` | `oklch(0.75 0.13 250)` | Chrome role ring, resolved to the ladder step it names. |
+| `--opsin-chrome-brand` | `oklch(0.75 0.13 250)` | Chrome role brand, resolved to the ladder step it names. |
+| `--opsin-chrome-primary` | `oklch(0.985 0.002 250)` | Chrome role primary, resolved to the ladder step it names. |
+| `--opsin-chrome-primary-foreground` | `oklch(0.145 0.005 250)` | Chrome role primaryForeground, resolved to the ladder step it names. |
 | `--opsin-category-sleep-surface` | `oklch(0.208 0.062 275)` | The tinted background a component in this ramp sits on. |
 | `--opsin-category-sleep-line` | `oklch(0.806 0.092 275)` | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. |
 | `--opsin-category-sleep-ink` | `oklch(0.884 0.057 275)` | Text and text-sized icons on `surface`. Clears the text floor against `surface`. |
@@ -443,19 +447,23 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-material-canvas-opaque` | `var(--opsin-neutral-950)` | Rung 0 (canvas): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-inset-tint` | `oklch(0.178 0.006 250)` | Rung 0.5 (inset): the tint over what is behind it. The recessed well inside a card: the explanatory note a Callout draws inside the reading it annotates, and the track a RangeBar lays its range along. Its fill sits below the card fill in both themes, so the well reads as carved into the card rather than lifted off it. In light it is neutral-100, one step under the white card, which is where a Callout already sat. In dark it is a value between the page and the card, below the card so the well is a recess and above the page so a Callout used on its own is still visible. |
 | `--opsin-material-inset-opaque` | `oklch(0.178 0.006 250)` | Rung 0.5 (inset): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
-| `--opsin-material-card-tint` | `var(--opsin-neutral-900)` | Rung 1 (card): the tint over what is behind it. The default home for a health value. Opaque, bounded by a line rather than a shadow, and the rung every ResultCard, MetricTile and RangeBar sits on. |
-| `--opsin-material-card-border` | `var(--opsin-neutral-800)` | Rung 1 (card): the boundary. |
+| `--opsin-material-card-tint` | `var(--opsin-neutral-900)` | Rung 1 (card): the tint over what is behind it. The default home for a health value. Opaque, edged by a decorative line, and lifted off the page by a soft drop and a line of light along its top. The rung every ResultCard, MetricTile and RangeBar sits on. |
+| `--opsin-material-card-border` | `var(--opsin-chrome-edge)` | Rung 1 (card): the boundary. |
+| `--opsin-material-card-shadow` | `inset 0 1px 0 0 oklch(1 0 0 / 0.05), 0 1px 2px 0 oklch(0 0 0 / 0.45), 0 14px 36px -16px oklch(0 0 0 / 0.7)` | Rung 1 (card): the shadow that separates it from what is behind. |
 | `--opsin-material-card-opaque` | `var(--opsin-neutral-900)` | Rung 1 (card): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-raised-tint` | `var(--opsin-neutral-800)` | Rung 2 (raised): the tint over what is behind it. Menus, popovers, tooltips, a dragged card. Still opaque: the shadow, not translucency, is what says 'above'. |
-| `--opsin-material-raised-border` | `var(--opsin-neutral-700)` | Rung 2 (raised): the boundary. |
+| `--opsin-material-raised-border` | `var(--opsin-chrome-edge)` | Rung 2 (raised): the boundary. |
+| `--opsin-material-raised-shadow` | `inset 0 1px 0 0 oklch(1 0 0 / 0.06), 0 2px 8px -2px oklch(0 0 0 / 0.55), 0 26px 60px -18px oklch(0 0 0 / 0.85)` | Rung 2 (raised): the shadow that separates it from what is behind. |
 | `--opsin-material-raised-opaque` | `var(--opsin-neutral-800)` | Rung 2 (raised): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-sheet-tint` | `var(--opsin-neutral-900)` | Rung 3 (sheet): the tint over what is behind it. A bottom sheet or side panel the reader can dismiss by dragging. Its tint is now near opaque, so the panel lands close to the card colour and a white control inside it no longer floats above a greyer surface. What keeps the covered page recognisable is the scrim around the panel rather than the page reading through the panel, because at this opacity very little of the page shows through the tint. |
 | `--opsin-material-sheet-tint-alpha` | `0.9` | Rung 3 (sheet): how opaque that tint is. |
-| `--opsin-material-sheet-border` | `oklch(1 0 0 / 0.10)` | Rung 3 (sheet): the boundary. |
+| `--opsin-material-sheet-border` | `var(--opsin-chrome-edge)` | Rung 3 (sheet): the boundary. |
+| `--opsin-material-sheet-shadow` | `inset 0 1px 0 0 oklch(1 0 0 / 0.07), 0 4px 12px -4px oklch(0 0 0 / 0.6), 0 48px 120px -24px oklch(0 0 0 / 0.9)` | Rung 3 (sheet): the shadow that separates it from what is behind. |
 | `--opsin-material-sheet-opaque` | `var(--opsin-neutral-900)` | Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-overlay-tint` | `var(--opsin-neutral-900)` | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar and a floating action bar are all chrome that content scrolls beneath. |
 | `--opsin-material-overlay-tint-alpha` | `0.7` | Rung 4 (overlay): how opaque that tint is. |
-| `--opsin-material-overlay-border` | `oklch(1 0 0 / 0.12)` | Rung 4 (overlay): the boundary. |
+| `--opsin-material-overlay-border` | `var(--opsin-chrome-edge)` | Rung 4 (overlay): the boundary. |
+| `--opsin-material-overlay-shadow` | `inset 0 1px 0 0 oklch(1 0 0 / 0.06), 0 1px 2px 0 oklch(0 0 0 / 0.5), 0 14px 36px -14px oklch(0 0 0 / 0.8)` | Rung 4 (overlay): the shadow that separates it from what is behind. |
 | `--opsin-material-overlay-opaque` | `var(--opsin-neutral-900)` | Rung 4 (overlay): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-scrim-tint` | `var(--opsin-neutral-1000)` | Rung 5 (scrim): the tint over what is behind it. The dimming layer behind a modal dialog or a consent sheet. Its job is to remove the page from consideration, not to look like glass. |
 | `--opsin-material-scrim-tint-alpha` | `0.6` | Rung 5 (scrim): how opaque that tint is. |

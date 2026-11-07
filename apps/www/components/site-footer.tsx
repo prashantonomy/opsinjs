@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import { ThemeSwitch } from "fumadocs-ui/layouts/shared/slots/theme-switch"
 
+import { LogoMark } from "@/components/logo-mark"
 import { agentRoutes, registryRoutes, routes, site } from "@/lib/routes"
 
 /* ==========================================================================
@@ -26,7 +27,7 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <h2 className="mb-3 text-xs font-semibold tracking-[0.14em] text-foreground uppercase">
+      <h2 className="docs-eyebrow mt-0 mb-4">
         {title}
       </h2>
       <ul className="space-y-2 text-sm">{children}</ul>
@@ -71,12 +72,15 @@ export function SiteFooter() {
     <footer
       data-opsinjs-chrome
       data-print="hide"
-      className="mt-auto border-t border-border bg-card/40"
+      className="mt-auto border-t border-border bg-[color-mix(in_oklab,var(--card)_60%,transparent)]"
     >
       <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
-            <p className="font-medium">{site.name}</p>
+            <p className="inline-flex items-center gap-2.5 text-xl font-extrabold tracking-[-0.04em]">
+              <LogoMark size={30} />
+              {site.name}
+            </p>
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
               {site.tagline}
             </p>

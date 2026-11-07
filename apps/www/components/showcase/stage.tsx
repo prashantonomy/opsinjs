@@ -163,7 +163,7 @@ function Choice<T extends string>({
               htmlFor={id}
               title={option.title}
               className={cn(
-                "flex size-8 cursor-pointer items-center justify-center rounded-md transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-1 peer-focus-visible:outline-ring forced-colors:peer-focus-visible:outline-[CanvasText]",
+                "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-1 peer-focus-visible:outline-ring forced-colors:peer-focus-visible:outline-[CanvasText]",
                 active
                   ? "bg-foreground text-background forced-colors:[background-color:Highlight] forced-colors:[color:HighlightText] forced-colors:forced-color-adjust-none"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -261,13 +261,13 @@ export function ShowcaseStage({ name, title }: ShowcaseStageProps) {
     >
       <h1 className="sr-only">{title}</h1>
 
-      <div className="fixed top-3 right-3 z-10 flex items-center gap-1 rounded-lg border border-border bg-background/90 p-1 shadow-lg backdrop-blur-sm">
+      <div className="fixed top-3 right-3 z-10 flex items-center gap-1 rounded-full border border-border bg-[var(--docs-glass-strong)] p-1 shadow-[inset_0_1px_0_0_var(--docs-sheen),var(--docs-shadow-float)] backdrop-blur-md backdrop-saturate-150">
         {/* The way out, first in the bar and in the tab order, because a
             reader can arrive here from search with no page behind them. */}
         <Link
           href={routes.showcase()}
           title="Back to showcase"
-          className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
+          className="flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
         >
           <ArrowLeft aria-hidden="true" className="size-4" />
           <span className="sr-only">Back to showcase</span>

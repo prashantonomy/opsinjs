@@ -84,12 +84,13 @@ const SIZE: Record<"sm" | "md", string> = {
 }
 
 /**
- * The track, spelled once. A muted rail with a hairline, so the row reads as one
- * object with the options set into it. `inline-flex` becomes `flex w-full` when
+ * The track, spelled once. A muted capsule with the decorative edge, so the row
+ * reads as one object with the options set into it; the 3:1 boundary is on the
+ * selected segment, which is the part that carries state. `inline-flex` becomes `flex w-full` when
  * `fullWidth` is set, and tailwind-merge keeps the later `flex`.
  */
 const TRACK =
-  "inline-flex items-stretch gap-opsin-0-5 rounded-opsin-lg border border-border bg-muted p-opsin-0-5 align-middle"
+  "inline-flex items-stretch gap-opsin-0-5 rounded-full border border-edge bg-muted p-opsin-0-5 align-middle"
 
 /**
  * One segment, spelled once.
@@ -121,11 +122,11 @@ const TRACK =
  */
 const SEGMENT =
   "relative inline-flex select-none items-center justify-center whitespace-normal " +
-  "rounded-opsin-md border border-transparent align-middle text-center " +
+  "rounded-full border border-transparent align-middle text-center " +
   "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) cursor-pointer [color:var(--foreground)] " +
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
   "data-[unchecked]:hover:bg-state-hover " +
-  "data-[checked]:border-border data-[checked]:bg-card " +
+  "data-[checked]:border-border data-[checked]:bg-card data-[checked]:shadow-[0_1px_3px_oklch(0_0_0/0.14)] " +
   "data-[disabled]:cursor-not-allowed data-[disabled]:[color:var(--muted-foreground)] data-[disabled]:hover:bg-transparent " +
   "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
 

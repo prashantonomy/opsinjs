@@ -236,8 +236,8 @@ const VALIDATION_MODE: Record<
 const CONTROL_CLASS = [
   "block w-full min-h-[var(--opsin-target-minimum,2.75rem)]",
   "min-w-[var(--opsin-target-minimum,2.75rem)]",
-  "rounded-opsin-sm border border-input bg-background",
-  "px-opsin-3 py-opsin-2",
+  "rounded-opsin-md border border-input bg-background [corner-shape:var(--opsin-corner-shape)]",
+  "px-opsin-4 py-opsin-2",
   "placeholder:text-muted-foreground text-opsin-body",
   "data-[invalid]:shadow-[inset_0_0_0_var(--opsin-border-emphasis,2px)_currentColor]",
   "data-[invalid]:forced-colors:border-dashed",

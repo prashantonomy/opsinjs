@@ -225,7 +225,7 @@ export function Avatar({ name, src, size, className }: AvatarProps) {
       role={labelled ? "img" : undefined}
       aria-label={labelled ? trimmedName : undefined}
       className={cn(
-        "relative inline-flex shrink-0 select-none items-center justify-center overflow-hidden rounded-full border border-border bg-muted [color:var(--muted-foreground)]",
+        "relative inline-flex shrink-0 select-none items-center justify-center overflow-hidden rounded-full border border-edge bg-muted [color:var(--muted-foreground)]",
         SIZE[resolvedSize],
         className,
       )}

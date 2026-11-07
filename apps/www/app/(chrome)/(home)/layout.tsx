@@ -52,6 +52,10 @@ export const metadata: Metadata = {
 export default function HomeGroupLayout({ children }: { children: ReactNode }) {
   return (
     <>
+      {/* The light behind the page and the grain over it, as on the
+          documentation. Decoration that carries nothing. */}
+      <div className="docs-field" aria-hidden="true" />
+      <div className="docs-grain" aria-hidden="true" />
       <HomeLayout {...baseOptions()}>{children}</HomeLayout>
       <SiteFooter />
     </>

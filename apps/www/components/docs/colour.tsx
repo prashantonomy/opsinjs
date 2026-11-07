@@ -182,7 +182,7 @@ export function TokenSwatch({
     >
       <span
         aria-hidden="true"
-        className="size-9 shrink-0 border border-border"
+        className="size-9 shrink-0 rounded-[10px] border border-border"
         style={{
           background: `var(${token}, var(--muted))`,
           ...(against
@@ -271,7 +271,7 @@ export function ColorScale({ name, steps, className }: ColorScaleProps) {
 
   return (
     <div
-      className={cn("not-prose my-6 border border-border", className)}
+      className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}
       data-opsinjs-scale={name}
     >
       <fieldset className="m-0 flex flex-wrap items-center gap-1 border-0 border-b border-border/60 p-3">
@@ -290,7 +290,7 @@ export function ColorScale({ name, steps, className }: ColorScaleProps) {
               htmlFor={`${id}-${option.value}`}
               title={option.hint}
               className={cn(
-                "cursor-pointer border border-border px-2 py-0.5 font-mono text-xs",
+                "cursor-pointer rounded-full border border-border px-3 py-1 font-mono text-xs",
                 format === option.value
                   ? "border-foreground bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
@@ -337,7 +337,7 @@ function ScaleStep({
     <li className="m-0 flex items-center gap-3 border-b border-border/60 px-3 py-2 last:border-b-0">
       <span
         aria-hidden="true"
-        className="size-10 shrink-0 border border-border"
+        className="size-10 shrink-0 rounded-[11px] border border-border"
         style={{ background: `var(${step.token}, var(--muted))` }}
       />
       <span className="min-w-0 flex-1">
@@ -547,7 +547,7 @@ export function StatusAxisDemo({ className }: StatusAxisDemoProps) {
 
   return (
     <div
-      className={cn("not-prose my-6 border border-border", className)}
+      className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}
       data-opsinjs-tool="status-axis-demo"
     >
       <div className="grid gap-3 border-b border-border/60 p-3 sm:grid-cols-2">
@@ -559,7 +559,7 @@ export function StatusAxisDemo({ className }: StatusAxisDemoProps) {
             onChange={(event) =>
               setCategory(event.target.value as HealthCategory | "none")
             }
-            className="border border-border px-2 py-1 text-sm"
+            className="rounded-xl border border-input px-3 py-1.5 text-sm"
           >
             <option value="none">None</option>
             {HEALTH_CATEGORIES.map((value) => (
@@ -578,7 +578,7 @@ export function StatusAxisDemo({ className }: StatusAxisDemoProps) {
             onChange={(event) =>
               setStatus(event.target.value as ClinicalStatus | "none")
             }
-            className="border border-border px-2 py-1 text-sm"
+            className="rounded-xl border border-input px-3 py-1.5 text-sm"
           >
             <option value="none">None</option>
             {CLINICAL_STATUSES.map((value) => (

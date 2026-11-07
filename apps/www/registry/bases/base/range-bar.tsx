@@ -799,15 +799,17 @@ export function RangeBar({
            A rem here would hold its ground while the labels grew through it.
 
            The padding is asymmetric on purpose. Above the track sits the
-           reading, which is a health value and so is drawn at the `body` step
-           tokens/type.json rules[1] fixes as the floor, one step larger than the
-           wrapper's own footnote em. Below it sit the two boundary numbers,
-           which are axis labels and stay at caption1, a step smaller. The top
-           therefore needs more room than the bottom, so `pt` is `2.5em` to clear
-           a body line plus the `mb-opsin-2` gap while `pb` stays at `1.75em` for
-           the caption labels that did not grow. */
+           reading, which is a health value and so is drawn at the `headline`
+           step, body size at weight 600, never below the floor tokens/type.json
+           rules[1] fixes. Below it sit the two boundary numbers, which are axis
+           labels and stay at caption1, a step smaller. The top therefore needs
+           more room than the bottom, so `pt` is `2.875em` to clear a 24px line
+           plus the `mb-opsin-3` gap, and `pb` is `2.25em` to clear a caption line
+           plus `mt-opsin-3`. Both gaps are a step wider than the track needs on
+           its own, because the round reading stands proud of the track by about
+           half its own diameter and must never touch a label. */
         <div
-          className="relative pt-[2.5em] pb-[1.75em] text-opsin-footnote"
+          className="relative pt-[2.875em] pb-[2.25em] text-opsin-footnote"
           style={{ "--rb-label-half": "3.5em" } as CSSProperties}
         >
           <div
@@ -837,7 +839,7 @@ export function RangeBar({
                rung's tint. The rung is opaque by design (tint-alpha 1, no blur),
                so a flat background colour is the whole of the treatment and no
                backdrop layer is needed here. */
-            className="relative h-[0.9em] rounded-full border border-border bg-(--opsin-material-inset-tint)"
+            className="relative h-[0.75em] rounded-full border border-edge bg-(--opsin-material-inset-tint) shadow-[inset_0_1px_2px_oklch(0_0_0/0.12)] print:border-border"
           >
             {/* THE BAND IS NEVER STATUS-COLOURED. It is the range, which is a
                 fact about a laboratory rather than about the reader, and a
@@ -859,7 +861,7 @@ export function RangeBar({
                 insetInlineStart: `${at(extent.low).toFixed(3)}%`,
                 inlineSize: `${(at(extent.high) - at(extent.low)).toFixed(3)}%`,
               }}
-              className="absolute inset-y-0 rounded-full border border-muted-foreground bg-background"
+              className="absolute inset-y-0 rounded-full border border-muted-foreground bg-card shadow-[0_1px_2px_oklch(0_0_0/0.1)]"
             />
 
             {[extent.low, extent.high].map((bound) => (
@@ -920,7 +922,7 @@ export function RangeBar({
                 font-size namespace and would file `text-opsin-caption1` with
                 `text-muted-foreground` and drop one of them. */}
             <div
-              className="absolute top-full mt-opsin-2 flex justify-end-safe"
+              className="absolute top-full mt-opsin-3 flex justify-end-safe"
               style={{
                 insetInlineStart: 0,
                 inlineSize: `${at(extent.low).toFixed(3)}%`,
@@ -936,7 +938,7 @@ export function RangeBar({
               </span>
             </div>
             <div
-              className="absolute top-full mt-opsin-2"
+              className="absolute top-full mt-opsin-3"
               style={{
                 insetInlineEnd: 0,
                 inlineSize: `calc(100% - ${at(extent.high).toFixed(3)}%)`,
@@ -959,9 +961,10 @@ export function RangeBar({
                 neutral, so the one coloured thing on the bar is the reader's
                 own reading. The status word above it carries the same level in
                 `-ink`, which is the point: the colour is redundant to a word
-                that is always there. Neither is the sole carrier, and the tick
-                is thicker and rounder than a boundary mark so the two are told
-                apart by shape before colour. `data-status` is the DOM contract
+                that is always there. Neither is the sole carrier, and the
+                reading is a disc, ringed in the card colour the way the opsinjs
+                mark draws its reading, while a boundary mark is a 1px line, so the
+                two are told apart by shape before colour. `data-status` is the DOM contract
                 the print stylesheet and every product-side test key on, and it
                 is stamped here and on the status word alike.
 
@@ -983,15 +986,16 @@ export function RangeBar({
               data-status={level}
               style={{ insetInlineStart: `${at(extent.reading).toFixed(3)}%` }}
               className={
-                "absolute -top-opsin-1 -bottom-opsin-1 w-opsin-1 -translate-x-1/2 rounded-full rtl:translate-x-1/2 forced-colors:bg-[Highlight] forced-colors:[outline:1px_solid_CanvasText] " +
+                "absolute top-1/2 size-[1.375em] -translate-x-1/2 -translate-y-1/2 rounded-full ring-[0.25em] ring-card shadow-[0_1px_3px_oklch(0_0_0/0.3)] rtl:translate-x-1/2 forced-colors:bg-[Highlight] forced-colors:[outline:1px_solid_CanvasText] " +
                 (level === undefined ? "bg-foreground" : TICK_TONE[level])
               }
             />
 
             {/* THE READING LABEL IS A CHILD OF THE TRACK, NOT OF THE TICK, so
                 the track bounds it the way it bounds the two boundary labels. It
-                is a health value, so it is drawn at the `body` step
-                tokens/type.json rules[1] fixes as the floor, a step larger than
+                is a health value, so it is drawn at the `headline` step, body
+                size at weight 600 and so never below the floor tokens/type.json
+                rules[1] fixes, a step larger than
                 the boundary numbers below the track, which are axis labels and
                 stay at caption1. It is centred on the tick, then clamped so its
                 centre stays at least half a label from either track edge.
@@ -999,7 +1003,7 @@ export function RangeBar({
                 label plus a margin. Its em is resolved on this span rather than
                 on the wrapper, because a custom property's relative unit is
                 resolved where the `var()` is used, so the allowance sits at the
-                reading's own `body` step and scales with it rather than being
+                reading's own `headline` step and scales with it rather than being
                 pinned to the wrapper's footnote em. It is a declared allowance
                 and not a live measurement. A label up to 7em wide never leaves
                 the track; a unit wider than that overhangs by the excess alone
@@ -1007,7 +1011,7 @@ export function RangeBar({
                 position underneath it. */}
             <span
               data-slot="range-bar-value"
-              className="absolute bottom-full mb-opsin-2 -translate-x-1/2 whitespace-nowrap text-opsin-body rtl:translate-x-1/2"
+              className="absolute bottom-full mb-opsin-3 -translate-x-1/2 whitespace-nowrap text-opsin-headline rtl:translate-x-1/2"
               style={{
                 insetInlineStart: `clamp(var(--rb-label-half), ${at(extent.reading).toFixed(3)}%, calc(100% - var(--rb-label-half)))`,
               }}

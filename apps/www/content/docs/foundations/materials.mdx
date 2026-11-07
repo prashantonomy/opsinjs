@@ -14,7 +14,7 @@ A material says what a surface is made of and what shows through it. The six run
 | Rung | Opaque | Its job |
 | --- | --- | --- |
 | `canvas` | Yes | The page itself |
-| `card` | Yes | A bounded piece of content, edged by a line. The default home for a health value |
+| `card` | Yes | A bounded piece of content, lifted by a soft drop over a decorative edge. The default home for a health value |
 | `raised` | Yes | Above the page without covering it: a menu, popover, tooltip or toast |
 | `sheet` | No | Covers the page and leaves it recognisable: a bottom sheet, side panel or modal |
 | `overlay` | No | Chrome that content scrolls beneath, such as a tab bar |
@@ -37,7 +37,7 @@ Rung names are token names, so a sheet's blur is `--opsin-material-sheet-blur`, 
 - Pick the lowest rung that works. A rung shows depth, never importance or [two colour axes](../health/two-colour-axes.mdx).
 - Never nest translucent rungs. A card inside a sheet is `card` or `raised`.
 - Show one `sheet` at a time. Its `scrim` is a sibling, never a child, and `overlay` chrome dims under it.
-- The only shadow you may add is `raised`'s.
+- Never add a shadow of your own. A rung brings its drop, a line of light along its top edge and its edge together, so a card and a menu are lifted by the system rather than by a component.
 - A health value sits on an opaque rung, unless a sticky `overlay` summary repeats a value shown opaquely on the same screen.
 
 ## The contrast floor

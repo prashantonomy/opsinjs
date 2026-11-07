@@ -22,6 +22,8 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
 export default function NotFound() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 py-16">
+      <div className="docs-field" aria-hidden="true" />
+      <div className="docs-grain" aria-hidden="true" />
       {/* Rendered in the tree rather than exported as `metadata`: the Metadata
           API is collected from `layout` and `page` segments only, and a
           `not-found` file is neither. React hoists a <title> rendered anywhere
@@ -33,13 +35,11 @@ export default function NotFound() {
           place no edge rule can rewrite. React hoists it into the head. */}
       <meta name="robots" content="noindex" />
       <main className="w-full max-w-xl">
-        <p className="font-mono text-xs tracking-[0.16em] text-muted-foreground uppercase">
-          404
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-balance">
+        <p className="docs-eyebrow">404</p>
+        <h1 className="text-[clamp(2.25rem,1.6rem+2.4vw,3.25rem)] leading-[1] font-extrabold tracking-[-0.04em] text-balance">
           There is no page at this address.
         </h1>
-        <p className="mt-4 leading-relaxed text-pretty text-muted-foreground">
+        <p className="mt-5 text-lg leading-relaxed text-pretty text-muted-foreground">
           That is a real answer, not a redirect to the home page. If you
           followed a link from somewhere on this site, it is a bug and worth
           reporting. Otherwise it is almost always one of two things.

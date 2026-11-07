@@ -4,19 +4,20 @@
    Imported by exactly one file: app/(view)/layout.tsx. Nothing else may import
    it, and it must never be imported alongside globals.css.
 
-   Why it exists. The documentation chrome is shadcn's `lyra` style: square
-   corners, dense controls, small type, Inter. That is a good reading surface
-   for a developer at a desk and a bad surface for somebody checking their blood
-   pressure on a phone in a corridor. opsinjs the product is the opposite:
-   squircle corners, the platform's own UI font, generous spacing, large touch
-   targets. Documenting a health system inside chrome that contradicts it would
-   be a lie told by omission, so `(view)` is a separate ROOT layout with its own
-   <html>, its own <body> and this stylesheet alone. Every <ComponentPreview>
-   and <IframePreview> on the site embeds a `(view)` route, which is what makes
-   previews render under the product theme rather than the docs chrome.
+   Why it exists. The documentation chrome is set for a developer at a desk:
+   Inter, dense controls, small type. That is a bad surface for somebody
+   checking their blood pressure on a phone in a corridor. opsinjs the product
+   keeps the platform's own UI font, generous spacing and large touch targets.
+   Since ADR 0028 the two share one visual language, ink and paper with one
+   brand light and sheets with depth, but a preview must still render against
+   the product's own cascade and nothing else, so `(view)` is a separate ROOT
+   layout with its own <html>, its own <body> and this stylesheet alone. Every
+   <ComponentPreview> and <IframePreview> on the site embeds a `(view)` route,
+   which is what makes previews render under the product theme rather than the
+   docs chrome.
 
    That separation only works because there is no app/layout.tsx. See
-   ../AGENTS.md and /docs/theming/lyra-and-the-docs-chrome.
+   ../AGENTS.md and decisions/0004 and 0028.
    ========================================================================== */
 
 @import "tailwindcss";
@@ -80,6 +81,12 @@
   --ring: var(--opsin-chrome-ring);
   --primary: var(--opsin-chrome-primary);
   --primary-foreground: var(--opsin-chrome-primary-foreground);
+  /* The decorative edge of a sheet that is not a control, and the brand light.
+     Both come from tokens/color.json (ADR 0028). `--edge` draws around a card,
+     a tile or a table; a control keeps `--border`, its 3:1 boundary. `--brand`
+     is spent as light and never as a fill that reports a result. */
+  --edge: var(--opsin-chrome-edge);
+  --brand: var(--opsin-chrome-brand);
 
   /* Interaction state fills. interaction-states.mdx:35-37 asks for a state that
      is a fixed OKLCH lightness step off the role it derives from, darker in
@@ -101,13 +108,15 @@
      not a pass against a floor.
 
      The two primary fills carry a filled label, so they are measured against
-     --primary-foreground: --state-primary-hover reads 6.61:1 and
-     --state-primary-press 7.88:1 here, both above primary's own rest figure of
-     5.58:1, so pressing never darkens the label's contrast. */
+     --primary-foreground. Since ADR 0028 the primary action is ink, so its
+     states are the next two neutral steps up from it rather than a darker blue:
+     white on neutral-800 reads 15.15:1 and on neutral-700 10.42:1, measured with
+     lib/color, both far above the body floor, so a hover or a press never costs
+     the label its contrast. */
   --state-hover: oklch(0.945 0.004 252);
   --state-press: oklch(0.920 0.005 252);
-  --state-primary-hover: oklch(0.470 0.135 250);
-  --state-primary-press: oklch(0.430 0.130 250);
+  --state-primary-hover: var(--opsin-neutral-800);
+  --state-primary-press: var(--opsin-neutral-700);
 
   /* --- Placeholder. A dedicated opaque neutral triple for the loading
      Skeleton, because --muted over a --border hairline is barely perceivable on
@@ -156,7 +165,7 @@
      rounded rectangle at the same radius where it does not. The degradation is
      a matter of taste and never of function. See foundations/shape. --- */
   --radius: var(--opsin-radius-base);
-  --opsin-corner-shape: superellipse(4);
+  --opsin-corner-shape: superellipse(2);
 
   /* --- Targets. There is deliberately NO authored target token in this block.
      The floor is `--opsin-target-minimum`, generated from tokens/space.json
@@ -252,6 +261,8 @@
   --ring: var(--opsin-chrome-ring);
   --primary: var(--opsin-chrome-primary);
   --primary-foreground: var(--opsin-chrome-primary-foreground);
+  --edge: var(--opsin-chrome-edge);
+  --brand: var(--opsin-chrome-brand);
 
   /* Interaction state fills, dark half. Lighter than their surfaces here, which
      is the direction interaction-states.mdx:35-37 specifies for a dark theme
@@ -259,13 +270,13 @@
      the same reason as the light half. Measured with lib/color: --state-hover
      reads 1.42:1 against --background and 1.29:1 against --card, --state-press
      1.65:1 and 1.50:1, so press clears the report's 1.5:1 mark on both surfaces
-     in dark where the light theme cannot. The two primary fills put
-     --primary-foreground at 9.07:1 on --state-primary-hover and 10.47:1 on
-     --state-primary-press, both above primary's own rest figure of 7.91:1. */
+     in dark where the light theme cannot. The primary action is the lightest
+     neutral by night, so its states step down from it: the near-black label
+     reads 16.09:1 on neutral-200 and 13.44:1 on neutral-300. */
   --state-hover: oklch(0.300 0.008 260);
   --state-press: oklch(0.345 0.009 260);
-  --state-primary-hover: oklch(0.760 0.115 250);
-  --state-primary-press: oklch(0.800 0.105 250);
+  --state-primary-hover: var(--opsin-neutral-200);
+  --state-primary-press: var(--opsin-neutral-300);
 
   /* Placeholder, dark half. Opaque steps for the same reason the hairline
      above is opaque: the alpha the old dark --border carried, oklch(1 0 0 /
@@ -408,6 +419,13 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-edge: var(--edge);
+  --color-brand: var(--brand);
+
+  /* The drop under a card, so a component that paints its own card rather
+     than wrapping Surface takes the same lift: `shadow-card`. */
+  --shadow-card: var(--opsin-material-card-shadow);
+  --shadow-raised: var(--opsin-material-raised-shadow);
 
   /* Placeholder roles for the loading Skeleton. Only fill and line are bridged,
      because those are the two the component paints as bg-placeholder-fill and
@@ -703,6 +721,14 @@
     margin: 0;
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* A selection is a wash of the brand light under the ink, never a fill the
+     ink has to fight: the text keeps its own colour, so a selected reading
+     stays as legible as an unselected one. */
+  ::selection {
+    background-color: color-mix(in oklab, var(--brand) 24%, transparent);
   }
 
   /* Squircle. The theme intentionally does not stamp a `data-opsin-shape`

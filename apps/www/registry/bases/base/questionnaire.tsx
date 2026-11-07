@@ -114,7 +114,7 @@ const LIST = "m-0 flex list-none flex-col gap-opsin-5 p-0"
  * pays for, so the list does not open on a stray line.
  */
 const QUESTION =
-  "flex flex-col gap-opsin-2 border-t border-border pt-opsin-5 " +
+  "flex flex-col gap-opsin-2 border-t border-edge pt-opsin-5 " +
   "first:border-t-0 first:pt-0"
 
 /** The prompt, at the body step in the neutral ink. */

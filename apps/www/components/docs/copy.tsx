@@ -87,7 +87,7 @@ export function CopyButton({
         onClick={onClick}
         aria-label={checked ? "Copied" : "Copy to clipboard"}
         className={cn(
-          "inline-flex items-center gap-1.5 border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground",
+          "inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground",
           className
         )}
         {...props}
@@ -178,7 +178,7 @@ export function PageActions({ slug, version, className }: PageActionsProps) {
       <button
         type="button"
         onClick={onCopy}
-        className="inline-flex items-center gap-1.5 border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground"
       >
         {copied ? (
           <Check aria-hidden="true" className="size-3.5" />
@@ -190,7 +190,7 @@ export function PageActions({ slug, version, className }: PageActionsProps) {
 
       <a
         href={mdPath}
-        className="inline-flex items-center gap-1.5 border border-border px-2 py-1 text-xs text-muted-foreground no-underline hover:text-foreground"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground no-underline hover:text-foreground"
       >
         <FileText aria-hidden="true" className="size-3.5" />
         View as .md
@@ -202,7 +202,7 @@ export function PageActions({ slug, version, className }: PageActionsProps) {
           href={target.href}
           target="_blank"
           rel="noreferrer noopener"
-          className="inline-flex items-center gap-1.5 border border-border px-2 py-1 text-xs text-muted-foreground no-underline hover:text-foreground"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground no-underline hover:text-foreground"
         >
           <ExternalLink aria-hidden="true" className="size-3.5" />
           Open in {target.label}
@@ -284,7 +284,7 @@ export function OpenInSandbox({
       target="_blank"
       rel="noreferrer noopener"
       className={cn(
-        "not-prose inline-flex items-center gap-1.5 border border-border px-2 py-1 text-xs text-muted-foreground no-underline hover:text-foreground",
+        "not-prose inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground no-underline hover:text-foreground",
         className
       )}
     >

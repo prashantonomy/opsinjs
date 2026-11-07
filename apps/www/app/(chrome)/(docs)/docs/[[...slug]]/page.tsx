@@ -48,6 +48,20 @@ function docsCrumbs(slug: string[] | undefined, title: string): Crumb[] {
 }
 
 /**
+ * The eyebrow above a page's title: the name of the section the page belongs
+ * to, read from the section's own index page, so it is always the title the
+ * sidebar shows. A page at the root of the corpus, and a section's own index,
+ * carry the site's name, because the title beneath already names the section.
+ */
+function docsEyebrow(slug: string[] | undefined): string {
+  if (slug && slug.length > 1) {
+    const section = source.getPage(slug.slice(0, 1))
+    if (section) return section.data.title
+  }
+  return site.name
+}
+
+/**
  * Every documentation page.
  *
  * THE ONE RULE THIS FILE EXISTS TO KEEP: it never reads `searchParams`.
@@ -112,6 +126,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         </a>
       ) : null}
       <article className="docs-article">
+        <p className="docs-eyebrow">{docsEyebrow(params.slug)}</p>
         <h1 className="docs-title">{page.data.title}</h1>
         {page.data.description ? (
           <p className="docs-lead">{page.data.description}</p>

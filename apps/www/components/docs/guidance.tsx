@@ -267,10 +267,10 @@ export function ResearchNote({
     <aside
       data-opsinjs-note="research"
       data-evidence={evidence}
-      className={cn("not-prose my-6 border border-border p-4", className)}
+      className={cn("not-prose docs-sheet my-6 p-5", className)}
     >
       <p className="m-0 flex flex-wrap items-baseline gap-2 text-xs text-muted-foreground">
-        <span className="border border-border px-1.5 py-px font-medium tracking-wide uppercase">
+        <span className="rounded-full border border-border px-2 py-px font-semibold tracking-[0.08em] uppercase">
           {evidence}
         </span>
         {date ? <span>as at {date}</span> : null}
@@ -482,7 +482,7 @@ export function PlainLanguage({
     <div
       data-opsinjs-plain-language=""
       className={cn(
-        "not-prose my-4 grid border border-border md:grid-cols-2",
+        "not-prose docs-sheet my-4 grid overflow-hidden md:grid-cols-2",
         className
       )}
     >
@@ -571,7 +571,7 @@ export function ReadingLevel({
   return (
     <div
       data-opsinjs-reading-level=""
-      className={cn("not-prose my-4 border border-border", className)}
+      className={cn("not-prose docs-sheet my-4 overflow-hidden", className)}
     >
       {showSample ? (
         <div className="border-b border-border/60 p-3 text-sm [&>p]:m-0">

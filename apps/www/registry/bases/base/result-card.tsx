@@ -660,7 +660,11 @@ export function ResultCard({
            printer keeps. A rung paints its edge with an inset shadow, which
            a browser drops when it prints unless the reader has gone looking for
            the setting that keeps it, and a card is how a reading most often
-           reaches an appointment.
+           reaches an appointment. On screen the border is the decorative
+           `--edge` and the card is lifted by `shadow-card`, the same drop the
+           material card rung paints (ADR 0028); in print the same border takes
+           `--border`, which the theme's print block inks, so paper still gets a
+           line a printer draws.
 
            In dark these are two different fills. `bg-card` measures lab L 8.57
            while the material card rung a Surface paints measures 7.78, so today
@@ -670,7 +674,7 @@ export function ResultCard({
            the border becomes the only difference between the two treatments and
            it costs no colour. That unification lives in those token files, not
            in this class list. */
-        "flex w-full flex-col gap-opsin-4 rounded-opsin-md border border-border",
+        "flex w-full flex-col gap-opsin-4 rounded-opsin-md border border-edge shadow-card print:border-border print:shadow-none",
         "bg-card p-5 text-card-foreground [corner-shape:var(--opsin-corner-shape)]",
         className,
       )}

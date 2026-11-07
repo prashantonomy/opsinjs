@@ -159,7 +159,7 @@ export function Glossary({ entries, className }: GlossaryProps) {
           value={query}
           placeholder="a word, or the word a reader would type"
           onChange={(event) => setQuery(event.target.value)}
-          className="w-full max-w-sm border border-border px-2 py-1 text-sm"
+          className="w-full max-w-sm rounded-xl border border-input px-3 py-1.5 text-sm"
         />
       </label>
 
@@ -265,7 +265,7 @@ export function RangeDemo({
 
   return (
     <div
-      className={cn("not-prose my-6 border border-border", className)}
+      className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}
       data-opsinjs-specimen="range-demo"
     >
       <div className="flex flex-wrap items-end gap-4 border-b border-border/60 p-3">

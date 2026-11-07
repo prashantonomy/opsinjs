@@ -1181,7 +1181,7 @@ export function Sheet({
                            material ladder already publishes for both themes. */
                         data-overflow={overflowBelow ? "below" : undefined}
                         className={cn(
-                          "flex shrink-0 flex-wrap items-center gap-opsin-2 border-t border-border px-opsin-5 pt-opsin-3 pb-opsin-3",
+                          "flex shrink-0 flex-wrap items-center gap-opsin-2 border-t border-edge px-opsin-5 pt-opsin-3 pb-opsin-3",
                           overflowBelow
                             ? "shadow-(--opsin-material-sheet-shadow)"
                             : null,

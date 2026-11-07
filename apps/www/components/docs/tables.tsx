@@ -50,7 +50,7 @@ function Table({
   ...props
 }: ComponentProps<"table"> & { head: ReactNode[] }) {
   return (
-    <div className={cn("not-prose my-4 overflow-x-auto", className)}>
+    <div className={cn("not-prose docs-ledger my-6", className)}>
       <table className="w-full border-collapse text-sm" {...props}>
         <thead>
           <tr className="border-b border-border text-left">

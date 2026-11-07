@@ -19,9 +19,13 @@
          forked `prose`.
    6  @source                content and registry, so class names written in
                              MDX and in registry files survive scanning
-   7  lyra tokens            exactly as the shadcn CLI wrote them, unchanged.
-                             This is the DOCS CHROME theme: square, dense,
-                             neutral. It is deliberately not the product theme.
+   7  the chrome theme       the shadcn role names, with values from the opsinjs
+                             language since ADR 0028: ink and paper, one
+                             brand light, sheets with depth. The shell's own
+                             material (the ambient field, the grain, the glass
+                             sidebar) is declared at the head of the shell
+                             layer below. It is not the product theme, which
+                             keeps its own stylesheet and its platform face.
    8  the opsinjs token layer  the two colour axes, the material ladder, the
                              motion springs. AUTHORED FALLBACKS only, so a clean
                              clone renders before `generate` has run.
@@ -36,10 +40,11 @@
    10 @layer base, the 640-767px nav reflow repair, @media print
    11 @custom-variant dark   pinned LAST on purpose. See the note there.
 
-   The docs chrome is lyra. The opsinjs PRODUCT theme lives in ./product.css
-   and is loaded only by app/(view)/layout.tsx, so every preview renders under
-   the product theme rather than the chrome. That divergence is intentional and
-   is documented on /docs/theming/lyra-and-the-docs-chrome.
+   The opsinjs PRODUCT theme lives in ./product.css and is loaded only by
+   app/(view)/layout.tsx, so every preview renders under the product theme
+   rather than the chrome. Since ADR 0028 the two share one visual language and
+   differ in density and face: the chrome sets Inter for a reader at a desk, and
+   the product keeps the platform face for a reader on a phone.
    ========================================================================== */
 
 @import "tailwindcss";
@@ -52,7 +57,26 @@
 @source "../registry/**/*.{ts,tsx}";
 
 /* --------------------------------------------------------------------------
-   7. lyra was written by `shadcn init --preset buFywKm`. UNCHANGED.
+   7. The chrome theme.
+
+   The role names are shadcn's, because fumadocs' shadcn.css maps its own
+   chrome onto them, so the search dialog, the code blocks and the tabs follow
+   without a second theme. The values are opsinjs's (ADR 0028), and every one
+   is a step the token pipeline already publishes, so the documentation and the
+   product read the same ink, the same paper and the same brand light:
+
+   - Ink and paper. The page is white by day and the darkest neutral by night,
+     and the primary action is ink, a near-black capsule by day and a
+     near-white one by night, so nothing that is pressed carries a hue.
+   - One brand light. `--ring` is --opsin-chrome-brand, the one hue in the
+     chrome, and it is spent as light: the focus ring, a link's underline, the
+     mark beside an eyebrow, the bar beside the current page and the bloom
+     behind the page. It never colours a word a reader has to read.
+   - `--border` is the decorative edge of a sheet. `--input` keeps the 3:1
+     neutral-500 boundary of a control.
+
+   A custom property resolves where it is used, so pointing a role at a token
+   that tokens.generated.css declares further down this file is safe.
    -------------------------------------------------------------------------- */
 
 @theme inline {
@@ -89,6 +113,7 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    --color-brand: var(--opsin-chrome-brand);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -99,72 +124,72 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
+    --background: var(--opsin-neutral-0, oklch(1 0 0));
+    --foreground: var(--opsin-neutral-950, oklch(0.145 0.005 250));
+    --card: var(--opsin-neutral-0, oklch(1 0 0));
+    --card-foreground: var(--opsin-neutral-950, oklch(0.145 0.005 250));
+    --popover: var(--opsin-neutral-0, oklch(1 0 0));
+    --popover-foreground: var(--opsin-neutral-950, oklch(0.145 0.005 250));
+    --primary: var(--opsin-neutral-950, oklch(0.145 0.005 250));
+    --primary-foreground: var(--opsin-neutral-0, oklch(1 0 0));
+    --secondary: var(--opsin-neutral-100, oklch(0.967 0.003 250));
+    --secondary-foreground: var(--opsin-neutral-900, oklch(0.205 0.006 250));
+    --muted: var(--opsin-neutral-100, oklch(0.967 0.003 250));
+    --muted-foreground: var(--opsin-neutral-600, oklch(0.439 0.009 250));
+    --accent: oklch(0.205 0.006 250 / 0.05);
+    --accent-foreground: var(--opsin-neutral-950, oklch(0.145 0.005 250));
     --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
+    --border: oklch(0.205 0.006 250 / 0.1);
+    --input: var(--opsin-neutral-500, oklch(0.556 0.009 250));
+    --ring: var(--opsin-chrome-brand, oklch(0.53 0.155 250));
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --radius: 1rem;
+    --sidebar: var(--opsin-neutral-50, oklch(0.985 0.002 250));
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    --background: var(--opsin-neutral-950, oklch(0.145 0.005 250));
+    --foreground: var(--opsin-neutral-50, oklch(0.985 0.002 250));
+    --card: var(--opsin-neutral-900, oklch(0.205 0.006 250));
+    --card-foreground: var(--opsin-neutral-50, oklch(0.985 0.002 250));
+    --popover: var(--opsin-neutral-900, oklch(0.205 0.006 250));
+    --popover-foreground: var(--opsin-neutral-50, oklch(0.985 0.002 250));
+    --primary: var(--opsin-neutral-50, oklch(0.985 0.002 250));
+    --primary-foreground: var(--opsin-neutral-950, oklch(0.145 0.005 250));
+    --secondary: var(--opsin-neutral-800, oklch(0.269 0.007 250));
+    --secondary-foreground: var(--opsin-neutral-50, oklch(0.985 0.002 250));
+    --muted: var(--opsin-neutral-900, oklch(0.205 0.006 250));
+    --muted-foreground: var(--opsin-neutral-300, oklch(0.871 0.005 250));
+    --accent: oklch(1 0 0 / 0.06);
+    --accent-foreground: var(--opsin-neutral-50, oklch(0.985 0.002 250));
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
+    --border: oklch(1 0 0 / 0.1);
+    --input: var(--opsin-neutral-500, oklch(0.556 0.009 250));
+    --ring: var(--opsin-chrome-brand, oklch(0.75 0.13 250));
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --sidebar: var(--opsin-neutral-900, oklch(0.205 0.006 250));
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
 }
 
 /* ==========================================================================
@@ -745,34 +770,122 @@
   [data-opsinjs-value] {
     font-variant-numeric: tabular-nums;
   }
+
+  /* Inter's contextual alternates and its open digits, so a figure in running
+     text reads as a figure. A selection is a wash of the brand light under the
+     ink, which keeps its own colour. */
+  body {
+    font-feature-settings: "cv11" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--opsin-chrome-brand, oklch(0.53 0.155 250)) 24%, transparent);
+  }
 }
 
 /* --------------------------------------------------------------------------
-   The documentation shell, modelled on blueprintjs.com.
+   The documentation shell, modelled on blueprintjs.com, in the opsinjs
+   material (ADR 0028).
 
-   A sidebar that fills the left of the viewport and holds a 300px column at
-   its right edge, and a main column of at most 840px beside it. The sidebar is
-   the whole navigation: a wordmark, a theme row and a search row, then six
+   The structure is unchanged: a sidebar that holds a 300px column at the right
+   edge of the left of the viewport, and a main column beside it. The sidebar is
+   the whole navigation: a wordmark, a theme row and a search row, then the
    sections, of which only the one you are in is expanded. The page you are on
    lists its own headings under its row, so there is no right-hand table of
-   contents. Below 900px the sidebar becomes a drawer behind a top bar.
+   contents. Below 900px the sidebar becomes a drawer behind a floating bar.
 
-   The canvas is the near-white `--sidebar` in light rather than a darker grey,
-   because `--muted-foreground` must keep 4.5:1 on whatever it sits on, and it
-   does on oklch(0.985) and stops doing so a little below it.
+   The material is what changed. The page is paper with light behind it: one
+   soft bloom of the brand light off the top right and a neutral shade off the
+   bottom left, fixed to the screen, under a fine grain. The sidebar is a sheet
+   of frosted glass floating on that field, and every block the prose holds, a
+   table, a code block, a preview, is an opaque sheet with an edge, a line of
+   light along its top and a soft drop. The bloom never darkens the page by
+   more than a few per cent: at its brightest point by day the muted ink still
+   measures 6.6:1 and APCA Lc 76, so it clears both body floors. The figures
+   come from lib/color; nothing gates the chrome, so they are stated here.
    -------------------------------------------------------------------------- */
 
 :root {
-  --docs-canvas: var(--sidebar);
-  --docs-sidebar-bg: var(--card);
+  --docs-canvas: var(--background);
+  --docs-brand: var(--opsin-chrome-brand, oklch(0.53 0.155 250));
+  --docs-glass: oklch(1 0 0 / 0.7);
+  --docs-glass-strong: oklch(1 0 0 / 0.88);
+  --docs-sheen: oklch(1 0 0 / 0.9);
+  --docs-shadow-sheet:
+    0 1px 2px 0 oklch(0.205 0.006 250 / 0.05),
+    0 14px 36px -18px oklch(0.205 0.006 250 / 0.2);
+  --docs-shadow-float:
+    0 2px 8px -2px oklch(0.205 0.006 250 / 0.08),
+    0 24px 56px -20px oklch(0.205 0.006 250 / 0.28);
+  --docs-bloom: color-mix(in oklab, var(--docs-brand) 12%, transparent);
+  --docs-shade: oklch(0.205 0.006 250 / 0.06);
+  --docs-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  --docs-grain-opacity: 0.045;
+  --docs-grain-blend: multiply;
 }
 
 .dark {
-  --docs-canvas: var(--background);
-  --docs-sidebar-bg: var(--card);
+  --docs-glass: oklch(0.205 0.006 250 / 0.66);
+  --docs-glass-strong: oklch(0.205 0.006 250 / 0.88);
+  --docs-sheen: oklch(1 0 0 / 0.07);
+  --docs-shadow-sheet:
+    0 1px 2px 0 oklch(0 0 0 / 0.45),
+    0 16px 40px -20px oklch(0 0 0 / 0.75);
+  --docs-shadow-float:
+    0 2px 8px -2px oklch(0 0 0 / 0.55),
+    0 28px 64px -18px oklch(0 0 0 / 0.85);
+  --docs-bloom: color-mix(in oklab, var(--docs-brand) 13%, transparent);
+  --docs-shade: oklch(1 0 0 / 0.035);
+  --docs-grain-opacity: 0.06;
+  --docs-grain-blend: screen;
 }
 
 @layer components {
+  /* The field and the grain. Two fixed layers under every block, which carry
+     nothing and take no pointer. Removed under forced colours, in print and
+     for a reader who asks for less transparency, below. */
+  .docs-field,
+  .docs-grain {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .docs-field {
+    background-image:
+      radial-gradient(
+        clamp(22rem, 62vw, 60rem) clamp(18rem, 52vh, 44rem) at 96% -10%,
+        var(--docs-bloom),
+        transparent 70%
+      ),
+      radial-gradient(
+        clamp(20rem, 56vw, 52rem) clamp(16rem, 46vh, 40rem) at -8% 108%,
+        var(--docs-shade),
+        transparent 70%
+      );
+  }
+
+  .docs-grain {
+    background-image: var(--docs-grain);
+    opacity: var(--docs-grain-opacity);
+    mix-blend-mode: var(--docs-grain-blend);
+  }
+
+  /* One recipe for an opaque sheet in the documentation: a preview, a notice,
+     a table. A component writes this class rather than building the edge, the
+     sheen and the drop by hand. */
+  .docs-sheet {
+    border: 1px solid var(--border);
+    border-radius: 1.375rem;
+    background-color: var(--card);
+    box-shadow:
+      inset 0 1px 0 0 var(--docs-sheen),
+      var(--docs-shadow-sheet);
+  }
+
   .docs-shell {
     display: flex;
     flex: 1 1 auto;
@@ -781,11 +894,11 @@
 
   .docs-skip-link {
     position: fixed;
-    top: 8px;
-    left: 8px;
+    top: 12px;
+    left: 12px;
     z-index: 50;
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 10px 16px;
+    border-radius: 999px;
     background-color: var(--foreground);
     color: var(--background);
     font-size: 0.875rem;
@@ -797,38 +910,57 @@
     transform: none;
   }
 
+  /* The sidebar's column runs from the left edge of the viewport and holds the
+     floating sheet at its right edge, so the sheet sits beside the reading
+     column at every width the way blueprintjs.com's sidebar does. */
   .docs-sidebar {
     position: sticky;
     top: 0;
     display: flex;
     flex: none;
     justify-content: flex-end;
-    width: max(300px, calc(50vw - 250px));
+    width: max(324px, calc(50vw - 238px));
     height: 100vh;
+    padding: 12px 0 12px 12px;
+  }
+
+  .docs-sidebar > .docs-sidebar-inner {
+    width: 312px;
+    height: 100%;
     overflow-y: auto;
-    border-inline-end: 1px solid var(--border);
-    background-color: var(--docs-sidebar-bg);
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 18%, transparent) transparent;
+    border: 1px solid var(--border);
+    border-radius: 1.75rem;
+    background-color: var(--docs-glass);
+    box-shadow:
+      inset 0 1px 0 0 var(--docs-sheen),
+      var(--docs-shadow-sheet);
+    -webkit-backdrop-filter: blur(14px) saturate(1.6);
+    backdrop-filter: blur(14px) saturate(1.6);
   }
 
   .docs-sidebar-inner {
     display: flex;
     flex-direction: column;
-    width: 300px;
-    padding: 24px 0 48px;
+    padding: 20px 0 32px;
   }
 
   .docs-brand {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 0 16px 20px;
+    gap: 12px;
+    padding: 0 20px 18px;
   }
 
   .docs-brand-mark {
     display: flex;
     flex: none;
-    border-radius: 9px;
-    box-shadow: 0 0 0 1px var(--border);
+    border-radius: 11px;
+    box-shadow:
+      0 0 0 1px var(--border),
+      0 8px 18px -8px oklch(0 0 0 / 0.45);
   }
 
   .docs-brand-text {
@@ -839,15 +971,16 @@
 
   .docs-brand-name {
     color: var(--foreground);
-    font-size: 1.25rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
+    font-size: 1.375rem;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.15;
   }
 
   .docs-brand-link {
     color: var(--muted-foreground);
     font-size: 0.8125rem;
+    line-height: 1.4;
   }
 
   .docs-brand-link:hover {
@@ -857,27 +990,30 @@
   .docs-sidebar-actions {
     display: flex;
     flex-direction: column;
-    border-block: 1px solid var(--border);
+    gap: 6px;
+    padding: 0 12px 6px;
   }
 
   .docs-sidebar-action {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
     min-height: 40px;
-    padding: 0 16px;
+    padding: 0 8px 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background-color: var(--docs-glass-strong);
     color: var(--muted-foreground);
     font-size: 0.875rem;
     text-align: start;
-  }
-
-  .docs-sidebar-action + .docs-sidebar-action {
-    border-top: 1px solid var(--border);
+    transition:
+      background-color 160ms cubic-bezier(0.2, 0, 0, 1),
+      color 160ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   button.docs-sidebar-action:hover {
-    background-color: var(--accent);
+    background-color: var(--card);
     color: var(--foreground);
   }
 
@@ -893,10 +1029,23 @@
 
   .docs-hint {
     display: inline-flex;
-    gap: 2px;
+    gap: 3px;
     color: var(--muted-foreground);
     font-family: inherit;
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+
+  .docs-hint > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background-color: var(--background);
   }
 
   .docs-theme-switch {
@@ -904,7 +1053,7 @@
   }
 
   .docs-nav {
-    padding: 16px 0;
+    padding: 10px 8px 16px;
   }
 
   .docs-nav ul {
@@ -914,19 +1063,21 @@
   }
 
   .docs-nav-section + .docs-nav-section {
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
   .docs-nav-section-link {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 6px 16px;
+    padding: 6px 12px;
+    border-radius: 14px;
     color: var(--foreground);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
+    transition: background-color 160ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   .docs-nav-section-link:hover,
@@ -941,21 +1092,27 @@
     flex: none;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    background-color: var(--muted);
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background-color: var(--background);
     color: var(--muted-foreground);
+    transition:
+      background-color 160ms cubic-bezier(0.2, 0, 0, 1),
+      color 160ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   .docs-nav-section-icon svg {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
   }
 
   .docs-nav-section[data-expanded] .docs-nav-section-icon {
+    border-color: transparent;
     background-color: var(--primary);
     color: var(--primary-foreground);
+    box-shadow: 0 6px 14px -6px oklch(0 0 0 / 0.45);
   }
 
   .docs-nav-section-title {
@@ -975,43 +1132,79 @@
     padding: 4px 0 12px;
   }
 
+  /* A group title is an eyebrow, and an eyebrow carries the brand light's
+     mark, a small square, before its words. */
   .docs-nav-group-title {
-    padding: 18px 16px 6px 52px;
-    color: var(--foreground);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px 6px 52px;
+    color: var(--muted-foreground);
     font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
-  .docs-nav-item {
-    display: block;
-    padding: 5px 16px 5px 52px;
-    color: var(--foreground);
-    font-size: 0.875rem;
-    line-height: 1.4;
+  .docs-nav-group-title::before {
+    content: "";
+    flex: none;
+    width: 6px;
+    height: 6px;
+    background-color: var(--docs-brand);
   }
 
+  .docs-nav-item {
+    position: relative;
+    display: block;
+    margin: 1px 0;
+    padding: 6px 12px 6px 52px;
+    border-radius: 12px;
+    color: color-mix(in oklab, var(--foreground) 84%, var(--background));
+    font-size: 0.875rem;
+    line-height: 1.4;
+    transition: background-color 160ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  /* The current page: a wash, the ink at full strength and weight, and the
+     brand light's bar beside it. */
   .docs-nav-item[data-active] {
-    background-color: var(--accent);
+    background-color: color-mix(in oklab, var(--foreground) 6%, transparent);
+    color: var(--foreground);
     font-weight: 600;
-    box-shadow: inset 2px 0 0 var(--foreground);
+  }
+
+  .docs-nav-item[data-active]::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 38px;
+    width: 3px;
+    border-radius: 3px;
+    background-color: var(--docs-brand);
   }
 
   .docs-nav-section-link[data-active] {
-    background-color: var(--accent);
+    background-color: color-mix(in oklab, var(--foreground) 6%, transparent);
+  }
+
+  .docs-nav-headings {
+    margin: 2px 0 6px;
   }
 
   .docs-nav-heading {
     display: block;
-    padding: 4px 16px 4px 68px;
+    margin: 1px 0;
+    padding: 4px 12px 4px 64px;
+    border-radius: 10px;
     color: var(--muted-foreground);
     font-size: 0.8125rem;
     line-height: 1.4;
   }
 
   .docs-nav-headings li[data-depth="3"] > .docs-nav-heading {
-    padding-inline-start: 84px;
+    padding-inline-start: 78px;
   }
 
   .docs-nav-section-link + .docs-nav-headings li[data-depth="2"] > .docs-nav-heading {
@@ -1019,31 +1212,36 @@
   }
 
   .docs-nav-section-link + .docs-nav-headings li[data-depth="3"] > .docs-nav-heading {
-    padding-inline-start: 68px;
+    padding-inline-start: 66px;
   }
 
   .docs-main {
     flex: 1 1 auto;
     min-width: 0;
-    background-color: var(--docs-canvas);
   }
 
   .docs-page {
     position: relative;
-    max-width: 840px;
-    padding: 44px 40px 120px;
+    max-width: 880px;
+    padding: 64px 48px 128px;
   }
 
   .docs-edit-link {
     position: absolute;
-    top: 52px;
-    right: 40px;
+    top: 64px;
+    right: 48px;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background-color: var(--docs-glass-strong);
     color: var(--muted-foreground);
     font-size: 0.8125rem;
     font-weight: 500;
+    transition: color 160ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   .docs-edit-link:hover {
@@ -1051,29 +1249,57 @@
   }
 
   .docs-edit-link svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
   }
 
-  .docs-title {
-    margin: 0 0 12px;
+  /* The name of the section a page belongs to, above its title. */
+  .docs-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0 22px;
     color: var(--foreground);
-    font-size: 2.5rem;
+    font-size: 0.6875rem;
     font-weight: 700;
-    letter-spacing: -0.025em;
-    line-height: 1.1;
+    letter-spacing: 0.14em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .docs-eyebrow::before {
+    content: "";
+    flex: none;
+    width: 7px;
+    height: 7px;
+    background-color: var(--docs-brand);
+  }
+
+  /* The title is the site's own voice: Inter at 800, tracked in, on a tight
+     line, in the case the page's author wrote it, so a component's PascalCase
+     name keeps its shape. */
+  .docs-title {
+    margin: 0 0 20px;
+    color: var(--foreground);
+    font-size: clamp(2.5rem, 1.75rem + 2.4vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+    text-wrap: balance;
   }
 
   .docs-page:has(> .docs-edit-link) .docs-title {
-    padding-inline-end: 140px;
+    padding-inline-end: 160px;
   }
 
   .docs-lead {
-    max-width: 72ch;
-    margin: 0 0 32px;
-    color: var(--muted-foreground);
-    font-size: 1.125rem;
-    line-height: 1.6;
+    max-width: 60ch;
+    margin: 0 0 44px;
+    color: color-mix(in oklab, var(--foreground) 74%, var(--background));
+    font-size: clamp(1.125rem, 1rem + 0.45vw, 1.3125rem);
+    letter-spacing: -0.012em;
+    line-height: 1.55;
+    text-wrap: pretty;
   }
 
   .docs-mobile-bar {
@@ -1087,8 +1313,9 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: 8px;
+    border-radius: 999px;
     color: var(--foreground);
+    transition: background-color 160ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   .docs-icon-button:hover {
@@ -1096,41 +1323,47 @@
   }
 
   .docs-icon-button svg {
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
   }
 
   .docs-drawer-backdrop {
     position: fixed;
     inset: 0;
     z-index: 40;
-    background-color: oklch(0 0 0 / 0.35);
+    background-color: oklch(0.145 0.005 250 / 0.42);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
   }
 
   .docs-drawer {
     position: fixed;
-    inset-block: 0;
-    inset-inline-start: 0;
+    inset-block: 8px;
+    inset-inline-start: 8px;
     z-index: 41;
-    width: min(320px, 88vw);
+    width: min(320px, calc(100vw - 48px));
     overflow-y: auto;
-    background-color: var(--docs-sidebar-bg);
-    box-shadow: 0 0 24px oklch(0 0 0 / 0.2);
+    border: 1px solid var(--border);
+    border-radius: 1.75rem;
+    background-color: var(--popover);
+    box-shadow:
+      inset 0 1px 0 0 var(--docs-sheen),
+      var(--docs-shadow-float);
   }
 
   .docs-drawer-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 8px 0 16px;
+    padding: 10px 10px 0 20px;
   }
 
   .docs-drawer-title {
     margin: 0;
     color: var(--muted-foreground);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
@@ -1144,18 +1377,26 @@
       display: none;
     }
 
+    /* The bar floats a gap below the top of the screen, as a capsule of
+       glass, so the page reads through around it. */
     .docs-mobile-bar {
       position: fixed;
-      inset-inline: 0;
-      top: 0;
+      inset-inline: 10px;
+      top: 10px;
       z-index: 30;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
       height: 56px;
-      padding: 0 8px 0 16px;
-      border-bottom: 1px solid var(--border);
-      background-color: var(--docs-sidebar-bg);
+      padding: 0 6px 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background-color: var(--docs-glass-strong);
+      box-shadow:
+        inset 0 1px 0 0 var(--docs-sheen),
+        var(--docs-shadow-sheet);
+      -webkit-backdrop-filter: blur(10px) saturate(1.6);
+      backdrop-filter: blur(10px) saturate(1.6);
     }
 
     .docs-mobile-brand {
@@ -1164,12 +1405,13 @@
       align-items: center;
       gap: 10px;
       color: var(--foreground);
-      font-size: 1.0625rem;
-      font-weight: 600;
+      font-size: 1.125rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
     }
 
     .docs-page {
-      padding: 88px 16px 80px;
+      padding: 104px 18px 88px;
     }
 
     .docs-edit-link {
@@ -1179,8 +1421,216 @@
     .docs-page:has(> .docs-edit-link) .docs-title,
     .docs-title {
       padding-inline-end: 0;
-      font-size: 1.875rem;
     }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The prose. fumadocs' fork of `prose` sets the reading measure and the
+   rhythm; this sets the voice on top of it. Unlayered, because fumadocs
+   declares `.prose` in the utilities layer, which outranks every rule in the
+   components layer whatever its specificity.
+   -------------------------------------------------------------------------- */
+
+.docs-prose h2 {
+  margin-top: 3.25rem;
+  font-size: clamp(1.625rem, 1.4rem + 0.8vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.034em;
+  line-height: 1.1;
+}
+
+.docs-prose h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.docs-prose h4 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* A link in running prose: the ink, with the brand light's trail beneath it,
+   which brightens under the pointer. */
+.docs-prose :is(p, li, td, th, dd) a:not(.not-prose *) {
+  color: var(--foreground);
+  font-weight: 500;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in oklab, var(--docs-brand) 55%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color 250ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.docs-prose :is(p, li, td, th, dd) a:not(.not-prose *):hover {
+  text-decoration-color: var(--docs-brand);
+}
+
+.docs-prose :not(pre) > code:not(.not-prose *) {
+  padding: 0.125em 0.4em;
+  border: 0;
+  border-radius: 0.4375rem;
+  background-color: color-mix(in oklab, var(--foreground) 6%, transparent);
+  font-size: 0.875em;
+}
+
+/* A code block and a tabs group are sheets like every other block. */
+.docs-prose figure.shiki,
+.docs-prose :where(div):has(> [role="tablist"]) {
+  box-shadow:
+    inset 0 1px 0 0 var(--docs-sheen),
+    var(--docs-shadow-sheet);
+}
+
+.docs-prose figure.shiki {
+  border-color: var(--border);
+  border-radius: 1.125rem;
+}
+
+/* A table is a ledger: rows ruled inside one bounded sheet. */
+.docs-prose table:not(.not-prose *) {
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border);
+  border-radius: 1.125rem;
+  background-color: var(--card);
+  box-shadow:
+    inset 0 1px 0 0 var(--docs-sheen),
+    var(--docs-shadow-sheet);
+}
+
+.docs-prose thead th:not(.not-prose *) {
+  background-color: color-mix(in oklab, var(--foreground) 3.5%, var(--card));
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.docs-prose :is(th, td):not(.not-prose *) {
+  border-color: var(--border);
+}
+
+/* The generated tables, a props list, a token list, a contrast report, are
+   ledgers too: rows ruled inside one sheet. Unlayered, because each cell
+   carries Tailwind padding utilities, and a utility outranks any rule in the
+   components layer. */
+.docs-ledger {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 1.125rem;
+  background-color: var(--card);
+  box-shadow:
+    inset 0 1px 0 0 var(--docs-sheen),
+    var(--docs-shadow-sheet);
+}
+
+.docs-ledger > table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.docs-ledger thead > tr {
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in oklab, var(--foreground) 3.5%, var(--card));
+}
+
+.docs-ledger th[scope="col"] {
+  padding: 10px 16px;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.docs-ledger tbody > tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.docs-ledger tbody > tr:last-child {
+  border-bottom: 0;
+}
+
+.docs-ledger tbody :is(td, th) {
+  padding: 10px 16px;
+}
+
+/* Where the glass gives way. A reader who asks for less transparency, and a
+   browser that cannot blur a backdrop, get the sidebar and the bar as opaque
+   sheets and lose the field, which is only light. Forced colours replace every
+   fill, so the field and the grain are removed rather than left as a grey
+   rectangle over the reader's own ground. */
+@media (prefers-reduced-transparency: reduce) {
+  .docs-sidebar > .docs-sidebar-inner,
+  .docs-mobile-bar {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--card);
+  }
+
+  .docs-field,
+  .docs-grain {
+    display: none;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .docs-sidebar > .docs-sidebar-inner,
+  .docs-mobile-bar {
+    background-color: var(--card);
+  }
+}
+
+@media (forced-colors: active) {
+  .docs-field,
+  .docs-grain {
+    display: none;
+  }
+
+  .docs-eyebrow::before,
+  .docs-nav-group-title::before,
+  .docs-nav-item[data-active]::before {
+    forced-color-adjust: none;
+    background-color: Highlight;
+  }
+}
+
+/* The tool pages' header, fumadocs' own bar, floats a gap below the top of
+   the screen as a capsule of glass, the way the documentation's mobile bar
+   does. Unlayered, because fumadocs styles the bar with utilities. */
+#nd-nav {
+  top: 10px;
+  height: auto;
+  padding-inline: 12px;
+}
+
+#nd-nav > nav {
+  max-width: var(--fd-layout-width, 1400px);
+  margin-inline: auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background-color: var(--docs-glass-strong);
+  box-shadow:
+    inset 0 1px 0 0 var(--docs-sheen),
+    var(--docs-shadow-sheet);
+  -webkit-backdrop-filter: blur(10px) saturate(1.6);
+  backdrop-filter: blur(10px) saturate(1.6);
+}
+
+#nd-nav > nav > div {
+  padding-inline: 14px 8px;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  #nd-nav > nav {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--card);
   }
 }
 
@@ -1262,6 +1712,8 @@
   header[role="banner"],
   nav[aria-label="Main"],
   [data-print="hide"],
+  .docs-field,
+  .docs-grain,
   [data-opsinjs-chrome],
   [id^="nd-sidebar"],
   #nd-tocnav,

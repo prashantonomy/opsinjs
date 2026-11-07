@@ -277,7 +277,7 @@ export default function ScrollAreaDemo() {
   return (
     <ScrollArea
       maxHeight="14rem"
-      className="w-full max-w-sm rounded-opsin-lg border border-border bg-card"
+      className="w-full max-w-sm rounded-opsin-md border border-edge bg-card shadow-card"
     >
       <ul className="m-0 flex list-none flex-col gap-opsin-1 p-opsin-3">
         {notes.map((note) => (

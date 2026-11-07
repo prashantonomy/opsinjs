@@ -116,8 +116,8 @@ interface MenuAction {
  */
 const POPUP =
   "z-50 max-h-[var(--available-height)] min-w-[var(--anchor-width)] overflow-y-auto " +
-  "rounded-opsin-lg border border-border bg-card p-opsin-1 " +
-  "shadow-(--opsin-material-overlay-shadow) [color:var(--foreground)]"
+  "rounded-opsin-md border border-edge bg-card p-opsin-1 " +
+  "shadow-(--opsin-material-raised-shadow) [color:var(--foreground)]"
 
 /**
  * One action row, spelled once. A full-width row with the label on the left. The
@@ -296,8 +296,8 @@ export default function MenuDemo() {
           <button
             type="button"
             className={
-              "inline-flex items-center justify-center gap-opsin-2 rounded-opsin-md " +
-              "border border-border bg-background px-opsin-4 py-opsin-2 " +
+              "inline-flex items-center justify-center gap-opsin-2 rounded-full " +
+              "border border-border bg-background px-opsin-5 py-opsin-2 " +
               "min-h-(--opsin-target-minimum,2.75rem) text-opsin-headline [color:var(--foreground)] " +
               "cursor-pointer align-middle " +
               "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
