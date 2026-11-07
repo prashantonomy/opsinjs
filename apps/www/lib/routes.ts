@@ -229,6 +229,10 @@ export interface ViewParams {
   text?: 100 | 125 | 150 | 200
   /** An `opsinjs-*` preset code, applied as a theme. */
   theme?: string
+  /** An accent theme from tokens/accent.json, stamped as `data-accent-theme`. */
+  accentTheme?: string
+  /** One of the nine accents, stamped as `data-accent`. */
+  accent?: string
 }
 
 /**
@@ -253,6 +257,8 @@ export function viewPath(params: ViewParams): string {
   if (params.density) query.set("density", params.density)
   if (params.text && params.text !== 100) query.set("text", String(params.text))
   if (params.theme) query.set("theme", params.theme)
+  if (params.accentTheme) query.set("accentTheme", params.accentTheme)
+  if (params.accent) query.set("accent", params.accent)
   const search = query.toString()
   return search ? `${path}?${search}` : path
 }

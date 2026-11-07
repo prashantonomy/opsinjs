@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 
 import "../product.css"
 import { SITE_LANG } from "@/app/_shared/seo"
+import { ACCENTS, ACCENT_THEMES } from "@/lib/generated/accents"
 
 /**
  * ROOT LAYOUT #2 of 2 is the chrome-less preview surface.
@@ -43,6 +44,19 @@ const applyViewPreferences = `
     var q = new URLSearchParams(window.location.search);
     var el = document.documentElement;
     if (q.get("mode") === "dark") el.classList.add("dark");
+    /* The accent theme and the accent (ADR 0029), checked against the
+       generated lists so an unknown value leaves the default in place rather
+       than stamping an attribute no rule answers. */
+    var accentThemes = ${JSON.stringify(ACCENT_THEMES.map((theme) => theme.id))};
+    var accents = ${JSON.stringify(ACCENTS.map((accent) => accent.id))};
+    var accentTheme = q.get("accentTheme");
+    if (accentTheme && accentThemes.indexOf(accentTheme) !== -1) {
+      el.setAttribute("data-accent-theme", accentTheme);
+    }
+    var accent = q.get("accent");
+    if (accent && accents.indexOf(accent) !== -1) {
+      el.setAttribute("data-accent", accent);
+    }
     var density = q.get("density");
     if (density === "compact" || density === "comfortable") {
       el.dataset.density = density;

@@ -1,11 +1,19 @@
 "use client"
 
-import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react"
 import Link from "next/link"
 import { ArrowLeft, Monitor, Moon, Smartphone, Sun, Tablet } from "lucide-react"
 import { useTheme } from "fumadocs-ui/provider/base"
 
 import { useClientValue, useMediaQuery } from "@/app/_shared/use-client-value"
+import {
+  AccentPicker,
+  accentQuery,
+  applyAccentChoice,
+  useAccentChoice,
+  type AccentChoice,
+} from "@/components/docs/accent-choice"
+import { ACCENT_SWATCHES } from "@/lib/generated/accents"
 import { routes, viewPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -35,6 +43,11 @@ import { cn } from "@/lib/utils"
    row in the docs sidebar writes, through the provider app/(chrome)/layout.tsx
    mounts, so the bar, the backdrop and the screen always agree, and a reader
    who chose dark for the docs arrives at a dark screen.
+
+   THE ACCENT IS THE SITE'S TOO (ADR 0029). The accent button opens the same
+   picker every documentation preview carries, and the choice is stamped on the
+   framed document as `data-accent-theme` and `data-accent`, the way the theme
+   toggles `dark`, so a change never reloads the screen either.
    ========================================================================== */
 
 type Mode = "light" | "dark"
@@ -179,21 +192,89 @@ function Choice<T extends string>({
   )
 }
 
+/**
+ * The accent button and its panel. The button shows the chosen accent as a
+ * swatch and discloses the picker, which is the same one every documentation
+ * preview carries. Escape and a press outside close it, and focus returns to
+ * the button, which is where it was before the panel opened.
+ */
+function AccentControl({ name }: { name: string }) {
+  const choice = useAccentChoice()
+  const [open, setOpen] = useState(false)
+  const button = useRef<HTMLButtonElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  const swatch = ACCENT_SWATCHES[choice.theme]?.[choice.accent]
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return
+      setOpen(false)
+      button.current?.focus()
+    }
+    const onPointer = (event: PointerEvent) => {
+      const target = event.target as Node
+      if (panel.current?.contains(target) || button.current?.contains(target)) return
+      setOpen(false)
+    }
+    window.addEventListener("keydown", onKey)
+    window.addEventListener("pointerdown", onPointer)
+    return () => {
+      window.removeEventListener("keydown", onKey)
+      window.removeEventListener("pointerdown", onPointer)
+    }
+  }, [open])
+
+  return (
+    <>
+      <button
+        ref={button}
+        type="button"
+        aria-expanded={open}
+        aria-controls={`${name}-panel`}
+        title="Accent"
+        onClick={() => setOpen((value) => !value)}
+        className="flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
+      >
+        <span
+          aria-hidden="true"
+          style={{ "--swatch-light": swatch?.light, "--swatch-dark": swatch?.dark } as CSSProperties}
+          className="size-4.5 rounded-full bg-[var(--swatch-light)] shadow-[inset_0_0_0_1px_oklch(0_0_0/0.16)] dark:bg-[var(--swatch-dark)] dark:shadow-[inset_0_0_0_1px_oklch(1_0_0/0.2)] forced-colors:[background:CanvasText]"
+        />
+        <span className="sr-only">Accent</span>
+      </button>
+      <div
+        ref={panel}
+        id={`${name}-panel`}
+        hidden={!open}
+        className="absolute top-full right-0 mt-2 w-[min(22rem,calc(100vw-1.5rem))] rounded-3xl border border-border bg-[var(--docs-glass-strong)] p-3 shadow-[inset_0_1px_0_0_var(--docs-sheen),var(--docs-shadow-float)] backdrop-blur-md backdrop-saturate-150"
+      >
+        <AccentPicker name={name} />
+      </div>
+    </>
+  )
+}
+
 interface StageFrameProps {
   name: string
   title: string
   mode: Mode
   size: Size
+  accent: AccentChoice
 }
 
 /** The frame itself. Mounted once per screen, and never remounted by a switch. */
-function StageFrame({ name, title, mode, size }: StageFrameProps) {
+function StageFrame({ name, title, mode, size, accent }: StageFrameProps) {
   const frame = useRef<HTMLIFrameElement>(null)
-  const [src] = useState(() => viewPath({ kind: "screen", name, mode }))
+  const [src] = useState(() => viewPath({ kind: "screen", name, mode, ...accentQuery(accent) }))
 
   useEffect(() => {
     applyMode(frame.current, mode)
   }, [mode])
+
+  useEffect(() => {
+    applyAccentChoice(frame.current?.contentDocument?.documentElement, accent)
+  }, [accent])
 
   const { width, height } = SIZES[size]
 
@@ -202,7 +283,10 @@ function StageFrame({ name, title, mode, size }: StageFrameProps) {
       ref={frame}
       src={src}
       title={title}
-      onLoad={() => applyMode(frame.current, mode)}
+      onLoad={() => {
+        applyMode(frame.current, mode)
+        applyAccentChoice(frame.current?.contentDocument?.documentElement, accent)
+      }}
       className={cn(
         "block bg-background",
         width ? "border border-border shadow-lg" : "size-full border-0"
@@ -245,6 +329,7 @@ export function ShowcaseStage({ name, title }: ShowcaseStageProps) {
      shape after hydration. */
   const roomy = useMediaQuery(ROOM_FOR_SIZES) !== false
   const [chosen, setChosen] = useState<Size>("desktop")
+  const accent = useAccentChoice()
   const id = useId()
   const mode: Mode = resolvedTheme === "dark" ? "dark" : "light"
   const size: Size = roomy ? chosen : "desktop"
@@ -280,6 +365,8 @@ export function ShowcaseStage({ name, title }: ShowcaseStageProps) {
           options={MODES}
           onChange={setTheme}
         />
+        <span aria-hidden="true" className="h-5 w-px bg-border" />
+        <AccentControl name={`${id}-accent`} />
         {roomy ? (
           <>
             <span aria-hidden="true" className="h-5 w-px bg-border" />
@@ -301,6 +388,7 @@ export function ShowcaseStage({ name, title }: ShowcaseStageProps) {
           title={title}
           mode={mode}
           size={size}
+          accent={accent}
         />
       ) : null}
     </main>

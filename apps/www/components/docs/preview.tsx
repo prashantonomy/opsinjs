@@ -22,6 +22,7 @@ import {
   type Status,
 } from "@/lib/status"
 import { cn } from "@/lib/utils"
+import { AccentPicker, accentQuery, useAccentChoice } from "./accent-choice"
 import { NotBuiltYet } from "./stub"
 
 /* ==========================================================================
@@ -413,6 +414,8 @@ export function ComponentPreview({
   const [density, setDensity] = useState<Density>("default")
   const [text, setText] = useState<TextSize>("100")
   const [status, setStatus] = useState<ClinicalStatus | "none">("none")
+  /* The accent is the site-wide choice, not this preview's own (ADR 0029). */
+  const accent = useAccentChoice()
   /**
    * `?base=&style=` is linkable page state (decision 6). It is read from
    * `window.location.search` after hydration rather than with
@@ -452,6 +455,7 @@ export function ComponentPreview({
         mode,
         density: density === "default" ? undefined : density,
         text: Number(text) as 100 | 125 | 150 | 200,
+        ...accentQuery(accent),
       })
     : null
 
@@ -525,6 +529,7 @@ export function ComponentPreview({
             })),
           ]}
         />
+        {name ? <AccentPicker name={`${id}-accent`} /> : null}
       </div>
 
       <div
@@ -670,8 +675,9 @@ export function IframePreview({
 }: IframePreviewProps) {
   const [device, setDevice] = useState<Device>(initialDevice)
   const [mode, setMode] = useState<PreviewMode>("light")
+  const accent = useAccentChoice()
   const id = useId()
-  const src = viewPath({ base, style, kind, name, mode })
+  const src = viewPath({ base, style, kind, name, mode, ...accentQuery(accent) })
 
   return (
     <figure
@@ -691,6 +697,7 @@ export function IframePreview({
             { value: "dark", label: "Dark" },
           ]}
         />
+        <AccentPicker name={`${id}-accent`} />
       </div>
 
       <div className="bg-muted/40 p-4">
