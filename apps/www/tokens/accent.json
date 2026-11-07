@@ -1,0 +1,926 @@
+{
+  "$comment": "The accent layer (ADR 0029). Three accent themes, normal, vibes and stryk, each defining the same nine named accents, so a product can change the theme without changing the accent and a reader whose system asks for more contrast keeps the accent they chose. Every value below is an authored literal or a neutral ladder step, chosen against the contrast floors and then measured independently by scripts/check-contrast.mts, which fails the build if any pair falls below its floor. An accent paints action, selection, focus and accent text. It never fills a surface that reports a result, never carries a status or a category, and its hue keeps at least 25 degrees from every status hue, so a control never reads as a level.",
+  "cssNaming": {
+    "prefix": "--opsin-accent-",
+    "themeAttribute": "data-accent-theme",
+    "accentAttribute": "data-accent"
+  },
+  "rules": {
+    "$comment": "Checked by scripts/check-contrast.mts. `statusHues` are the four status seeds in color.json; an accent hue closer than `minimumHueDistance` degrees to any of them fails the build. graphite has no hue and is exempt.",
+    "statusHues": [
+      27,
+      45,
+      82,
+      178
+    ],
+    "minimumHueDistance": 25
+  },
+  "roles": {
+    "action": {
+      "productRole": "--primary",
+      "use": "The fill of the one filled action on a surface, Button's primary rung."
+    },
+    "actionForeground": {
+      "productRole": "--primary-foreground",
+      "use": "The label on the action fill. Measured against the fill and both of its states at the body floor."
+    },
+    "actionHover": {
+      "productRole": "--state-primary-hover",
+      "use": "The action fill under a pointer. It moves away from the label, so the label never loses contrast."
+    },
+    "actionPress": {
+      "productRole": "--state-primary-press",
+      "use": "The action fill while pressed or busy. It moves away from the label as well."
+    },
+    "actionEdge": {
+      "productRole": "--primary-edge",
+      "use": "The action's boundary. Transparent where the fill alone clears the non-text floor against the page; an ink rim where a bright fill does not."
+    },
+    "fill": {
+      "productRole": "--brand",
+      "use": "The selected state of a selection control: a switch that is on, a ticked checkbox, a chosen radio, the range of a slider, a progress fill, the current tab."
+    },
+    "fillForeground": {
+      "productRole": "--brand-foreground",
+      "use": "A glyph or a label on the accent fill: a checkbox tick, a chosen scale value. Measured at the body floor."
+    },
+    "fillEdge": {
+      "productRole": "--brand-edge",
+      "use": "The boundary of an accent fill, for the same reason as actionEdge."
+    },
+    "ink": {
+      "productRole": "--brand-ink",
+      "use": "Accent-coloured text on the page and on a card: a quiet button, an alternative action. Measured at the body floor on both."
+    },
+    "ring": {
+      "productRole": "--ring",
+      "use": "The focus ring. Measured at the non-text floor on the page and on a card."
+    },
+    "glow": {
+      "productRole": "--brand-glow",
+      "use": "Light thrown by the action, as a shadow colour. Decorative, never a boundary, so it is not measured. Only vibes casts one."
+    }
+  },
+  "accents": {
+    "order": [
+      "cobalt",
+      "sky",
+      "jade",
+      "volt",
+      "rose",
+      "orchid",
+      "violet",
+      "iris",
+      "graphite"
+    ],
+    "cobalt": {
+      "label": "Cobalt",
+      "hue": 250
+    },
+    "sky": {
+      "label": "Sky",
+      "hue": 212
+    },
+    "jade": {
+      "label": "Jade",
+      "hue": 152
+    },
+    "volt": {
+      "label": "Volt",
+      "hue": 122
+    },
+    "rose": {
+      "label": "Rose",
+      "hue": 354
+    },
+    "orchid": {
+      "label": "Orchid",
+      "hue": 326
+    },
+    "violet": {
+      "label": "Violet",
+      "hue": 300
+    },
+    "iris": {
+      "label": "Iris",
+      "hue": 278
+    },
+    "graphite": {
+      "label": "Graphite",
+      "hue": null
+    }
+  },
+  "themes": {
+    "normal": {
+      "label": "Normal",
+      "default": true,
+      "defaultAccent": "cobalt",
+      "floors": "standard",
+      "summary": "Ink for action and the accent as light. The filled action stays a near-black capsule by day and a near-white one by night, as ADR 0028 set it, and the accent marks what is selected, what has focus and what can be pressed but is drawn as words.",
+      "accents": {
+        "cobalt": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.53 0.155 250)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.5 0.142 250)",
+            "ring": "oklch(0.53 0.155 250)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.845 0.079 250)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.855 0.074 250)",
+            "ring": "oklch(0.75 0.13 250)",
+            "glow": "transparent"
+          }
+        },
+        "sky": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.55 0.096 212)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.495 0.086 212)",
+            "ring": "oklch(0.55 0.096 212)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.83 0.13 212)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.84 0.13 212)",
+            "ring": "oklch(0.7 0.121 212)",
+            "glow": "transparent"
+          }
+        },
+        "jade": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.545 0.143 152)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.485 0.128 152)",
+            "ring": "oklch(0.545 0.143 152)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.83 0.13 152)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.84 0.13 152)",
+            "ring": "oklch(0.7 0.13 152)",
+            "glow": "transparent"
+          }
+        },
+        "volt": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.555 0.135 122)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.495 0.121 122)",
+            "ring": "oklch(0.555 0.135 122)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.84 0.13 122)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.845 0.13 122)",
+            "ring": "oklch(0.7 0.13 122)",
+            "glow": "transparent"
+          }
+        },
+        "rose": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.56 0.16 354)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.52 0.16 354)",
+            "ring": "oklch(0.56 0.16 354)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.855 0.089 354)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.865 0.082 354)",
+            "ring": "oklch(0.7 0.13 354)",
+            "glow": "transparent"
+          }
+        },
+        "orchid": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.56 0.16 326)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.52 0.16 326)",
+            "ring": "oklch(0.56 0.16 326)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.86 0.129 326)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.87 0.12 326)",
+            "ring": "oklch(0.7 0.13 326)",
+            "glow": "transparent"
+          }
+        },
+        "violet": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.56 0.16 300)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.52 0.16 300)",
+            "ring": "oklch(0.56 0.16 300)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.85 0.086 300)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.86 0.08 300)",
+            "ring": "oklch(0.7 0.13 300)",
+            "glow": "transparent"
+          }
+        },
+        "iris": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.56 0.16 278)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.515 0.16 278)",
+            "ring": "oklch(0.56 0.16 278)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.85 0.074 278)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.855 0.071 278)",
+            "ring": "oklch(0.7 0.13 278)",
+            "glow": "transparent"
+          }
+        },
+        "graphite": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "neutral-800",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "neutral-900",
+            "ring": "neutral-600",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-200",
+            "actionPress": "neutral-300",
+            "actionEdge": "transparent",
+            "fill": "neutral-200",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "neutral-100",
+            "ring": "neutral-400",
+            "glow": "transparent"
+          }
+        }
+      }
+    },
+    "vibes": {
+      "label": "Vibes",
+      "defaultAccent": "volt",
+      "floors": "standard",
+      "summary": "The accent is the action, at full chroma, and it throws light. Deep accents carry a white label; volt, jade and sky are bright and carry an ink label, with an ink rim by day where the fill alone would not separate from the page. By night a deep fill takes a light rim for the same reason.",
+      "accents": {
+        "cobalt": {
+          "light": {
+            "action": "oklch(0.56 0.158 250)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.52 0.148 250)",
+            "actionPress": "oklch(0.48 0.137 250)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.56 0.158 250)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.5 0.142 250)",
+            "ring": "oklch(0.56 0.158 250)",
+            "glow": "oklch(0.56 0.158 250 / 0.42)"
+          },
+          "dark": {
+            "action": "oklch(0.56 0.158 250)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.52 0.148 250)",
+            "actionPress": "oklch(0.48 0.137 250)",
+            "actionEdge": "oklch(0.855 0.074 250)",
+            "fill": "oklch(0.56 0.158 250)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "oklch(0.855 0.074 250)",
+            "ink": "oklch(0.855 0.074 250)",
+            "ring": "oklch(0.855 0.074 250)",
+            "glow": "oklch(0.56 0.158 250 / 0.6)"
+          }
+        },
+        "sky": {
+          "light": {
+            "action": "oklch(0.85 0.129 212)",
+            "actionForeground": "neutral-950",
+            "actionHover": "oklch(0.88 0.102 212)",
+            "actionPress": "oklch(0.91 0.076 212)",
+            "actionEdge": "neutral-950",
+            "fill": "oklch(0.85 0.129 212)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "neutral-950",
+            "ink": "oklch(0.495 0.086 212)",
+            "ring": "oklch(0.495 0.086 212)",
+            "glow": "oklch(0.85 0.129 212 / 0.55)"
+          },
+          "dark": {
+            "action": "oklch(0.85 0.129 212)",
+            "actionForeground": "neutral-950",
+            "actionHover": "oklch(0.88 0.102 212)",
+            "actionPress": "oklch(0.91 0.076 212)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.85 0.129 212)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.835 0.142 212)",
+            "ring": "oklch(0.85 0.129 212)",
+            "glow": "oklch(0.85 0.129 212 / 0.45)"
+          }
+        },
+        "jade": {
+          "light": {
+            "action": "oklch(0.85 0.221 152)",
+            "actionForeground": "neutral-950",
+            "actionHover": "oklch(0.88 0.219 152)",
+            "actionPress": "oklch(0.91 0.156 152)",
+            "actionEdge": "neutral-950",
+            "fill": "oklch(0.85 0.221 152)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "neutral-950",
+            "ink": "oklch(0.485 0.128 152)",
+            "ring": "oklch(0.485 0.128 152)",
+            "glow": "oklch(0.85 0.221 152 / 0.55)"
+          },
+          "dark": {
+            "action": "oklch(0.85 0.221 152)",
+            "actionForeground": "neutral-950",
+            "actionHover": "oklch(0.88 0.219 152)",
+            "actionPress": "oklch(0.91 0.156 152)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.85 0.221 152)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.83 0.216 152)",
+            "ring": "oklch(0.85 0.221 152)",
+            "glow": "oklch(0.85 0.221 152 / 0.45)"
+          }
+        },
+        "volt": {
+          "light": {
+            "action": "oklch(0.9 0.216 122)",
+            "actionForeground": "neutral-950",
+            "actionHover": "oklch(0.93 0.216 122)",
+            "actionPress": "oklch(0.96 0.119 122)",
+            "actionEdge": "neutral-950",
+            "fill": "oklch(0.9 0.216 122)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "neutral-950",
+            "ink": "oklch(0.495 0.121 122)",
+            "ring": "oklch(0.495 0.121 122)",
+            "glow": "oklch(0.9 0.216 122 / 0.55)"
+          },
+          "dark": {
+            "action": "oklch(0.9 0.216 122)",
+            "actionForeground": "neutral-950",
+            "actionHover": "oklch(0.93 0.216 122)",
+            "actionPress": "oklch(0.96 0.119 122)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.9 0.216 122)",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.84 0.202 122)",
+            "ring": "oklch(0.9 0.216 122)",
+            "glow": "oklch(0.9 0.216 122 / 0.45)"
+          }
+        },
+        "rose": {
+          "light": {
+            "action": "oklch(0.585 0.239 354)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.545 0.224 354)",
+            "actionPress": "oklch(0.505 0.208 354)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.585 0.239 354)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.515 0.212 354)",
+            "ring": "oklch(0.585 0.239 354)",
+            "glow": "oklch(0.585 0.239 354 / 0.42)"
+          },
+          "dark": {
+            "action": "oklch(0.585 0.239 354)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.545 0.224 354)",
+            "actionPress": "oklch(0.505 0.208 354)",
+            "actionEdge": "oklch(0.865 0.082 354)",
+            "fill": "oklch(0.585 0.239 354)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "oklch(0.865 0.082 354)",
+            "ink": "oklch(0.865 0.082 354)",
+            "ring": "oklch(0.865 0.082 354)",
+            "glow": "oklch(0.585 0.239 354 / 0.6)"
+          }
+        },
+        "orchid": {
+          "light": {
+            "action": "oklch(0.59 0.273 326)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.55 0.255 326)",
+            "actionPress": "oklch(0.51 0.237 326)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.59 0.273 326)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.52 0.241 326)",
+            "ring": "oklch(0.59 0.273 326)",
+            "glow": "oklch(0.59 0.273 326 / 0.42)"
+          },
+          "dark": {
+            "action": "oklch(0.59 0.273 326)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.55 0.255 326)",
+            "actionPress": "oklch(0.51 0.237 326)",
+            "actionEdge": "oklch(0.87 0.12 326)",
+            "fill": "oklch(0.59 0.273 326)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "oklch(0.87 0.12 326)",
+            "ink": "oklch(0.87 0.12 326)",
+            "ring": "oklch(0.87 0.12 326)",
+            "glow": "oklch(0.59 0.273 326 / 0.6)"
+          }
+        },
+        "violet": {
+          "light": {
+            "action": "oklch(0.59 0.262 300)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.55 0.262 300)",
+            "actionPress": "oklch(0.51 0.262 300)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.59 0.262 300)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.52 0.276 300)",
+            "ring": "oklch(0.59 0.262 300)",
+            "glow": "oklch(0.59 0.262 300 / 0.42)"
+          },
+          "dark": {
+            "action": "oklch(0.59 0.262 300)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.55 0.262 300)",
+            "actionPress": "oklch(0.51 0.262 300)",
+            "actionEdge": "oklch(0.86 0.08 300)",
+            "fill": "oklch(0.59 0.262 300)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "oklch(0.86 0.08 300)",
+            "ink": "oklch(0.86 0.08 300)",
+            "ring": "oklch(0.86 0.08 300)",
+            "glow": "oklch(0.59 0.262 300 / 0.6)"
+          }
+        },
+        "iris": {
+          "light": {
+            "action": "oklch(0.58 0.23 278)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.54 0.23 278)",
+            "actionPress": "oklch(0.5 0.23 278)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.58 0.23 278)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.52 0.269 278)",
+            "ring": "oklch(0.58 0.23 278)",
+            "glow": "oklch(0.58 0.23 278 / 0.42)"
+          },
+          "dark": {
+            "action": "oklch(0.58 0.23 278)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.54 0.23 278)",
+            "actionPress": "oklch(0.5 0.23 278)",
+            "actionEdge": "oklch(0.855 0.071 278)",
+            "fill": "oklch(0.58 0.23 278)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "oklch(0.855 0.071 278)",
+            "ink": "oklch(0.855 0.071 278)",
+            "ring": "oklch(0.855 0.071 278)",
+            "glow": "oklch(0.58 0.23 278 / 0.6)"
+          }
+        },
+        "graphite": {
+          "light": {
+            "action": "neutral-950",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "neutral-950",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "neutral-950",
+            "ring": "neutral-600",
+            "glow": "oklch(0.145 0.005 250 / 0.35)"
+          },
+          "dark": {
+            "action": "neutral-50",
+            "actionForeground": "neutral-950",
+            "actionHover": "neutral-0",
+            "actionPress": "neutral-200",
+            "actionEdge": "transparent",
+            "fill": "neutral-50",
+            "fillForeground": "neutral-950",
+            "fillEdge": "transparent",
+            "ink": "neutral-50",
+            "ring": "neutral-300",
+            "glow": "oklch(1 0 0 / 0.3)"
+          }
+        }
+      }
+    },
+    "stryk": {
+      "label": "Stryk",
+      "defaultAccent": "graphite",
+      "floors": "enhanced",
+      "prefersContrastMore": true,
+      "summary": "High contrast. Pure white and pure black grounds, boundaries and edges at full ink, no shadows and no translucency, a wider focus ring, and accents deep by day and light by night so every label clears WCAG AAA. It applies whenever the reader's system asks for more contrast, whatever theme the product chose.",
+      "chrome": {
+        "light": {
+          "background": "neutral-0",
+          "foreground": "neutral-1000",
+          "card": "neutral-0",
+          "cardForeground": "neutral-1000",
+          "muted": "neutral-100",
+          "mutedForeground": "neutral-800",
+          "border": "neutral-950",
+          "input": "neutral-950",
+          "edge": "neutral-950"
+        },
+        "dark": {
+          "background": "neutral-1000",
+          "foreground": "neutral-0",
+          "card": "neutral-950",
+          "cardForeground": "neutral-0",
+          "muted": "neutral-900",
+          "mutedForeground": "neutral-200",
+          "border": "neutral-50",
+          "input": "neutral-50",
+          "edge": "neutral-50"
+        }
+      },
+      "overrides": {
+        "$comment": "Applied with the chrome above. The focus ring widens to 3px. Every material rung loses its shadow and its translucency, the same swap prefers-reduced-transparency makes, because in this theme the edge carries the layering on its own.",
+        "borderFocus": "3px",
+        "flattenMaterials": true
+      },
+      "accents": {
+        "cobalt": {
+          "light": {
+            "action": "oklch(0.46 0.132 250)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.42 0.121 250)",
+            "actionPress": "oklch(0.38 0.111 250)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.46 0.132 250)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.44 0.126 250)",
+            "ring": "oklch(0.44 0.126 250)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "oklch(0.9 0.05 250)",
+            "actionForeground": "neutral-1000",
+            "actionHover": "oklch(0.93 0.035 250)",
+            "actionPress": "oklch(0.95 0.025 250)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.9 0.05 250)",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.9 0.05 250)",
+            "ring": "oklch(0.9 0.05 250)",
+            "glow": "transparent"
+          }
+        },
+        "sky": {
+          "light": {
+            "action": "oklch(0.45 0.079 212)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.41 0.073 212)",
+            "actionPress": "oklch(0.37 0.066 212)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.45 0.079 212)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.435 0.077 212)",
+            "ring": "oklch(0.435 0.077 212)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "oklch(0.89 0.093 212)",
+            "actionForeground": "neutral-1000",
+            "actionHover": "oklch(0.92 0.067 212)",
+            "actionPress": "oklch(0.94 0.05 212)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.89 0.093 212)",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.89 0.093 212)",
+            "ring": "oklch(0.89 0.093 212)",
+            "glow": "transparent"
+          }
+        },
+        "jade": {
+          "light": {
+            "action": "oklch(0.445 0.118 152)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.405 0.108 152)",
+            "actionPress": "oklch(0.365 0.099 152)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.445 0.118 152)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.425 0.113 152)",
+            "ring": "oklch(0.425 0.113 152)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "oklch(0.87 0.226 152)",
+            "actionForeground": "neutral-1000",
+            "actionHover": "oklch(0.9 0.176 152)",
+            "actionPress": "oklch(0.92 0.136 152)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.87 0.226 152)",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.875 0.227 152)",
+            "ring": "oklch(0.875 0.227 152)",
+            "glow": "transparent"
+          }
+        },
+        "volt": {
+          "light": {
+            "action": "oklch(0.45 0.111 122)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.41 0.102 122)",
+            "actionPress": "oklch(0.37 0.093 122)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.45 0.111 122)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.44 0.108 122)",
+            "ring": "oklch(0.44 0.108 122)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "oklch(0.885 0.212 122)",
+            "actionForeground": "neutral-1000",
+            "actionHover": "oklch(0.915 0.212 122)",
+            "actionPress": "oklch(0.935 0.212 122)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.885 0.212 122)",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.885 0.212 122)",
+            "ring": "oklch(0.885 0.212 122)",
+            "glow": "transparent"
+          }
+        },
+        "rose": {
+          "light": {
+            "action": "oklch(0.485 0.2 354)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.445 0.184 354)",
+            "actionPress": "oklch(0.405 0.169 354)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.485 0.2 354)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.45 0.186 354)",
+            "ring": "oklch(0.45 0.186 354)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "oklch(0.905 0.055 354)",
+            "actionForeground": "neutral-1000",
+            "actionHover": "oklch(0.935 0.037 354)",
+            "actionPress": "oklch(0.955 0.025 354)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.905 0.055 354)",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.91 0.052 354)",
+            "ring": "oklch(0.91 0.052 354)",
+            "glow": "transparent"
+          }
+        },
+        "orchid": {
+          "light": {
+            "action": "oklch(0.49 0.228 326)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.45 0.21 326)",
+            "actionPress": "oklch(0.41 0.192 326)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.49 0.228 326)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.455 0.212 326)",
+            "ring": "oklch(0.455 0.212 326)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "oklch(0.91 0.081 326)",
+            "actionForeground": "neutral-1000",
+            "actionHover": "oklch(0.94 0.054 326)",
+            "actionPress": "oklch(0.96 0.035 326)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.91 0.081 326)",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.91 0.081 326)",
+            "ring": "oklch(0.91 0.081 326)",
+            "glow": "transparent"
+          }
+        },
+        "violet": {
+          "light": {
+            "action": "oklch(0.495 0.263 300)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.455 0.243 300)",
+            "actionPress": "oklch(0.415 0.222 300)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.495 0.263 300)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.46 0.245 300)",
+            "ring": "oklch(0.46 0.245 300)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "oklch(0.905 0.054 300)",
+            "actionForeground": "neutral-1000",
+            "actionHover": "oklch(0.935 0.036 300)",
+            "actionPress": "oklch(0.955 0.025 300)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.905 0.054 300)",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.905 0.054 300)",
+            "ring": "oklch(0.905 0.054 300)",
+            "glow": "transparent"
+          }
+        },
+        "iris": {
+          "light": {
+            "action": "oklch(0.495 0.286 278)",
+            "actionForeground": "neutral-0",
+            "actionHover": "oklch(0.455 0.278 278)",
+            "actionPress": "oklch(0.415 0.254 278)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.495 0.286 278)",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.455 0.278 278)",
+            "ring": "oklch(0.455 0.278 278)",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "oklch(0.9 0.048 278)",
+            "actionForeground": "neutral-1000",
+            "actionHover": "oklch(0.93 0.034 278)",
+            "actionPress": "oklch(0.95 0.024 278)",
+            "actionEdge": "transparent",
+            "fill": "oklch(0.9 0.048 278)",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "oklch(0.9 0.048 278)",
+            "ring": "oklch(0.9 0.048 278)",
+            "glow": "transparent"
+          }
+        },
+        "graphite": {
+          "light": {
+            "action": "neutral-1000",
+            "actionForeground": "neutral-0",
+            "actionHover": "neutral-800",
+            "actionPress": "neutral-700",
+            "actionEdge": "transparent",
+            "fill": "neutral-1000",
+            "fillForeground": "neutral-0",
+            "fillEdge": "transparent",
+            "ink": "neutral-1000",
+            "ring": "neutral-1000",
+            "glow": "transparent"
+          },
+          "dark": {
+            "action": "neutral-0",
+            "actionForeground": "neutral-1000",
+            "actionHover": "neutral-0",
+            "actionPress": "neutral-200",
+            "actionEdge": "transparent",
+            "fill": "neutral-0",
+            "fillForeground": "neutral-1000",
+            "fillEdge": "transparent",
+            "ink": "neutral-0",
+            "ring": "neutral-0",
+            "glow": "transparent"
+          }
+        }
+      }
+    }
+  }
+}

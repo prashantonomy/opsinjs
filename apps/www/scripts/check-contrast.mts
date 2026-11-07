@@ -58,8 +58,43 @@ import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
+import {
+  ACCENT_FLOORS,
+  accentPairs,
+  buildAccentPlan,
+  readAccentSource,
+  type AccentFloorName,
+  type AccentUse,
+} from "./accent-plan.mts"
+
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const OUT_FILE = join(APP_DIR, "lib", "generated", "contrast.json")
+/* The accent layer is measured into a file of its own (ADR 0029). Eight hundred
+   pairs would more than double contrast.json, which the documentation's
+   contrast report bundles into every page that shows one. */
+const ACCENT_SOURCE = join(APP_DIR, "tokens", "accent.json")
+const OUT_ACCENT_FILE = join(APP_DIR, "lib", "generated", "accent-contrast.json")
+
+/** One measured accent pair, as lib/generated/accent-contrast.json records it. */
+interface AccentMeasured {
+  id: string
+  theme: string
+  accent: string
+  mode: Theme
+  key: string
+  pair: string
+  use: AccentUse
+  floors: AccentFloorName
+  foregroundValue: string
+  backgroundValue: string
+  apcaLc: number
+  wcag: number
+  apcaFloor: number
+  wcagFloor: number
+  exempt: boolean
+  passes: boolean
+  failing: string[]
+}
 
 /** How far a number may move between runs before `--verify` calls it a change. */
 const TOLERANCE = 0.05
@@ -1361,6 +1396,60 @@ async function main(): Promise<void> {
   )
   const scopes = [...new Set(measured.map((pair) => pair.scope))].sort()
 
+  /* ---------------- accent ---------------- */
+  /* Every pair tokens/accent.json defines, for every theme, accent and mode,
+     from the same accent-plan.mts that scripts/build-tokens.mts refuses a value
+     with. The two scripts therefore cannot measure different pairs. An exempt
+     pair is a fill an edge bounds: it is measured and published, never gated. */
+  const accentRows: AccentMeasured[] = []
+  const accentSource = readAccentSource(ACCENT_SOURCE)
+  if (accentSource) {
+    const neutral = (step: string): string | undefined => {
+      const match = /^neutral-(\d+)$/.exec(step)
+      return match ? valueOf(`--opsin-neutral-${match[1]}`, "light") : undefined
+    }
+    const plan = buildAccentPlan(accentSource, neutral)
+    const ground = (cssVar: string, theme: Theme) => valueOf(cssVar, theme) ?? (theme === "dark" ? "oklch(0 0 0)" : "oklch(1 0 0)")
+    const grounds = {
+      light: { page: ground(PAGE.light, "light"), card: ground(CARD_GROUND.light, "light") },
+      dark: { page: ground(PAGE.dark, "dark"), card: ground(CARD_GROUND.dark, "dark") },
+    }
+    for (const pair of accentPairs(plan, grounds)) {
+      const lc = apcaContrast(pair.foreground, pair.background)
+      const ratio = contrastRatio(pair.foreground, pair.background)
+      const floor = ACCENT_FLOORS[pair.floors][pair.use]
+      const failing: string[] = []
+      if (Math.abs(lc) < floor.apca) failing.push(`APCA Lc ${floor.apca}`)
+      if (ratio < floor.wcag) failing.push(`WCAG ${floor.wcag}:1`)
+      accentRows.push({
+        id: pair.id,
+        theme: pair.theme,
+        accent: pair.accent,
+        mode: pair.mode,
+        key: pair.key,
+        pair: pair.pair,
+        use: pair.use,
+        floors: pair.floors,
+        foregroundValue: pair.foreground,
+        backgroundValue: pair.background,
+        apcaLc: round(lc, 2),
+        wcag: round(ratio, 2),
+        apcaFloor: floor.apca,
+        wcagFloor: floor.wcag,
+        exempt: pair.exempt,
+        passes: failing.length === 0,
+        failing,
+      })
+    }
+  }
+  const accentFailures = accentRows.filter((row) => !row.passes && !row.exempt)
+  const accentSummary = {
+    total: accentRows.length,
+    passing: accentRows.filter((row) => row.passes && !row.exempt).length,
+    failing: accentFailures.length,
+    exempt: accentRows.filter((row) => row.exempt).length,
+  }
+
   if (unmeasurable.length > 0) {
     console.warn(
       [
@@ -1371,6 +1460,48 @@ async function main(): Promise<void> {
   }
 
   /* ---------------- verify ---------------- */
+  if (verify && accentRows.length > 0) {
+    let committedAccent: { rows?: AccentMeasured[] } | undefined
+    try {
+      committedAccent = JSON.parse(readFileSync(OUT_ACCENT_FILE, "utf8")) as { rows?: AccentMeasured[] }
+    } catch {
+      committedAccent = undefined
+    }
+    const problems: string[] = accentFailures.map(
+      (row) => `  FAILING   ${row.id} - APCA Lc ${row.apcaLc}, WCAG ${row.wcag}:1, below ${row.failing.join(" and ")}`,
+    )
+    if (!committedAccent || !Array.isArray(committedAccent.rows)) {
+      problems.push("  lib/generated/accent-contrast.json is missing or unreadable. Run `pnpm run contrast` and commit it.")
+    } else {
+      const before = new Map(committedAccent.rows.map((row) => [row.id, row]))
+      for (const row of accentRows) {
+        const old = before.get(row.id)
+        before.delete(row.id)
+        if (!old) {
+          problems.push(`  NEW       ${row.id} - measured now and not in the committed file`)
+        } else if (Math.abs(old.apcaLc - row.apcaLc) > TOLERANCE || Math.abs(old.wcag - row.wcag) > TOLERANCE) {
+          problems.push(`  MOVED     ${row.id} - APCA Lc ${old.apcaLc} to ${row.apcaLc}, WCAG ${old.wcag}:1 to ${row.wcag}:1`)
+        }
+      }
+      for (const [id] of before) problems.push(`  GONE      ${id} - in the committed file, not measured now`)
+    }
+    if (problems.length > 0) {
+      console.error(
+        [
+          `check-contrast --verify: ${problems.length} accent problem(s).`,
+          ...problems.slice(0, 40),
+          problems.length > 40 ? `  ... and ${problems.length - 40} more` : "",
+          "",
+          "  Fix the accent in tokens/accent.json, or run `pnpm run contrast` and commit",
+          "  lib/generated/accent-contrast.json so the published figures are true.",
+        ]
+          .filter((line) => line !== "")
+          .join("\n"),
+      )
+      process.exit(1)
+    }
+  }
+
   if (verify) {
     /* TWO STATES THAT LOOK ALIKE AND ARE NOT. A tree that has never been
        measured has no baseline and nothing to compare against, which is a real
@@ -1561,6 +1692,26 @@ async function main(): Promise<void> {
   }
   if (changed) writeFileSync(OUT_FILE, contents, "utf8")
 
+  let accentChanged = false
+  if (accentRows.length > 0) {
+    const accentPayload = {
+      $comment:
+        "GENERATED FILE - DO NOT EDIT. Source: tokens/accent.json, read through scripts/accent-plan.mts, on the chrome page and card from lib/generated/tokens.ts, measured with lib/color/{apca,wcag}.ts. Generator: scripts/check-contrast.mts (`pnpm run contrast`). Gate: `pnpm run contrast:verify` fails on a failing or a moved pair, and scripts/build-tokens.mts refuses to emit an accent below its floor in the first place. `standard` floors are the system's; `enhanced` are stryk's, WCAG 2.2 AAA and APCA Lc 85 for text and 4.5:1 and Lc 60 for a boundary. An exempt pair is a fill an edge bounds: measured, published and never gated.",
+      generatedAt: new Date().toISOString().slice(0, 10),
+      sourceHash: meta.sourceHash ?? "unknown",
+      floors: ACCENT_FLOORS,
+      summary: accentSummary,
+      rows: accentRows,
+    }
+    const accentContents = `${JSON.stringify(accentPayload, null, 2)}\n`
+    try {
+      accentChanged = readFileSync(OUT_ACCENT_FILE, "utf8") !== accentContents
+    } catch {
+      accentChanged = true
+    }
+    if (accentChanged) writeFileSync(OUT_ACCENT_FILE, accentContents, "utf8")
+  }
+
   console.log(
     [
       `check-contrast: ${measured.length} pairs across both themes in ${scopes.length} scopes - ` +
@@ -1570,6 +1721,13 @@ async function main(): Promise<void> {
           ? ` (${advisoryFailures.length} of the advisory pairs measure below the floor).`
           : "."),
       `  ${changed ? "wrote    " : "unchanged"} lib/generated/contrast.json`,
+      accentRows.length > 0
+        ? `  accent: ${accentSummary.total} pairs - ${accentSummary.passing} pass, ${accentSummary.failing} fail, ${accentSummary.exempt} exempt; ` +
+          `${accentChanged ? "wrote" : "unchanged"} lib/generated/accent-contrast.json`
+        : "",
+      ...accentFailures
+        .slice(0, 20)
+        .map((row) => `  FAIL      ${row.id} - APCA Lc ${row.apcaLc}, WCAG ${row.wcag}:1, below ${row.failing.join(" and ")}`),
       ...failures
         .slice(0, 20)
         .map(
@@ -1597,6 +1755,13 @@ async function main(): Promise<void> {
       .filter((line) => line !== "")
       .join("\n"),
   )
+
+  if (strict && accentFailures.length > 0) {
+    console.error(
+      `check-contrast --strict: ${accentFailures.length} accent pair(s) are below their floor. Change the accent in tokens/accent.json.`,
+    )
+    process.exit(1)
+  }
 
   if (
     strict &&

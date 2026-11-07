@@ -11,6 +11,13 @@
  *   lib/generated/glossary.json            committed; data behind <Term> and the A-Z
  *   lib/generated/units.json               committed; the reviewable copy of the unit table
  *   registry/generated/themes/opsinjs-default.json   a shadcn-spec registry:theme item
+ *   registry/generated/themes/opsinjs-<theme>-<accent>.json   one per accent
+ *                                          theme and accent, layered on the default
+ *
+ * AND REFUSES, rather than writes, an accent value from tokens/accent.json
+ * that falls below its contrast floor or sits nearer a status hue than the
+ * rule allows. `--check` runs the same refusal, so a bad accent fails
+ * `pnpm check` in CI as well as `pnpm run generate` at a desk.
  *
  * AND REPLACES NAMED REGIONS IN TWO HAND-WRITTEN FILES
  *   lib/opsinjs.ts                         THREE regions: the OPSIN_ERRORS table
@@ -75,6 +82,19 @@ import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "n
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 
+import { apcaContrast } from "../lib/color/apca.ts"
+import { contrastRatio } from "../lib/color/wcag.ts"
+import {
+  ACCENT_FLOORS,
+  accentPairs,
+  buildAccentPlan,
+  defaultTheme,
+  hueViolations,
+  type AccentMode,
+  type AccentPlan,
+  type AccentTheme,
+} from "./accent-plan.mts"
+
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const TOKENS_DIR = join(APP_DIR, "tokens")
 const OUT_CSS = join(APP_DIR, "app", "tokens.generated.css")
@@ -102,6 +122,13 @@ const BASES_DIR = join(APP_DIR, "registry", "bases")
  * reason. Do not move this output into public/.
  */
 const OUT_THEME = join(APP_DIR, "registry", "generated", "themes", "opsinjs-default.json")
+/* One registry:theme item per accent theme and accent, layered on
+   opsinjs-default. They land beside it for the same reason it lands here. */
+const OUT_THEMES_DIR = join(APP_DIR, "registry", "generated", "themes")
+/* The accent themes as data, for the documentation's pickers and the preview
+   shell. Small and separate from tokens.ts on purpose: a client component that
+   imports it should not pull the whole token table into the browser. */
+const OUT_ACCENTS_TS = join(APP_DIR, "lib", "generated", "accents.ts")
 
 /**
  * Two outputs that are REGIONS of a file somebody else writes prose in, not
@@ -1000,6 +1027,351 @@ function emitType(source: JsonObject, out: TokenLeaf[]): void {
   }
 }
 
+/* ---------------------------- accent ------------------------------ */
+
+/**
+ * The plan this run read from tokens/accent.json, kept for main(), which emits
+ * the attribute blocks, the theme items and the floor refusal from it. The
+ * emitter below is what reads it, because it runs after color.json has put the
+ * neutral ladder into `out` and the plan resolves its step names against that.
+ */
+let accentPlan: AccentPlan | undefined
+
+function neutralLookup(out: TokenLeaf[]): (step: string) => string | undefined {
+  return (step) => {
+    const match = /^neutral-(\d+)$/.exec(step)
+    if (!match) return undefined
+    return out.find((token) => token.cssVar === `${PREFIX}neutral-${match[1]}`)?.value
+  }
+}
+
+/**
+ * The default accent, as tokens. `--opsin-accent-<role>` carries the default
+ * theme's default accent in both modes, in the same `:root` and `.dark` blocks
+ * as every other token, so a page that sets no attribute renders it and the
+ * registry's default theme item carries it. The other themes and accents are
+ * attribute blocks, emitted by emitAccentCss() further down.
+ */
+function emitAccent(source: JsonObject, out: TokenLeaf[]): void {
+  const plan = buildAccentPlan(source, neutralLookup(out))
+  accentPlan = plan
+  const theme = defaultTheme(plan)
+  const entry = theme.accents.get(theme.defaultAccent)
+  if (!entry) return
+  for (const role of plan.roles) {
+    out.push({
+      path: `themes.${theme.id}.accents.${theme.defaultAccent}.light.${role.id}`,
+      cssVar: role.cssVar,
+      namespace: "accent",
+      group: "color",
+      tier: "semantic",
+      value: entry.light[role.id] ?? "transparent",
+      dark: entry.dark[role.id] ?? "transparent",
+      description: `${role.use} Read as ${role.productRole}.`,
+    })
+  }
+}
+
+/** The page and the card every theme sits on unless it brings chrome of its own. */
+function chromeGrounds(tokens: TokenLeaf[]): Record<AccentMode, { page: string; card: string }> {
+  const find = (cssVar: string) => tokens.find((token) => token.cssVar === cssVar)
+  const background = find(`${PREFIX}chrome-background`)
+  const card = find(`${PREFIX}chrome-card`)
+  return {
+    light: { page: background?.value ?? "oklch(1 0 0)", card: card?.value ?? "oklch(1 0 0)" },
+    dark: {
+      page: background?.dark ?? background?.value ?? "oklch(0 0 0)",
+      card: card?.dark ?? card?.value ?? "oklch(0 0 0)",
+    },
+  }
+}
+
+/**
+ * Every accent pair below its floor, and every accent hue too near a status
+ * hue. An empty list is the only answer that lets the run continue.
+ */
+function accentFailures(plan: AccentPlan, tokens: TokenLeaf[]): string[] {
+  const problems = hueViolations(plan)
+  for (const pair of accentPairs(plan, chromeGrounds(tokens))) {
+    if (pair.exempt) continue
+    const floor = ACCENT_FLOORS[pair.floors][pair.use]
+    const lc = Math.abs(apcaContrast(pair.foreground, pair.background))
+    const ratio = contrastRatio(pair.foreground, pair.background)
+    if (lc < floor.apca || ratio < floor.wcag) {
+      problems.push(
+        `${pair.id}: ${pair.pair} measures APCA Lc ${lc.toFixed(1)} and WCAG ${ratio.toFixed(2)}:1 ` +
+          `against a ${pair.floors} ${pair.use} floor of Lc ${floor.apca} and ${floor.wcag}:1 ` +
+          `(${pair.foreground} on ${pair.background}).`,
+      )
+    }
+  }
+  return problems
+}
+
+/**
+ * What a theme sets beyond its accent: its own chrome, a wider focus ring, and
+ * for a theme that flattens materials, every rung's reduced-transparency swap
+ * and no shadow. Declared on the theme's own blocks only, never on an accent.
+ */
+function themeDeclarations(theme: AccentTheme, mode: AccentMode, tokens: TokenLeaf[]): string[] {
+  const lines = Object.entries(theme.chrome[mode]).map(([cssVar, value]) => `${cssVar}: ${value};`)
+  if (lines.length > 0) {
+    /* A token defined as a reference to a chrome token is resolved where it is
+       declared, which is `:root`. Re-declared here, it resolves against this
+       theme's chrome on the scope's own element, so a material border follows
+       the theme's edge even when the theme starts below `<html>`. */
+    for (const token of tokens) {
+      const raw = mode === "dark" ? (token.dark ?? token.value) : token.value
+      if (raw.includes(`var(${PREFIX}chrome-`)) lines.push(`${token.cssVar}: ${raw};`)
+    }
+  }
+  if (theme.borderFocus) lines.push(`${PREFIX}border-focus: ${theme.borderFocus};`)
+  if (theme.flattenMaterials) {
+    for (const token of tokens) {
+      if (token.group !== "material") continue
+      if (token.cssVar.endsWith("-shadow")) lines.push(`${token.cssVar}: none;`)
+      else if (token.reducedTransparency !== undefined) {
+        lines.push(`${token.cssVar}: ${token.reducedTransparency};`)
+      }
+    }
+  }
+  return lines
+}
+
+function accentDeclarations(plan: AccentPlan, theme: AccentTheme, accent: string, mode: AccentMode): string[] {
+  const entry = theme.accents.get(accent)
+  if (!entry) return []
+  return plan.roles.map((role) => `${role.cssVar}: ${entry[mode][role.id]};`)
+}
+
+/**
+ * Three spellings of "this scope, in dark mode", because `.dark` and the accent
+ * attributes may sit on one element or on two: the same element, `.dark` above
+ * the scope, or `.dark` inside it. The attributes themselves are expected on
+ * one element, ideally `<html>`.
+ */
+function darkScopes(scope: string): string[] {
+  return [`.dark${scope}`, `.dark ${scope}`, `${scope} .dark`]
+}
+
+/**
+ * The attribute blocks. Specificity does the layering, and every step was
+ * checked rather than assumed:
+ *
+ *   `[data-accent="x"]`                              (0,1,0) light, default theme
+ *   `.dark[data-accent="x"]` and its two siblings    (0,2,0) dark, default theme
+ *   `[data-accent-theme="t"]`                        (0,1,0) light, a theme's default accent
+ *   `.dark[data-accent-theme="t"]` and siblings      (0,2,0) dark
+ *   `[data-accent-theme="t"][data-accent="x"]`       (0,2,0) light
+ *   `.dark[data-accent-theme="t"][data-accent="x"]`  (0,3,0) dark
+ *
+ * Each dark block outranks or follows the light block it shadows, so a light
+ * value never leaks into dark. The base `:root` and `.dark` blocks above carry
+ * the default accent, and `.opsin-product.dark` at (0,2,0) is outranked by
+ * source order, because these blocks come after it.
+ *
+ * The theme that answers `prefers-contrast: more` is emitted a second time
+ * inside that query, with selectors that match whatever theme the page chose,
+ * last in the file, so the reader's request for contrast wins over the
+ * product's choice of look.
+ */
+function emitAccentCss(plan: AccentPlan, tokens: TokenLeaf[]): string {
+  const themeAttr = plan.themeAttribute
+  const accentAttr = plan.accentAttribute
+  const themeScope = (id: string) => `[${themeAttr}="${id}"]`
+  const accentScope = (id: string) => `[${accentAttr}="${id}"]`
+  const blocks: string[] = [
+    "/* Accent themes, from tokens/accent.json (ADR 0029). A page picks a theme",
+    `   with ${themeAttr} and an accent with ${accentAttr}, on <html> or on any`,
+    "   element that starts a scope; with neither it renders the default theme's",
+    "   default accent declared above. app/product.css points the product roles",
+    "   (--primary, --brand, --brand-ink, --ring and the rest) at these tokens and",
+    "   re-declares them on any element carrying either attribute, so a scope",
+    "   resolves its own values rather than inheriting its ancestor's. */",
+  ]
+  const pair = (light: string[], dark: string[], lightLines: string[], darkLines: string[]) => {
+    blocks.push(cssBlock(light.join(",\n"), lightLines), cssBlock(dark.join(",\n"), darkLines))
+  }
+
+  for (const theme of plan.themes) {
+    const scope = themeScope(theme.id)
+    pair(
+      [scope],
+      darkScopes(scope),
+      [...themeDeclarations(theme, "light", tokens), ...accentDeclarations(plan, theme, theme.defaultAccent, "light")],
+      [...themeDeclarations(theme, "dark", tokens), ...accentDeclarations(plan, theme, theme.defaultAccent, "dark")],
+    )
+    for (const accent of plan.order) {
+      const combined = theme.isDefault ? accentScope(accent) : `${scope}${accentScope(accent)}`
+      pair(
+        [combined],
+        darkScopes(combined),
+        accentDeclarations(plan, theme, accent, "light"),
+        accentDeclarations(plan, theme, accent, "dark"),
+      )
+    }
+  }
+
+  const contrast = plan.themes.find((theme) => theme.prefersContrastMore)
+  if (contrast) {
+    const anyTheme = `[${themeAttr}]`
+    const inner: string[] = [
+      cssBlock(
+        [":root", ".opsin-product", anyTheme].join(",\n"),
+        [
+          ...themeDeclarations(contrast, "light", tokens),
+          ...accentDeclarations(plan, contrast, contrast.defaultAccent, "light"),
+        ],
+      ),
+      cssBlock(
+        [".dark", ".opsin-product.dark", ...darkScopes(anyTheme)].join(",\n"),
+        [
+          ...themeDeclarations(contrast, "dark", tokens),
+          ...accentDeclarations(plan, contrast, contrast.defaultAccent, "dark"),
+        ],
+      ),
+    ]
+    for (const accent of plan.order) {
+      const alone = accentScope(accent)
+      const withTheme = `${anyTheme}${alone}`
+      inner.push(
+        cssBlock([alone, withTheme].join(",\n"), accentDeclarations(plan, contrast, accent, "light")),
+        cssBlock([...darkScopes(alone), ...darkScopes(withTheme)].join(",\n"), accentDeclarations(plan, contrast, accent, "dark")),
+      )
+    }
+    blocks.push(
+      `/* A reader who asks the system for more contrast gets ${contrast.id}, whatever`,
+      "   theme the product chose, and keeps the accent they picked, because every",
+      "   theme defines the same nine. */",
+      "@media (prefers-contrast: more) {",
+      inner.map((block) => indent(block)).join("\n\n"),
+      "}",
+    )
+  }
+  return `${blocks.join("\n")}\n`
+}
+
+/**
+ * lib/generated/accents.ts: the themes, the nine accents and a swatch for each,
+ * which is all a picker needs. The values are the light and dark accent fills,
+ * the colour a reader sees on a ticked box or, in vibes and stryk, the action.
+ */
+function emitAccentsModule(plan: AccentPlan, hash: string): string {
+  const themes = plan.themes.map((theme) => ({
+    id: theme.id,
+    label: theme.label,
+    summary: theme.summary,
+    isDefault: theme.isDefault,
+    defaultAccent: theme.defaultAccent,
+    floors: theme.floors,
+    prefersContrastMore: theme.prefersContrastMore,
+  }))
+  const accents = plan.order.map((id) => ({ id, label: plan.labels[id] ?? id, hue: plan.hues[id] ?? null }))
+  const swatches: Record<string, Record<string, { light: string; dark: string }>> = {}
+  for (const theme of plan.themes) {
+    swatches[theme.id] = {}
+    for (const accent of plan.order) {
+      const entry = theme.accents.get(accent)
+      if (!entry) continue
+      ;(swatches[theme.id] as Record<string, { light: string; dark: string }>)[accent] = {
+        light: entry.light.fill ?? "transparent",
+        dark: entry.dark.fill ?? "transparent",
+      }
+    }
+  }
+  const fallback = defaultTheme(plan)
+  return [
+    "/* GENERATED FILE - DO NOT EDIT.",
+    " *",
+    " * Source:    tokens/accent.json",
+    " * Generator: scripts/build-tokens.mts   (`pnpm run generate`)",
+    " * Gate:      `pnpm check:generated` regenerates this file and fails on a diff.",
+    " *",
+    " * The accent themes as data, for a picker and for the preview shell. The",
+    " * colours themselves are tokens in app/tokens.generated.css; nothing here is",
+    " * a value a component should paint with.",
+    " */",
+    "",
+    `export const ACCENT_SOURCE_HASH = ${JSON.stringify(hash)}`,
+    "",
+    `export const ACCENT_THEME_ATTRIBUTE = ${JSON.stringify(plan.themeAttribute)}`,
+    `export const ACCENT_ATTRIBUTE = ${JSON.stringify(plan.accentAttribute)}`,
+    "",
+    "export interface GeneratedAccentTheme {",
+    "  id: string",
+    "  label: string",
+    "  summary: string",
+    "  isDefault: boolean",
+    "  defaultAccent: string",
+    '  floors: "standard" | "enhanced"',
+    "  prefersContrastMore: boolean",
+    "}",
+    "",
+    "export interface GeneratedAccent {",
+    "  id: string",
+    "  label: string",
+    "  /** The OKLCH hue, or null for the one accent with none. */",
+    "  hue: number | null",
+    "}",
+    "",
+    `export const ACCENT_THEMES: GeneratedAccentTheme[] = ${JSON.stringify(themes, null, 2)}`,
+    "",
+    `export const ACCENTS: GeneratedAccent[] = ${JSON.stringify(accents, null, 2)}`,
+    "",
+    "/** Theme id, then accent id, to the accent fill in each mode. */",
+    `export const ACCENT_SWATCHES: Record<string, Record<string, { light: string; dark: string }>> = ${JSON.stringify(swatches, null, 2)}`,
+    "",
+    "/** What a page renders when it sets no attribute. */",
+    `export const DEFAULT_ACCENT_THEME = ${JSON.stringify(fallback.id)}`,
+    `export const DEFAULT_ACCENT = ${JSON.stringify(fallback.defaultAccent)}`,
+    "",
+  ].join("\n")
+}
+
+/**
+ * One registry:theme item per theme and accent. Each carries only what differs
+ * from opsinjs-default: the accent roles, and for a theme with chrome of its
+ * own, that chrome, its focus width and its flattened materials. Install the
+ * default first and one of these after it.
+ */
+function emitAccentThemeItems(plan: AccentPlan, tokens: TokenLeaf[], hash: string): Array<{ file: string; contents: string }> {
+  const strip = (line: string): [string, string] => {
+    const at = line.indexOf(":")
+    return [line.slice(2, at), line.slice(at + 1).trim().replace(/;$/, "")]
+  }
+  const outputs: Array<{ file: string; contents: string }> = []
+  for (const theme of plan.themes) {
+    for (const accent of plan.order) {
+      const light = Object.fromEntries(
+        [...themeDeclarations(theme, "light", tokens), ...accentDeclarations(plan, theme, accent, "light")].map(strip),
+      )
+      const dark = Object.fromEntries(
+        [...themeDeclarations(theme, "dark", tokens), ...accentDeclarations(plan, theme, accent, "dark")].map(strip),
+      )
+      const name = `opsinjs-${theme.id}-${accent}`
+      const item = {
+        $schema: "https://ui.shadcn.com/schema/registry-item.json",
+        name,
+        type: "registry:theme",
+        title: `opsinjs ${theme.label} theme, ${plan.labels[accent] ?? accent} accent`,
+        description: `${theme.summary} Install opsinjs-default first; this item carries only the accent roles${
+          Object.keys(theme.chrome.light).length > 0 ? " and the theme's own chrome" : ""
+        }.`,
+        meta: {
+          generatedBy: "scripts/build-tokens.mts",
+          tokenSourceHash: hash,
+          accentTheme: theme.id,
+          accent,
+          layersOn: "opsinjs-default",
+        },
+        cssVars: { light, dark },
+      }
+      outputs.push({ file: join(OUT_THEMES_DIR, `${name}.json`), contents: `${JSON.stringify(item, null, 2)}\n` })
+    }
+  }
+  return outputs
+}
+
 /* ------------------------------------------------------------------ *
  * Glossary                                                            *
  * ------------------------------------------------------------------ */
@@ -1708,7 +2080,7 @@ function indent(block: string): string {
     .join("\n")
 }
 
-function emitCss(tokens: TokenLeaf[], hash: string): string {
+function emitCss(tokens: TokenLeaf[], hash: string, accentCss = ""): string {
   const parts: string[] = [
     "/* GENERATED FILE - DO NOT EDIT.",
     " *",
@@ -1752,6 +2124,8 @@ function emitCss(tokens: TokenLeaf[], hash: string): string {
       "",
     )
   }
+
+  if (accentCss !== "") parts.push(accentCss)
 
   const p3Light = tokens
     .filter((token) => token.p3 !== undefined)
@@ -2876,10 +3250,16 @@ const EMITTERS: Record<string, (source: JsonObject, out: TokenLeaf[]) => void> =
   type: emitType,
   space: emitSpace,
   shape: emitShape,
+  accent: emitAccent,
 }
 
-/** Emission order. It is why the generated CSS reads colour, material, motion, type, space, shape. */
-const TOKEN_FILES = ["color", "material", "motion", "type", "space", "shape"]
+/**
+ * Emission order. It is why the generated CSS reads colour, material, motion,
+ * type, space, shape, accent. Accent is last so that adding it moved no token
+ * that was already emitted, and because it resolves its steps against the
+ * neutral ladder colour has already put in place.
+ */
+const TOKEN_FILES = ["color", "material", "motion", "type", "space", "shape", "accent"]
 
 /** Resolves `var(--opsin-x)` to the literal it points at, so contrast can be measured. */
 function resolveReferences(tokens: TokenLeaf[]): void {
@@ -2982,6 +3362,27 @@ function main(): void {
     process.exit(1)
   }
 
+  /* THE ACCENT REFUSAL. An accent value below its floor, or an accent hue too
+     near a status hue, is refused here rather than written, in `--check` as
+     well, so the build that would publish it fails instead. The figures are
+     measured with the same lib/color modules scripts/check-contrast.mts uses,
+     and over the same pairs, because both read them from accent-plan.mts. */
+  if (accentPlan) {
+    const problems = accentFailures(accentPlan, tokens)
+    if (problems.length > 0) {
+      console.error(
+        [
+          `build-tokens: ${problems.length} accent problem(s) in tokens/accent.json.`,
+          ...problems.map((line) => `  ${line}`),
+          "",
+          "  Change the accent value, not the floor. The floors are what the accent",
+          "  page and ADR 0029 promise.",
+        ].join("\n"),
+      )
+      process.exit(1)
+    }
+  }
+
   const hash =
     rawSources.length === 0
       ? "empty"
@@ -3042,7 +3443,7 @@ function main(): void {
   )
 
   const outputs = [
-    { file: OUT_CSS, contents: emitCss(tokens, hash) },
+    { file: OUT_CSS, contents: emitCss(tokens, hash, accentPlan ? emitAccentCss(accentPlan, tokens) : "") },
     { file: OUT_TS, contents: emitTs(tokens, glossary, errors, hash) },
     { file: OUT_SUBSTRATE, contents: substrate },
     {
@@ -3117,6 +3518,8 @@ function main(): void {
       )}\n`,
     },
     { file: OUT_THEME, contents: emitThemeItem(tokens, hash) },
+    ...(accentPlan ? emitAccentThemeItems(accentPlan, tokens, hash) : []),
+    ...(accentPlan ? [{ file: OUT_ACCENTS_TS, contents: emitAccentsModule(accentPlan, hash) }] : []),
   ]
 
   if (checkOnly) {
