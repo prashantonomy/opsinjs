@@ -198,7 +198,8 @@ const ROOT_SIZE: Record<"inherit" | "display", string> = {
  *
  * The unit is the annotation and the magnitude is the message, so the symbol
  * is smaller and a little lighter rather than competing with the digits for
- * the reader's eye. The weights are 600 against 700.
+ * the reader's eye. The weights are 700 against 800 since ADR 0028 set the
+ * title steps heavier, so the gap between them is unchanged.
  */
 const UNIT_SIZE: Record<"inherit" | "display", string> = {
   inherit: "",

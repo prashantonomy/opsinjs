@@ -218,30 +218,24 @@ function hasNoLabel(children: ReactNode): boolean {
  * comment. That is a change to every component in the registry at once and
  * belongs in `lib/utils.ts`, which this file does not own.
  *
- * QUIET IS THE ONE RUNG WHERE INK CARRIES THE EMPHASIS. It has no fill and no
- * boundary, so before this change it read as bold body text and a reader who
- * could not hover had no way to tell it was a control. It now asserts the
- * action colour, `[color:var(--primary)]`, so that reader can. The
- * arbitrary-property spelling is required and not decorative: a plain
- * `text-primary` lands in tailwind-merge's `text-*` group with the type step
- * `SIZE[size]` contributes and is deleted, exactly as `text-foreground` is
- * today, so it would never reach the DOM. `--primary` is the system's action
- * role and is neither a category nor a status colour, so this touches neither
- * axis. Recomputed with `lib/color` against the current chrome tokens, the WCAG
- * ratio clears the 4.5:1 body floor on every surface: 5.48:1 on `--background`
- * and 5.72:1 on `--card` in light, and 8.06:1 on `--background` and 7.31:1 on
- * `--card` in dark. APCA is where this rung is honest about a limit rather than
- * uniformly safe. In light the same pairs reach Lc 75.0 on `--background` and
- * Lc 78.1 on `--card`, at or above the Lc 75 body floor. In dark they fall to
- * Lc 53.7 and Lc 52.9, below that floor and below the Lc 60 large-text floor
- * too, so the dark quiet label passes WCAG and fails APCA. The cause is the ink
- * itself: `--primary` is the shared chrome action colour, and its dark step is
- * fixed in the theme rather than here, so bringing the quiet label to the APCA
- * floor is a change to that token and not to this control. The zero-prop demo
- * carries a quiet `Cancel`, so this is a pair a reader meets, and
- * `button.mdx` names it beside the `primary` label as the two dark-mode APCA
- * shortfalls. This is the one place the system lets ink rather than a fill or a
- * boundary carry a rung of emphasis.
+ * QUIET IS THE ONE RUNG WITH NEITHER A FILL NOR A BOUNDARY, so its underline
+ * is what tells a reader it is a control. Before ADR 0028 the action colour was
+ * a blue, and the quiet label's blue ink was its only cue at rest. The action
+ * role is ink now, so the label alone would read as bold body text and a reader
+ * who could not hover would have no way to tell it was pressable. It takes the
+ * underline instead, the same answer the card action recipe below gives a
+ * handler with no fill and no boundary, so one rule covers both: a control
+ * drawn as words is underlined. It still asserts the action role,
+ * `[color:var(--primary)]`, and the arbitrary-property spelling is required and
+ * not decorative: a plain `text-primary` lands in tailwind-merge's `text-*`
+ * group with the type step `SIZE[size]` contributes and is deleted, exactly as
+ * `text-foreground` is today, so it would never reach the DOM. `--primary` is
+ * neither a category nor a status colour, so this touches neither axis.
+ * Measured with `lib/color` against the current chrome tokens, the label clears
+ * both body floors on every surface in both themes: 18.95:1 and Lc 102.8 on
+ * `--background` in light, and 18.95:1 and Lc -104.3 on `--background` and
+ * 17.18:1 and Lc -103.5 on `--card` in dark. The dark APCA shortfall this
+ * comment used to record was the old blue action ink, and it is gone with it.
  */
 /**
  * WHY ONLY PRIMARY OPTS OUT OF FORCED COLOURS. The four rungs differ only in
@@ -265,7 +259,7 @@ const TONE: Record<ButtonVariant, string> = {
   secondary:
     "border-border bg-card [color:var(--foreground)] hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
   quiet:
-    "border-transparent bg-transparent [color:var(--primary)] hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
+    "border-transparent bg-transparent [color:var(--primary)] underline underline-offset-4 hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
   destructive:
     "border-foreground bg-transparent [color:var(--foreground)] hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
 }
@@ -558,7 +552,7 @@ export function Button({
            fixed height, because at 200% text the label has to wrap and the
            button has to grow with it. A truncated label is unreadable and
            unspeakable, and a fixed height is how it happens. */
-        "relative inline-flex items-center justify-center whitespace-normal rounded-opsin-md text-center align-middle",
+        "relative inline-flex items-center justify-center whitespace-normal rounded-full text-center align-middle",
         /* The second piece of motion in this file, and the one that needs no
            branch: `--opsin-duration-fast` collapses to 1ms inside the product
            stylesheet's own reduced-motion block, so the colour change becomes
@@ -804,7 +798,7 @@ export function cardActionClassName(options: {
        underline so a handler-form action never reads as a paragraph. */
     if (weight === "recommended") {
       return ground === "tinted"
-        ? "rounded-opsin-md border-2 underline underline-offset-4"
+        ? "rounded-full border-2 underline underline-offset-4"
         : ""
     }
     /* The quiet neutral button arm asserts the same neutral ink the quiet
@@ -812,9 +806,9 @@ export function cardActionClassName(options: {
        action is foreground ink whether the caller passes `href` or `onSelect`.
        Without it a `<Button variant="quiet">` falls through to Button's own
        `TONE.quiet`, which is `[color:var(--primary)]`, the shared action role,
-       and the same alternative action then reads brand blue on a handler and
-       foreground ink on an anchor, the drift by transport the recipe exists to
-       remove. The ink wins because it is spelled as an arbitrary property and
+       and the same alternative action then reads in the action role on a
+       handler and in foreground ink on an anchor, the drift by transport the
+       recipe exists to remove. The ink wins because it is spelled as an arbitrary property and
        arrives last: `cn()` files `[color:var(--foreground)]` and Button's
        `[color:var(--primary)]` in one `color` conflict group, and the caller's
        `className` is the last argument to Button's own `cn()`, so the recipe's
@@ -832,10 +826,10 @@ export function cardActionClassName(options: {
      the ring, plus a fill and a boundary on the neutral recommended arm only. */
   if (weight === "recommended") {
     return ground === "tinted"
-      ? `${CARD_ACTION_BOX} rounded-opsin-md border-2 px-opsin-5 py-opsin-2 ` +
+      ? `${CARD_ACTION_BOX} rounded-full border-2 px-opsin-5 py-opsin-2 ` +
           "text-center text-opsin-headline underline underline-offset-4 " +
           `hover:bg-muted ${CARD_ACTION_RING}`
-      : `${CARD_ACTION_BOX} rounded-opsin-md border border-border bg-card px-opsin-5 py-opsin-2 ` +
+      : `${CARD_ACTION_BOX} rounded-full border border-border bg-card px-opsin-5 py-opsin-2 ` +
           "text-center text-opsin-headline [color:var(--foreground)] underline underline-offset-4 " +
           `hover:bg-muted ${CARD_ACTION_RING}`
   }

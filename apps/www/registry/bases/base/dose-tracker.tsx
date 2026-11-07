@@ -148,7 +148,7 @@ const ROOT = "m-0 flex w-full list-none flex-col gap-opsin-1 p-0"
  */
 const ENTRY =
   "flex flex-wrap items-baseline justify-between gap-opsin-2 " +
-  "border-b border-border py-opsin-2 last:border-b-0"
+  "border-b border-edge py-opsin-2 last:border-b-0"
 
 /**
  * The state marker, spelled once. Neutral chrome only: a muted hairline chip with

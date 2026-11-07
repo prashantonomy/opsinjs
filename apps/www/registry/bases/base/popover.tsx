@@ -83,8 +83,8 @@ type PopoverSide = "top" | "right" | "bottom" | "left"
  */
 const TRIGGER =
   "inline-flex items-center justify-center gap-opsin-2 " +
-  "rounded-opsin-md border border-border bg-background " +
-  "px-opsin-3 py-opsin-2 min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) " +
+  "rounded-full border border-border bg-background " +
+  "px-opsin-4 py-opsin-2 min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) " +
   "text-opsin-body [color:var(--foreground)] text-center align-middle cursor-pointer " +
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
   "hover:bg-state-hover data-[popup-open]:bg-state-hover " +
@@ -109,8 +109,8 @@ const TRIGGER =
  */
 const POPUP =
   "z-50 max-w-[min(var(--opsin-measure-tight,45ch),calc(100vw-var(--opsin-space-8,2rem)))] " +
-  "rounded-opsin-lg border border-border bg-card p-opsin-4 " +
-  "shadow-(--opsin-material-overlay-shadow) [color:var(--foreground)] " +
+  "rounded-opsin-md border border-edge bg-card p-opsin-4 " +
+  "shadow-(--opsin-material-raised-shadow) [color:var(--foreground)] " +
   "text-opsin-body " +
   "transition-[opacity,scale] duration-(--opsin-duration-fast) ease-opsin-standard " +
   "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 " +
@@ -129,10 +129,10 @@ const POPUP =
  */
 const ARROW =
   "size-[0.625rem] rotate-45 rounded-opsin-xs bg-card " +
-  "data-[side=bottom]:-top-[0.3125rem] data-[side=bottom]:border-t data-[side=bottom]:border-l data-[side=bottom]:border-border " +
-  "data-[side=top]:-bottom-[0.3125rem] data-[side=top]:border-b data-[side=top]:border-r data-[side=top]:border-border " +
-  "data-[side=left]:-right-[0.3125rem] data-[side=left]:border-t data-[side=left]:border-r data-[side=left]:border-border " +
-  "data-[side=right]:-left-[0.3125rem] data-[side=right]:border-b data-[side=right]:border-l data-[side=right]:border-border"
+  "data-[side=bottom]:-top-[0.3125rem] data-[side=bottom]:border-t data-[side=bottom]:border-l data-[side=bottom]:border-edge " +
+  "data-[side=top]:-bottom-[0.3125rem] data-[side=top]:border-b data-[side=top]:border-r data-[side=top]:border-edge " +
+  "data-[side=left]:-right-[0.3125rem] data-[side=left]:border-t data-[side=left]:border-r data-[side=left]:border-edge " +
+  "data-[side=right]:-left-[0.3125rem] data-[side=right]:border-b data-[side=right]:border-l data-[side=right]:border-edge"
 
 /**
  * The title, spelled once. When a caller names the panel it is rendered as a

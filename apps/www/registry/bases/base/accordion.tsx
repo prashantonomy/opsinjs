@@ -92,13 +92,14 @@ interface AccordionSection {
  * rather than a row of loose bars. `overflow-hidden` keeps the first and last
  * sections' corners inside the rounded border.
  */
-const ROOT = "overflow-hidden rounded-opsin-lg border border-border bg-card"
+const ROOT =
+  "overflow-hidden rounded-opsin-md border border-edge bg-card shadow-card [corner-shape:var(--opsin-corner-shape)] print:border-border"
 
 /**
  * One section wrapper. The top hairline divides it from the section above; the
  * first section drops it, because the root's own border already draws that edge.
  */
-const ITEM = "border-t border-border first:border-t-0"
+const ITEM = "border-t border-edge first:border-t-0"
 
 /**
  * The header row and its button, spelled once.

@@ -81,7 +81,7 @@ interface TabsItem {
  * rail is the neutral `border-border`, not either colour axis.
  */
 const LIST =
-  "relative flex flex-wrap items-stretch gap-opsin-1 border-b border-border"
+  "relative flex flex-wrap items-stretch gap-opsin-1 border-b border-edge"
 
 /**
  * One tab, spelled once.

@@ -121,7 +121,7 @@ const VIEWPORT =
  */
 const TOAST_ROOT =
   "pointer-events-auto flex w-full items-start gap-opsin-3 rounded-opsin-lg " +
-  "border border-border bg-card p-opsin-4 shadow-[var(--opsin-material-overlay-shadow)] " +
+  "border border-edge bg-card p-opsin-4 shadow-[var(--opsin-material-raised-shadow)] " +
   "[color:var(--foreground)]"
 
 /**

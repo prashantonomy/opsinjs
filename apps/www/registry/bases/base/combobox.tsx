@@ -132,8 +132,8 @@ const TRIGGER =
  */
 const POPUP =
   "z-50 max-h-[var(--available-height)] w-[var(--anchor-width)] overflow-y-auto " +
-  "rounded-opsin-lg border border-border bg-card p-opsin-1 " +
-  "shadow-(--opsin-material-overlay-shadow) [color:var(--foreground)]"
+  "rounded-opsin-md border border-edge bg-card p-opsin-1 " +
+  "shadow-(--opsin-material-raised-shadow) [color:var(--foreground)]"
 
 /**
  * One match row, spelled once. A full-width row with the label on the left and

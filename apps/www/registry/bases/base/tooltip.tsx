@@ -87,9 +87,9 @@ import { cn } from "@/lib/utils"
  * `prefers-reduced-motion`, where the label appears in place instead.
  */
 const POPUP =
-  "z-50 max-w-[var(--opsin-measure-tight,45ch)] rounded-opsin-md border border-border bg-card " +
+  "z-50 max-w-[var(--opsin-measure-tight,45ch)] rounded-opsin-md border border-edge bg-card " +
   "px-opsin-2 py-opsin-1 text-opsin-footnote [color:var(--foreground)] " +
-  "shadow-(--opsin-material-overlay-shadow) " +
+  "shadow-(--opsin-material-raised-shadow) " +
   "transition-opacity duration-(--opsin-duration-fast) ease-opsin-standard " +
   "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 " +
   "motion-reduce:transition-none"
@@ -219,7 +219,7 @@ export default function TooltipDemo() {
       <button
         type="button"
         className={cn(
-          "inline-flex items-center gap-opsin-2 rounded-opsin-md border border-border bg-card",
+          "inline-flex items-center gap-opsin-2 rounded-full border border-border bg-card",
           "px-opsin-3 py-opsin-2 min-h-(--opsin-target-minimum,2.75rem)",
           "text-opsin-body [color:var(--foreground)] cursor-pointer",
           "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard",

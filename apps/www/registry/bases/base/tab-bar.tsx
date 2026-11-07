@@ -105,17 +105,20 @@ const ITEM =
   "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
 
 /**
- * The current-destination indicator. A 2px bar pinned to the top of the
- * current item, in the foreground ink so it is neutral chrome and not a
- * category or status tint. It fades in only when the item is current, driven
- * by the `aria-current` state on the group, so the same markup serves every
- * item and no layout shifts. It is decorative and `aria-hidden`, and it
- * deliberately has no `data-slot`, because the closed set is `tab-bar`,
- * `tab-bar-item`, `tab-bar-item-icon` and `tab-bar-item-label`, and this bar
- * does not mint a fifth.
+ * The current-destination indicator. A capsule behind the current item's icon,
+ * a wash of the foreground ink so it is neutral chrome and not a category or
+ * status tint, and a shape rather than a hairline, so it still reads in
+ * greyscale and at a glance (ADR 0028). It is rendered before the icon, so the
+ * icon paints over it. It fades in only when the item is current, driven by
+ * the `aria-current` state on the group, so the same markup serves every item
+ * and no layout shifts. It is decorative and `aria-hidden`, and it deliberately
+ * has no `data-slot`, because the closed set is `tab-bar`, `tab-bar-item`,
+ * `tab-bar-item-icon` and `tab-bar-item-label`, and this capsule does not mint
+ * a fifth.
  */
 const INDICATOR =
-  "pointer-events-none absolute inset-x-opsin-3 top-0 h-opsin-0-5 rounded-full bg-foreground " +
+  "pointer-events-none absolute top-0 left-1/2 h-opsin-8 w-[min(4rem,100%)] -translate-x-1/2 rounded-full " +
+  "bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] " +
   "opacity-0 transition-opacity duration-(--opsin-duration-fast) ease-opsin-standard " +
   "group-aria-[current=page]:opacity-100"
 
@@ -123,7 +126,7 @@ const INDICATOR =
 const ICON = "flex size-opsin-6 items-center justify-center [&_svg]:size-opsin-6"
 
 /** The label. Caption step, and heavier when the item is current so weight is one of the three carriers of the current state. Colour is inherited from the item, so no colour class here. */
-const LABEL = "text-opsin-caption1 group-aria-[current=page]:font-medium"
+const LABEL = "text-opsin-caption1 group-aria-[current=page]:font-semibold"
 
 /**
  * Development warnings, said once per distinct offender. Nothing here has an

@@ -237,7 +237,7 @@ export function Table({
             <tr
               key={rowIndex}
               data-slot="table-row"
-              className="border-b border-border last:border-b-0"
+              className="border-b border-edge last:border-b-0"
             >
               {resolved.map(({ column, align }, columnIndex) => {
                 const isRowHeader = rowHeader && columnIndex === 0
