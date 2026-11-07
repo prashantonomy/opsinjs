@@ -92,7 +92,8 @@ argued with while arguing is cheap.
 | [0025](./0025-the-audit-is-author-run.md) | The WCAG 2.2 AA audit is author-run, not an independent review | Accepted |
 | [0026](./0026-the-site-takes-the-clawscale-shape.md) | The documentation site takes the clawscale shape | Accepted |
 | [0027](./0027-the-site-gets-a-landing-page.md) | The site gets a landing page, and the documentation moves under `/docs` | Accepted |
-| [0028](./0028-ink-paper-and-one-light.md) | Ink and paper, one light, and sheets with depth | Accepted |
+| [0028](./0028-ink-paper-and-one-light.md) | Ink and paper, one light, and sheets with depth | Accepted, the single light and the quiet underline amended by 0029 |
+| [0029](./0029-accent-themes.md) | Accent themes: normal, vibes and stryk, with nine accents each | Accepted |
 
 The numbers are not contiguous. There is no 0008, no 0018 to 0020 and no 0022.
 0008 and 0022 were withdrawn and deleted; 0018 to 0020 were never written. The

@@ -1,0 +1,99 @@
+---
+title: Accent contrast
+description: Measured APCA Lc and WCAG 2.2 contrast for every accent theme and accent in both modes, against each theme's own floors.
+kind: reference
+full: true
+reviewed: 2026-11-08
+reviewer: engineering
+reviewEvery: 3m
+aliases: [accent contrast, accent measurements, stryk contrast, vibes contrast]
+---
+
+Measured by `scripts/check-contrast.mts` from `tokens/accent.json`, read through `scripts/accent-plan.mts`, with the hand-written maths in `lib/color/apca.ts` and `lib/color/wcag.ts`, into `lib/generated/accent-contrast.json`. `pnpm run contrast` measures and `pnpm run contrast:verify` fails on a failing or moved pair. `scripts/build-tokens.mts` measures the same pairs before it writes a token and refuses one below its floor, so a failing accent never reaches `app/tokens.generated.css`. No figure here was typed by a person.
+
+Normal and vibes are held to the system's floors. Stryk is held to enhanced floors: WCAG 2.2 AAA (7:1) and APCA Lc 85 for text, 4.5:1 and Lc 60 for boundaries and rings. An exempt pair is a bright fill whose edge carries the boundary instead, and the edge is measured in its place. [Accent](../../foundations/accent.mdx) explains the themes.
+
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
+
+## Measured accents
+
+Measured on 2026-11-07. 680 pairs: 648 pass, 0 fail, and 32 exempt, each an accent fill bounded by a rim that is measured in its place.
+
+Each row is one accent in one mode. Action is the filled action, Fill the selected state of a selection control, Ink accent text on the page and Ring the focus ring. Weakest text is the lowest of the label, tick and accent text pairs, and weakest boundary the lowest of the fill, rim and ring pairs.
+
+### Normal
+
+Held to the standard floors: text at APCA Lc 75 and WCAG 4.5:1, boundaries and rings at Lc 45 and 3:1.
+
+| Accent | Mode | Action | Fill | Ink | Ring | Weakest text | Weakest boundary | Verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Cobalt | light | `oklch(0.145 0.005 250)` | `oklch(0.53 0.155 250)` | `oklch(0.5 0.142 250)` | `oklch(0.53 0.155 250)` | Lc 76.3, 5.25:1 | Lc 72.3, 5.02:1 | pass |
+| Cobalt | dark | `oklch(0.985 0.002 250)` | `oklch(0.845 0.079 250)` | `oklch(0.855 0.074 250)` | `oklch(0.75 0.13 250)` | Lc 76.7, 11.62:1 | Lc 57.7, 8.11:1 | pass |
+| Sky | light | `oklch(0.145 0.005 250)` | `oklch(0.55 0.096 212)` | `oklch(0.495 0.086 212)` | `oklch(0.55 0.096 212)` | Lc 76.1, 4.66:1 | Lc 68.7, 4.46:1 | pass |
+| Sky | dark | `oklch(0.985 0.002 250)` | `oklch(0.83 0.13 212)` | `oklch(0.84 0.13 212)` | `oklch(0.7 0.121 212)` | Lc 76.1, 11.49:1 | Lc 51.6, 7.04:1 | pass |
+| Jade | light | `oklch(0.145 0.005 250)` | `oklch(0.545 0.143 152)` | `oklch(0.485 0.128 152)` | `oklch(0.545 0.143 152)` | Lc 76.2, 4.62:1 | Lc 68.3, 4.42:1 | pass |
+| Jade | dark | `oklch(0.985 0.002 250)` | `oklch(0.83 0.13 152)` | `oklch(0.84 0.13 152)` | `oklch(0.7 0.13 152)` | Lc 76.6, 11.54:1 | Lc 51.5, 7.08:1 | pass |
+| Volt | light | `oklch(0.145 0.005 250)` | `oklch(0.555 0.135 122)` | `oklch(0.495 0.121 122)` | `oklch(0.555 0.135 122)` | Lc 76.3, 4.62:1 | Lc 68.8, 4.42:1 | pass |
+| Volt | dark | `oklch(0.985 0.002 250)` | `oklch(0.84 0.13 122)` | `oklch(0.845 0.13 122)` | `oklch(0.7 0.13 122)` | Lc 76.6, 11.53:1 | Lc 50.5, 6.94:1 | pass |
+| Rose | light | `oklch(0.145 0.005 250)` | `oklch(0.56 0.16 354)` | `oklch(0.52 0.16 354)` | `oklch(0.56 0.16 354)` | Lc 76.1, 5.09:1 | Lc 71.3, 4.87:1 | pass |
+| Rose | dark | `oklch(0.985 0.002 250)` | `oklch(0.855 0.089 354)` | `oklch(0.865 0.082 354)` | `oklch(0.7 0.13 354)` | Lc 76.3, 11.55:1 | Lc 46.5, 6.30:1 | pass |
+| Orchid | light | `oklch(0.145 0.005 250)` | `oklch(0.56 0.16 326)` | `oklch(0.52 0.16 326)` | `oklch(0.56 0.16 326)` | Lc 76.2, 5.06:1 | Lc 71.4, 4.84:1 | pass |
+| Orchid | dark | `oklch(0.985 0.002 250)` | `oklch(0.86 0.129 326)` | `oklch(0.87 0.12 326)` | `oklch(0.7 0.13 326)` | Lc 76.4, 11.56:1 | Lc 46.6, 6.33:1 | pass |
+| Violet | light | `oklch(0.145 0.005 250)` | `oklch(0.56 0.16 300)` | `oklch(0.52 0.16 300)` | `oklch(0.56 0.16 300)` | Lc 76.2, 5.00:1 | Lc 71.2, 4.79:1 | pass |
+| Violet | dark | `oklch(0.985 0.002 250)` | `oklch(0.85 0.086 300)` | `oklch(0.86 0.08 300)` | `oklch(0.7 0.13 300)` | Lc 76.0, 11.51:1 | Lc 47.2, 6.44:1 | pass |
+| Iris | light | `oklch(0.145 0.005 250)` | `oklch(0.56 0.16 278)` | `oklch(0.515 0.16 278)` | `oklch(0.56 0.16 278)` | Lc 76.3, 4.86:1 | Lc 70.4, 4.65:1 | pass |
+| Iris | dark | `oklch(0.985 0.002 250)` | `oklch(0.85 0.074 278)` | `oklch(0.855 0.071 278)` | `oklch(0.7 0.13 278)` | Lc 76.2, 11.47:1 | Lc 47.9, 6.54:1 | pass |
+| Graphite | light | `oklch(0.145 0.005 250)` | `oklch(0.269 0.007 250)` | `oklch(0.205 0.006 250)` | `oklch(0.439 0.009 250)` | Lc 98.2, 10.42:1 | Lc 83.9, 7.42:1 | pass |
+| Graphite | dark | `oklch(0.985 0.002 250)` | `oklch(0.929 0.004 250)` | `oklch(0.967 0.003 250)` | `oklch(0.708 0.008 250)` | Lc 81.1, 13.44:1 | Lc 50.1, 6.91:1 | pass |
+
+### Vibes
+
+Held to the standard floors: text at APCA Lc 75 and WCAG 4.5:1, boundaries and rings at Lc 45 and 3:1.
+
+| Accent | Mode | Action | Fill | Ink | Ring | Weakest text | Weakest boundary | Verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Cobalt | light | `oklch(0.56 0.158 250)` | `oklch(0.56 0.158 250)` | `oklch(0.5 0.142 250)` | `oklch(0.56 0.158 250)` | Lc 76.3, 4.65:1 | Lc 68.5, 4.45:1 | pass |
+| Cobalt | dark | `oklch(0.56 0.158 250)` | `oklch(0.56 0.158 250)` | `oklch(0.855 0.074 250)` | `oklch(0.855 0.074 250)` | Lc 77.0, 4.65:1 | Lc 77.0, 11.62:1 | pass |
+| Sky | light | `oklch(0.85 0.129 212)` | `oklch(0.85 0.129 212)` | `oklch(0.495 0.086 212)` | `oklch(0.495 0.086 212)` | Lc 76.1, 5.69:1 | Lc 76.1, 5.69:1 | pass |
+| Sky | dark | `oklch(0.85 0.129 212)` | `oklch(0.85 0.129 212)` | `oklch(0.835 0.142 212)` | `oklch(0.85 0.129 212)` | Lc 76.1, 11.34:1 | Lc 78.6, 11.85:1 | pass |
+| Jade | light | `oklch(0.85 0.221 152)` | `oklch(0.85 0.221 152)` | `oklch(0.485 0.128 152)` | `oklch(0.485 0.128 152)` | Lc 76.2, 5.73:1 | Lc 76.2, 5.73:1 | pass |
+| Jade | dark | `oklch(0.85 0.221 152)` | `oklch(0.85 0.221 152)` | `oklch(0.83 0.216 152)` | `oklch(0.85 0.221 152)` | Lc 77.0, 11.48:1 | Lc 81.3, 12.32:1 | pass |
+| Volt | light | `oklch(0.9 0.216 122)` | `oklch(0.9 0.216 122)` | `oklch(0.495 0.121 122)` | `oklch(0.495 0.121 122)` | Lc 76.3, 5.66:1 | Lc 76.3, 5.66:1 | pass |
+| Volt | dark | `oklch(0.9 0.216 122)` | `oklch(0.9 0.216 122)` | `oklch(0.84 0.202 122)` | `oklch(0.9 0.216 122)` | Lc 76.5, 11.48:1 | Lc 88.6, 13.90:1 | pass |
+| Rose | light | `oklch(0.585 0.239 354)` | `oklch(0.585 0.239 354)` | `oklch(0.515 0.212 354)` | `oklch(0.585 0.239 354)` | Lc 76.1, 4.80:1 | Lc 67.7, 4.59:1 | pass |
+| Rose | dark | `oklch(0.585 0.239 354)` | `oklch(0.585 0.239 354)` | `oklch(0.865 0.082 354)` | `oklch(0.865 0.082 354)` | Lc 76.3, 4.80:1 | Lc 76.7, 11.55:1 | pass |
+| Orchid | light | `oklch(0.59 0.273 326)` | `oklch(0.59 0.273 326)` | `oklch(0.52 0.241 326)` | `oklch(0.59 0.273 326)` | Lc 76.0, 4.78:1 | Lc 67.6, 4.57:1 | pass |
+| Orchid | dark | `oklch(0.59 0.273 326)` | `oklch(0.59 0.273 326)` | `oklch(0.87 0.12 326)` | `oklch(0.87 0.12 326)` | Lc 76.2, 4.78:1 | Lc 76.8, 11.56:1 | pass |
+| Violet | light | `oklch(0.59 0.262 300)` | `oklch(0.59 0.262 300)` | `oklch(0.52 0.276 300)` | `oklch(0.59 0.262 300)` | Lc 76.6, 4.69:1 | Lc 68.4, 4.48:1 | pass |
+| Violet | dark | `oklch(0.59 0.262 300)` | `oklch(0.59 0.262 300)` | `oklch(0.86 0.08 300)` | `oklch(0.86 0.08 300)` | Lc 76.4, 4.69:1 | Lc 76.4, 11.51:1 | pass |
+| Iris | light | `oklch(0.58 0.23 278)` | `oklch(0.58 0.23 278)` | `oklch(0.52 0.269 278)` | `oklch(0.58 0.23 278)` | Lc 76.8, 4.65:1 | Lc 68.6, 4.45:1 | pass |
+| Iris | dark | `oklch(0.58 0.23 278)` | `oklch(0.58 0.23 278)` | `oklch(0.855 0.071 278)` | `oklch(0.855 0.071 278)` | Lc 76.2, 4.65:1 | Lc 76.2, 11.47:1 | pass |
+| Graphite | light | `oklch(0.145 0.005 250)` | `oklch(0.145 0.005 250)` | `oklch(0.145 0.005 250)` | `oklch(0.439 0.009 250)` | Lc 98.2, 10.42:1 | Lc 83.9, 7.42:1 | pass |
+| Graphite | dark | `oklch(0.985 0.002 250)` | `oklch(0.985 0.002 250)` | `oklch(0.985 0.002 250)` | `oklch(0.871 0.005 250)` | Lc 92.0, 16.09:1 | Lc 79.8, 12.19:1 | pass |
+
+### Stryk
+
+Held to the enhanced floors: text at APCA Lc 85 and WCAG 7:1, boundaries and rings at Lc 60 and 4.5:1.
+
+| Accent | Mode | Action | Fill | Ink | Ring | Weakest text | Weakest boundary | Verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Cobalt | light | `oklch(0.46 0.132 250)` | `oklch(0.46 0.132 250)` | `oklch(0.44 0.126 250)` | `oklch(0.44 0.126 250)` | Lc 86.4, 7.10:1 | Lc 84.0, 7.10:1 | pass |
+| Cobalt | dark | `oklch(0.9 0.05 250)` | `oklch(0.9 0.05 250)` | `oklch(0.9 0.05 250)` | `oklch(0.9 0.05 250)` | Lc 86.5, 14.73:1 | Lc 86.5, 14.73:1 | pass |
+| Sky | light | `oklch(0.45 0.079 212)` | `oklch(0.45 0.079 212)` | `oklch(0.435 0.077 212)` | `oklch(0.435 0.077 212)` | Lc 86.1, 7.23:1 | Lc 84.6, 7.23:1 | pass |
+| Sky | dark | `oklch(0.89 0.093 212)` | `oklch(0.89 0.093 212)` | `oklch(0.89 0.093 212)` | `oklch(0.89 0.093 212)` | Lc 86.6, 14.71:1 | Lc 86.6, 14.71:1 | pass |
+| Jade | light | `oklch(0.445 0.118 152)` | `oklch(0.445 0.118 152)` | `oklch(0.425 0.113 152)` | `oklch(0.425 0.113 152)` | Lc 86.7, 7.13:1 | Lc 84.2, 7.13:1 | pass |
+| Jade | dark | `oklch(0.87 0.226 152)` | `oklch(0.87 0.226 152)` | `oklch(0.875 0.227 152)` | `oklch(0.875 0.227 152)` | Lc 86.2, 14.67:1 | Lc 86.0, 14.43:1 | pass |
+| Volt | light | `oklch(0.45 0.111 122)` | `oklch(0.45 0.111 122)` | `oklch(0.44 0.108 122)` | `oklch(0.44 0.108 122)` | Lc 86.1, 7.24:1 | Lc 85.0, 7.24:1 | pass |
+| Volt | dark | `oklch(0.885 0.212 122)` | `oklch(0.885 0.212 122)` | `oklch(0.885 0.212 122)` | `oklch(0.885 0.212 122)` | Lc 86.1, 14.56:1 | Lc 86.1, 14.56:1 | pass |
+| Rose | light | `oklch(0.485 0.2 354)` | `oklch(0.485 0.2 354)` | `oklch(0.45 0.186 354)` | `oklch(0.45 0.186 354)` | Lc 86.1, 7.17:1 | Lc 82.5, 7.17:1 | pass |
+| Rose | dark | `oklch(0.905 0.055 354)` | `oklch(0.905 0.055 354)` | `oklch(0.91 0.052 354)` | `oklch(0.91 0.052 354)` | Lc 86.2, 14.89:1 | Lc 86.0, 14.59:1 | pass |
+| Orchid | light | `oklch(0.49 0.228 326)` | `oklch(0.49 0.228 326)` | `oklch(0.455 0.212 326)` | `oklch(0.455 0.212 326)` | Lc 86.2, 7.14:1 | Lc 82.4, 7.14:1 | pass |
+| Orchid | dark | `oklch(0.91 0.081 326)` | `oklch(0.91 0.081 326)` | `oklch(0.91 0.081 326)` | `oklch(0.91 0.081 326)` | Lc 86.5, 14.70:1 | Lc 86.5, 14.70:1 | pass |
+| Violet | light | `oklch(0.495 0.263 300)` | `oklch(0.495 0.263 300)` | `oklch(0.46 0.245 300)` | `oklch(0.46 0.245 300)` | Lc 86.0, 7.16:1 | Lc 82.4, 7.16:1 | pass |
+| Violet | dark | `oklch(0.905 0.054 300)` | `oklch(0.905 0.054 300)` | `oklch(0.905 0.054 300)` | `oklch(0.905 0.054 300)` | Lc 86.5, 14.71:1 | Lc 86.5, 14.71:1 | pass |
+| Iris | light | `oklch(0.495 0.286 278)` | `oklch(0.495 0.286 278)` | `oklch(0.455 0.278 278)` | `oklch(0.455 0.278 278)` | Lc 86.5, 7.11:1 | Lc 82.7, 7.11:1 | pass |
+| Iris | dark | `oklch(0.9 0.048 278)` | `oklch(0.9 0.048 278)` | `oklch(0.9 0.048 278)` | `oklch(0.9 0.048 278)` | Lc 86.2, 14.64:1 | Lc 86.2, 14.64:1 | pass |
+| Graphite | light | `oklch(0 0 0)` | `oklch(0 0 0)` | `oklch(0 0 0)` | `oklch(0 0 0)` | Lc 98.2, 10.42:1 | Lc 106.0, 21.00:1 | pass |
+| Graphite | dark | `oklch(1 0 0)` | `oklch(1 0 0)` | `oklch(1 0 0)` | `oklch(1 0 0)` | Lc 92.2, 17.06:1 | Lc 107.7, 19.80:1 | pass |
+
+{/* opsinjs:generated:end */}

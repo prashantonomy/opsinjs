@@ -576,6 +576,111 @@ function contrastPage(): PageSpec {
   }
 }
 
+/**
+ * The accent layer's measurements (ADR 0029), from
+ * lib/generated/accent-contrast.json, which scripts/check-contrast.mts writes.
+ * One table per accent theme, one row per accent and mode: the four colours a
+ * reader sees, the weakest text pair and the weakest boundary pair, and the
+ * verdict against the theme's own floors. Every value is read from the file;
+ * nothing here is computed beyond picking the lowest of the rows.
+ */
+function accentsPage(): PageSpec {
+  const data = readJsonMaybe(join(LIB_DIR, "generated", "accent-contrast.json")) as
+    | {
+        generatedAt?: string
+        summary?: { total?: number; passing?: number; failing?: number; exempt?: number }
+        rows?: Array<Record<string, unknown>>
+      }
+    | undefined
+  const rows = Array.isArray(data?.rows) ? data.rows : []
+  const themes = [...new Set(rows.map((row) => String(row.theme)))]
+  const titleCase = (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
+
+  const weakest = (group: Array<Record<string, unknown>>, use: string): string => {
+    const gated = group.filter((row) => row.use === use && row.exempt !== true)
+    if (gated.length === 0) return "none"
+    const lowest = gated.reduce((low, row) =>
+      Math.abs(Number(row.apcaLc)) < Math.abs(Number(low.apcaLc)) ? row : low,
+    )
+    const ratio = gated.reduce((low, row) => (Number(row.wcag) < Number(low.wcag) ? row : low))
+    return `Lc ${Math.abs(Number(lowest.apcaLc)).toFixed(1)}, ${Number(ratio.wcag).toFixed(2)}:1`
+  }
+  const value = (group: Array<Record<string, unknown>>, key: string, side: "foregroundValue" | "backgroundValue") => {
+    const row = group.find((entry) => entry.key === key)
+    return row ? `\`${String(row[side])}\`` : ""
+  }
+
+  const sections = themes
+    .map((theme) => {
+      const ofTheme = rows.filter((row) => row.theme === theme)
+      const accents = [...new Set(ofTheme.map((row) => String(row.accent)))]
+      const floors = String(ofTheme[0]?.floors ?? "standard")
+      const tableRows: string[][] = []
+      for (const accent of accents) {
+        for (const mode of ["light", "dark"]) {
+          const group = ofTheme.filter((row) => row.accent === accent && row.mode === mode)
+          if (group.length === 0) continue
+          const failing = group.some((row) => row.passes !== true && row.exempt !== true)
+          tableRows.push([
+            cell(titleCase(accent)),
+            cell(mode),
+            value(group, "action-foreground-on-action", "backgroundValue"),
+            value(group, "fill-foreground-on-fill", "backgroundValue"),
+            value(group, "ink-on-page", "foregroundValue"),
+            value(group, "ring-on-page", "foregroundValue"),
+            cell(weakest(group, "body")),
+            cell(weakest(group, "nonText")),
+            failing ? "FAIL" : "pass",
+          ])
+        }
+      }
+      return [
+        `### ${titleCase(theme)}`,
+        "",
+        floors === "enhanced"
+          ? "Held to the enhanced floors: text at APCA Lc 85 and WCAG 7:1, boundaries and rings at Lc 60 and 4.5:1."
+          : "Held to the standard floors: text at APCA Lc 75 and WCAG 4.5:1, boundaries and rings at Lc 45 and 3:1.",
+        "",
+        table(["Accent", "Mode", "Action", "Fill", "Ink", "Ring", "Weakest text", "Weakest boundary", "Verdict"], tableRows),
+      ].join("\n")
+    })
+    .join("\n\n")
+
+  return {
+    slug: "accents",
+    title: "Accent contrast",
+    description:
+      "Measured APCA Lc and WCAG 2.2 contrast for every accent theme and accent in both modes, against each theme's own floors.",
+    howItIsGenerated: [
+      "Source: `tokens/accent.json`, read through `scripts/accent-plan.mts` and measured",
+      "by `scripts/check-contrast.mts` with the colour maths in `lib/color/`, into",
+      "`lib/generated/accent-contrast.json`. Command: `pnpm run contrast`.",
+    ].join("\n"),
+    body:
+      rows.length === 0
+        ? noData(
+            "scripts/check-contrast.mts",
+            "No accent pairs have been measured yet. `pnpm run contrast` measures them and writes `lib/generated/accent-contrast.json`.",
+          )
+        : [
+            "## Measured accents",
+            "",
+            [
+              data?.generatedAt ? `Measured on ${data.generatedAt}.` : "",
+              data?.summary
+                ? `${data.summary.total} pairs: ${data.summary.passing} pass, ${data.summary.failing} fail, and ${data.summary.exempt} exempt, each an accent fill bounded by a rim that is measured in its place.`
+                : "",
+            ]
+              .filter((line) => line !== "")
+              .join(" "),
+            "",
+            "Each row is one accent in one mode. Action is the filled action, Fill the selected state of a selection control, Ink accent text on the page and Ring the focus ring. Weakest text is the lowest of the label, tick and accent text pairs, and weakest boundary the lowest of the fill, rim and ring pairs.",
+            "",
+            sections,
+          ].join("\n"),
+  }
+}
+
 function dataAttributesPage(): PageSpec {
   return {
     slug: "data-attributes",
@@ -1504,6 +1609,7 @@ async function main(): Promise<void> {
     keyboardPage(),
     typesPage(symbols, usedBy, byName),
     contrastPage(),
+    accentsPage(),
   ]
 
   const outputs: Array<{ file: string; contents: string }> = specs.map((spec) => {
