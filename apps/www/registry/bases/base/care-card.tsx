@@ -148,11 +148,11 @@ const PART_RHYTHM = "[&:not(:first-child)]:mt-4"
  * because a brand fill on the card's own ground marks nothing and a status
  * surface has no measured contrast pair for it. `Button variant="primary"` is
  * still there for a form submit inside a Dialog or a Sheet; it is the card
- * action, not Button, that the neutral rule binds. The underline is the one
- * sanctioned difference between the two transports, under D3 rule 2: an anchor
- * is underlined so it reads and announces as a link, a Button carrying a fill
- * or a boundary is not, and a quiet Button with neither takes the underline so
- * a handler-form action never reads as a paragraph.
+ * action, not Button, that the neutral rule binds. Neither transport is
+ * underlined. An underline marks a link inside running text, and a card action
+ * stands in a row of actions: the recommended one is a bordered capsule and the
+ * alternative is set in the accent ink (ADR 0029) on both transports, so neither
+ * reads as a paragraph.
  */
 
 /**
@@ -567,16 +567,15 @@ function actionControl(
 
   /* The acting transport, on D3's neutral ladder, which is the one ResultCard
      renders. The recommended action is `secondary`, a bordered neutral control
-     at the md size; the alternative is `quiet` at sm, taking the underline a
-     Button with neither fill nor boundary needs so it cannot read as a
-     paragraph. Neither is `primary`: a card action is never brand-filled, and
+     at the md size; the alternative is `quiet` at sm, set in the accent ink so
+     a Button with neither fill nor boundary still reads as a control. Neither
+     is `primary`: a card action is never brand-filled, and
      the recommended anchor above is the same neutral bordered control.
 
      THE CLASS DELTA COMES FROM THE SHARED RECIPE, NOT A LOCAL STRING. Button
      already brings the box, the fill and the type step through its own TONE and
-     SIZE, so `cardActionClassName({ as: "button" })` returns only what is left:
-     the empty string for the recommended weight, and `underline
-     underline-offset-4` for the quiet one. Routing it through the recipe is what
+     SIZE, so `cardActionClassName({ as: "button" })` returns only what is left,
+     which on this neutral ground is the empty string for both weights. Routing it through the recipe is what
      keeps this handler form and the Link form above from drifting, and it is
      why this file now holds no private action class string of its own. Button
      carries the `active:translate-y-px` press cue in its own base class, so the

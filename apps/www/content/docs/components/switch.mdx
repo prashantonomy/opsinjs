@@ -13,7 +13,7 @@ reviewer: engineering
   name="switch"
   status="shipped"
   questions={[
-    "No contrast pair has been measured: the card thumb against the primary fill when on, against the muted fill when off, and the hairline round both.",
+    "No contrast pair has been measured: the card thumb against the accent fill when on, against the muted fill when off, and the hairline round both.",
     "Nobody has listened to this switch in a screen reader, so whether role=\"switch\" with its label and helper line reads usefully is reasoned, not heard.",
     "Forced colours, prefers-contrast: more, right-to-left layout and prefers-reduced-motion are unhandled, so the thumb slides and the fills swap untested.",
   ]}
@@ -85,7 +85,7 @@ The audit found nothing to change in the source.
   enclosing label row, which toggles the control.
 - Focus sits on the track with the house ring, and both transitions collapse under
   `prefers-reduced-motion: reduce` through the fast-duration token.
-- It uses only neutral chrome and the bridged primary fill, and `pnpm run check:a11y`
+- It uses only neutral chrome and the accent fill, and `pnpm run check:a11y`
   confirms on every commit that no colour literal, `px` type size or banned word appears.
 
 **Residual items.** No contrast pair has been read yet, so the report below stands in for

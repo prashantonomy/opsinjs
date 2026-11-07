@@ -201,10 +201,10 @@ const LINE_EDGE: Record<ClinicalStatus, string> = {
  * an opaque fill of its own any more, so each one inherits whatever colour
  * cascades in, and on a status tint that has to be the level's own `-ink`.
  *
- * The override is load-bearing because `Button variant="quiet"` now asserts
- * `[color:var(--primary)]` rather than inheriting. Left alone a quiet Button
- * would paint the brand action colour on a clinical tint, a cross-axis pair
- * nothing has measured. `-ink` on `-surface` is the pair the ramps are built to
+ * The override is load-bearing because `Button variant="quiet"` asserts the
+ * accent ink, `[color:var(--brand-ink)]` (ADR 0029), rather than inheriting.
+ * Left alone a quiet Button would paint the accent on a clinical tint, a
+ * cross-axis pair nothing has measured. `-ink` on `-surface` is the pair the ramps are built to
  * guarantee, recorded at WCAG 9.62 to 12.74 in `lib/generated/contrast.json`,
  * so the wrapper hands the level's ink down and the quiet default never shows.
  *
@@ -541,12 +541,11 @@ function actionControl(
      the same weight as the action. So a handler-form action is `variant="quiet"`,
      which brings no fill of its own and takes the level's ink from
      ON_SURFACE_INK on the wrapper, for the same reason the dismiss control does.
-     The recommended arm adds the tinted recommended delta, which is a radius, a
-     2px boundary and the underline, plus the level's line colour, so the href
-     and onSelect forms of one action look alike; the quiet arm adds the
-     underline alone. Both arms carry the underline, because D2's button table
-     keeps it on every card action so that neither transport of an action reads
-     as a paragraph. Both deltas come from
+     The recommended arm passes the level's line colour for the hairline Button
+     already draws, so the href and onSelect forms of one action look alike, and
+     the quiet arm turns that hairline to the surrounding ink. Neither arm is
+     underlined: each is a capsule with a boundary, so neither transport of an
+     action reads as a paragraph. Both deltas come from
      `cardActionClassName({..., ground: "tinted", as: "button"})` in `button.tsx`,
      the same recipe the `href` form takes through `Link`, so the two transports
      of one action are drawn from one source and cannot drift. The size follows

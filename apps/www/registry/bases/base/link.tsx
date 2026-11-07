@@ -82,11 +82,14 @@ import { cardActionClassName } from "@/registry/base-lyra/ui/button"
 
 /**
  * The emphasis ladder, and it is required rather than defaulted. `inline` is a
- * link inside a sentence, underline only. `action` is a card's primary action,
- * the recommended weight of the card action recipe. `secondary` is the quiet
- * weight beside it. The three survive greyscale: `inline` has no box, `action`
- * has a bordered box at the larger type step, and `secondary` a smaller box with
- * none, so the ladder is a box and a boundary rather than a hue.
+ * link inside a sentence, and the only one that is underlined, because inside
+ * running text the underline is what says "link". `action` is a card's primary
+ * action, the recommended weight of the card action recipe, a bordered capsule.
+ * `secondary` is the quiet weight beside it, set in the accent ink at weight 600
+ * on a neutral ground and drawn as a hairline capsule on a status tint. On a
+ * neutral ground the ladder survives greyscale through the boundary and the type
+ * step; the quiet arm's accent is its colour cue, and it is never inside a
+ * sentence, where colour alone would not be enough.
  */
 type LinkEmphasis = "inline" | "action" | "secondary"
 
