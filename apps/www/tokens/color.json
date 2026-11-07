@@ -183,7 +183,7 @@
     }
   },
   "chrome": {
-    "$comment": "The chrome roles: the page background, the card fill, body ink, the muted fill and its ink, the hairline, the input boundary, the focus ring, and the primary action colour with its ink. Every component renders these. Before this block they lived only as raw oklch values in app/product.css, at grey hues that did not sit on the neutral ladder, so the contrast gate measured a page that was not the page that rendered. Holding them here gives scripts/build-tokens.mts a source of truth and makes the audited page the rendered page. Each role names a ladder step where one exists and states an explicit oklch only where none does. Declared per theme. The honest residual, which this makes visible and does not fix: ring at chroma 0.13 and primary at chroma 0.135 are as chromatic as the category axis, whose labs seed is 0.11, so calling these roles neutral is wrong. That is a design question for a human, not a value to tune here. Values are fixed by DECISIONS.md D5. mutedForeground follows product-theme-and-tokens-02.a; border and input follow product-theme-and-tokens-07.a.",
+    "$comment": "The chrome roles: the page background, the card fill, body ink, the muted fill and its ink, the control boundary, the input boundary, the decorative edge of a sheet, the focus ring, the brand light, and the primary action colour with its ink. Every component renders these. Holding them here gives scripts/build-tokens.mts a source of truth and makes the audited page the rendered page. Each role names a ladder step where one exists and states an explicit oklch only where none does. Declared per theme. ADR 0028 answers the question the September audit (D5) left for a human, that ring and primary were as chromatic as the category axis. The primary action is now ink, the darkest neutral step by day and the lightest by night, so a filled control carries no hue and the two axes are the only chromatic colour on a product screen. The one hue left in the chrome is `brand`, the brand light at hue 250, between labs (210) and sleep (275). It is spent as light and nowhere else: the focus ring, the underline of a link, the mark beside an eyebrow, the bar beside the current page and the bloom behind the documentation. It never fills anything that reports a result and it carries no meaning, so it is neither axis. `ring` is the same value as `brand`, kept as its own role because the focus ring is measured on its own. `border` and `input` stay at neutral-500, the 3:1 boundary of a control. `edge` is the decorative line around a sheet that is not a control, a card, a tile or a table, which a drop and a line of light now lift off the page, so it no longer has to be the only elevation cue and WCAG 1.4.11 does not ask it to clear 3:1. mutedForeground follows product-theme-and-tokens-02.a.",
     "roles": {
       "background": {
         "light": "neutral-50",
@@ -217,17 +217,25 @@
         "light": "neutral-500",
         "dark": "neutral-500"
       },
+      "edge": {
+        "light": "oklch(0.205 0.006 250 / 0.1)",
+        "dark": "oklch(1 0 0 / 0.1)"
+      },
       "ring": {
-        "light": "oklch(0.55 0.13 250)",
-        "dark": "oklch(0.68 0.115 250)"
+        "light": "oklch(0.53 0.155 250)",
+        "dark": "oklch(0.75 0.13 250)"
+      },
+      "brand": {
+        "light": "oklch(0.53 0.155 250)",
+        "dark": "oklch(0.75 0.13 250)"
       },
       "primary": {
-        "light": "oklch(0.51 0.135 250)",
-        "dark": "oklch(0.72 0.12 250)"
+        "light": "neutral-950",
+        "dark": "neutral-50"
       },
       "primaryForeground": {
-        "light": "oklch(0.99 0 0)",
-        "dark": "oklch(0.16 0.01 260)"
+        "light": "neutral-0",
+        "dark": "neutral-950"
       }
     }
   },

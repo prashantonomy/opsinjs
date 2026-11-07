@@ -600,7 +600,13 @@ function emitMaterial(source: JsonObject, out: TokenLeaf[]): void {
     })
     const border = themed(rung.border, asVar)
     push("border", border.light, `${label}: the boundary.`, { dark: border.dark })
-    push("shadow", str(rung.shadow), `${label}: the shadow that separates it from what is behind.`)
+    /* Per theme where the rung says so. A drop that seats a sheet on a white
+       page is invisible on a near-black one, so a dark shadow is deeper, and
+       a rung that publishes one string uses it in both themes. */
+    const shadow = themed(rung.shadow, str)
+    push("shadow", shadow.light, `${label}: the shadow that separates it from what is behind.`, {
+      dark: shadow.dark,
+    })
     push(
       "scrim",
       str(rung.minScrimOpacity),
