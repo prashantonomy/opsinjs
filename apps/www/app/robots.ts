@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides robots.txt: what Google may crawl, and where the sitemap is. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { MetadataRoute } from "next"
 
 import { site } from "@/lib/routes"

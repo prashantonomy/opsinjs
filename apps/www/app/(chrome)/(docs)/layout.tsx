@@ -1,3 +1,5 @@
+// SEO-CRITICAL: sets the browser-tab and search title of every page in this group. Read SEO.md
+// and ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
 
@@ -7,13 +9,13 @@ import { site } from "@/lib/routes"
 
 /**
  * The browser-tab title template for every documentation page. The page's
- * `generateMetadata` returns the bare frontmatter title, which is right for
- * the social card, and the system name is appended here once.
+ * `generateMetadata` returns the bare frontmatter title and nothing is
+ * appended to it. See the note on `app/(chrome)/(home)/layout.tsx`.
  */
 export const metadata: Metadata = {
   title: {
-    template: `%s · ${site.name}`,
-    default: `${site.name} · a design system for consumer health apps`,
+    template: "%s",
+    default: `${site.name} documentation`,
   },
 }
 

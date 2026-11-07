@@ -1,3 +1,5 @@
+// SEO-CRITICAL: shapes every page's title, description, canonical and social card. Read SEO.md
+// and ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { Metadata } from "next"
 
 import { absoluteUrl, ogUrl, routes, site } from "@/lib/routes"
@@ -57,6 +59,21 @@ export const OG_LOCALE = "en_GB"
 export const SITE_DESCRIPTION = site.tagline
 
 /**
+ * The home page title, in the form every Pensieve Labs home page takes: the
+ * site name, a colon, then what it is. Every other page carries only its own
+ * title, with no suffix, because Google already prints the site name above the
+ * result (MASTER.md section 4).
+ */
+export const HOME_TITLE = `${site.name}: a design system for consumer health apps`
+
+/**
+ * The home page's search description. It names the publisher, so the page
+ * answers a search for "pensieve opsinjs" as well as one for "opsinjs".
+ */
+export const HOME_DESCRIPTION =
+  "opsinjs is the open source React design system from Pensieve Labs for consumer health products, built for the person reading their own results."
+
+/**
  * The alternate representations every page advertises.
  *
  * The feed is here rather than only on the root layout because Next merges
@@ -75,7 +92,7 @@ function alternateTypes(
 }
 
 export interface PageMetadataInput {
-  /** The page title, without the system name. The layout template appends it. */
+  /** The page title, without the system name. Nothing is appended to it. */
   title: string
   description: string
   /** Root-relative path of the page this metadata describes. */
@@ -217,7 +234,7 @@ export const siteMetadata: Metadata = {
     siteName: site.name,
     locale: OG_LOCALE,
     url: site.url,
-    title: `${site.name} · a design system for consumer health apps`,
+    title: HOME_TITLE,
     description: SITE_DESCRIPTION,
     images: [
       {
@@ -230,7 +247,7 @@ export const siteMetadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} · a design system for consumer health apps`,
+    title: HOME_TITLE,
     description: SITE_DESCRIPTION,
     images: [ogUrl({ title: site.name, description: SITE_DESCRIPTION })],
   },

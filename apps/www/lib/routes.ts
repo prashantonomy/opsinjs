@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides the canonical origin and every URL this site publishes. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 /**
  * THE ONLY PLACE A URL IS CONSTRUCTED.
  *
@@ -38,8 +40,11 @@ export const site = {
    */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.pensievelabs.org",
   github: "https://github.com/prashantonomy/opsinjs",
-  /** The company that publishes opsinjs, whose lockup closes the landing page. */
-  publisher: { name: "Pensieve", url: "https://www.pensievelabs.org" },
+  /**
+   * The company that publishes opsinjs, whose lockup closes the landing page.
+   * Its address and every other entity value live in seo/registry.json.
+   */
+  publisher: { name: "Pensieve" },
   /**
    * Whether the repository is public, which it has been since 8 October 2026.
    * It gates "Edit this page" and "View on GitHub", because a link to a

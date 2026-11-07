@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides rewrites, redirects and headers Google follows. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import { createMDX } from "fumadocs-mdx/next"
 
 /**

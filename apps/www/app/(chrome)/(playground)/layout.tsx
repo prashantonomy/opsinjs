@@ -1,22 +1,23 @@
+// SEO-CRITICAL: sets the browser-tab and search title of every page in this group. Read SEO.md
+// and ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import { HomeLayout } from "fumadocs-ui/layouts/home"
 
 import { SiteFooter } from "@/components/site-footer"
 import { baseOptions } from "@/lib/layout.shared"
-import { site } from "@/lib/routes"
 import { ToolNav } from "./tool-nav"
 
 /**
- * The same title template the other groups carry, for the same reason: the
- * three tools are titled "Playground", "Theme generator", "Contrast oracle" and
- * "Two-axis lab", none of which names the system on its own. See the note on
- * `app/(chrome)/(home)/layout.tsx` for why this is not on the root layout.
+ * The same title template the other groups carry: the tools are titled
+ * "Playground", "Theme generator", "Contrast oracle" and "Two-axis lab", with
+ * no suffix. See the note on `app/(chrome)/(home)/layout.tsx` for why, and for
+ * why this is not on the root layout.
  */
 export const metadata: Metadata = {
   title: {
-    template: `%s · ${site.name}`,
-    default: `Playground · ${site.name}`,
+    template: "%s",
+    default: "Playground",
   },
 }
 

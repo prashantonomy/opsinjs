@@ -1,3 +1,5 @@
+// SEO-CRITICAL: decides the title, description, canonical and structured data of every documentation page. Read SEO.md and
+// ~/pensievelabs/seo/MASTER.md before changing it, then run pnpm seo:check.
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { createRelativeLink } from "fumadocs-ui/mdx"
