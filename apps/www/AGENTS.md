@@ -26,7 +26,7 @@ app/(view)/layout.tsx        its OWN <html>/<body>, imports ONLY product.css, no
 ```
 
 `(view)` is the chrome-less preview surface: it renders under the **opsinjs product
-theme** (squircle radii, system-ui, generous spacing) rather than the lyra docs chrome,
+theme** (squircle radii, system-ui, generous spacing) rather than the docs chrome,
 and `<ComponentPreview>`/`<IframePreview>` embed it, as does `<ShowcaseStage>` on
 `/showcase/<slug>`. That isolation is only possible
 because there is no top-level `app/layout.tsx`. Adding one back re-nests `(view)` under
@@ -92,7 +92,7 @@ is the sheet a component actually renders against.
 
 **The palette a component renders against is `app/product.css`, not `app/globals.css`.**
 A preview is an iframe into `(view)`, which imports only `product.css`, so anything
-declared solely in `globals.css` resolves to nothing there. That is the lyra docs
+declared solely in `globals.css` resolves to nothing there. That is the docs
 chrome's `--secondary`, `--accent`, `--destructive`, `--popover`, `--sidebar*`,
 `--chart-*` and the larger radii. A component using them looks correct in review and
 renders unstyled in the product. `product.css`'s `@theme inline` block is the whole
@@ -119,7 +119,7 @@ list of what is available.
 ## The CSS order in `app/globals.css` is load-bearing
 
 `tailwindcss` → `tw-animate-css` → `shadcn/tailwind.css` → `fumadocs-ui/css/shadcn.css`
-→ `fumadocs-ui/css/preset.css` → `@source` lines → the lyra `@theme inline` / `:root` /
+→ `fumadocs-ui/css/preset.css` → `@source` lines → the chrome theme's `@theme inline` / `:root` /
 `.dark` blocks → `./tokens.generated.css` → the opsinjs token layer → `@layer base` and
 `@media print` → `@custom-variant dark (&:where(.dark, .dark *));` **last**.
 

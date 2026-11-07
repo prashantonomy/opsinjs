@@ -200,7 +200,7 @@ export function MotionCurve({
 
   return (
     <figure
-      className={cn("not-prose my-6 border border-border p-3", className)}
+      className={cn("not-prose docs-sheet my-6 p-4", className)}
       data-opsinjs-specimen="motion-curve"
     >
       {points.length > 1 ? (
@@ -295,14 +295,14 @@ export function MotionDemo({
 
   return (
     <div
-      className={cn("not-prose my-6 border border-border", className)}
+      className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}
       data-opsinjs-specimen="motion-demo"
     >
       <div className="flex flex-wrap items-center gap-3 border-b border-border/60 p-3">
         <button
           type="button"
           onClick={() => setOn((value) => !value)}
-          className="border border-border px-2 py-1 text-xs hover:bg-muted"
+          className="rounded-full border border-border px-3 py-1 text-xs hover:bg-muted"
         >
           {on ? "Send it back" : "Play"}
         </button>

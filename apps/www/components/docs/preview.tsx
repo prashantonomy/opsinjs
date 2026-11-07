@@ -203,7 +203,7 @@ function SwitchGroup<T extends string>({
               htmlFor={id}
               title={option.title}
               className={cn(
-                "cursor-pointer border border-border px-1.5 py-0.5 text-[0.6875rem] leading-4",
+                "cursor-pointer rounded-full border border-border px-2.5 py-1 text-[0.6875rem] font-medium leading-4 transition-colors",
                 active
                   ? "border-foreground bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
@@ -253,7 +253,7 @@ export function ViewportToolbar({
                 htmlFor={id}
                 title={`${DEVICES[key].label} at ${DEVICES[key].width}px`}
                 className={cn(
-                  "cursor-pointer border border-border p-1",
+                  "cursor-pointer rounded-full border border-border p-1.5 transition-colors",
                   active
                     ? "border-foreground bg-foreground text-background"
                     : "text-muted-foreground hover:text-foreground"
@@ -317,7 +317,7 @@ export function DeviceFrame({
       className={cn("flex justify-center overflow-x-auto", className)}
     >
       <div
-        className="shrink-0 border border-border bg-background"
+        className="shrink-0 overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--docs-shadow-sheet)]"
         style={{ width: meta.width, maxWidth: "100%", height }}
       >
         {children}
@@ -470,9 +470,9 @@ export function ComponentPreview({
       // to know which document a preview is actually showing, without parsing
       // an iframe out of the markup first.
       data-opsinjs-view-src={children ? undefined : (viewSrc ?? undefined)}
-      className={cn("not-prose my-6 border border-border", className)}
+      className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}
     >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/60 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border px-4 py-2.5">
         <SwitchGroup
           label="Theme"
           name={`${id}-mode`}
@@ -532,8 +532,14 @@ export function ComponentPreview({
         // one preview can be inspected in the other theme without flipping the
         // whole page. That is how you compare a contrast pair honestly.
         className={cn(
-          "flex bg-background p-6",
-          mode === "dark" && "dark",
+          /* The surface takes the product page's own colour in the preview's
+             own theme, not the page's, so a light specimen on a dark page sits
+             on one ground rather than in a dark-padded box. The two neutral
+             steps are what --opsin-chrome-background resolves to in each. */
+          "flex p-6",
+          mode === "dark"
+            ? "dark bg-[var(--opsin-neutral-950)]"
+            : "bg-[var(--opsin-neutral-50)]",
           align === "center" ? "items-center justify-center" : "flex-col"
         )}
         data-density={density === "default" ? undefined : density}
@@ -671,9 +677,9 @@ export function IframePreview({
     <figure
       data-opsinjs-preview={name}
       data-opsinjs-view-src={src}
-      className={cn("not-prose my-6 border border-border", className)}
+      className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}
     >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/60 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border px-4 py-2.5">
         <ViewportToolbar device={device} onDeviceChange={setDevice} />
         <SwitchGroup
           label="Theme"
@@ -708,7 +714,7 @@ export function IframePreview({
           <DeviceFrame device={device} height={height}>
             <div
               role="note"
-              className="flex h-full items-center justify-center border border-dashed border-border p-4 text-xs text-muted-foreground"
+              className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border p-4 text-xs text-muted-foreground"
             >
               <p className="m-0">
                 This page does not mount the frame. Open{" "}

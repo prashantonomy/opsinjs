@@ -56,10 +56,17 @@ import { cn } from "@/lib/utils"
  */
 export const metadata: Metadata = siteMetadata
 
+/**
+ * Inter with its optical size axis, so a page title is drawn from Inter's
+ * display cut and running text from its text cut out of one variable file.
+ * `font-optical-sizing: auto` is the browser default, which maps the axis to
+ * the font size, so nothing else has to ask for it.
+ */
 const fontSans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
+  axes: ["opsz"],
 })
 
 export default function ChromeRootLayout({

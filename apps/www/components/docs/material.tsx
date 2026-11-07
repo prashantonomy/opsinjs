@@ -177,7 +177,7 @@ export function MaterialLadder({
 
   return (
     <div
-      className={cn("not-prose my-6 border border-border", className)}
+      className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}
       data-opsinjs-specimen="material-ladder"
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 p-3">
@@ -202,7 +202,7 @@ export function MaterialLadder({
               <label
                 htmlFor={`${id}-bg-${key}`}
                 className={cn(
-                  "cursor-pointer border border-border px-2 py-0.5 text-xs",
+                  "cursor-pointer rounded-full border border-border px-3 py-1 text-xs",
                   backdrop === key
                     ? "border-foreground bg-foreground text-background"
                     : "text-muted-foreground hover:text-foreground"

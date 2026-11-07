@@ -1,5 +1,6 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared"
 
+import { LogoMark } from "@/components/logo-mark"
 import { site } from "@/lib/routes"
 
 /**
@@ -21,11 +22,10 @@ export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: (
-        <span className="inline-flex items-center gap-2 font-semibold tracking-tight">
-          <span
-            aria-hidden="true"
-            className="size-4 rounded-[4px] bg-fd-primary"
-          />
+        <span className="inline-flex items-center gap-2.5 text-[1.0625rem] font-extrabold tracking-[-0.04em]">
+          <span className="flex rounded-[7px] shadow-[0_0_0_1px_var(--border)]">
+            <LogoMark size={26} />
+          </span>
           {site.name}
         </span>
       ),

@@ -114,7 +114,7 @@ export function StatusBadge({
       data-release-phase={status}
       title={meta.summary}
       className={cn(
-        "inline-flex items-center gap-1 border px-1.5 py-px align-middle text-[0.6875rem] leading-5 font-medium tracking-wide uppercase",
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-px align-middle text-[0.6875rem] leading-5 font-semibold tracking-[0.08em] uppercase",
         PHASE_CLASS[status],
         className
       )}
@@ -408,7 +408,7 @@ ${categories
           />
           <label
             htmlFor="opsin-phase-all"
-            className="cursor-pointer border border-border px-2 py-0.5 text-xs"
+            className="cursor-pointer rounded-full border border-border px-3 py-1 text-xs"
           >
             All {entries.length}
           </label>
@@ -422,7 +422,7 @@ ${categories
               <label
                 htmlFor={`opsin-phase-${phase}`}
                 title={STATUS_META[phase].summary}
-                className="cursor-pointer border border-border px-2 py-0.5 text-xs"
+                className="cursor-pointer rounded-full border border-border px-3 py-1 text-xs"
               >
                 {STATUS_META[phase].label}
               </label>
@@ -442,7 +442,7 @@ ${categories
         />
         <label
           htmlFor="opsin-cat-all"
-          className="cursor-pointer border border-border px-2 py-0.5 text-xs"
+          className="cursor-pointer rounded-full border border-border px-3 py-1 text-xs"
         >
           All
         </label>
@@ -455,7 +455,7 @@ ${categories
             />
             <label
               htmlFor={`opsin-cat-${id}`}
-              className="cursor-pointer border border-border px-2 py-0.5 text-xs"
+              className="cursor-pointer rounded-full border border-border px-3 py-1 text-xs"
             >
               {CATALOGUE_CATEGORY_LABELS[id]}
             </label>
@@ -463,7 +463,7 @@ ${categories
         ))}
       </fieldset>
 
-      <div className="overflow-x-auto">
+      <div className="docs-ledger mt-3">
         <table className="w-full border-collapse text-sm">
           {caption ? (
             <caption className="pb-2 text-left text-xs text-muted-foreground">

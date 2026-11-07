@@ -197,7 +197,7 @@ export function CodeCollapsible({
     <details
       open={defaultOpen}
       className={cn(
-        "not-prose my-4 border border-border [&[open]>summary]:border-b",
+        "not-prose docs-sheet my-4 overflow-hidden [&[open]>summary]:border-b",
         className
       )}
     >

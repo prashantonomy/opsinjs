@@ -293,7 +293,7 @@ export function ContrastReport({
   }
 
   const table = (
-    <div className="overflow-x-auto">
+    <div className="docs-ledger">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-border text-left">
@@ -367,7 +367,7 @@ export function ContrastReport({
       {showSummary ? (
         <div
           role="note"
-          className="mb-3 border border-border px-4 py-3 text-sm"
+          className="mb-3 rounded-2xl border border-border px-4 py-3 text-sm"
         >
           <p className="m-0">
             <span className="font-medium">{SUMMARY.total}</span> token pairs
@@ -464,7 +464,7 @@ export function A11yReport({
   }
 
   return (
-    <div className={cn("not-prose my-4 border border-border p-4", className)}>
+    <div className={cn("not-prose docs-sheet my-4 p-5", className)}>
       <dl className="m-0 grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-4">
         <div>
           <dt className="text-xs text-muted-foreground">Checks</dt>
@@ -634,7 +634,7 @@ export function ContrastOracle({
 
   return (
     <div
-      className={cn("not-prose my-6 border border-border", className)}
+      className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}
       data-opsinjs-tool="contrast-oracle"
     >
       <div className="grid gap-3 p-4 sm:grid-cols-2">
@@ -646,11 +646,11 @@ export function ContrastOracle({
               value={fg}
               onChange={(event) => setFg(event.target.value)}
               spellCheck={false}
-              className="w-full border border-border px-2 py-1 font-mono text-sm"
+              className="w-full rounded-xl border border-input px-3 py-1.5 font-mono text-sm"
             />
             <span
               aria-hidden="true"
-              className="size-7 shrink-0 border border-border"
+              className="size-7 shrink-0 rounded-[8px] border border-border"
               style={{ background: fg }}
             />
           </span>
@@ -663,11 +663,11 @@ export function ContrastOracle({
               value={bg}
               onChange={(event) => setBg(event.target.value)}
               spellCheck={false}
-              className="w-full border border-border px-2 py-1 font-mono text-sm"
+              className="w-full rounded-xl border border-input px-3 py-1.5 font-mono text-sm"
             />
             <span
               aria-hidden="true"
-              className="size-7 shrink-0 border border-border"
+              className="size-7 shrink-0 rounded-[8px] border border-border"
               style={{ background: bg }}
             />
           </span>
@@ -778,7 +778,7 @@ export function CvdSimulator({ children, grid, className }: CvdSimulatorProps) {
   const modes = Object.keys(CVD_LABELS) as CvdMode[]
 
   return (
-    <div className={cn("not-prose my-6 border border-border", className)}>
+    <div className={cn("not-prose docs-sheet my-6 overflow-hidden", className)}>
       <svg
         aria-hidden="true"
         focusable="false"
@@ -816,7 +816,7 @@ export function CvdSimulator({ children, grid, className }: CvdSimulatorProps) {
               <label
                 htmlFor={`${id}-r-${value}`}
                 className={cn(
-                  "cursor-pointer border border-border px-2 py-0.5 text-xs",
+                  "cursor-pointer rounded-full border border-border px-3 py-1 text-xs",
                   mode === value
                     ? "border-foreground bg-foreground text-background"
                     : "text-muted-foreground hover:text-foreground"
@@ -832,7 +832,7 @@ export function CvdSimulator({ children, grid, className }: CvdSimulatorProps) {
       {grid ? (
         <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-3">
           {modes.map((value) => (
-            <figure key={value} className="m-0 border border-border p-3">
+            <figure key={value} className="m-0 rounded-2xl border border-border p-3">
               <figcaption className="mb-2 text-xs text-muted-foreground">
                 {CVD_LABELS[value]}
               </figcaption>

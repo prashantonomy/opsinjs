@@ -29,6 +29,10 @@ export function DocsShell({
 
   return (
     <div className="docs-shell">
+      {/* The light behind the page and the grain over it. Decoration that
+          carries nothing, so both are hidden from assistive technology. */}
+      <div className="docs-field" aria-hidden="true" />
+      <div className="docs-grain" aria-hidden="true" />
       <a className="docs-skip-link" href="#main">
         Skip to content
       </a>

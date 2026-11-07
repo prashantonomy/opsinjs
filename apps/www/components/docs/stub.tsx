@@ -111,7 +111,7 @@ export function NotBuiltYet({
       role="note"
       aria-label={`Not implemented${name ? `: ${name}` : ""}`}
       className={cn(
-        "not-prose flex flex-col items-center justify-center gap-2 border border-dashed border-border/80 px-4 py-10 text-center text-muted-foreground",
+        "not-prose flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 py-10 text-center text-muted-foreground",
         className
       )}
     >
@@ -251,7 +251,7 @@ export function StubNotice({
       data-release-phase={status}
       aria-label={isPlanned ? "Specification only" : "Review status"}
       className={cn(
-        "not-prose my-6 rounded-lg border border-border bg-fd-card px-4 py-3 text-sm",
+        "not-prose docs-sheet my-6 px-5 py-4 text-sm",
         className
       )}
     >
@@ -331,7 +331,7 @@ export function PlannedApi({ name, children, className }: PlannedApiProps) {
       data-opsinjs-not-implemented={name ?? "true"}
       data-opsinjs-planned-api=""
       className={cn(
-        "not-prose my-6 border border-dashed border-border/80",
+        "not-prose my-6 overflow-hidden rounded-2xl border border-dashed border-border",
         className
       )}
     >
@@ -384,7 +384,7 @@ export function NoDataYet({
       data-opsinjs-no-data={script}
       role="note"
       className={cn(
-        "not-prose my-4 border border-dashed border-border px-4 py-3 text-sm text-muted-foreground",
+        "not-prose my-4 rounded-2xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground",
         className
       )}
     >

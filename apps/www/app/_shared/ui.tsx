@@ -41,18 +41,14 @@ export function PageHeader({
   children?: ReactNode
 }) {
   return (
-    <header className="border-b border-border py-12 sm:py-16">
+    <header className="border-b border-border pt-16 pb-12 sm:pt-24 sm:pb-16">
       <Container>
-        {eyebrow ? (
-          <p className="mb-3 font-mono text-xs tracking-[0.16em] text-muted-foreground uppercase">
-            {eyebrow}
-          </p>
-        ) : null}
-        <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+        {eyebrow ? <p className="docs-eyebrow">{eyebrow}</p> : null}
+        <h1 className="max-w-4xl text-[clamp(2.5rem,1.6rem+3.2vw,4.5rem)] leading-[0.96] font-extrabold tracking-[-0.045em] text-balance">
           {title}
         </h1>
         {lead ? (
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-[color-mix(in_oklab,var(--foreground)_74%,var(--background))] sm:text-xl">
             {lead}
           </p>
         ) : null}
@@ -79,7 +75,7 @@ export function Section({
     <section id={id} className={cn("border-b border-border py-12", className)}>
       <Container>
         {title ? (
-          <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          <h2 className="text-2xl font-extrabold tracking-[-0.03em] sm:text-3xl">
             {title}
           </h2>
         ) : null}
@@ -98,7 +94,7 @@ export function Panel({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-border bg-card p-5 shadow-none",
+        "docs-sheet p-5",
         className
       )}
       {...props}
@@ -160,7 +156,7 @@ export function FactTable({
   return (
     <div
       className={cn(
-        "overflow-x-auto rounded-lg border border-border bg-card",
+        "docs-ledger",
         className
       )}
     >
