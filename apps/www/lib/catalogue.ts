@@ -239,7 +239,7 @@ export interface CatalogueIndexRow {
    */
   implemented: boolean
   docs: string | null
-  /** npm packages a consumer's `shadcn add` installs alongside this component. */
+  /** npm packages this component's source imports. Documentation only. */
   dependencies?: string[]
   /** Other opsinjs components this one composes, by bare catalogue id. */
   registryDependencies?: string[]

@@ -14,7 +14,7 @@
  * children.
  */
 
-import { Field } from "@/registry/base-lyra/ui/field"
+import { Field } from "@opsinjs/react"
 
 export default function FieldWithAnotherControl() {
   return (

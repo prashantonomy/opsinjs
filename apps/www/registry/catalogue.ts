@@ -35,8 +35,8 @@
  * ────────────────────────────────────────────────────────────────────────────
  *
  * ALL SIXTY ROWS ARE `status: "shipped"`. Each has a file at
- * `registry/bases/base/<id>.tsx`, renders at
- * `/view/base/base-lyra/component/<id>`, and installs with `shadcn add`.
+ * `packages/react/src/components/<id>.tsx`, renders at
+ * `/view/base/base-lyra/component/<id>`, and is published in @opsinjs/react.
  * `shipped` is a statement about the source and about nothing else: the API
  * may change in any release with a changelog entry, and not one of these
  * sixty components has been through an accessibility review or a clinical
@@ -101,10 +101,9 @@ export interface CatalogueEntry {
    * kebab-case. The URL segment, the registry item name, and the id every
    * other file refers to.
    *
-   * It is called `name` rather than `id` because that is what the shadcn
-   * registry specification calls it, and `/r/index.json` and
-   * `/r/registry.json` serve these rows more or less verbatim. A row whose
-   * `name` had to be renamed on the way out would be a row that could drift.
+   * It is called `name` rather than `id` because `/r/index.json` serves these
+   * rows more or less verbatim under that key. A row whose `name` had to be
+   * renamed on the way out would be a row that could drift.
    */
   name: string
   /** PascalCase. How the component is named in prose and in code. */
@@ -189,11 +188,10 @@ export interface CatalogueEntry {
    * `package.json`. `["@base-ui/react"]` for anything built on a Base UI
    * primitive; `["lucide-react"]` for anything that renders a status icon.
    *
-   * It is declared on the row rather than inferred from the source because a
-   * consumer's `shadcn add` installs precisely this list, and a list scraped
-   * from import statements would silently follow a refactor into installing
-   * something nobody reviewed. Omit it rather than writing `[]`. A component
-   * whose only imports are `@/lib/utils` and `@/lib/opsinjs` needs nothing.
+   * It is documentation: @opsinjs/react's own package.json is what installs
+   * these, and this list says which of them a given component uses. Omit it
+   * rather than writing `[]`. A component whose only imports are the
+   * substrate (`../utils.ts` and `../opsinjs.ts`) needs nothing.
    */
   dependencies?: string[]
   /**
@@ -201,10 +199,8 @@ export interface CatalogueEntry {
    *
    * `result-card` names `status-pill` and `value` here and never inlines a copy
    * of either: a second copy of a status pill is a second place the two colour
-   * axes can drift apart. Bare ids, because the catalogue does not know what a
-   * registry namespace is. `app/_machine/registry-payload.ts` prefixes
-   * `@opsinjs/` when it serves the item, which is what makes shadcn resolve the
-   * dependency against this registry instead of against ui.shadcn.com.
+   * axes can drift apart. Bare ids, because every component ships in the one
+   * package, so a composed component is always present beside its parent.
    *
    * Every id must be a real catalogue `name`. A dependency on an id with no row
    * here is a dependency on something that does not exist.

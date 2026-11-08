@@ -1,0 +1,65 @@
+{
+  "name": "@opsinjs/tokens",
+  "version": "0.1.0",
+  "description": "Design tokens for opsinjs: the two colour axes, accent themes, type, space, shape, motion and materials, as CSS custom properties and as data.",
+  "keywords": [
+    "opsinjs",
+    "design-system",
+    "health",
+    "healthcare",
+    "accessibility",
+    "design-tokens",
+    "css-variables",
+    "oklch"
+  ],
+  "homepage": "https://opsinjs.pensievelabs.org/docs/foundations",
+  "bugs": {
+    "url": "https://github.com/prashantonomy/opsinjs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prashantonomy/opsinjs.git",
+    "directory": "packages/tokens"
+  },
+  "license": "MIT",
+  "author": "the opsinjs authors",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./tokens.css": "./tokens.css",
+    "./tokens.json": "./tokens.json",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "tokens.css",
+    "tokens.json",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/clean.mts dist && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints tokens.css"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "publint": "0.3.25",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

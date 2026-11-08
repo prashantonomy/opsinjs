@@ -36,11 +36,7 @@
  * `tokens/glossary.json`.
  */
 
-import {
-  Term,
-  TermGlossaryProvider,
-  type GlossaryEntry,
-} from "@/registry/base-lyra/ui/term"
+import { Term, TermGlossaryProvider, type GlossaryEntry } from "@opsinjs/react"
 
 const GLOSSARY: readonly GlossaryEntry[] = [
   {

@@ -97,11 +97,12 @@ export function SiteFooter() {
 
           <FooterColumn title="For machines">
             <FooterLink href={agentRoutes.llms()}>llms.txt</FooterLink>
-            <FooterLink href={registryRoutes.catalog()}>
-              registry.json
-            </FooterLink>
+            <FooterLink href={registryRoutes.index()}>index.json</FooterLink>
             <FooterLink href={routes.docs("agents")}>Agents and LLMs</FooterLink>
-            <FooterLink href={routes.docs("registry")}>Registry</FooterLink>
+            <FooterLink href={routes.docs("packages")}>Packages</FooterLink>
+            <FooterLink href={site.npmUrl} external>
+              npm
+            </FooterLink>
           </FooterColumn>
 
           <FooterColumn title="Project">

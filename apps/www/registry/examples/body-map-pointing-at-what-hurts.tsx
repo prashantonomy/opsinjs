@@ -9,7 +9,7 @@
 
 import { useState } from "react"
 
-import { BodyMap } from "@/registry/base-lyra/ui/body-map"
+import { BodyMap } from "@opsinjs/react"
 
 export default function BodyMapPointingAtWhatHurts() {
   const [regions, setRegions] = useState<string[]>(["left-arm"])

@@ -9,11 +9,11 @@ Each principle names something opsinjs will not do, so a proposal can be checked
 
 ## One element, one axis
 
-Colour carries two separate meanings. Category says which part of your health something is about, and status says how much attention it needs. One element takes colour from one axis, never both. An urgent heart tile takes its status from the surface and its category from a glyph or a label. Rule A11Y008 fails `pnpm check` on any registry element that carries both. See [Two colour axes](./health/two-colour-axes.mdx).
+Colour carries two separate meanings. Category says which part of your health something is about, and status says how much attention it needs. One element takes colour from one axis, never both. An urgent heart tile takes its status from the surface and its category from a glyph or a label. Rule A11Y008 fails `pnpm check` on any element in opsinjs's own source that carries both. See [Two colour axes](./health/two-colour-axes.mdx).
 
 ## Never colour alone
 
-Every status is carried by a word, a distinct glyph and a colour together, and the word is never left out. Colour fails first, in greyscale print, sunlight, screenshots and screen readers. Rule A11Y001 fails a registry file that paints a status without a word and a glyph beside it.
+Every status is carried by a word, a distinct glyph and a colour together, and the word is never left out. Colour fails first, in greyscale print, sunlight, screenshots and screen readers. Rule A11Y001 fails a source file of opsinjs's own that paints a status without a word and a glyph beside it.
 
 ## Say what is not known
 
@@ -21,7 +21,7 @@ Missing, stale, estimated and partial data are states with their own rendering, 
 
 ## Tokens, not values
 
-No component, example or generated file contains a literal colour, radius, duration or spacing value. Everything resolves through a token and every token through a scale, which is what makes a theme possible and contrast measurable. Rules A11Y005 and A11Y006 fail `pnpm check` on a hex colour, a raw `oklch()` or a Tailwind palette class under `registry/`. The lint rules that would check your own project are planned, not built.
+No component, example or generated file contains a literal colour, radius, duration or spacing value. Everything resolves through a token and every token through a scale, which is what makes a theme possible and contrast measurable. Rules A11Y005 and A11Y006 fail `pnpm check` on a hex colour, a raw `oklch()` or a Tailwind palette class in opsinjs's own source. The lint rules that would check your own project are planned, not built.
 
 ## Do not practise medicine
 

@@ -152,3 +152,5 @@ change to `tokens/material.json` followed by a regeneration, and it is a design
 decision about what should remain visible behind persistent chrome rather than a
 renaming. Do not revisit in order to make one of the prose sets win: the prose is
 the part that changes.
+
+**Note, 2026-11-09.** The copy-in wording in this record predates [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md), which ships opsinjs as npm packages, and the substance stands. The substrate module that declares `MaterialRung` is now `packages/react/src/opsinjs.ts`, part of `@opsinjs/react`.

@@ -4,6 +4,8 @@ Ship components as copyable source through a shadcn-spec registry, and do not bu
 
 ## Status
 
+**Superseded by [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md)** on 2026-11-09: opsinjs ships as npm packages, and every `/r` URL except `/r/index.json` and `/r/docs.json` now answers HTTP 410. The record below is kept as written.
+
 **Accepted.** 2026-09-02.
 
 ## Context

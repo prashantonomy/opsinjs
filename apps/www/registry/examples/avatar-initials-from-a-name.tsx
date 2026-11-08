@@ -1,4 +1,4 @@
-import { Avatar } from "@/registry/base-lyra/ui/avatar"
+import { Avatar } from "@opsinjs/react"
 
 const NAMES = [
   {

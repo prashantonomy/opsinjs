@@ -48,7 +48,7 @@ export interface DocsNav {
 }
 
 const SECTION_META: Record<string, string> = {
-  components: site.registryNamespace,
+  components: site.packageName,
 }
 
 /** Plain text of a page-tree name or a heading title, which may be markup. */

@@ -305,7 +305,7 @@ export function LinkCard({
  * in either direction. The marker is per-component and this notice is not.
  *
  * It is named for the question it answers rather than for the answer, because
- * the answer changes: it opened as "nothing is built", it says "installable,
+ * the answer changes: it opened as "nothing is built", it says "published,
  * author-audited, and not independently reviewed" now, and the day the reviews
  * happen it will say that. A component whose name asserts one of those is a
  * component that lies as soon as the sentence under it stops being true.
@@ -320,11 +320,11 @@ export function ImplementationStatusNotice({
   return (
     <div className="rounded-lg border border-dashed border-border bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
       <p className="mb-1 font-medium text-foreground">
-        Installable, not independently reviewed, and not yet packaged.
+        Published on npm, and not independently reviewed.
       </p>
       <p>
         {children ??
-          "Every component that exists today is installable as source from the shadcn registry this site serves, and free to change its API in any release without a deprecation cycle. Every one has been audited against WCAG 2.2 AA by its own authors, in a static source pass and a rendered pass, and that is an author-run audit rather than an independent review. Nothing is published to npm, no component has had a clinical review, and none of it therefore belongs on a production health surface yet."}
+          "Every component that exists today is published in @opsinjs/react at version 0.x, and its API may change in any release. Every one has been audited against WCAG 2.2 AA by its own authors, in a static source pass and a rendered pass, and that is an author-run audit rather than an independent review. No component has had a clinical review, and none of it therefore belongs on a production health surface yet."}
       </p>
       {href ? (
         <p className="mt-2">

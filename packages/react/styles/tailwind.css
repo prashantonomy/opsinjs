@@ -1,0 +1,18 @@
+/* ==========================================================================
+   tailwind.css is the opsinjs entry for an app built with Tailwind CSS v4.
+
+     @import "tailwindcss";
+     @import "@opsinjs/react/tailwind.css";
+
+   It loads the generated tokens, the role layer and the theme bridge, and it
+   points Tailwind at the compiled components so their class names are
+   generated in your build. Add `@import "@opsinjs/react/base.css";` as well
+   when opsinjs styles the whole page. An app without Tailwind imports
+   `@opsinjs/react/styles.css` instead.
+   ========================================================================== */
+
+@import "@opsinjs/tokens/tokens.css";
+@import "./roles.css";
+@import "./theme.css";
+
+@source "../dist";

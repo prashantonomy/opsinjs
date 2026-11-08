@@ -90,4 +90,4 @@ Two things about the published contrast figures, because both get misread:
 - `/theming.md` - the three tiers, and extending without forking
 - `/reference/generated/tokens.md` - every token, generated
 - `/reference/generated/css-variables.md` - every custom property, by selector
-- `/styling.md` - styling a component you own, and the lint rule proposed to catch this, which is not built yet
+- `/styling.md` - styling an installed component through its tokens and roles, and the lint rule proposed to catch this, which is not built yet

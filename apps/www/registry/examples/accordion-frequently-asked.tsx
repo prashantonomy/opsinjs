@@ -7,7 +7,7 @@
  * in view.
  */
 
-import { Accordion } from "@/registry/base-lyra/ui/accordion"
+import { Accordion } from "@opsinjs/react"
 
 export default function AccordionFrequentlyAsked() {
   return (

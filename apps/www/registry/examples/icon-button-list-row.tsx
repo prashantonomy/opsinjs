@@ -1,6 +1,6 @@
 import { Pencil, X } from "lucide-react"
 
-import { IconButton } from "@/registry/base-lyra/ui/icon-button"
+import { IconButton } from "@opsinjs/react"
 
 export default function IconButtonListRow() {
   return (

@@ -27,8 +27,7 @@
 
 import { useState } from "react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { ConsentSheet } from "@/registry/base-lyra/ui/consent-sheet"
+import { Button, ConsentSheet } from "@opsinjs/react"
 
 /* Empty strings rather than omitted keys, because a field that exists and has
    nothing in it is how the wording actually goes missing. The component treats

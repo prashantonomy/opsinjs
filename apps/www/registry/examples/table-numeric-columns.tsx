@@ -12,8 +12,7 @@
  * could take for their own weight, so nothing here reads as a real
  * measurement (ADR 0012).
  */
-import { Table } from "@/registry/base-lyra/ui/table"
-import { Value } from "@/registry/base-lyra/ui/value"
+import { Table, Value } from "@opsinjs/react"
 
 export default function TableNumericColumns() {
   return (

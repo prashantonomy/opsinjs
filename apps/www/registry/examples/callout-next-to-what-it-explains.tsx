@@ -21,7 +21,7 @@
  * plausible-looking reading to hang it on.
  */
 
-import { Callout } from "@/registry/base-lyra/ui/callout"
+import { Callout } from "@opsinjs/react"
 
 export default function CalloutNextToWhatItExplains() {
   return (

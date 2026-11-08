@@ -35,7 +35,7 @@
 
 import { useState } from "react"
 
-import { ReadingInput, type ReadingSegment } from "@/registry/base-lyra/ui/reading-input"
+import { ReadingInput, type ReadingSegment } from "@opsinjs/react"
 
 export default function ReadingInputACompoundReading() {
   const [parts, setParts] = useState<ReadingSegment[]>([

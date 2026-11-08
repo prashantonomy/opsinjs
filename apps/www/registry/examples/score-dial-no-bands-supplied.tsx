@@ -17,8 +17,7 @@
  * for their own result.
  */
 
-import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
-import { ScoreDial } from "@/registry/base-lyra/ui/score-dial"
+import { EXAMPLE_SOURCE, ScoreDial } from "@opsinjs/react"
 
 export default function ScoreDialNoBandsSupplied() {
   return (

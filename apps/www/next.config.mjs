@@ -138,10 +138,9 @@ const config = {
     const noindex = [{ key: "x-robots-tag", value: "noindex" }]
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },
-      /* The registry is fetched across origins by the shadcn CLI and by agents.
-         Static items already carry this header from the platform; saying it
-         here gives the dynamically rendered answers, such as a 404 for an
-         unknown name, the same one. Nothing on this site uses credentials. */
+      /* The roster and the corpus under /r are fetched across origins by
+         agents, and the 410 for a retired registry URL should be readable by
+         the tool that asked. Nothing on this site uses credentials. */
       {
         source: "/r/:path*",
         headers: [{ key: "access-control-allow-origin", value: "*" }],

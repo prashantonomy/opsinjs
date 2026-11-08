@@ -34,7 +34,7 @@
 
 import { Plus } from "lucide-react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
+import { Button } from "@opsinjs/react"
 
 export default function ButtonOnePrimaryPerSurface() {
   return (

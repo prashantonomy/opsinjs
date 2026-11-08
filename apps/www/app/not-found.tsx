@@ -69,8 +69,8 @@ export default function NotFound() {
           <li>
             <h2>You asked for a component that does not exist at all.</h2>
             <p>
-              Every component in the catalogue is implemented and installable
-              from this origin&rsquo;s registry. Every one has been audited
+              Every component in the catalogue is implemented and published in
+              the @opsinjs/react package on npm. Every one has been audited
               against WCAG 2.2 AA by its own authors, but none has had an
               independent accessibility review or a clinical review, so none
               is for a production health surface yet. An id that names none

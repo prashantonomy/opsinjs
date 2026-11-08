@@ -36,7 +36,7 @@
  * the same thing every time it renders.
  */
 
-import { AlertBanner } from "@/registry/base-lyra/ui/alert-banner"
+import { AlertBanner } from "@opsinjs/react"
 
 export default function AlertBannerSteadyIsForDeEscalation() {
   return (

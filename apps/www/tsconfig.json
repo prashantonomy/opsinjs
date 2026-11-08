@@ -2,10 +2,27 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "plugins": [{ "name": "next" }],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "@/*": ["./*"],
-      "@/registry/base-lyra/ui/*": ["./registry/bases/base/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@opsinjs/react": [
+        "../../packages/react/src/index.ts"
+      ],
+      "@opsinjs/react/*": [
+        "../../packages/react/src/components/*.tsx"
+      ],
+      "@opsinjs/tokens": [
+        "../../packages/tokens/src/index.ts"
+      ],
+      "@opsinjs/color": [
+        "../../packages/color/src/index.ts"
+      ]
     }
   },
   "include": [
@@ -16,5 +33,9 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", ".next", ".source"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    ".source"
+  ]
 }

@@ -120,8 +120,9 @@ jobs:
         run: pnpm --filter @opsinjs/www run check:ia
 
       - name: Accessibility, from source
-        # The static half of the accessibility rig, and blocking. It reads
-        # registry/{bases,examples,screens}: colour, icon, word and data-status
+        # The static half of the accessibility rig, and blocking. It reads the
+        # @opsinjs/react components and registry/{demos,examples,screens}:
+        # colour, icon, word and data-status
         # on every status surface, no px type size, no raw colour, no element
         # taking colour from both axes, and no banned word. The half that needs
         # a layout engine (44x44 hit areas, 1.3x and 200%) runs in nightly.
@@ -169,3 +170,53 @@ jobs:
           path: ${{ runner.temp }}/next-start.log
           if-no-files-found: ignore
           retention-days: 7
+
+  packages:
+    name: Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # What npm will serve, checked the way a consumer meets it. The build is
+    # tsc per file plus the precompiled stylesheet; lint:package is publint and
+    # arethetypeswrong over each packed tarball; smoke-pack installs the four
+    # tarballs into a clean npm project and imports, renders and resolves them.
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the packages
+        # Before the typecheck, because the umbrella package resolves the other
+        # three through their published types in dist.
+        run: pnpm build:packages
+
+      - name: Typecheck the packages
+        run: pnpm -r --filter "./packages/*" run typecheck
+
+      - name: Package metadata and types (publint, attw)
+        run: pnpm lint:packages
+
+      - name: Install and use the packed tarballs
+        run: pnpm smoke:packages
+
+      - name: Changeset present (advisory)
+        # A change to a published package needs a changeset, or it never
+        # reaches the changelog. Advisory, because a change that touches only
+        # comments or tests may rightly have none.
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: pnpm changeset status --since=origin/${{ github.base_ref }}

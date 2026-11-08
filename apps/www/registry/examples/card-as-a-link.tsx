@@ -42,7 +42,7 @@
  * nothing visible.
  */
 
-import { Card } from "@/registry/base-lyra/ui/card"
+import { Card } from "@opsinjs/react"
 
 /* Fictional sections with no readings in them. A screenshot of an opsinjs
    example must never be mistakable for somebody's own result, so there is no

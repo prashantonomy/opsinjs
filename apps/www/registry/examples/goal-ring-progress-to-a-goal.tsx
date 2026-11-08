@@ -7,7 +7,7 @@
  * is drawn where the reading sits and stops there.
  */
 
-import { GoalRing } from "@/registry/base-lyra/ui/goal-ring"
+import { GoalRing } from "@opsinjs/react"
 
 export default function GoalRingProgressToAGoal() {
   return (

@@ -7,7 +7,7 @@
  * fictional (ADR 0012).
  */
 
-import { GoalRing } from "@/registry/base-lyra/ui/goal-ring"
+import { GoalRing } from "@opsinjs/react"
 
 export default function GoalRingNoReadingYet() {
   return (

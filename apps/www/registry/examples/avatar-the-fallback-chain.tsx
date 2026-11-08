@@ -1,4 +1,4 @@
-import { Avatar } from "@/registry/base-lyra/ui/avatar"
+import { Avatar } from "@opsinjs/react"
 
 // A synthetic silhouette, not a photograph of anyone. It exists only to show
 // the tier where a picture loads. opsinjs ships no image of a real person.

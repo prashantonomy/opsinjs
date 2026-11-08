@@ -9,9 +9,9 @@
  * larger, and they will do it wrong at a glance.
  *
  * TABULAR FIGURES, so a digit changing does not move the ones beside it. Value
- * sets `tabular-nums` on itself and the product theme sets it again from
- * `[data-opsinjs-value]`, and the belt-and-braces is deliberate: the theme's
- * copy does not travel with `shadcn add`.
+ * sets `tabular-nums` on itself and `@opsinjs/react/base.css` sets it again
+ * from `[data-opsinjs-value]`, and the belt-and-braces is deliberate: that
+ * stylesheet is opt-in, so a product may never load it.
  *
  * `text-right` aligns the column. It is on the cell rather than on the value,
  * because alignment is a property of the layout and not of the reading. It is
@@ -19,16 +19,16 @@
  * achieve it. A screen reader still hears one phrase per row.
  */
 
-import { Value } from "@/registry/base-lyra/ui/value"
+import { Value } from "@opsinjs/react"
 
 /* THE DIGITS ARE THE POINT AND THE MAGNITUDES ARE NOT. An alignment demo needs
    numbers of different widths or it demonstrates nothing, so this one has three
    digits, four, four and five. Every one of them is nevertheless above eight
    hundred kilograms, which is not a person and not a series anybody could read
    as their own. An earlier draft ran from single figures upward, and its first
-   two rows were plausible weights for a small child. This file ships as
-   registry source under `shadcn add` and is captured as a preview image, which
-   is the case ADR 0012 is written about: the number is the part a reader acts
+   two rows were plausible weights for a small child. This file is printed as
+   source on the component page and is captured as a preview image, which is
+   the case ADR 0012 is written about: the number is the part a reader acts
    on, and it travels further than the caption that explains it. */
 const READINGS = [
   { when: "Fourth reading", value: 800 },

@@ -2,11 +2,11 @@
  * The whole accent layer at once: three accent themes by nine accents, each
  * cell its own scope (ADR 0029).
  *
- * Every cell carries both `data-accent-theme` and `data-accent`, and
- * app/product.css re-declares every role on an element that carries either, so
- * each cell resolves its own values even though twenty-seven of them share one
- * page. That is the scoping a product uses to preview a theme in a settings
- * screen without changing the screen around it.
+ * Every cell carries both `data-accent-theme` and `data-accent`, and the role
+ * layer in packages/react/styles/roles.css re-declares every role on an element
+ * that carries either, so each cell resolves its own values even though
+ * twenty-seven of them share one page. That is the scoping a product uses to
+ * preview a theme in a settings screen without changing the screen around it.
  *
  * A cell draws the three roles a reader meets, in a row: the action as a
  * capsule, the selected state as a disc, and the accent's name in the accent ink, which is
@@ -20,7 +20,7 @@
  * not pretend otherwise.
  */
 
-import { ACCENTS, ACCENT_THEMES } from "@/lib/generated/accents"
+import { ACCENTS, ACCENT_THEMES } from "@opsinjs/tokens"
 
 export default function AccentThemesThePalette() {
   return (

@@ -71,12 +71,27 @@ const LIB_DIR = join(APP_DIR, "lib")
  * The component sources, and the module the props tables are emitted to.
  *
  * These are separate from LIB_DIR on purpose. lib/ is scanned for a page per
- * exported type; registry/bases/ is scanned for one thing only - the props
+ * exported type; the @opsinjs/react components are scanned for one thing only - the props
  * interface of each component - and giving every internal helper type in a
  * component file its own reference page would bury the forty-three symbols
  * that earned one.
  */
-const BASES_DIR = join(APP_DIR, "registry", "bases")
+const BASES_DIR = join(APP_DIR, "..", "..", "packages", "react", "src", "components")
+/* The @opsinjs/react substrate. Its exported types get rows on the types page
+   beside lib/'s, because the substrate moved out of lib/ into the package. */
+const SUBSTRATE_DIR = join(APP_DIR, "..", "..", "packages", "react", "src")
+/* A path as a reader should see it: relative to apps/www for the site's own
+   files, and relative to the repository root for a package's. */
+function displayPath(file: string): string {
+  const fromApp = relative(APP_DIR, file)
+  return fromApp.startsWith("..") ? relative(join(APP_DIR, "..", ".."), file) : fromApp
+}
+
+/* The @opsinjs/color sources, which used to be lib/color/ and are scanned the
+   same way. Its barrel re-exports and declares nothing, so it adds no rows. */
+const COLOR_DIR = join(APP_DIR, "..", "..", "packages", "color", "src")
+
+const SUBSTRATE_FILES = ["opsinjs.ts", "status.ts", "utils.ts"].map((file) => join(SUBSTRATE_DIR, file))
 const PROPS_MODULE = join(APP_DIR, "lib", "generated", "props.ts")
 
 /* The MDX comment markers. Assembled from parts so that this file can describe
@@ -341,8 +356,8 @@ function tokensPage(tokens: GeneratedToken[]): PageSpec {
       "`description` field in the token source, and it is the column that turns a list",
       "into a decision aid - a token with no description is a token nobody can choose",
       "correctly. **Used by** is derived by `scripts/build-tokens.mts` from the",
-      "component sources under `registry/bases`, counting both a literal",
-      "`var(--opsin-...)` and any Tailwind utility that `app/product.css` bridges back",
+      "component sources in `packages/react/src/components`, counting both a literal",
+      "`var(--opsin-...)` and any Tailwind utility that `packages/react/styles/theme.css` bridges back",
       "to the token. It reads \"no component\" where nothing in the base layer reads the",
       "token directly, which is the ordinary state of a primitive: components consume",
       "roles, and roles reference primitives.",
@@ -399,7 +414,7 @@ function cssVariablesPage(tokens: GeneratedToken[]): PageSpec {
     description:
       "Every --opsin-* custom property, grouped by the selector that declares it, with its value and what it controls.",
     howItIsGenerated: [
-      "Source: `tokens/*.json` by way of `app/tokens.generated.css`. Script:",
+      "Source: `tokens/*.json` by way of `@opsinjs/tokens/tokens.css`. Script:",
       "`scripts/build-reference.mts`. Command: `pnpm run generate`.",
       "",
       "Grouped by **selector**, never as one global dump, because overriding a single",
@@ -497,7 +512,7 @@ function contrastPage(): PageSpec {
       "Measured APCA Lc and WCAG 2.2 contrast for every opsinjs token pair, in both themes, against the published floor.",
     howItIsGenerated: [
       "Source: `lib/generated/tokens.ts`, measured by the hand-written colour maths in",
-      "`lib/color/apca.ts`, `lib/color/wcag.ts` and `lib/color/cvd.ts`. Script:",
+      "`packages/color/src/apca.ts`, `packages/color/src/wcag.ts` and `packages/color/src/cvd.ts`. Script:",
       "`scripts/check-contrast.mts`. Command: `pnpm run contrast`.",
       "",
       "Both numbers are reported because they disagree, and the disagreement is",
@@ -653,7 +668,7 @@ function accentsPage(): PageSpec {
       "Measured APCA Lc and WCAG 2.2 contrast for every accent theme and accent in both modes, against each theme's own floors.",
     howItIsGenerated: [
       "Source: `tokens/accent.json`, read through `scripts/accent-plan.mts` and measured",
-      "by `scripts/check-contrast.mts` with the colour maths in `lib/color/`, into",
+      "by `scripts/check-contrast.mts` with the colour maths in `packages/color/src/`, into",
       "`lib/generated/accent-contrast.json`. Command: `pnpm run contrast`.",
     ].join("\n"),
     body:
@@ -688,7 +703,7 @@ function dataAttributesPage(): PageSpec {
     description:
       "Every data-* attribute opsinjs components emit, the condition that sets it and the values it can take.",
     howItIsGenerated: [
-      "Source: the component implementations under `registry/bases/<base>/`. Script:",
+      "Source: the component implementations in `packages/react/src/components`. Script:",
       "`scripts/build-reference.mts`. Command: `pnpm run generate`.",
       "",
       "Data attributes are the styling contract. They are how a consuming product",
@@ -868,7 +883,8 @@ function captureDeclaration(lines: string[], start: number): string {
 }
 
 function extractSymbols(): ExportedSymbol[] {
-  const files: string[] = []
+  const files: string[] = [...SUBSTRATE_FILES]
+  walkFiles(COLOR_DIR, files)
   walkFiles(LIB_DIR, files)
 
   const symbols: ExportedSymbol[] = []
@@ -967,7 +983,7 @@ function extractSymbols(): ExportedSymbol[] {
       symbols.push({
         name,
         kindWord: kindWord ?? "const",
-        file: relative(APP_DIR, file),
+        file: displayPath(file),
         summary,
         detail,
         signature: captureDeclaration(lines, index),
@@ -1030,7 +1046,7 @@ function typesPage(
     description:
       "Every symbol opsinjs exports, what kind of declaration it is, where it lives and what it is for.",
     howItIsGenerated: [
-      "Generated from the `export` declarations under `lib/` by",
+      "Generated from the `export` declarations in the @opsinjs/react substrate, in @opsinjs/color and under `lib/` by",
       "`scripts/build-reference.mts`. Each type and interface has a section below with its",
       "declaration, its members and the symbols that use it. Component props are on each",
       "component page instead.",
@@ -1343,7 +1359,7 @@ function parseMember(
   }
 }
 
-/** Every `export interface <Pascal>Props` under registry/bases/, in file order. */
+/** Every `export interface <Pascal>Props` in the @opsinjs/react components, in file order. */
 function extractPropsInterfaces(): PropsInterface[] {
   const files: string[] = []
   walkFiles(BASES_DIR, files)
@@ -1405,7 +1421,7 @@ function extractPropsInterfaces(): PropsInterface[] {
         )
         process.exit(1)
       }
-      found.push({ name, file: relative(APP_DIR, file), rows })
+      found.push({ name, file: displayPath(file), rows })
       index = last
     }
   }
@@ -1537,7 +1553,7 @@ function propsModule(interfaces: PropsInterface[]): string {
 /**
  * GENERATED FILE - DO NOT EDIT.
  *
- * Source:    every \`export interface <Pascal>Props\` under registry/bases/
+ * Source:    every \`export interface <Pascal>Props\` in packages/react/src/components/
  * Generator: scripts/build-reference.mts   (\`pnpm run generate\`)
  * Gate:      \`pnpm check:generated\` regenerates this file and fails on a diff.
  *
@@ -1632,7 +1648,7 @@ async function main(): Promise<void> {
        rather than publish whichever won. */
     console.warn(
       `build-reference: duplicate props interface name(s): ${[...new Set(duplicates)].join(", ")}. ` +
-        "Each component's props interface name must be unique across registry/bases/.",
+        "Each component's props interface name must be unique across packages/react/src/components.",
     )
   }
   outputs.push({ file: PROPS_MODULE, contents: propsModule(propsInterfaces) })

@@ -5,22 +5,25 @@ kind: guide
 aliases: [app router setup, use client, rsc boundary, server components, pages router]
 ---
 
-The App Router is the reference target, and opsinjs is developed against it. Run [Getting started](./getting-started.mdx) with `rsc` set to `true` in `components.json`, so the CLI keeps `"use client"` where it is needed.
+The App Router is the reference target, and opsinjs is developed against it. Run [Getting started](./getting-started.mdx) first. `@opsinjs/react` keeps `"use client"` on the components that need it, so every component can be imported from a server component.
 
 ## Stylesheet
 
-`app/globals.css` holds four things, in this order.
+Without Tailwind, import `@opsinjs/react/styles.css` in `app/layout.tsx`, and `@opsinjs/react/base.css` after it if you want the element rules.
+
+With Tailwind, `app/globals.css` holds these, in this order.
 
 1. `@import "tailwindcss"`.
-2. The opsinjs token layer. If it loads before Tailwind, Tailwind's preflight can overwrite parts of it.
-3. An `@source` line for every folder holding copied components, relative to the CSS file.
-4. Your overrides, in your own `@theme` block. Editing the token layer itself turns the next upgrade into a manual merge.
+2. `@import "@opsinjs/react/tailwind.css"`. If it loads before Tailwind, Tailwind's preflight can overwrite parts of it. It already carries the `@source` line for the components, so you add none.
+3. `@import "@opsinjs/react/base.css"`, if you want it.
+4. Your overrides, in your own `@theme` block or after it. Never edit the token layer in `node_modules`, because the next install replaces it. Override a role instead.
 
 ## Root layout
 
 There is no opsinjs provider. Light and dark are a class on `<html>`, and the tokens resolve from it with no JavaScript.
 
 ```tsx title="app/layout.tsx"
+// Without Tailwind, import "@opsinjs/react/styles.css" here instead.
 import "./globals.css"
 
 export default function RootLayout({
@@ -53,7 +56,7 @@ Set the theme class before first paint with a plain inline `<script>` in `<head>
 
 - Pass server content into a client component as `children` to keep it out of the client bundle.
 - A function cannot cross the boundary, so an event handler needs a client component.
-- Import each component from its own module, never from a barrel file.
+- Import from `@opsinjs/react` or from a component's own subpath, such as `@opsinjs/react/dialog`. Both work in a server component.
 - Never branch rendering on `typeof window`, because it produces different markup on each side.
 
 ## Times and hydration

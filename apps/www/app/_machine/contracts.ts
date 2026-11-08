@@ -32,8 +32,9 @@
 
 import * as catalogueModule from "@/lib/catalogue"
 import * as registryModule from "@/lib/registry"
-import * as apcaModule from "@/lib/color/apca"
-import * as wcagModule from "@/lib/color/wcag"
+import * as apcaModule from "@opsinjs/color"
+import * as wcagModule from "@opsinjs/color"
+import { source } from "@/lib/source"
 import pkg from "@/package.json"
 
 /* ------------------------------------------------------------------ *
@@ -41,11 +42,7 @@ import pkg from "@/package.json"
  * ------------------------------------------------------------------ */
 
 /**
- * Canonical origin, no trailing slash. Matches the `@opsinjs` registry entry
- * already written into `components.json`
- * (`https://opsinjs.pensievelabs.org/r/{name}.json`), so the registry URL an
- * agent reads out of a consuming project and the URL this app serves cannot
- * drift.
+ * Canonical origin, no trailing slash.
  *
  * Overridable for preview deployments. Every route below is statically
  * rendered, so this is baked at build time. Set it in the build environment,
@@ -175,7 +172,7 @@ export function siteSummary(): string {
       ? ["PART OF THIS SYSTEM IS IMPLEMENTED AND PART OF IT IS NOT.", roster]
       : built.length >= specified
         ? [
-            `ALL ${specified} SPECIFIED COMPONENTS ARE IMPLEMENTED AND INSTALLABLE.`,
+            `ALL ${specified} SPECIFIED COMPONENTS ARE IMPLEMENTED AND PUBLISHED IN @opsinjs/react.`,
             built.length === 1
               ? `The one implemented id is ${built[0]}.`
               : `They are: ${built.join(", ")}.`,
@@ -226,10 +223,12 @@ export function siteSummary(): string {
     "authors, in a static source pass and a rendered pass, with the findings",
     "fixed in the same change. That audit is author-run and is not an",
     "independent review, and no component has had a clinical review.",
-    "`shipped` means the source installs and its accessibility was audited by",
-    "the authors, and it does not mean an independent accessibility review or",
-    "a clinical review has happened. Do not put one on a production health",
-    "surface. The record of the audit is ADR 0025.",
+    "`shipped` means the component is published in @opsinjs/react and its",
+    "accessibility was audited by the authors, and it does not mean an",
+    "independent accessibility review or a clinical review has happened. Do not",
+    "put one on a production health surface. The record of the audit is ADR 0025.",
+    "Install with `npm install @opsinjs/react` and import by name from",
+    "`@opsinjs/react`. Never copy component source into a project.",
     "Pages carry a machine-readable status, and `/r/index.json` carries",
     "`implemented` per id. Do not generate code against a proposed API and do",
     "not describe an unimplemented component as shipping. The tokens, the",
@@ -258,24 +257,14 @@ export const GITHUB_URL = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`
 export const GITHUB_NEW_ISSUE_URL = `${GITHUB_URL}/issues/new`
 
 /* ------------------------------------------------------------------ *
- * Registry identity
+ * The preview matrix
  * ------------------------------------------------------------------ */
-
-/** The namespace a consuming project puts in its `components.json`. */
-export const REGISTRY_NAMESPACE = "@opsinjs"
-
-/** The `{name}` template that namespace resolves to. */
-export const REGISTRY_URL_TEMPLATE = absoluteUrl("/r/{name}.json")
-
-export const REGISTRY_SCHEMA_URL = "https://ui.shadcn.com/schema/registry.json"
-export const REGISTRY_ITEM_SCHEMA_URL =
-  "https://ui.shadcn.com/schema/registry-item.json"
 
 /**
  * The base × style matrix (locked decision 6). `base` is behaviour authored
  * per primitive library; `style` is only a stylesheet. Docs pages have exactly
- * one un-namespaced URL; the matrix is addressable on the machine surfaces
- * (`/r/styles/[style]/[name]`) and the chrome-less preview routes.
+ * one un-namespaced URL; the matrix is addressable only on the chrome-less
+ * preview routes under /view.
  */
 export const DEFAULT_BASE = "base"
 export const DEFAULT_STYLE = "base-lyra"
@@ -386,16 +375,9 @@ export interface CatalogueRow {
   aliases: string[]
   governedBy: string[]
   usedIn: string[]
-  /**
-   * npm packages a consumer's `shadcn add` must install for this component's
-   * source to compile. Published as the item's `dependencies`.
-   */
+  /** npm packages the component's source imports. Documentation only. */
   dependencies: string[]
-  /**
-   * Other opsinjs components this one composes, as bare catalogue ids.
-   * `buildRegistryItem` namespaces them on the way out, because shadcn
-   * resolves a bare dependency name against ui.shadcn.com, not against us.
-   */
+  /** Other opsinjs components this one composes, as bare catalogue ids. */
   registryDependencies: string[]
   extra: Record<string, unknown>
 }
@@ -569,61 +551,24 @@ export function suggestNames(name: string, limit = 5): string[] {
  * The built-artefact index
  * ------------------------------------------------------------------ */
 
-export interface RegistrySourceFile {
-  path: string
-  type: string
-  target?: string
-  /**
-   * The file's own text, inlined.
-   *
-   * THIS FIELD IS THE DIFFERENCE BETWEEN AN INSTALL AND A NO-OP. shadcn 4.20's
-   * installer loop is `for (…) { if (!file.content) continue; … }`. A `files[]`
-   * entry with a path and a type but no content is skipped in silence, with no
-   * warning and a success message at the end. Every entry served from `/r`
-   * therefore carries its bytes; `scripts/build-registry.mts` reads them at
-   * generate time and inlines them into `registry/__index__.ts`, so nothing here
-   * touches the filesystem at request time.
-   */
-  content?: string
+/**
+ * A component's documentation URL, asked of the loader rather than assembled,
+ * so no literal documentation prefix appears here and a link is only emitted
+ * for a page that exists. `/r/index.json` therefore cannot advertise a 404.
+ */
+export function componentDocsUrl(name: string): string | undefined {
+  const page = source.getPage(["components", name])
+  return page ? absoluteUrl(page.url) : undefined
 }
 
-/**
- * `lib/registry.ts` provides `getRegistryEntry(name, base, style)` over
- * `registry/__index__.ts`, which returns null for an id nothing is built for.
- * The lookup is by `kind: "component"`, so examples and screens are unreachable
- * from here by construction. They exist in the index but are never distributed.
- */
-export function getBuiltFiles(
-  name: string,
-  base: string,
-  style: string
-): RegistrySourceFile[] {
-  const fn = callable(
-    pick(registryModule, ["getRegistryEntry", "getEntry", "resolve"])
-  )
-  if (!fn) return []
-  let entry: unknown
-  try {
-    entry = fn(name, base, style)
-  } catch {
-    return []
-  }
-  if (typeof entry !== "object" || entry === null) return []
-  const files = (entry as Record<string, unknown>).files
-  if (!Array.isArray(files)) return []
-  const result: RegistrySourceFile[] = []
-  for (const file of files) {
-    if (typeof file !== "object" || file === null) continue
-    const record = file as Record<string, unknown>
-    if (typeof record.path !== "string") continue
-    result.push({
-      path: record.path,
-      type: typeof record.type === "string" ? record.type : "registry:ui",
-      target: typeof record.target === "string" ? record.target : undefined,
-      content: typeof record.content === "string" ? record.content : undefined,
-    })
-  }
-  return result
+export function componentMarkdownUrl(name: string): string | undefined {
+  const url = componentDocsUrl(name)
+  return url ? `${url}.md` : undefined
+}
+
+/** Whether @opsinjs/react has this component. */
+export function isImplemented(name: string): boolean {
+  return implementedComponents().includes(name)
 }
 
 /**
@@ -694,10 +639,9 @@ export function implementedComponents(): string[] {
  * and then it is the system's loudest lie, in the file an agent trusts most.
  * Asking the generated index costs one array filter and cannot go stale.
  *
- * Screens are never distributed, because `getBuiltFiles()` looks up components
- * only. This therefore answers "has this specimen been composed", which is the
- * question a `/docs/screens/<name>.md` twin is asked, and nothing about
- * installability.
+ * Screens are never published; they live in the documentation site. This
+ * therefore answers "has this specimen been composed", which is the question a
+ * `/docs/screens/<name>.md` twin is asked, and nothing about installability.
  */
 export function implementedScreens(): string[] {
   return builtNamesOfKind("screen")
@@ -708,7 +652,7 @@ export function implementedScreens(): string[] {
  * ------------------------------------------------------------------ */
 
 /**
- * `lib/color/apca.ts` computes APCA-W3 lightness contrast. Signed: negative Lc
+ * `@opsinjs/color`'s `apcaContrast` computes APCA-W3 lightness contrast. Signed: negative Lc
  * means light text on a dark background. `/api/contrast` reports both the
  * signed value and its magnitude, because the sign is the polarity and the
  * magnitude is what a threshold is compared against.
@@ -722,7 +666,7 @@ export function resolveApca(): ((fg: string, bg: string) => number) | null {
 }
 
 /**
- * `lib/color/wcag.ts` computes the WCAG 2.2 relative-luminance ratio, 1 to 21.
+ * `@opsinjs/color`'s `contrastRatio` computes the WCAG 2.2 relative-luminance ratio, 1 to 21.
  */
 export function resolveWcag(): ((fg: string, bg: string) => number) | null {
   const fn = callable(

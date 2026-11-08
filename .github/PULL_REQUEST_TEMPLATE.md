@@ -12,6 +12,7 @@
 - [ ] The title follows Conventional Commits, for example `fix(www): correct the contrast table source`
 - [ ] The docs that describe this change are updated here, or no docs change is needed
 - [ ] A change users will notice has a line in `apps/www/content/docs/changelog.mdx`
+- [ ] A change to anything under `packages/` has a changeset from `pnpm changeset`, or touches no package
 - [ ] No generated file is edited by hand. I changed its source and regenerated
 - [ ] No U+2014 (em dash) or U+2013 (en dash) anywhere
 - [ ] Every claim is generated, cited or labelled as opinion, and nothing implies a review that has not happened

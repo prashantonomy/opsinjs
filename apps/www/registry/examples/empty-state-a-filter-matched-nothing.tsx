@@ -47,7 +47,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Check } from "lucide-react"
 
-import { EmptyState } from "@/registry/base-lyra/ui/empty-state"
+import { EmptyState } from "@opsinjs/react"
 
 /* Deliberately fictional and deliberately numberless. A screenshot of an
    opsinjs example must not be mistakable for somebody's own list of results. */

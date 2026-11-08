@@ -1,5 +1,5 @@
 {
-  "$comment": "This file is the authored source and is not generated. Stable dev-mode warning codes. Each code names exactly one docs page that prevents the mistake, and that page is the code's permanent home. build-tokens.mts emits this file three ways so the runtime, the shipped substrate and the docs cannot drift: OPSIN_ERROR_CODES and OPSIN_ERROR_POLICY in lib/generated/tokens.ts, the OPSIN_ERRORS table inside lib/opsinjs.ts (which warnOnce() reads and which shadcn add copies into a consumer's project), and the generated table under `## How it works` on content/docs/handbook/error-codes.mdx. Edit here; never edit any of the three.",
+  "$comment": "This file is the authored source and is not generated. Stable dev-mode warning codes. Each code names exactly one docs page that prevents the mistake, and that page is the code's permanent home. build-tokens.mts emits this file three ways so the runtime, the shipped substrate and the docs cannot drift: OPSIN_ERROR_CODES and OPSIN_ERROR_POLICY in lib/generated/tokens.ts, the OPSIN_ERRORS table inside packages/react/src/opsinjs.ts (which warnOnce() reads and which @opsinjs/react publishes), and the generated table under `## How it works` on content/docs/handbook/error-codes.mdx. Edit here; never edit any of the three.",
   "version": 1,
   "namespace": "errors",
   "policy": {
@@ -144,7 +144,7 @@
       "code": "OPSIN-0019",
       "severity": "hygiene",
       "title": "The token stylesheet was not loaded",
-      "message": "`--opsin-tokens-generated` is not set on :root. app/tokens.generated.css has not been imported, or `pnpm run generate` has not run, and every component is falling back to authored defaults.",
+      "message": "`--opsin-tokens-generated` is not set on :root. @opsinjs/tokens/tokens.css has not been loaded, so every component is falling back to authored defaults. Import @opsinjs/react/styles.css, or @opsinjs/react/tailwind.css after Tailwind.",
       "docs": "theming"
     },
     {

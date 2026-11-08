@@ -5,7 +5,7 @@ kind: foundation
 aliases: [icons, lucide, medical icons]
 ---
 
-opsinjs draws every glyph from lucide, and the registry components import theirs from `lucide-react`. The [icon browser](/icons) lists the curated set and each glyph's job.
+opsinjs draws every glyph from lucide, and `@opsinjs/react` imports its glyphs from `lucide-react`, which it installs as a dependency. The [icon browser](/icons) lists the curated set and each glyph's job.
 
 ## Rules
 
@@ -18,7 +18,7 @@ opsinjs draws every glyph from lucide, and the registry components import theirs
 
 ## Status glyphs
 
-`CLINICAL_STATUS_META[level].icon` in `lib/status.ts` names one glyph per level: `Circle` for Steady, `CircleDot` for Watch, `Diamond` for Needs attention, `Octagon` for Urgent and `Minus` for Not known. Take glyph names from the map, as [StatusPill](../components/status-pill.mdx) does, rather than choosing your own.
+`CLINICAL_STATUS_META[level].icon`, exported from `@opsinjs/react`, names one glyph per level: `Circle` for Steady, `CircleDot` for Watch, `Diamond` for Needs attention, `Octagon` for Urgent and `Minus` for Not known. Take glyph names from the map, as [StatusPill](../components/status-pill.mdx) does, rather than choosing your own.
 
 Each silhouette is heavier than the last, so the order survives greyscale. `Minus` is the absence of a verdict, never a fifth level. Do not use a warning triangle as a status glyph by default.
 

@@ -6,7 +6,7 @@
  * on the label rather than as a status beside it.
  */
 
-import { Badge } from "@/registry/base-lyra/ui/badge"
+import { Badge } from "@opsinjs/react"
 
 export default function BadgeACountOnALabel() {
   return (

@@ -4,6 +4,8 @@ Every registry file exports a named component with its real required props and a
 
 ## Status
 
+**Superseded by [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md)** on 2026-11-09: a component file has named exports only, and the demo a preview renders lives in `apps/www/registry/demos/<id>.tsx`. The record below is kept as written.
+
 **Accepted.** 2026-09-03. Verified against the pipeline fixture at
 `registry/bases/base/status-pill.tsx`, which renders at
 `/view/base/base-lyra/component/status-pill` and typechecks against the emitted

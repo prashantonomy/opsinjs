@@ -18,8 +18,9 @@
  * the range" and "nothing to attend to" are different claims, and so are
  * "outside it" and "needs attention". A list whose rows lined position up with
  * level would teach the conversion by example whatever the comment beside it
- * said, and this is one of the files `shadcn add` copies into a project.
- * `range-bar-outside-the-range.tsx` shows the same rule from the other side.
+ * said, and this is one of the files the component page prints for a developer
+ * to copy. `range-bar-outside-the-range.tsx` shows the same rule from the other
+ * side.
  *
  * THE THIRD ROW HAS NO STATUS, and that is not an oversight. A product assigns
  * a level when it has a rule that says so; where it has none, the tick is drawn
@@ -38,8 +39,12 @@
  * would outlive this page.
  */
 
-import { EXAMPLE_SOURCE, type HealthCategory, type ClinicalStatus } from "@/lib/opsinjs"
-import { RangeBar } from "@/registry/base-lyra/ui/range-bar"
+import {
+  EXAMPLE_SOURCE,
+  RangeBar,
+  type ClinicalStatus,
+  type HealthCategory,
+} from "@opsinjs/react"
 
 const ROWS: {
   label: string

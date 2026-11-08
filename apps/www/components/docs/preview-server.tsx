@@ -89,15 +89,14 @@ export type ComponentPreviewServerProps = Omit<
 /** The preview block on a component page. See `./preview` for the surface. */
 /**
  * An example's source as a reader would paste it: the file's opening doc
- * comment removed, a "use client" directive kept, and the registry's own
- * import alias rewritten to the path `shadcn add` writes components to.
+ * comment removed and a "use client" directive kept. Examples import from
+ * @opsinjs/react already, so the imports need no rewriting.
  */
 export function displaySource(source: string): string {
   const directive = /^\s*(["']use client["'];?)\s*\n/.exec(source)
   const rest = directive ? source.slice(directive[0].length) : source
   const body = rest
     .replace(/^\s*\/\*\*[\s\S]*?\*\/\s*\n/, "")
-    .replace(/@\/registry\/base-lyra\/ui\//g, "@/components/ui/")
     .trim()
   return directive ? `${directive[1]}\n\n${body}` : body
 }

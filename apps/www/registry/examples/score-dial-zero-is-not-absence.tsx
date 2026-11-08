@@ -27,8 +27,7 @@
  * person was nobody.
  */
 
-import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
-import { ScoreDial } from "@/registry/base-lyra/ui/score-dial"
+import { EXAMPLE_SOURCE, ScoreDial } from "@opsinjs/react"
 
 const EXAMPLE_BANDS = [
   { from: 0, to: 10, name: "First example band", source: EXAMPLE_SOURCE },

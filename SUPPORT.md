@@ -18,6 +18,6 @@ The documentation is at <https://opsinjs.pensievelabs.org>.
 1. Say what you are trying to show a person. "A blood pressure reading against their
    usual range" is answerable, and "a card component" is not.
 2. Say what you tried and which docs page you read.
-3. Say which component you installed and when, because nothing in the copied source
-   records its version.
+3. Say which version you have. `npm ls @opsinjs/react` prints it, and the four packages
+   share one version.
 4. Use made-up values. Never post real patient data.

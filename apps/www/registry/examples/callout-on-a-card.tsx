@@ -15,21 +15,23 @@
  *
  * THE CORNER IS CONCENTRIC, NOT EQUAL. The callout passes
  * `className="rounded-opsin-xs!"` so its corner nests inside the card's rather
- * than matching it. `tokens/shape.json` rule 3 sets an inner radius to the outer
- * radius minus the padding between the two boxes, floored at radius-xs: the card
- * is `rounded-opsin-md` at 14px with `p-5`, which is 20px at the default
- * comfortable density, so `max(14 - 20, 4)` floors at radius-xs and the callout
- * draws a 4px corner. The override is important because `cn()` merges through
- * `tailwind-merge`, which is not taught the `opsin-radius` scale and so keeps
- * both this class and the component's own `rounded-opsin-md`. Both then reach the
- * element and source order alone would decide, which is the same trap
+ * than matching it. `tokens/shape.json` rule 3 sets an inner radius to the
+ * outer radius minus the padding between the two boxes, floored at radius-xs:
+ * the card is `rounded-opsin-md` at 14px with `p-5`, which is 20px at the
+ * default comfortable density, so `max(14 - 20, 4)` floors at radius-xs and the
+ * callout draws a 4px corner. The override is important because `cn()` merges
+ * through `tailwind-merge`, which is not taught the `opsin-radius` scale and so
+ * keeps both this class and the component's own `rounded-opsin-md`. Both then
+ * reach the element and source order alone would decide, which is the same trap
  * `card.tsx` writes the important flag for; the flag is how the caller's radius
  * takes the corner back rather than leaving the outcome to stylesheet order.
- * Equal corners on a box inside a box read as a sticker laid
- * on the card rather than as part of it. The component cannot pick this radius
- * for itself, because it cannot see the padding of the box it is dropped into,
- * which is the same reason `card.tsx` leaves radius-lg to the caller. This JSDoc
- * ships with the example, so a product copying the callout copies the reasoning.
+ * Equal corners on a box inside a box read as a sticker laid on the card rather
+ * than as part of it. The component cannot pick this radius for itself, because
+ * it cannot see the padding of the box it is dropped into, which is the same
+ * reason `card.tsx` leaves radius-lg to the caller. The code printed under the
+ * preview leaves this JSDoc out, so a product that copies the callout from the
+ * page gets the radius without the reasoning, which lives here in the
+ * repository.
  *
  * The card holds no reading, no unit and no status pill. A card with a value, a
  * coloured pill and a paragraph is a ResultCard drawn without any of a
@@ -42,8 +44,7 @@
  * example used to leave that to the lightbulb.
  */
 
-import { Callout } from "@/registry/base-lyra/ui/callout"
-import { Card } from "@/registry/base-lyra/ui/card"
+import { Callout, Card } from "@opsinjs/react"
 
 export default function CalloutOnACard() {
   return (

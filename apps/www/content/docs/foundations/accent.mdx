@@ -53,14 +53,16 @@ Set the theme and the accent on `<html>`. With neither, a page renders normal an
 
 Any element can start a scope of its own, and `.dark` may sit on the same element, above it or inside it. Set both attributes on one element: a theme on one element and an accent on another do not combine.
 
-Each pairing is also a theme item that layers on the default one:
+Every pairing is already in `tokens.css`, which `@opsinjs/react` brings with it, so there is nothing more to install. Switching at runtime is changing the attributes, and `@opsinjs/tokens` exports their names:
 
-```npm
-npx shadcn@latest add https://opsinjs.pensievelabs.org/r/themes/opsinjs-default.json
-npx shadcn@latest add https://opsinjs.pensievelabs.org/r/themes/opsinjs-vibes-volt.json
+```ts
+import { ACCENT_ATTRIBUTE, ACCENT_THEME_ATTRIBUTE } from "@opsinjs/tokens"
+
+document.documentElement.setAttribute(ACCENT_THEME_ATTRIBUTE, "stryk")
+document.documentElement.setAttribute(ACCENT_ATTRIBUTE, "graphite")
 ```
 
-A theme item sets `:root` and `.dark` only, so it fixes one pairing. Switching at runtime needs the attribute blocks in `app/tokens.generated.css`.
+`ACCENT_THEMES` and `ACCENTS` list the values, and `DEFAULT_ACCENT_THEME` and `DEFAULT_ACCENT` are `normal` and `cobalt`.
 
 ## Roles
 

@@ -6,8 +6,11 @@ packages:
 # esbuild MUST be true: fumadocs-mdx shells out to esbuild to compile
 # source.config.ts, and without the build script it cannot generate the
 # .source/ directory. Every route that imports it then fails to resolve.
-# sharp and unrs-resolver are optional native builds we do not need.
+# sharp and unrs-resolver are optional native builds we do not need, and
+# @parcel/watcher is the watch mode of @tailwindcss/cli, which the package
+# builds never use.
 allowBuilds:
+  '@parcel/watcher': false
   esbuild: true
   sharp: false
   unrs-resolver: false

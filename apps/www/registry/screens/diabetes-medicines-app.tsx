@@ -79,45 +79,46 @@ import {
   Undo2,
 } from "lucide-react"
 
-import { Accordion } from "@/registry/base-lyra/ui/accordion"
-import { Badge } from "@/registry/base-lyra/ui/badge"
-import { Button } from "@/registry/base-lyra/ui/button"
-import { Callout } from "@/registry/base-lyra/ui/callout"
-import { Card } from "@/registry/base-lyra/ui/card"
-import { CareCard } from "@/registry/base-lyra/ui/care-card"
-import { Checkbox } from "@/registry/base-lyra/ui/checkbox"
-import { Combobox } from "@/registry/base-lyra/ui/combobox"
-import { ConsentSheet } from "@/registry/base-lyra/ui/consent-sheet"
-import { Dialog } from "@/registry/base-lyra/ui/dialog"
-import { DisclaimerNote } from "@/registry/base-lyra/ui/disclaimer-note"
-import { Divider } from "@/registry/base-lyra/ui/divider"
-import { DoseTracker } from "@/registry/base-lyra/ui/dose-tracker"
-import { EmptyState } from "@/registry/base-lyra/ui/empty-state"
-import { Field } from "@/registry/base-lyra/ui/field"
-import { IconButton } from "@/registry/base-lyra/ui/icon-button"
-import { Link } from "@/registry/base-lyra/ui/link"
-import { LogSheet, type LogEntry } from "@/registry/base-lyra/ui/log-sheet"
-import { Menu } from "@/registry/base-lyra/ui/menu"
-import { NumberField } from "@/registry/base-lyra/ui/number-field"
-import { RadioGroup } from "@/registry/base-lyra/ui/radio-group"
-import { RelativeTime } from "@/registry/base-lyra/ui/relative-time"
-import { SegmentedControl } from "@/registry/base-lyra/ui/segmented-control"
-import { Select } from "@/registry/base-lyra/ui/select"
-import { Sheet } from "@/registry/base-lyra/ui/sheet"
-import { SourceCitation } from "@/registry/base-lyra/ui/source-citation"
-import { Stepper } from "@/registry/base-lyra/ui/stepper"
-import { Surface } from "@/registry/base-lyra/ui/surface"
-import { Switch } from "@/registry/base-lyra/ui/switch"
-import { TabBar } from "@/registry/base-lyra/ui/tab-bar"
 import {
+  Accordion,
+  Badge,
+  Button,
+  Callout,
+  Card,
+  CareCard,
+  Checkbox,
+  Combobox,
+  ConsentSheet,
+  Dialog,
+  DisclaimerNote,
+  Divider,
+  DoseTracker,
+  EmptyState,
+  Field,
+  IconButton,
+  Link,
+  LogSheet,
+  Menu,
+  NumberField,
+  RadioGroup,
+  RelativeTime,
+  SegmentedControl,
+  Select,
+  Sheet,
+  SourceCitation,
+  Stepper,
+  Surface,
+  Switch,
+  TabBar,
   Term,
   TermGlossaryProvider,
+  Textarea,
+  TimelineEntry,
+  Value,
+  VisuallyHidden,
   type GlossaryEntry,
-} from "@/registry/base-lyra/ui/term"
-import { Textarea } from "@/registry/base-lyra/ui/textarea"
-import { TimelineEntry } from "@/registry/base-lyra/ui/timeline-entry"
-import { Value } from "@/registry/base-lyra/ui/value"
-import { VisuallyHidden } from "@/registry/base-lyra/ui/visually-hidden"
+  type LogEntry,
+} from "@opsinjs/react"
 
 /* ====================================================================== *
  * The fixed instant                                                       *

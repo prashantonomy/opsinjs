@@ -29,8 +29,7 @@
 
 import { useState } from "react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { Sheet } from "@/registry/base-lyra/ui/sheet"
+import { Button, Sheet } from "@opsinjs/react"
 
 const ROWS = Array.from({ length: 12 }, (unused, index) => ({
   id: `row-${index + 1}`,

@@ -14,7 +14,7 @@ import { NoDataYet } from "./stub"
 
    Three of these four report numbers, and the rule for all three is the same:
    opsinjs does not print a contrast figure a human typed. `pnpm contrast` runs
-   the hand-written APCA-W3 and WCAG 2.2 implementations in lib/color/ over
+   the hand-written APCA-W3 and WCAG 2.2 implementations in packages/color/src/ over
    every token pair in both themes and writes lib/generated/contrast.json. The
    gate that fails when a published figure becomes untrue is `contrast:verify`,
    and it runs in the nightly workflow, not the pull-request check in ci.yml.
@@ -863,7 +863,7 @@ export function CvdSimulator({ children, grid, className }: CvdSimulatorProps) {
         Simulated with SVG colour matrices. The design question is whether this
         can still be read without hue, and the simulation is close enough to
         answer that. It is not a clinical instrument. The audited version is{" "}
-        <code className="text-[0.6875rem]">lib/color/cvd.ts</code>.
+        <code className="text-[0.6875rem]">packages/color/src/cvd.ts</code>.
       </p>
     </div>
   )

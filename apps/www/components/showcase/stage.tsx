@@ -13,7 +13,7 @@ import {
   useAccentChoice,
   type AccentChoice,
 } from "@/components/docs/accent-choice"
-import { ACCENT_SWATCHES } from "@/lib/generated/accents"
+import { ACCENT_SWATCHES } from "@opsinjs/tokens"
 import { routes, viewPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 

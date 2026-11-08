@@ -10,7 +10,7 @@
 
 import { useState } from "react"
 
-import { BodyMap } from "@/registry/base-lyra/ui/body-map"
+import { BodyMap } from "@opsinjs/react"
 
 const REGIONS = [
   { key: "head", label: "Head" },

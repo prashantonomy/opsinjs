@@ -1,6 +1,6 @@
 /**
  * check-contrast.mts - measures every opsinjs token pair with the hand-written
- * colour maths in lib/color/ and writes lib/generated/contrast.json.
+ * colour maths in packages/color/src/ and writes lib/generated/contrast.json.
  *
  *   node scripts/check-contrast.mts             # measure and write
  *   node scripts/check-contrast.mts --verify    # measure, write nothing, fail on a regression
@@ -27,7 +27,7 @@
  * nobody ever rechecks.
  *
  * DEPENDENCIES: none. The OKLCH conversion, the APCA-W3 implementation, the WCAG
- * 2.2 ratio and the colour-vision simulation are all hand-written in lib/color/
+ * 2.2 ratio and the colour-vision simulation are all hand-written in packages/color/src/
  * (decision 10). This script consumes them and never reimplements them, because
  * two implementations of the same maths in one repository is how the published
  * numbers and the runtime numbers drift apart.
@@ -104,7 +104,7 @@ const TOLERANCE = 0.05
  *
  * A category accent is a chart line or a legend dot on the page itself, so the
  * page is what it has to be distinguishable from. This is the chrome background
- * role, which is what app/product.css renders as the page, so the measured page
+ * role, which is what packages/react/styles/roles.css renders as the page, so the measured page
  * is the rendered page. The token carries its own light and dark values, so one
  * name resolves per theme, and re-tuning the chrome role re-tunes the
  * measurement with it.
@@ -259,7 +259,7 @@ function extractCssBlock(css: string, opener: RegExp): string | undefined {
 }
 
 /**
- * The chrome roles a chart is drawn on, read straight from app/product.css.
+ * The chrome roles a chart is drawn on, read straight from packages/react/styles/roles.css.
  *
  * Everything else this script measures comes from lib/generated/tokens.ts, but
  * `--background`, `--muted`, `--muted-foreground` and `--ring` live only in the
@@ -271,7 +271,7 @@ function extractCssBlock(css: string, opener: RegExp): string | undefined {
  * left out because its dark value carries an alpha channel and compositing it
  * here would be a second copy of the colour maths this file is forbidden to hold.
  *
- * Reading these roles makes app/product.css an input to a published number.
+ * Reading these roles makes packages/react/styles/roles.css an input to a published number.
  * lib/generated/contrast.json is written by `pnpm run contrast`, which
  * `pnpm check` does not run, so a theme edit that moves one of these roles can
  * leave the published figures stale without `check:generated` noticing. After a
@@ -281,7 +281,7 @@ function readProductCssRoles(): Record<Theme, Record<string, string>> {
   const result: Record<Theme, Record<string, string>> = { light: {}, dark: {} }
   let css: string
   try {
-    css = readFileSync(join(APP_DIR, "app", "product.css"), "utf8")
+    css = readFileSync(join(APP_DIR, "..", "..", "packages", "react", "styles", "roles.css"), "utf8")
   } catch {
     return result
   }
@@ -425,7 +425,7 @@ function pick<T>(
  *                                                                     *
  * WHY THIS EXISTS. `--verify` proves the published numbers are        *
  * REPRODUCIBLE, which is not the same as proving they are right. It   *
- * recomputes every pair with lib/color/ and diffs the result against  *
+ * recomputes every pair with packages/color/src/ and diffs the result against  *
  * a baseline the same code wrote, so a wrong formula is wrong         *
  * identically on both sides of that diff and the gate stays green     *
  * while every Lc and ratio on the site carries the error. This runs   *
@@ -436,7 +436,7 @@ function pick<T>(
  * it falls straight out of the published formula, like               *
  * (1 + 0.05) / (0 + 0.05) = 21 for black on white, or a pure primary  *
  * at full intensity having exactly its own WCAG channel coefficient   *
- * as its relative luminance. STRUCTURAL: a property lib/color/apca.ts *
+ * as its relative luminance. STRUCTURAL: a property packages/color/src/apca.ts *
  * states about itself in its own header - Lc is signed, it is         *
  * directional, and it clamps to zero near zero.                       *
  *                                                                     *
@@ -467,8 +467,8 @@ async function runSelfTest(): Promise<{
   checks: number
   failures: SelfTestFailure[]
 }> {
-  const apcaMod = await importModule(join("lib", "color", "apca.ts"))
-  const wcagMod = await importModule(join("lib", "color", "wcag.ts"))
+  const apcaMod = await importModule(join("..", "..", "packages", "color", "src", "apca.ts"))
+  const wcagMod = await importModule(join("..", "..", "packages", "color", "src", "wcag.ts"))
 
   const apcaContrast = pick<(text: SelfTestColor, background: SelfTestColor) => number>(
     apcaMod,
@@ -483,7 +483,7 @@ async function runSelfTest(): Promise<{
     "relativeLuminance",
   ])
 
-  /* The main path already explains a missing lib/color/ and exits 0 rather
+  /* The main path already explains a missing packages/color/src/ and exits 0 rather
      than replacing measurements with silence. Do not turn that into a hard
      failure here: absent maths is a different state from wrong maths. */
   if (!apcaContrast || !contrastRatio || !relativeLuminance) {
@@ -528,7 +528,7 @@ async function runSelfTest(): Promise<{
   )
 
   /* Notation, not formula: the same colour written three ways must measure the
-     same. lib/color/oklch.ts's parser sits under every published figure and a
+     same. packages/color/src/oklch.ts's parser sits under every published figure and a
      silent mis-parse would land as a plausible wrong number. */
   equals("shorthand hex parses to the same colour", contrastRatio("#000", "#fff"), 21)
   equals("an sRGB triple parses to the same colour", contrastRatio([0, 0, 0], [255, 255, 255]), 21)
@@ -717,7 +717,7 @@ function buildPairs(tokens: GeneratedToken[]): PairDefinition[] {
   }
 
   /*
-   * The chart band on the neutral surface, read from app/product.css. A
+   * The chart band on the neutral surface, read from packages/react/styles/roles.css. A
    * TrendSparkline shades a reference band in `fill-muted`, and its edge is
    * SPECIFIED to move to a dashed `--muted-foreground` in trendsparkline-03.b.
    * These two edge rows are the floor that change is held to, not a measurement
@@ -830,7 +830,7 @@ function buildPairs(tokens: GeneratedToken[]): PairDefinition[] {
    * that line is the only elevation cue a reader has and it has to clear the
    * non-text floor. The light border clears both floors; the dark border on a
    * near-black page sits below the APCA non-text floor while clearing WCAG 3:1,
-   * and that shortfall is stated in app/product.css rather than tuned away,
+   * and that shortfall is stated in packages/react/styles/roles.css rather than tuned away,
    * because no opaque neutral step reaches the floor there without reading as a
    * heavy stripe. Gating it still earns its place: it catches any drift in the
    * light theme, and it stops the border silently lightening again.
@@ -1087,7 +1087,7 @@ async function main(): Promise<void> {
           `    ${failure.detail}`,
         ]),
         "",
-        "  Fix lib/color/, not this check. Every contrast figure on the site comes",
+        "  Fix packages/color/src/, not this check. Every contrast figure on the site comes",
         "  from those two modules, so a failure here means the published numbers are",
         "  wrong and lib/generated/contrast.json agrees with them.",
         "",
@@ -1099,7 +1099,7 @@ async function main(): Promise<void> {
     console.log(
       selfTest.ran
         ? `check-contrast --selftest: ${selfTest.checks} known-answer checks passed.`
-        : "check-contrast --selftest: lib/color/ is not available, so nothing was checked.",
+        : "check-contrast --selftest: packages/color/src/ is not available, so nothing was checked.",
     )
     return
   }
@@ -1124,13 +1124,13 @@ async function main(): Promise<void> {
     return
   }
 
-  const apcaMod = await importModule(join("lib", "color", "apca.ts"))
-  const wcagMod = await importModule(join("lib", "color", "wcag.ts"))
-  const oklchMod = await importModule(join("lib", "color", "oklch.ts"))
-  const cvdMod = await importModule(join("lib", "color", "cvd.ts"))
+  const apcaMod = await importModule(join("..", "..", "packages", "color", "src", "apca.ts"))
+  const wcagMod = await importModule(join("..", "..", "packages", "color", "src", "wcag.ts"))
+  const oklchMod = await importModule(join("..", "..", "packages", "color", "src", "oklch.ts"))
+  const cvdMod = await importModule(join("..", "..", "packages", "color", "src", "cvd.ts"))
 
   /* The composite helpers, used only to resolve a `@composite` background. The
-     maths lives in lib/color/oklch.ts and is never reimplemented here. */
+     maths lives in packages/color/src/oklch.ts and is never reimplemented here. */
   type Colour = { l: number; c: number; h: number; alpha?: number }
   const compositeOver = pick<(foreground: Colour, backdrop: Colour, alpha: number) => Colour>(
     oklchMod,
@@ -1167,10 +1167,10 @@ async function main(): Promise<void> {
   if (!apcaContrast || !contrastRatio) {
     console.warn(
       [
-        "check-contrast: the colour maths in lib/color/ is not available, so no contrast",
+        "check-contrast: the colour maths in packages/color/src/ is not available, so no contrast",
         "  was measured and lib/generated/contrast.json was left untouched.",
-        "  Needed: lib/color/apca.ts -> apcaContrast(text, background)",
-        "          lib/color/wcag.ts -> contrastRatio(a, b)",
+        "  Needed: packages/color/src/apca.ts -> apcaContrast(text, background)",
+        "          packages/color/src/wcag.ts -> contrastRatio(a, b)",
         "",
         "  Exiting 0. Writing an empty result here would replace real measurements with",
         "  silence, which is worse than reporting nothing.",
@@ -1614,13 +1614,13 @@ async function main(): Promise<void> {
   /* ---------------- write ---------------- */
   const payload = {
     $comment:
-      "GENERATED FILE - DO NOT EDIT. Source: tokens/color.json and tokens/material.json via lib/generated/tokens.ts, plus the chrome roles --background, --muted, --muted-foreground and --ring read from app/product.css, measured with lib/color/{apca,wcag,cvd}.ts. Generator: scripts/check-contrast.mts (`pnpm run contrast`). Gate: `pnpm run contrast:verify` fails the build on a regression. Every published APCA Lc and WCAG ratio on this site comes from this file, and none of them was typed by a person. The figures describe the shipped opsinjs presets only: a theme derived from your own brand colour has its own numbers and must be measured with your own values.",
+      "GENERATED FILE - DO NOT EDIT. Source: tokens/color.json and tokens/material.json via lib/generated/tokens.ts, plus the chrome roles --background, --muted, --muted-foreground and --ring read from packages/react/styles/roles.css, measured with packages/color/src/{apca,wcag,cvd}.ts. Generator: scripts/check-contrast.mts (`pnpm run contrast`). Gate: `pnpm run contrast:verify` fails the build on a regression. Every published APCA Lc and WCAG ratio on this site comes from this file, and none of them was typed by a person. The figures describe the shipped opsinjs presets only: a theme derived from your own brand colour has its own numbers and must be measured with your own values.",
     generatedAt: new Date().toISOString().slice(0, 10),
     sourceHash: meta.sourceHash ?? "unknown",
     toolVersion: {
-      apca: "APCA-W3 constants, implemented in lib/color/apca.ts",
-      wcag: "WCAG 2.2 relative luminance, implemented in lib/color/wcag.ts",
-      cvd: "Dichromacy projection, implemented in lib/color/cvd.ts",
+      apca: "APCA-W3 constants, implemented in packages/color/src/apca.ts",
+      wcag: "WCAG 2.2 relative luminance, implemented in packages/color/src/wcag.ts",
+      cvd: "Dichromacy projection, implemented in packages/color/src/cvd.ts",
     },
     floor: {
       body: { apcaLc: apcaFloor.body, wcag: wcagFloor.body },
@@ -1696,7 +1696,7 @@ async function main(): Promise<void> {
   if (accentRows.length > 0) {
     const accentPayload = {
       $comment:
-        "GENERATED FILE - DO NOT EDIT. Source: tokens/accent.json, read through scripts/accent-plan.mts, on the chrome page and card from lib/generated/tokens.ts, measured with lib/color/{apca,wcag}.ts. Generator: scripts/check-contrast.mts (`pnpm run contrast`). Gate: `pnpm run contrast:verify` fails on a failing or a moved pair, and scripts/build-tokens.mts refuses to emit an accent below its floor in the first place. `standard` floors are the system's; `enhanced` are stryk's, WCAG 2.2 AAA and APCA Lc 85 for text and 4.5:1 and Lc 60 for a boundary. An exempt pair is a fill an edge bounds: measured, published and never gated.",
+        "GENERATED FILE - DO NOT EDIT. Source: tokens/accent.json, read through scripts/accent-plan.mts, on the chrome page and card from lib/generated/tokens.ts, measured with packages/color/src/{apca,wcag}.ts. Generator: scripts/check-contrast.mts (`pnpm run contrast`). Gate: `pnpm run contrast:verify` fails on a failing or a moved pair, and scripts/build-tokens.mts refuses to emit an accent below its floor in the first place. `standard` floors are the system's; `enhanced` are stryk's, WCAG 2.2 AAA and APCA Lc 85 for text and 4.5:1 and Lc 60 for a boundary. An exempt pair is a fill an edge bounds: measured, published and never gated.",
       generatedAt: new Date().toISOString().slice(0, 10),
       sourceHash: meta.sourceHash ?? "unknown",
       floors: ACCENT_FLOORS,

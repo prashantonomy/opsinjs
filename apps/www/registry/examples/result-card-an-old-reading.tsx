@@ -39,8 +39,7 @@
  * an example would teach a product to move it.
  */
 
-import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
-import { ResultCard } from "@/registry/base-lyra/ui/result-card"
+import { EXAMPLE_SOURCE, ResultCard } from "@opsinjs/react"
 
 const EXAMPLE_NOW = "2026-03-14T11:12:00+00:00"
 

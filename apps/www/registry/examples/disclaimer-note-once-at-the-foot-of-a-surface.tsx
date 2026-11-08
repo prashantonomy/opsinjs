@@ -27,8 +27,7 @@
  * installs this component.
  */
 
-import { Card } from "@/registry/base-lyra/ui/card"
-import { DisclaimerNote } from "@/registry/base-lyra/ui/disclaimer-note"
+import { Card, DisclaimerNote } from "@opsinjs/react"
 
 const ROWS = [
   "First example measurement",

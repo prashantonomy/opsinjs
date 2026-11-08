@@ -6,8 +6,9 @@
  *   node scripts/check-a11y.mts --json                            # machine-readable
  *   node scripts/check-a11y.mts --layout --base http://127.0.0.1:4000
  *
- * THE STATIC HALF reads every file under registry/bases, registry/examples and
- * registry/screens and enforces what an accessibility contract can be enforced
+ * THE STATIC HALF reads every @opsinjs/react component in
+ * packages/react/src/components and every file under registry/demos,
+ * registry/examples and registry/screens, and enforces what an accessibility contract can be enforced
  * from source: that a status surface carries a word and an icon and not only a
  * colour, that no type size is in px, that no colour is a literal, that no
  * single element takes colour from both axes, that no banned word reaches copy
@@ -148,15 +149,19 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const REGISTRY_DIR = join(APP_DIR, "registry")
+/* The @opsinjs/react component sources. */
+const COMPONENTS_DIR = join(APP_DIR, "..", "..", "packages", "react", "src", "components")
 
 /**
- * The three trees a component author writes into, and the only three this
- * checks. `components/` is deliberately absent: it is the lyra docs chrome,
+ * The four trees a component author writes into, and the only four this
+ * checks: the @opsinjs/react components, their demos, the examples and the
+ * screens. `components/` is deliberately absent: it is the lyra docs chrome,
  * which is authored against app/globals.css and is allowed every class this
- * file forbids. `components/ui/button.tsx` uses four of them.
+ * file forbids.
  */
 const SCAN_DIRS = [
-  join(REGISTRY_DIR, "bases"),
+  COMPONENTS_DIR,
+  join(REGISTRY_DIR, "demos"),
   join(REGISTRY_DIR, "examples"),
   join(REGISTRY_DIR, "screens"),
 ]
@@ -167,7 +172,7 @@ const SCAN_DIRS = [
  * the classes the a11y rules forbid, but an unparsable class candidate breaks
  * the stylesheet wherever Tailwind reads it, chrome included. Tailwind reads two
  * things and the scan surface has to cover both. The explicit half is the four
- * `@source` globs the two stylesheets declare: `app/product.css` lines 25 and 26
+ * `@source` globs the two stylesheets declare: `app/product.css`
  * pull registry and components as `.ts` and `.tsx`, and `app/globals.css` lines
  * 51 and 52 pull content as `.md` and `.mdx` and registry again. The implicit
  * half is larger and was the hole a candidate in `scripts/` once fell through:
@@ -293,7 +298,7 @@ const COLOUR_UTILITIES =
 
 /**
  * The roles declared only in app/globals.css. Under /view the stylesheet is
- * app/product.css, whose `@theme inline` block bridges the surface, state and primary roles and
+ * app/product.css, which imports packages/react/styles/theme.css, whose `@theme inline` block bridges the surface, state and primary roles and
  * the two axes and nothing else, so every name here resolves to a colour in the
  * docs and to nothing at all in the product. This is the single most likely
  * defect across twenty-four components, because it looks correct in review: the
@@ -994,9 +999,10 @@ function statusColourPattern(levels: string[]): RegExp {
  * whenever a file both stamps `data-status` and composes another registry
  * component, on the understanding that a human then confirms the child carries
  * the word and the glyph. This does that confirmation in code for the one
- * delegation the rig can fully vouch for. The child sits under
- * `@/registry/base-lyra/ui`, which the tsconfig maps to `registry/bases/base`,
- * and it has already been read and held to the whole contract by this same run.
+ * delegation the rig can fully vouch for. The child is a sibling component in
+ * packages/react/src/components, named as `./status-pill.tsx` from another
+ * component or as `{ StatusPill } from "@opsinjs/react"` from a demo, an
+ * example or a screen, and it has already been read and held to the whole contract by this same run.
  * When such a child both reads CLINICAL_STATUS_META and imports lucide-react it
  * is a self-sufficient carrier of a word and a distinct glyph. StatusPill is
  * that child. A parent that composes it is delegating to a surface already
@@ -1013,12 +1019,22 @@ function statusColourPattern(levels: string[]): RegExp {
  * never credits a delegate it has not read and checked.
  */
 function delegatesStatusToProvenCarrier(code: string): boolean {
-  const specifier = /from\s+["']@\/registry\/base-lyra\/ui\/([^"']+)["']/g
-  let match: RegExpExecArray | null
-  while ((match = specifier.exec(code)) !== null) {
-    const name = match[1]
-    if (name === undefined) continue
-    const base = join(REGISTRY_DIR, "bases", "base", name)
+  /* A component names a sibling as `./status-pill.tsx`; a demo, an example or
+     a screen names it as `{ StatusPill } from "@opsinjs/react"`, which maps to
+     the kebab-case file of the same name. */
+  const names: string[] = []
+  for (const match of code.matchAll(/from\s+["']\.\/([a-z0-9-]+)(?:\.tsx?)?["']/g)) {
+    if (match[1] !== undefined) names.push(match[1])
+  }
+  for (const match of code.matchAll(/import\s*\{([^}]*)\}\s*from\s*["']@opsinjs\/react["']/g)) {
+    for (const part of (match[1] ?? "").split(",")) {
+      const imported = part.trim().replace(/^type\s+/, "").split(/\s+as\s+/)[0] ?? ""
+      if (!/^[A-Z]/.test(imported)) continue
+      names.push(imported.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase())
+    }
+  }
+  for (const name of names) {
+    const base = join(COMPONENTS_DIR, name)
     for (const candidate of [`${base}.tsx`, `${base}.ts`]) {
       if (!exists(candidate)) continue
       let childSource: string
@@ -1060,13 +1076,15 @@ function checkStatusCarriers(
 
      The repair the earlier note called for is now in place: rather than leave
      every such file to a human eye under a permanent warning, the rule follows
-     the one import it can vouch for. When the composed child under
-     `@/registry/base-lyra/ui` is itself a proven carrier, the delegation is
+     the one import it can vouch for. When the composed child, a sibling
+     component or a name imported from @opsinjs/react, is itself a proven carrier, the delegation is
      confirmed in code and the file clears. When it cannot resolve the child, or
      the child is not itself a carrier, one file still cannot tell the
      difference, so it says so at warning severity, and `--strict` is what makes
      a warning fail. */
-  const composesRegistry = /from\s+["']@\/registry\/[^"']+\/ui\/[^"']+["']/.test(code)
+  const composesRegistry =
+    /from\s+["']\.\/[a-z0-9-]+(?:\.tsx?)?["']/.test(code) ||
+    /import\s*\{[^}]*\b[A-Z]\w*[^}]*\}\s*from\s*["']@opsinjs\/react["']/.test(code)
   const delegationProven = composesRegistry && delegatesStatusToProvenCarrier(code)
 
   /* Anything that stamps the attribute, reads the vocabulary, or paints the
@@ -1076,7 +1094,7 @@ function checkStatusCarriers(
   for (const element of stamped) {
     if (readsMeta && importsLucide) break
     /* The delegation, proven. The file stamps the status and renders the word
-       and the glyph through a child under `@/registry/base-lyra/ui`. That child
+       and the glyph through a composed opsinjs component. That child
        has been read one hop and confirmed to carry both, so the surface is not a
        colour alone and the rule clears rather than leaning on a human eye. */
     if (delegationProven) break
@@ -1088,7 +1106,7 @@ function checkStatusCarriers(
         "This element carries `data-status`, and this file reads neither " +
           "CLINICAL_STATUS_META nor a lucide icon. It composes another registry " +
           "component, so the word and the icon may be delegated to that one. This " +
-          "check followed the imports under `@/registry/base-lyra/ui` one hop and " +
+          "check followed its opsinjs component imports one hop and " +
           "none of those children is itself a carrier that reads CLINICAL_STATUS_META " +
           "and imports lucide, so it cannot confirm the delegation. Confirm by eye " +
           "that the surface renders a word and a distinct glyph, not a colour alone.",
@@ -1111,7 +1129,11 @@ function checkStatusCarriers(
     break
   }
 
-  if (isStatusSurface && stamped.length === 0) {
+  /* A demo or an example that reads the vocabulary to label a composed
+     component, and stamps nothing itself, is clear when that component is a
+     proven carrier: the child stamps `data-status` and renders the word and the
+     glyph, and the delegation has been read one hop and confirmed. */
+  if (isStatusSurface && stamped.length === 0 && !delegationProven) {
     const anchor = readsMeta
       ? source.indexOf("CLINICAL_STATUS_META")
       : source.search(statusColourPattern(statusLevels))
@@ -1343,7 +1365,7 @@ function checkColourLiterals(file: string, source: string, starts: number[]): vo
         "are what get remapped in dark mode and re-measured when a ramp moves. A " +
         "step is a primitive, and a component holding one holds a value that will " +
         "silently stop meaning what it meant. In the class form it holds nothing " +
-        "at all: app/product.css bridges the four roles and no step, so the " +
+        "at all: packages/react/styles/theme.css bridges the four roles and no step, so the " +
         "utility generates no CSS and the element takes its colour from whatever " +
         "it inherits.",
       lineAt(starts, match.index),
@@ -1493,8 +1515,7 @@ const THRESHOLD_EXEMPT =
  *
  * This rule exists because the same defect arrived three times in one batch and
  * a human found it each time. `relative-time` shipped `staleAfterHours={24}` in
- * the default export that `shadcn add` copies into a consumer's project, and an
- * example carried `STALE_AFTER_HOURS = 48`. Neither number came from anywhere.
+ * the demo that used to be its default export, and an example carried `STALE_AFTER_HOURS = 48`. Neither number came from anywhere.
  * opsinjs cannot know when a reading goes stale, because it does not know what
  * was measured. A component that guesses has decided, on behalf of a product
  * that never asked, when to stop telling somebody their result is current.
@@ -1711,9 +1732,10 @@ function checkBannedWords(
 
   /* A11Y013 - THE SAME WORDS, IN A COMMENT THAT SHIPS.
    *
-   * A comment in registry/** is not a private note. `shadcn add` copies the
-   * whole file into a consumer's project, so these comments are read by the
-   * next developer and by whatever reads their repository afterwards.
+   * A comment in a component is not a private note. @opsinjs/react publishes
+   * every component with its comments, and the source is public, so these
+   * comments are read by the next developer and by whatever reads the package
+   * afterwards.
    *
    * It is a WARNING and not an error, and the split is the whole design of this
    * rule. The ban's own sources scope it precisely: reference-ranges.mdx says
@@ -1742,8 +1764,8 @@ function checkBannedWords(
         warn(
           "A11Y013",
           file,
-          `"${match[0]}" is a banned word, in a comment that ships. \`shadcn add\` ` +
-            "copies this file into a consumer's project, so the comment is read by " +
+          `"${match[0]}" is a banned word, in a comment that ships. @opsinjs/react ` +
+            "publishes this file with its comments, so the comment is read by " +
             `the next person who opens it. Write "${entry.instead}", or leave it if ` +
             "the word is being used in its ordinary English sense about something " +
             "other than a reading. This is a warning because a comment is neither " +
@@ -1767,8 +1789,8 @@ function checkBannedWords(
      a banned word outright (`lowered === entry.word`) on the grounds that the
      copy pass above had already reported it. The copy pass reads string
      literals and JSX text, not code, so nothing had reported it: `const normal
-     = value >= low && value <= high` passed both rules and travelled through
-     `shadcn add` into a consumer's editor. The skip existed for a real reason -
+     = value >= low && value <= high` passed both rules and would
+     have travelled to every consumer. The skip existed for a real reason -
      `whitespace-normal` and `font-normal` inside a class string must not be
      reported - and blanking the copy keeps that without switching the rule off
      for anybody else. A `${…}` hole stays open: the expression inside it is
@@ -1826,7 +1848,7 @@ function checkViewPalette(file: string, source: string, starts: number[]): void 
       file,
       `\`${match[0]}\` resolves to nothing under /view. --${match[2]} is declared ` +
         "only in app/globals.css, which is the docs chrome; the product stylesheet " +
-        "is app/product.css and bridges the surface, state and primary roles plus the two axes. " +
+        "is app/product.css, whose theme.css bridges the surface, state and primary roles plus the two axes. " +
         "This is the defect that looks correct in review, because " +
         "<ComponentPreview> renders inline in the docs document. Use " +
         `${advice}.`,
@@ -1839,7 +1861,7 @@ function checkViewPalette(file: string, source: string, starts: number[]): void 
     fail(
       "A11Y011",
       file,
-      `\`${match[0]}\` has no opsinjs radius under /view. app/product.css derives ` +
+      `\`${match[0]}\` has no opsinjs radius under /view. packages/react/styles/theme.css derives ` +
         "sm, md, lg and xl from --radius and stops there; 2xl, 3xl and 4xl exist " +
         "only in the docs chrome, so this falls through to Tailwind's own default " +
         "and stops being a multiple of the system's corner. Use rounded-xl, or " +
@@ -1871,9 +1893,9 @@ function checkViewPalette(file: string, source: string, starts: number[]): void 
             "being a multiple of the system's corner. Use --opsin-radius-xl, or " +
             "rounded-xl."
           : " and resolves to nothing under /view.") +
-        " Everything a component may reach for is in app/product.css's " +
-        "@theme inline block or in app/tokens.generated.css, which both stylesheets " +
-        "import.",
+        " Everything a component may reach for is in the @theme inline block of " +
+        "packages/react/styles/theme.css or in @opsinjs/tokens/tokens.css, which " +
+        "both stylesheets import.",
       lineAt(starts, match.index),
     )
   }
@@ -1895,7 +1917,7 @@ function checkViewPalette(file: string, source: string, starts: number[]): void 
     warn(
       "A11Y012",
       file,
-      "`--opsin-target-min` is the authored name in app/product.css and is being " +
+      "`--opsin-target-min` is an old authored name and is being " +
         "retired. The generated token is `--opsin-target-minimum` (2.75rem), and " +
         "the difference matters: the authored one is a hard 44px that does not " +
         "grow when the reader raises their text size, while the generated one is " +

@@ -61,8 +61,7 @@
 
 import { useState } from "react"
 
-import { AlertBanner } from "@/registry/base-lyra/ui/alert-banner"
-import { Button } from "@/registry/base-lyra/ui/button"
+import { AlertBanner, Button } from "@opsinjs/react"
 
 const NOW = "2026-03-14T11:12:00+00:00"
 

@@ -7,7 +7,7 @@
  * `now` is fixed so the example says the same thing every render, and every
  * title and body is obviously synthetic (ADR 0012): no reading, no number.
  */
-import { TimelineEntry } from "@/registry/base-lyra/ui/timeline-entry"
+import { TimelineEntry } from "@opsinjs/react"
 
 const NOW = "2026-03-14T11:12:00+00:00"
 

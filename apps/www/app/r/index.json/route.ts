@@ -1,12 +1,10 @@
 /**
  * GET /r/index.json serves the lightweight roster.
  *
- * `registry.json` is the shadcn-shaped catalog and has to keep that shape.
- * This is the opsinjs-shaped one: one flat row per id with the fields a
- * decision actually turns on. Those fields are status, `notice`, whether
- * anything is installable, the category, the search synonyms, the doctrine
- * pages that govern it, and the three URLs (documentation, its markdown twin,
- * its registry item).
+ * One flat row per id with the fields a decision actually turns on: status,
+ * `notice`, whether @opsinjs/react has it, the category, the search synonyms,
+ * the doctrine pages that govern it, the package and import to use, and the
+ * two URLs (documentation and its markdown twin).
  *
  * `notice` IS ON EVERY ROW AND ON THE PAYLOAD ROOT, AND IT IS SAFETY CARRIER
  * 6. This is the one machine surface an agent reads to decide whether to
@@ -34,21 +32,23 @@
 import {
   SITE_NAME,
   SITE_URL,
-  absoluteUrl,
-  getBuiltFiles,
-  getCatalogue,
-  json,
-  provenance,
-  DEFAULT_BASE,
-  DEFAULT_STYLE,
-  KNOWN_BASES,
-  KNOWN_STYLES,
-} from "@/app/_machine/contracts"
-import {
   componentDocsUrl,
   componentMarkdownUrl,
-} from "@/app/_machine/registry-payload"
+  getCatalogue,
+  isImplemented,
+  json,
+  provenance,
+} from "@/app/_machine/contracts"
+import { site } from "@/lib/routes"
 import { REVIEW_FLOOR_NOTICE } from "@/lib/status"
+
+/** `range-bar` to `RangeBar`, the name @opsinjs/react exports. */
+function exportName(id: string): string {
+  return id
+    .split("-")
+    .map((part) => (part ? part[0]!.toUpperCase() + part.slice(1) : part))
+    .join("")
+}
 
 export const dynamic = "force-static"
 
@@ -56,16 +56,21 @@ export function GET(): Response {
   const { rows, diagnostics } = getCatalogue()
 
   const items = rows.map((row) => {
-    const files = getBuiltFiles(row.name, DEFAULT_BASE, DEFAULT_STYLE)
+    const implemented = isImplemented(row.name)
     return {
       name: row.name,
       title: row.title,
-      type: "registry:ui",
       description: row.description,
       category: row.category,
       status: row.status,
       notice: REVIEW_FLOOR_NOTICE,
-      implemented: files.length > 0,
+      implemented,
+      ...(implemented
+        ? {
+            package: site.packageName,
+            import: `import { ${exportName(row.name)} } from "${site.packageName}"`,
+          }
+        : {}),
       since: row.since,
       owner: row.owner,
       aliases: row.aliases,
@@ -74,7 +79,6 @@ export function GET(): Response {
       links: {
         docs: componentDocsUrl(row.name),
         markdown: componentMarkdownUrl(row.name),
-        item: absoluteUrl(`/r/${row.name}.json`),
       },
     }
   })
@@ -98,15 +102,9 @@ export function GET(): Response {
        other carrier in this file. Every other machine route keeps the
        provenance wording, which now names the review floor too. */
     notice:
-      "Every opsinjs component has been audited against WCAG 2.2 AA by its own authors. None has had an independent accessibility review, and none has had a clinical review, which is still pending. `shipped` means the source installs, and it does not mean an independent review or a clinical review has happened. Nothing here is for a production health surface.",
-    matrix: {
-      bases: [...KNOWN_BASES],
-      styles: [...KNOWN_STYLES],
-      defaultBase: DEFAULT_BASE,
-      defaultStyle: DEFAULT_STYLE,
-      item: absoluteUrl("/r/{name}.json"),
-      itemAtStyle: absoluteUrl("/r/styles/{style}/{name}.json"),
-    },
+      "Every opsinjs component has been audited against WCAG 2.2 AA by its own authors. None has had an independent accessibility review, and none has had a clinical review, which is still pending. `shipped` means the component is published in @opsinjs/react, and it does not mean an independent review or a clinical review has happened. Nothing here is for a production health surface.",
+    install: `npm install ${site.packageName}`,
+    package: site.npmUrl,
     total: items.length,
     counts,
     items,

@@ -15,7 +15,7 @@
 
 import { Info } from "lucide-react"
 
-import { Tooltip } from "@/registry/base-lyra/ui/tooltip"
+import { Tooltip } from "@opsinjs/react"
 
 export default function TooltipASupplementaryHint() {
   return (

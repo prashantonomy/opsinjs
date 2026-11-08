@@ -12,7 +12,7 @@
  * with no unit and no health framing, so nothing here can be mistaken for a
  * reading (ADR 0012).
  */
-import { Table } from "@/registry/base-lyra/ui/table"
+import { Table } from "@opsinjs/react"
 
 export default function TableAChartTwin() {
   return (

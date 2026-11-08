@@ -28,8 +28,7 @@
 
 import { useState } from "react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { ConsentSheet } from "@/registry/base-lyra/ui/consent-sheet"
+import { Button, ConsentSheet } from "@opsinjs/react"
 
 const EXAMPLE_SCOPE = {
   collected: "Placeholder for what is collected. The product writes this line.",

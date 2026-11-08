@@ -30,7 +30,7 @@
  * leaves nothing about the due date to the machine that happens to render it.
  */
 
-import { CareCard } from "@/registry/base-lyra/ui/care-card"
+import { CareCard } from "@opsinjs/react"
 
 export default function CareCardSteadyAndStillAsking() {
   return (

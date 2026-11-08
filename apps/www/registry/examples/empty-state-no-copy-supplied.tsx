@@ -28,7 +28,7 @@
  * font size and would hold two columns while the text in them doubled.
  */
 
-import { EmptyState } from "@/registry/base-lyra/ui/empty-state"
+import { EmptyState } from "@opsinjs/react"
 
 export default function EmptyStateNoCopySupplied() {
   return (

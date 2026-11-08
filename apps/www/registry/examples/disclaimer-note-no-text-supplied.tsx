@@ -27,7 +27,7 @@
  * the two are worth reading together.
  */
 
-import { DisclaimerNote } from "@/registry/base-lyra/ui/disclaimer-note"
+import { DisclaimerNote } from "@opsinjs/react"
 
 export default function DisclaimerNoteNoTextSupplied() {
   return (

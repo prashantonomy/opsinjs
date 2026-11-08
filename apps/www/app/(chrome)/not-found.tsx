@@ -52,7 +52,7 @@ export default function NotFound() {
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               {builtComponentCount()} components are implemented and
-              installable from this origin&rsquo;s registry. Every one of them
+              published in the @opsinjs/react package on npm. Every one of them
               has been audited against WCAG 2.2 AA, by its own authors rather
               than an independent reviewer, and none has had a clinical
               review, so none is for a production health surface yet. An id

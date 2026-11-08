@@ -36,9 +36,12 @@
 
 import { useState } from "react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { Field } from "@/registry/base-lyra/ui/field"
-import { LogSheet, type LogEntry } from "@/registry/base-lyra/ui/log-sheet"
+import {
+  Button,
+  Field,
+  LogSheet,
+  type LogEntry,
+} from "@opsinjs/react"
 
 const EMPTY: Record<string, number | string | null> = {
   "example-measurement": null,
@@ -50,8 +53,8 @@ const EMPTY: Record<string, number | string | null> = {
    UTC, and an hour wrong everywhere outside Greenwich. The formatter is built
    inside the function rather than at module scope so it resolves the reader's
    locale in the browser rather than the server's during a render. This example
-   ships on its own through `shadcn add`, so it carries its own copy rather
-   than importing one. */
+   imports only from @opsinjs/react, the way a consumer's code does, so it
+   carries its own copy rather than importing one from the docs site. */
 function readableTime(instant: string): string {
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",

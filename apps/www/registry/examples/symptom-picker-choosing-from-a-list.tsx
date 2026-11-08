@@ -13,7 +13,7 @@
 
 import { useState } from "react"
 
-import { SymptomPicker } from "@/registry/base-lyra/ui/symptom-picker"
+import { SymptomPicker } from "@opsinjs/react"
 
 const OPTIONS = [
   { value: "example-one", label: "Example symptom one" },

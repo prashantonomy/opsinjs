@@ -10,7 +10,7 @@
 
 import { useState } from "react"
 
-import { Checkbox } from "@/registry/base-lyra/ui/checkbox"
+import { Checkbox } from "@opsinjs/react"
 
 export default function CheckboxAnOptionalAgreement() {
   const [checked, setChecked] = useState(false)

@@ -92,7 +92,7 @@ export function GET(): Response {
     endpoint: absoluteUrl("/api/contrast"),
     docsVersion: DOCS_VERSION,
     ...POLICY,
-    note: "Thresholds are policy. The numbers returned by POST are computed per request from the hand-written OKLCH and APCA implementations in lib/color; none of them is stored or estimated.",
+    note: "Thresholds are policy. The numbers returned by POST are computed per request from the hand-written OKLCH and APCA implementations in @opsinjs/color; none of them is stored or estimated.",
   })
 }
 
@@ -159,7 +159,7 @@ export async function POST(request: Request): Promise<Response> {
       {
         error: "colour-engine-unavailable",
         message:
-          "lib/color did not expose an APCA or WCAG contrast function. This endpoint computes, it does not estimate, so it declines rather than answering approximately.",
+          "@opsinjs/color did not expose an APCA or WCAG contrast function. This endpoint computes, it does not estimate, so it declines rather than answering approximately.",
       },
       { status: 503 }
     )

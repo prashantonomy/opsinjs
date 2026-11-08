@@ -33,7 +33,7 @@
  * both black and white behind it just as the full width does on a phone.
  */
 
-import { Surface } from "@/registry/base-lyra/ui/surface"
+import { Surface } from "@opsinjs/react"
 
 /* Surface roles only. A backdrop is decoration, and the category and status
    axes both mean something specific about a person's data; neither is

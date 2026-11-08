@@ -6,9 +6,10 @@ working protocol on top of it. Claude Code loads it with this file: @AGENTS.md
 
 ## The one-line summary
 
-This repo is the documentation site for a design system, and the component layer under
-it. Every component in the catalogue is built, against a specification that was written
-first and is binding, and not one of them has been reviewed. So there are two jobs here
+This repo is the documentation site for a design system, and the four npm packages
+under it that ship the components, the tokens and the colour engine. Every component in
+the catalogue is built, against a specification that was written first and is binding,
+and not one of them has been reviewed. So there are two jobs here
 and you have to know which one you are on. Writing a *specification* precise enough that
 the component could be built from it, and honest enough that no human and no agent
 mistakes it for something anybody has checked, is still most of the work. Building a
@@ -21,10 +22,12 @@ does.
 1. `AGENTS.md` §2 (Next 16 has two root layouts and no `app/layout.tsx`) and §4
    (fumadocs 16 / mdx 15 API shapes) are the two places recall will betray you.
 2. Check whether the file you are about to touch is **generated**. If it is, edit its
-   *source* instead. The source is `tokens/*.json`, `registry/catalogue.ts`, a file
-   under `registry/bases/`, or the emitting script. The authority for what is generated
-   is the `check:generated` script in `apps/www/package.json`, not a prose copy of the
-   list.
+   *source* instead. The source is `tokens/*.json`, `registry/catalogue.ts`, a component
+   file under `packages/react/src/components/`, or the emitting script. Generated files
+   live in the packages too: `packages/react/src/index.ts`, the marked regions of
+   `packages/react/src/opsinjs.ts`, and the token files in `packages/tokens/`. The
+   authority for what is generated is the `check:generated` script in
+   `apps/www/package.json`, not a prose copy of the list.
 3. Check the page's `kind` frontmatter. Six kinds exist: `guide` (the root pages, the
    Contribute section and the Components overview), `foundation`, `component`,
    `health`, `pattern` and `reference`, one for each of the other sections. Only
@@ -113,6 +116,9 @@ pnpm typecheck      # fumadocs-mdx && next typegen && tsc --noEmit
 pnpm lint           # never `next lint`; it no longer exists
 pnpm check          # generated-file drift + IA assertions + llms.txt
 pnpm --filter @opsinjs/www run generate
+pnpm -r --filter "./packages/*" build          # the four packages, tsc per file
+pnpm -r --filter "./packages/*" lint:package   # publint and Are the Types Wrong
+pnpm changeset      # describe a package change for the changelog
 ```
 
 When several agents work in parallel, none of them runs `git`, `pnpm install`, `turbo`
@@ -125,7 +131,10 @@ the maintainer's own included (`GOVERNANCE.md`), so a contributor's agent pushes
 contributor's fork and opens the pull request from there. Commit, push or open a pull
 request only when the person you are working for asks, or has given you standing
 permission to. Fill in the pull request template, and update the docs that describe the
-change in the same pull request.
+change in the same pull request. A change to anything under `packages/` also carries a
+changeset from `pnpm changeset`, and `RELEASING.md` says what happens after the merge.
+An agent never publishes to npm. Releases go out from CI, and the one first publish by
+hand is the owner's.
 
 ## Ownership
 
@@ -140,7 +149,8 @@ Correct frontmatter (`kind` is mandatory everywhere, `status` only on a componen
 on a component page, the six sections in canonical order · relative MDX links, never
 absolute `/docs/` · every component id matched against the catalogue · every claim
 either generated, cited, or marked as opinion · and nothing anywhere that implies a
-component has been built when it has not. A component page reads `shipped` only once its file under `registry/bases/base/`
-renders at `/view/base/base-lyra/component/<id>` and `pnpm typecheck`, `pnpm lint` and
+component has been built when it has not. A component page reads `shipped` only once
+`packages/react/src/components/<id>.tsx` exists, its demo in `apps/www/registry/demos/`
+renders at `/view/base/base-lyra/component/<id>`, and `pnpm typecheck`, `pnpm lint` and
 `pnpm check` all pass; the page's `status` and its `registry/catalogue.ts` row move
 together, in one commit. `status` exists only on a `kind: component` page.

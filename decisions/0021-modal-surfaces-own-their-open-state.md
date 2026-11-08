@@ -108,3 +108,5 @@ be deleted rather than kept "just in case".
 Revisit `sheetBelow` if a real product shows a case where the same content genuinely needs
 two dismissal contracts at two widths. That case would be evidence that `severity` is the
 wrong axis, not that the prop was right.
+
+**Note, 2026-11-09.** The copy-in wording in this record predates [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md), which ships opsinjs as npm packages, and the substance stands. The two components now live in `packages/react/src/components/sheet.tsx` and `dialog.tsx`, and install with `@opsinjs/react`.

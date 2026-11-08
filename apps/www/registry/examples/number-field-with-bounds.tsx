@@ -12,7 +12,7 @@
 
 import { useState } from "react"
 
-import { NumberField } from "@/registry/base-lyra/ui/number-field"
+import { NumberField } from "@opsinjs/react"
 
 export default function NumberFieldWithBounds() {
   const [seats, setSeats] = useState<number | null>(4)

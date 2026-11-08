@@ -28,8 +28,7 @@
  * reference range, in any unit, for anybody.
  */
 
-import { EXAMPLE_SOURCE, type TrendPoint } from "@/lib/opsinjs"
-import { TrendSparkline } from "@/registry/base-lyra/ui/trend-sparkline"
+import { EXAMPLE_SOURCE, TrendSparkline, type TrendPoint } from "@opsinjs/react"
 
 /**
  * How many readings this imaginary product decided make a trend.

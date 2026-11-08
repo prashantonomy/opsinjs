@@ -9,7 +9,7 @@
  * neutral chrome so it reads as a confirmation rather than as a status.
  */
 
-import { Toast } from "@/registry/base-lyra/ui/toast"
+import { Toast } from "@opsinjs/react"
 
 import { Toast as ToastPrimitive } from "@base-ui/react/toast"
 

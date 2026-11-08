@@ -31,7 +31,7 @@
  * WAS. It returns null the moment `registry/__index__.ts` has source behind
  * the id, which is all 60 component pages today, so on exactly the pages
  * where a warning matters most it emits nothing. The fact that must not be
- * missed on those pages is a different fact: that the code installs, that it
+ * missed on those pages is a different fact: that the code is published, that it
  * has been audited against WCAG 2.2 AA by its own authors, and that it has had
  * no independent accessibility review and no clinical review. It lives in the MDX
  * children an author wrote inside `<StubNotice>`, which is the one part of a
@@ -81,7 +81,7 @@ export const SECTIONS: SectionDescriptor[] = [
     id: "",
     title: "Introduction and guides",
     blurb:
-      "What opsinjs is and who it is for, then getting started, Next.js, theming, styling, the registry, agents and how to read these docs.",
+      "What opsinjs is and who it is for, then getting started, the packages, Next.js, theming, styling, agents and how to read these docs.",
   },
   {
     id: "foundations",
@@ -97,7 +97,7 @@ export const SECTIONS: SectionDescriptor[] = [
        is read offline with no way to check a number. So it names the fields
        that carry the answer instead. */
     blurb:
-      "Every component in the catalogue. Each entry's `status`, and `implemented` in /r/index.json, say whether it installs; none has had an independent accessibility review or a clinical review.",
+      "Every component in the catalogue. Each entry's `status`, and `implemented` in /r/index.json, say whether @opsinjs/react has it; none has had an independent accessibility review or a clinical review.",
   },
   {
     id: "health",
@@ -547,7 +547,7 @@ const STUB_NOTICE_ELEMENT = /<StubNotice[\s/>]/
  * generated-table elements and are the exact opposite of true here: the
  * children of `<StubNotice>` are authored prose, they survive
  * `getText("processed")`, and they are where all 60 component pages state
- * that the code installs, that it has been audited against WCAG 2.2 AA by its
+ * that the code is published, that it has been audited against WCAG 2.2 AA by its
  * own authors, and that it has had no independent accessibility review and no
  * clinical review. An agent that took the first paragraph at its word would skip the
  * one element on the page it must not skip.

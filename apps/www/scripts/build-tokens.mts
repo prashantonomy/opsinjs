@@ -6,13 +6,14 @@
  *   node scripts/build-tokens.mts --check    # write nothing; fail on drift
  *
  * WRITES
- *   app/tokens.generated.css               committed; @import-ed by app/globals.css
+ *   packages/tokens/tokens.css             committed; @opsinjs/tokens/tokens.css
+ *   packages/tokens/tokens.json            committed; the same tokens as data
+ *   packages/tokens/src/index.ts           committed; the same tokens and the
+ *                                          accent themes as typed exports
  *   lib/generated/tokens.ts                committed; lib/tokens.ts is the reader
  *   lib/generated/glossary.json            committed; data behind <Term> and the A-Z
  *   lib/generated/units.json               committed; the reviewable copy of the unit table
- *   registry/generated/themes/opsinjs-default.json   a shadcn-spec registry:theme item
- *   registry/generated/themes/opsinjs-<theme>-<accent>.json   one per accent
- *                                          theme and accent, layered on the default
+ *   packages/tokens/src/accents.ts         committed; the accent themes as data
  *
  * AND REFUSES, rather than writes, an accent value from tokens/accent.json
  * that falls below its contrast floor or sits nearer a status hue than the
@@ -20,7 +21,7 @@
  * `pnpm check` in CI as well as `pnpm run generate` at a desk.
  *
  * AND REPLACES NAMED REGIONS IN TWO HAND-WRITTEN FILES
- *   lib/opsinjs.ts                         THREE regions: the OPSIN_ERRORS table
+ *   packages/react/src/opsinjs.ts          THREE regions: the OPSIN_ERRORS table
  *                                          warnOnce() reads, the Unit/UNITS table
  *                                          every rendered measurement reads, and
  *                                          the BANNED_WORDS table a component's
@@ -30,9 +31,10 @@
  * Those regions come from tokens/errors.json, tokens/units.json and the banned
  * list in tokens/glossary.json, which are authored data rather than token
  * sources. The substrate copies are not in
- * lib/generated/ on purpose: that directory does not travel with `shadcn add`,
- * and a warning channel - or a spoken unit form - that compiles here and fails
- * in a consumer's project is worse than none.
+ * lib/generated/ on purpose: that directory belongs to the documentation site
+ * and is not part of @opsinjs/react, and a warning channel - or a spoken unit
+ * form - that compiles here and fails in a consumer's project is worse than
+ * none.
  *
  * NEVER WRITES app/globals.css. globals.css owns exactly one line about this
  * file - the @import - and the two are separately owned on purpose (addendum A7).
@@ -79,11 +81,11 @@ if (!Number.isFinite(NODE_MAJOR) || NODE_MAJOR < 24) {
 
 import { createHash } from "node:crypto"
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs"
-import { dirname, join } from "node:path"
+import { dirname, join, relative } from "node:path"
 import { fileURLToPath } from "node:url"
 
-import { apcaContrast } from "../lib/color/apca.ts"
-import { contrastRatio } from "../lib/color/wcag.ts"
+import { apcaContrast } from "../../../packages/color/src/apca.ts"
+import { contrastRatio } from "../../../packages/color/src/wcag.ts"
 import {
   ACCENT_FLOORS,
   accentPairs,
@@ -96,8 +98,16 @@ import {
 } from "./accent-plan.mts"
 
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
+const REPO_DIR = join(APP_DIR, "..", "..")
+const TOKENS_PKG = join(REPO_DIR, "packages", "tokens")
+const REACT_PKG = join(REPO_DIR, "packages", "react")
 const TOKENS_DIR = join(APP_DIR, "tokens")
-const OUT_CSS = join(APP_DIR, "app", "tokens.generated.css")
+const OUT_CSS = join(TOKENS_PKG, "tokens.css")
+/* The published token data for @opsinjs/tokens: one JSON file and one typed
+   module. They carry what a consumer needs to read a token and nothing the
+   documentation adds to it, so there is no `usedBy` and no source path. */
+const OUT_TOKENS_JSON = join(TOKENS_PKG, "tokens.json")
+const OUT_TOKENS_TS = join(TOKENS_PKG, "src", "index.ts")
 const OUT_TS = join(APP_DIR, "lib", "generated", "tokens.ts")
 const OUT_GLOSSARY = join(APP_DIR, "lib", "generated", "glossary.json")
 const OUT_UNITS = join(APP_DIR, "lib", "generated", "units.json")
@@ -108,51 +118,33 @@ const OUT_UNITS = join(APP_DIR, "lib", "generated", "units.json")
  * TOKEN sources produced this layer, and folding component files into it would
  * make every component edit rewrite the provenance value of every theme.
  */
-const PRODUCT_CSS = join(APP_DIR, "app", "product.css")
-const BASES_DIR = join(APP_DIR, "registry", "bases")
+const PRODUCT_CSS = join(REACT_PKG, "styles", "theme.css")
+const BASES_DIR = join(REACT_PKG, "src", "components")
 
-/**
- * The theme payload lands in registry/generated/, NOT in public/.
- *
- * Next serves public/ at the site root and a static file there beats a route
- * handler at the same path - verified on Next 16.3.4 by the author of
- * app/r/themes/[preset]/route.ts, who found that a file at public/r/themes/
- * silently prevents that route from ever running, taking the provenance
- * envelope with it. That route reads this directory first for exactly this
- * reason. Do not move this output into public/.
- */
-const OUT_THEME = join(APP_DIR, "registry", "generated", "themes", "opsinjs-default.json")
-/* One registry:theme item per accent theme and accent, layered on
-   opsinjs-default. They land beside it for the same reason it lands here. */
-const OUT_THEMES_DIR = join(APP_DIR, "registry", "generated", "themes")
 /* The accent themes as data, for the documentation's pickers and the preview
    shell. Small and separate from tokens.ts on purpose: a client component that
    imports it should not pull the whole token table into the browser. */
-const OUT_ACCENTS_TS = join(APP_DIR, "lib", "generated", "accents.ts")
+const OUT_ACCENTS_TS = join(TOKENS_PKG, "src", "accents.ts")
 
 /**
  * Two outputs that are REGIONS of a file somebody else writes prose in, not
  * whole generated files.
  *
- * `lib/opsinjs.ts` is the substrate every distributed component imports and
- * `shadcn add` copies into a consumer's project. It carries the error table
- * because `warnOnce()` lives there and a consumer has no `lib/generated/`; the
- * rest of the file is hand-written and stays hand-written.
+ * `packages/react/src/opsinjs.ts` is the substrate every component imports,
+ * published inside @opsinjs/react. It carries the error table because
+ * `warnOnce()` lives there and the package has no `lib/generated/`; the rest
+ * of the file is hand-written and stays hand-written.
  *
  * `content/docs/reference/error-codes.mdx` is the page a reader lands on with a
  * code in their hand. Its table is the whole of `tokens/errors.json` and not
  * one row of it is authored, per ADR 0006.
  *
- * Both paths ARE in `check:generated`'s diff list in package.json, which names
- * `lib/generated`, `lib/opsinjs.ts`, `registry/__index__.ts`,
- * `registry/generated`, `app/tokens.generated.css`, the two reference
- * directories, `content/docs/reference/error-codes.mdx` and `public/r`. So a
- * region that drifts is caught twice: by that diff, and by
- * `node scripts/build-tokens.mts --check`, which is what covers
- * registry/generated/themes on its own. package.json is the authority; if the
- * two ever disagree, the diff list wins and this comment is the stale half.
+ * Both paths ARE in `check:generated`'s diff list in apps/www/package.json,
+ * so a region that drifts is caught twice: by that diff, and by
+ * `node scripts/build-tokens.mts --check`. The script in package.json is the
+ * authority on what the diff covers.
  */
-const OUT_SUBSTRATE = join(APP_DIR, "lib", "opsinjs.ts")
+const OUT_SUBSTRATE = join(REACT_PKG, "src", "opsinjs.ts")
 const OUT_ERROR_CODES = join(APP_DIR, "content", "docs", "reference", "error-codes.mdx")
 
 const SUBSTRATE_REGION_BEGIN = "/* opsinjs:errors:begin"
@@ -161,10 +153,10 @@ const MDX_REGION_BEGIN = "{/* opsinjs:errors:begin"
 const MDX_REGION_END = "{/* opsinjs:errors:end */}"
 
 /**
- * The unit table's own region inside lib/opsinjs.ts, and the reserved space it
+ * The unit table's own region inside packages/react/src/opsinjs.ts, and the reserved space it
  * grows into the first time this script runs with tokens/units.json present.
  *
- * lib/opsinjs.ts shipped with a comment block saying the unit table was
+ * packages/react/src/opsinjs.ts shipped with a comment block saying the unit table was
  * deliberately not there yet and reserving the space for it. That block is the
  * anchor: `installUnitsRegion` below replaces it with an empty pair of markers,
  * once, and every run after that is an ordinary three-way splice like the error
@@ -178,10 +170,10 @@ const UNITS_REGION_END = "/* opsinjs:units:end */"
 const UNITS_PLACEHOLDER_ANCHOR = "The unit table is deliberately NOT here yet"
 
 /**
- * The banned-word table's own region inside lib/opsinjs.ts, and the reserved
+ * The banned-word table's own region inside packages/react/src/opsinjs.ts, and the reserved
  * space it grows into the first time this script runs after the anchor lands.
  *
- * lib/opsinjs.ts ships the `GeneratedBannedWord` interface and, below it, a
+ * packages/react/src/opsinjs.ts ships the `GeneratedBannedWord` interface and, below it, a
  * comment block saying the table is deliberately not there yet and reserving the
  * space for it. That block is the anchor: `installBannedRegion` below replaces it
  * with an empty pair of markers, once, and every run after that is an ordinary
@@ -284,7 +276,7 @@ function mustRead(file: string, why: string): string {
   } catch {
     console.error(
       [
-        `build-tokens: ${file.replace(APP_DIR, "")} is missing and cannot be regenerated.`,
+        `build-tokens: ${relative(REPO_DIR, file)} is missing and cannot be regenerated.`,
         `  ${why}`,
       ].join("\n"),
     )
@@ -774,7 +766,7 @@ function emitShape(source: JsonObject, out: TokenLeaf[]): void {
   // the formula: an inner radius is its outer ladder step minus the padding that
   // sits inside it, floored at radius-xs. The gap is expressed as gapSteps
   // multiples of Tailwind's --spacing so one emitted value stays correct at every
-  // density, because --spacing is redeclared per density in app/product.css. The
+  // density, because --spacing is redeclared per density in @opsinjs/react's roles.css. The
   // outer rem is resolved from the ladder walked above so it cannot drift from the
   // ladder token, and the floor references var(--opsin-radius-xs) so a product that
   // re-bases the ladder gets a re-based floor.
@@ -1184,7 +1176,7 @@ function emitAccentCss(plan: AccentPlan, tokens: TokenLeaf[]): string {
     "/* Accent themes, from tokens/accent.json (ADR 0029). A page picks a theme",
     `   with ${themeAttr} and an accent with ${accentAttr}, on <html> or on any`,
     "   element that starts a scope; with neither it renders the default theme's",
-    "   default accent declared above. app/product.css points the product roles",
+    "   default accent declared above. @opsinjs/react's roles.css points the product roles",
     "   (--primary, --brand, --brand-ink, --ring and the rest) at these tokens and",
     "   re-declares them on any element carrying either attribute, so a scope",
     "   resolves its own values rather than inheriting its ancestor's. */",
@@ -1252,10 +1244,95 @@ function emitAccentCss(plan: AccentPlan, tokens: TokenLeaf[]): string {
 }
 
 /**
- * lib/generated/accents.ts: the themes, the nine accents and a swatch for each,
+ * packages/tokens/src/accents.ts: the themes, the nine accents and a swatch for each,
  * which is all a picker needs. The values are the light and dark accent fills,
  * the colour a reader sees on a ticked box or, in vibes and stryk, the action.
  */
+/**
+ * The token table as published data, for @opsinjs/tokens.
+ *
+ * One record per custom property, with the fields a consumer needs to read a
+ * token: its name, its property, where it sits, its light, dark and Display-P3
+ * values, and what it controls. The documentation's own fields (`usedBy`, the
+ * source path, the resolved literals) stay in lib/generated/tokens.ts, because
+ * they describe this repository rather than the token.
+ */
+function publishedTokens(tokens: TokenLeaf[]): Record<string, string>[] {
+  return tokens.map((token) => {
+    const row: Record<string, string> = {
+      name: token.cssVar.replace(PREFIX, ""),
+      cssVar: token.cssVar,
+      namespace: token.group,
+      tier: token.tier,
+      group: token.namespace,
+      value: token.value,
+    }
+    if (token.dark !== undefined) row.darkValue = token.dark
+    if (token.p3 !== undefined) row.p3Value = token.p3
+    if (token.p3Dark !== undefined) row.p3DarkValue = token.p3Dark
+    row.description = token.description ?? describe(token)
+    return row
+  })
+}
+
+function emitTokensJson(tokens: TokenLeaf[], hash: string): string {
+  return `${JSON.stringify({ sourceHash: hash, tokens: publishedTokens(tokens) }, null, 2)}\n`
+}
+
+function emitTokensModule(tokens: TokenLeaf[], hash: string): string {
+  const rows = publishedTokens(tokens)
+    .map((row) => `  { ${Object.entries(row).map(([key, value]) => `${key}: ${q(value)}`).join(", ")} },`)
+    .join("\n")
+  return [
+    "/* GENERATED FILE - DO NOT EDIT.",
+    " *",
+    " * Source:    apps/www/tokens/*.json",
+    " * Generator: apps/www/scripts/build-tokens.mts   (`pnpm run generate`)",
+    " * Gate:      `pnpm check:generated` regenerates this file and fails on a diff.",
+    " *",
+    " * The same tokens tokens.css declares, as data. A value may be a var()",
+    " * reference to another token, exactly as it appears in the stylesheet.",
+    " */",
+    "",
+    'export * from "./accents.ts"',
+    "",
+    "/** The source file a token came from. */",
+    `export type TokenNamespace = ${[...new Set(tokens.map((token) => token.group))].map(q).join(" | ") || "string"}`,
+    "",
+    "/** `primitive` is a step on a ramp; `semantic` is a role a component reads. */",
+    'export type TokenTier = "primitive" | "semantic"',
+    "",
+    "export interface Token {",
+    "  /** The name without the prefix: `status-urgent-ink`. */",
+    "  name: string",
+    "  /** The custom property: `--opsin-status-urgent-ink`. */",
+    "  cssVar: string",
+    "  namespace: TokenNamespace",
+    "  tier: TokenTier",
+    "  /** The family within the namespace: `status`, `category`, `neutral`. */",
+    "  group: string",
+    "  /** The light value, as it appears in CSS. May be a var() reference. */",
+    "  value: string",
+    "  /** The dark value, when it differs from the light one. */",
+    "  darkValue?: string",
+    "  /** The Display-P3 value, applied inside `@supports (color-gamut: p3)`. */",
+    "  p3Value?: string",
+    "  /** The Display-P3 value for the dark theme. */",
+    "  p3DarkValue?: string",
+    "  /** What the token controls. */",
+    "  description: string",
+    "}",
+    "",
+    "/** A hash of the token sources, the same value tokens.css carries on --opsin-tokens-generated. */",
+    `export const TOKEN_SOURCE_HASH = ${q(hash)}`,
+    "",
+    "export const TOKENS: readonly Token[] = [",
+    rows,
+    "]",
+    "",
+  ].join("\n")
+}
+
 function emitAccentsModule(plan: AccentPlan, hash: string): string {
   const themes = plan.themes.map((theme) => ({
     id: theme.id,
@@ -1283,13 +1360,14 @@ function emitAccentsModule(plan: AccentPlan, hash: string): string {
   return [
     "/* GENERATED FILE - DO NOT EDIT.",
     " *",
-    " * Source:    tokens/accent.json",
-    " * Generator: scripts/build-tokens.mts   (`pnpm run generate`)",
+    " * Source:    apps/www/tokens/accent.json",
+    " * Generator: apps/www/scripts/build-tokens.mts   (`pnpm run generate`)",
     " * Gate:      `pnpm check:generated` regenerates this file and fails on a diff.",
     " *",
-    " * The accent themes as data, for a picker and for the preview shell. The",
-    " * colours themselves are tokens in app/tokens.generated.css; nothing here is",
-    " * a value a component should paint with.",
+    " * The accent themes as data, for a theme picker. Set ACCENT_THEME_ATTRIBUTE",
+    " * and ACCENT_ATTRIBUTE on any element to theme what is inside it. The",
+    " * colours themselves are tokens in tokens.css; nothing here is a value a",
+    " * component should paint with.",
     " */",
     "",
     `export const ACCENT_SOURCE_HASH = ${JSON.stringify(hash)}`,
@@ -1326,50 +1404,6 @@ function emitAccentsModule(plan: AccentPlan, hash: string): string {
     `export const DEFAULT_ACCENT = ${JSON.stringify(fallback.defaultAccent)}`,
     "",
   ].join("\n")
-}
-
-/**
- * One registry:theme item per theme and accent. Each carries only what differs
- * from opsinjs-default: the accent roles, and for a theme with chrome of its
- * own, that chrome, its focus width and its flattened materials. Install the
- * default first and one of these after it.
- */
-function emitAccentThemeItems(plan: AccentPlan, tokens: TokenLeaf[], hash: string): Array<{ file: string; contents: string }> {
-  const strip = (line: string): [string, string] => {
-    const at = line.indexOf(":")
-    return [line.slice(2, at), line.slice(at + 1).trim().replace(/;$/, "")]
-  }
-  const outputs: Array<{ file: string; contents: string }> = []
-  for (const theme of plan.themes) {
-    for (const accent of plan.order) {
-      const light = Object.fromEntries(
-        [...themeDeclarations(theme, "light", tokens), ...accentDeclarations(plan, theme, accent, "light")].map(strip),
-      )
-      const dark = Object.fromEntries(
-        [...themeDeclarations(theme, "dark", tokens), ...accentDeclarations(plan, theme, accent, "dark")].map(strip),
-      )
-      const name = `opsinjs-${theme.id}-${accent}`
-      const item = {
-        $schema: "https://ui.shadcn.com/schema/registry-item.json",
-        name,
-        type: "registry:theme",
-        title: `opsinjs ${theme.label} theme, ${plan.labels[accent] ?? accent} accent`,
-        description: `${theme.summary} Install opsinjs-default first; this item carries only the accent roles${
-          Object.keys(theme.chrome.light).length > 0 ? " and the theme's own chrome" : ""
-        }.`,
-        meta: {
-          generatedBy: "scripts/build-tokens.mts",
-          tokenSourceHash: hash,
-          accentTheme: theme.id,
-          accent,
-          layersOn: "opsinjs-default",
-        },
-        cssVars: { light, dark },
-      }
-      outputs.push({ file: join(OUT_THEMES_DIR, `${name}.json`), contents: `${JSON.stringify(item, null, 2)}\n` })
-    }
-  }
-  return outputs
 }
 
 /* ------------------------------------------------------------------ *
@@ -1548,7 +1582,7 @@ function buildErrors(source: JsonObject | undefined): ErrorTable {
   }
 
   /* THE SECOND WORDING OF OPSIN-0001, AND WHY IT IS ALLOWED TO EXIST.
-     `lib/status.ts` hand-writes OPSIN-0001's code, its docs id and a message,
+     `packages/react/src/status.ts` hand-writes OPSIN-0001's code, its docs id and a message,
      because `axisConflict()` is the never-mix rule as a FUNCTION and that file
      is required to have no imports at all - the scripts load it under plain
      node. Its message is deliberately not identical: errors.json's opens with
@@ -1558,7 +1592,7 @@ function buildErrors(source: JsonObject | undefined): ErrorTable {
   const axis = codes.find((entry) => entry.code === "OPSIN-0001")
   if (axis !== undefined) {
     const statusSource = mustRead(
-      join(APP_DIR, "lib", "status.ts"),
+      join(REACT_PKG, "src", "status.ts"),
       "it hand-writes OPSIN-0001 and has to be checked against tokens/errors.json",
     )
     const claimsCode = statusSource.includes(`"${axis.code}"`)
@@ -1566,11 +1600,11 @@ function buildErrors(source: JsonObject | undefined): ErrorTable {
     if (!claimsCode || !claimsDocs) {
       console.error(
         [
-          "build-tokens: lib/status.ts and tokens/errors.json disagree about OPSIN-0001.",
+          "build-tokens: packages/react/src/status.ts and tokens/errors.json disagree about OPSIN-0001.",
           `  errors.json: code ${axis.code}, docs ${axis.docs || "(none)"}`,
-          `  lib/status.ts: ${claimsCode ? "code found" : "code NOT found"}, ${claimsDocs ? "docs id found" : "docs id NOT found"}`,
+          `  status.ts: ${claimsCode ? "code found" : "code NOT found"}, ${claimsDocs ? "docs id found" : "docs id NOT found"}`,
           "",
-          "  `axisConflict()` in lib/status.ts is the never-mix rule as a function and",
+          "  `axisConflict()` in packages/react/src/status.ts is the never-mix rule as a function and",
           "  hand-writes the code and the docs id, because that file may have no",
           "  imports. Its MESSAGE is allowed to differ - it has no component name to",
           "  interpolate - but the code it claims and the page it sends a reader to",
@@ -2088,12 +2122,10 @@ function emitCss(tokens: TokenLeaf[], hash: string, accentCss = ""): string {
     " * Generator: scripts/build-tokens.mts   (`pnpm run generate`)",
     " * Gate:      `pnpm check:generated` regenerates this file and fails on a diff.",
     " *",
-    " * IMPORT POSITION IS LOAD-BEARING. app/globals.css must @import this file",
-    " * AFTER its own authored opsinjs token layer and BEFORE the Display-P3",
-    " * escalation. `:root` here and `:root` there have identical specificity, so",
-    " * whichever is declared last wins, and these are the values derived from the",
-    " * token source. The authored ones exist only so that a clean clone renders",
-    " * before `pnpm generate` has run.",
+    " * This is @opsinjs/tokens/tokens.css. Load it before @opsinjs/react's role",
+    " * layer, which reads these properties; @opsinjs/react/styles.css and",
+    " * @opsinjs/react/tailwind.css already do. Every property is declared on",
+    " * `:root` and on `.opsin-product`, and the dark values on `.dark`.",
     " *",
     " * Names come from each token file's own `cssNaming` block. Multi-word names",
     " * are kebab-cased: type.json's `largeTitle` is `--opsin-text-large-title-size`.",
@@ -2226,7 +2258,7 @@ function emitCss(tokens: TokenLeaf[], hash: string, accentCss = ""): string {
  *
  *   1. Literally, as `var(--opsin-…)` in a style object or a CSS file. Eight
  *      properties across the base layer are written this way.
- *   2. Through a Tailwind utility, which app/product.css bridges back to the
+ *   2. Through a Tailwind utility, which @opsinjs/react's theme.css bridges back to the
  *      token in its `@theme inline` block: `bg-status-urgent-surface` resolves
  *      `--color-status-urgent-surface`, which is `var(--opsin-status-urgent-surface)`.
  *      This is how almost every status, category, type, space and radius token
@@ -2486,8 +2518,8 @@ export interface GeneratedToken {
    * Which registry components consume it. The THIRD column, and the one that
    * turns a token list into a decision aid.
    *
-   * Derived by scanning \`registry/bases\` for two things: the token's custom
-   * property written literally, and any Tailwind utility that app/product.css
+   * Derived by scanning the @opsinjs/react components for two things: the token's custom
+   * property written literally, and any Tailwind utility that its theme.css
    * bridges back to it in \`@theme inline\` - which is how the status, category,
    * type, space and radius tokens are really consumed. Empty means no shipped
    * component reads this token, which for a primitive is the expected state:
@@ -2568,8 +2600,8 @@ export interface GeneratedErrorCode {
   title: string
   /**
    * The message template. \`{name}\` spans are filled at runtime by
-   * \`warnOnce()\` in \`lib/opsinjs.ts\`, which carries its own copy of this table
-   * because it is the file \`shadcn add\` copies into a consumer's project.
+   * \`warnOnce()\` in \`packages/react/src/opsinjs.ts\`, which carries its own copy of this table
+   * because that file is published in @opsinjs/react and this one is not.
    */
   message: string
   /** The docs page that prevents the mistake: a page id, no leading slash. */
@@ -2633,7 +2665,7 @@ function spliceRegion(
   if (beginAt === -1 || endAt === -1 || endAt < beginAt) {
     console.error(
       [
-        `build-tokens: ${file.replace(APP_DIR, "")} has lost its generated region markers.`,
+        `build-tokens: ${relative(REPO_DIR, file)} has lost its generated region markers.`,
         `  Expected a line beginning ${q(beginPrefix)} and, after it, ${q(endMarker)}.`,
         "",
         "  The error table in that file is generated from tokens/errors.json. Restore",
@@ -2651,12 +2683,11 @@ function spliceRegion(
 }
 
 /**
- * The error table as TypeScript, for the region inside `lib/opsinjs.ts`.
+ * The error table as TypeScript, for the region inside `packages/react/src/opsinjs.ts`.
  *
  * WHY THIS TABLE IS EMITTED TWICE, AND WHY THE SECOND COPY IS NOT IN
- * `lib/generated/`. `lib/opsinjs.ts` is one of the two files
- * `scripts/build-registry.mts` appends to every registry item, so `shadcn add`
- * copies it into a project that has none of this repository - no `tokens/`, no
+ * `lib/generated/`. `packages/react/src/opsinjs.ts` is published inside @opsinjs/react, which
+ * reaches a project that has none of this repository - no `tokens/`, no
  * `lib/generated/`, no generator. `warnOnce()` lives in that file and needs the
  * message templates, so an import of `lib/generated/tokens.ts` would compile
  * here and fail in every consumer. The table is therefore generated INTO the
@@ -2738,13 +2769,13 @@ ${rows}
  * ------------------------------------------------------------------ */
 
 /**
- * Grows the reserved space in lib/opsinjs.ts into a pair of region markers.
+ * Grows the reserved space in packages/react/src/opsinjs.ts into a pair of region markers.
  *
  * Runs once, on the first generate after tokens/units.json lands, and is a
  * no-op ever after: the moment the begin marker exists, this returns the file
  * untouched and `spliceRegion` does the ordinary three-way splice.
  *
- * WHY AN ANCHOR RATHER THAN AN APPEND. lib/opsinjs.ts shipped with a comment
+ * WHY AN ANCHOR RATHER THAN AN APPEND. packages/react/src/opsinjs.ts shipped with a comment
  * block reserving this space, in this position, with the sentence "Leave the
  * space; do not fill it from memory" - the table belongs above the error region
  * and below the shared shapes, and appending would put it wherever the file
@@ -2766,12 +2797,12 @@ function installUnitsRegion(file: string, current: string): string {
   if (anchor === -1 || open === -1 || close === -1) {
     console.error(
       [
-        `build-tokens: ${file.replace(APP_DIR, "")} has neither the unit-table region nor the space reserved for it.`,
+        `build-tokens: ${relative(REPO_DIR, file)} has neither the unit-table region nor the space reserved for it.`,
         `  Expected either a line beginning ${q(UNITS_REGION_BEGIN)}, or the comment`,
         `  block whose first line reads ${q(UNITS_PLACEHOLDER_ANCHOR)}.`,
         "",
         "  tokens/units.json is emitted into that file because it is one of the two",
-        "  modules `shadcn add` copies into a consumer's project, and a spoken unit",
+        "  modules @opsinjs/react publishes, and a spoken unit",
         "  form that exists here and not there would make every installed component",
         "  read a symbol out letter by letter. Restore either the markers - an empty",
         "  region between them is fine, this script fills it - or the reserved block,",
@@ -2789,7 +2820,7 @@ function installUnitsRegion(file: string, current: string): string {
 }
 
 /**
- * Grows the reserved space in lib/opsinjs.ts into a pair of banned-word region
+ * Grows the reserved space in packages/react/src/opsinjs.ts into a pair of banned-word region
  * markers.
  *
  * Runs once, on the first generate after the anchor comment landed, and is a
@@ -2819,12 +2850,12 @@ function installBannedRegion(file: string, current: string): string {
   if (anchor === -1 || open === -1 || close === -1) {
     console.error(
       [
-        `build-tokens: ${file.replace(APP_DIR, "")} has neither the banned-word region nor the space reserved for it.`,
+        `build-tokens: ${relative(REPO_DIR, file)} has neither the banned-word region nor the space reserved for it.`,
         `  Expected either a line beginning ${q(BANNED_REGION_BEGIN)}, or the comment`,
         `  block whose first line reads ${q(BANNED_PLACEHOLDER_ANCHOR)}.`,
         "",
         "  tokens/glossary.json's banned list is emitted into that file because it is",
-        "  one of the two modules `shadcn add` copies into a consumer's project, and a",
+        "  one of the two modules @opsinjs/react publishes, and a",
         "  word this pipeline bars here but not there would let an installed component",
         "  print the one word the doctrine bans outright. Restore either the markers, an",
         "  empty region between them is fine, this script fills it, or the reserved",
@@ -2842,10 +2873,10 @@ function installBannedRegion(file: string, current: string): string {
 }
 
 /**
- * The banned-word table as TypeScript, for the region inside `lib/opsinjs.ts`.
+ * The banned-word table as TypeScript, for the region inside `packages/react/src/opsinjs.ts`.
  *
  * Emitted into the file that TRAVELS, for the same reason the error and unit
- * tables are: `lib/generated/` does not survive `shadcn add`, and a component
+ * tables are: `lib/generated/` is not part of @opsinjs/react, and a component
  * installed into somebody else's project still has to know that a word such as
  * "normal" is one its copy must not use. The reviewable copy, with the authored
  * policy prose attached, is the `banned` list in lib/generated/glossary.json;
@@ -2853,7 +2884,7 @@ function installBannedRegion(file: string, current: string): string {
  *
  * Only the `BANNED_WORDS` const is emitted here. The `GeneratedBannedWord`
  * interface it is typed against ships persistently above this region in
- * lib/opsinjs.ts, so emitting it a second time would declare the name twice.
+ * packages/react/src/opsinjs.ts, so emitting it a second time would declare the name twice.
  * That is a departure from this subtask's plan, which asked for the interface as
  * well; wave 1 shipped the interface outside the region, so the code wins and
  * this emits the rows alone. The rows come from the same `glossary.banned`
@@ -2892,10 +2923,10 @@ function conversionInts(row: UnitConversionRow): {
 }
 
 /**
- * The unit table as TypeScript, for the region inside `lib/opsinjs.ts`.
+ * The unit table as TypeScript, for the region inside `packages/react/src/opsinjs.ts`.
  *
  * Emitted into the file that TRAVELS, for the same reason the error table is:
- * `lib/generated/` does not survive `shadcn add`, and a component installed
+ * `lib/generated/` is not part of @opsinjs/react, and a component installed
  * into somebody else's project still has to know that `mmHg` is spoken
  * "millimetres of mercury". The copy in lib/generated/units.json is the
  * reviewable one, with the authored policy prose attached; this one is the one
@@ -3214,32 +3245,6 @@ function emitErrorCodesRegion(errors: ErrorTable): string {
 }
 
 /* ------------------------------------------------------------------ *
- * Theme registry item                                                 *
- * ------------------------------------------------------------------ */
-
-function emitThemeItem(tokens: TokenLeaf[], hash: string): string {
-  const strip = (name: string) => name.replace(/^--/, "")
-  const light: Record<string, string> = {}
-  const dark: Record<string, string> = {}
-  for (const token of tokens) {
-    light[strip(token.cssVar)] = token.resolved ?? token.value
-    const darkValue = token.darkResolved ?? token.dark
-    if (darkValue !== undefined) dark[strip(token.cssVar)] = darkValue
-  }
-  const item = {
-    $schema: "https://ui.shadcn.com/schema/registry-item.json",
-    name: "opsinjs-default",
-    type: "registry:theme",
-    title: "opsinjs default theme",
-    description:
-      "The opsinjs token layer: category ramps, clinical status ramps, the material ladder, spring easings and the type, space and shape scales. Category colour and status colour are separate axes and never meet on one element.",
-    meta: { generatedBy: "scripts/build-tokens.mts", tokenSourceHash: hash },
-    cssVars: { light, dark },
-  }
-  return `${JSON.stringify(item, null, 2)}\n`
-}
-
-/* ------------------------------------------------------------------ *
  * Main                                                                *
  * ------------------------------------------------------------------ */
 
@@ -3319,7 +3324,7 @@ function main(): void {
      and moving it in this list would rewrite every hash for no reason.
 
      What it does emit is three copies of one table, below: OPSIN_ERROR_CODES in
-     lib/generated/tokens.ts, OPSIN_ERRORS inside lib/opsinjs.ts where warnOnce()
+     lib/generated/tokens.ts, OPSIN_ERRORS inside packages/react/src/opsinjs.ts where warnOnce()
      can reach it in a consumer's project, and the table on the handbook page.
      Parsing it here rather than only hashing it also means a syntactically
      broken errors.json now fails the build with a line number instead of
@@ -3333,8 +3338,8 @@ function main(): void {
      that declares no custom property, so it is neither in TOKEN_FILES nor in
      EMITTERS, and it is hashed LAST so that adding it moved no existing entry
      in this list. It emits two ways - lib/generated/units.json for review, and
-     the Unit/UNITS region inside lib/opsinjs.ts, which is the copy `shadcn add`
-     carries into a consumer's project and therefore the copy that renders. */
+     the Unit/UNITS region inside packages/react/src/opsinjs.ts, which is the copy
+     @opsinjs/react publishes and therefore the copy that renders. */
   const unitsFile = join(TOKENS_DIR, "units.json")
   const unitsSource = readJson(unitsFile)
   if (exists(unitsFile)) rawSources.push(readFileSync(unitsFile, "utf8"))
@@ -3444,6 +3449,8 @@ function main(): void {
 
   const outputs = [
     { file: OUT_CSS, contents: emitCss(tokens, hash, accentPlan ? emitAccentCss(accentPlan, tokens) : "") },
+    { file: OUT_TOKENS_JSON, contents: emitTokensJson(tokens, hash) },
+    { file: OUT_TOKENS_TS, contents: emitTokensModule(tokens, hash) },
     { file: OUT_TS, contents: emitTs(tokens, glossary, errors, hash) },
     { file: OUT_SUBSTRATE, contents: substrate },
     {
@@ -3481,7 +3488,7 @@ function main(): void {
       contents: `${JSON.stringify(
         {
           $comment:
-            "GENERATED FILE - DO NOT EDIT. Source: tokens/units.json. Generator: scripts/build-tokens.mts (`pnpm run generate`). Gate: `pnpm check:generated`. This is the reviewable copy, with the authored policy attached; the copy that renders is the Unit/UNITS region inside lib/opsinjs.ts, because lib/generated/ does not travel with `shadcn add`. SAFETY: there is no reference range, threshold, plausibility bound, 'typical' value or default precision in this file, for any metric in any population. A unit table says what a number is measured in; it never says what a number should be. `generatedAt` carries the token source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
+            "GENERATED FILE - DO NOT EDIT. Source: tokens/units.json. Generator: scripts/build-tokens.mts (`pnpm run generate`). Gate: `pnpm check:generated`. This is the reviewable copy, with the authored policy attached; the copy that renders is the Unit/UNITS region inside packages/react/src/opsinjs.ts, because lib/generated/ is not part of @opsinjs/react. SAFETY: there is no reference range, threshold, plausibility bound, 'typical' value or default precision in this file, for any metric in any population. A unit table says what a number is measured in; it never says what a number should be. `generatedAt` carries the token source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
           generatedAt: hash,
           sourceHash: hash,
           counts: {
@@ -3517,8 +3524,6 @@ function main(): void {
         2,
       )}\n`,
     },
-    { file: OUT_THEME, contents: emitThemeItem(tokens, hash) },
-    ...(accentPlan ? emitAccentThemeItems(accentPlan, tokens, hash) : []),
     ...(accentPlan ? [{ file: OUT_ACCENTS_TS, contents: emitAccentsModule(accentPlan, hash) }] : []),
   ]
 
@@ -3534,7 +3539,7 @@ function main(): void {
       console.error(
         [
           "build-tokens --check: generated output is out of date.",
-          ...drifted.map((output) => `  ${output.file.replace(APP_DIR, "")}`),
+          ...drifted.map((output) => `  ${relative(REPO_DIR, output.file)}`),
           "",
           "  Run `pnpm run generate` and commit the result.",
         ].join("\n"),
@@ -3564,7 +3569,7 @@ function main(): void {
       ...outputs.map(
         (output) =>
           `  ${written.has(output.file) ? "wrote    " : "unchanged"} ` +
-          output.file.replace(APP_DIR, ""),
+          relative(REPO_DIR, output.file),
       ),
     ].join("\n"),
   )

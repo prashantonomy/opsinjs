@@ -10,7 +10,7 @@
 
 import { useState } from "react"
 
-import { Switch } from "@/registry/base-lyra/ui/switch"
+import { Switch } from "@opsinjs/react"
 
 export default function SwitchASettingThatAppliesNow() {
   const [on, setOn] = useState(false)

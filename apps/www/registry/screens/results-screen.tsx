@@ -50,13 +50,19 @@
  * owns.
  */
 
-import { EXAMPLE_SOURCE, type ClinicalStatus, type HealthCategory } from "@/lib/opsinjs"
-import { CareCard } from "@/registry/base-lyra/ui/care-card"
-import { DisclaimerNote } from "@/registry/base-lyra/ui/disclaimer-note"
-import { RelativeTime } from "@/registry/base-lyra/ui/relative-time"
-import { ResultCard } from "@/registry/base-lyra/ui/result-card"
-import { Surface } from "@/registry/base-lyra/ui/surface"
-import { Term, TermGlossaryProvider, type GlossaryEntry } from "@/registry/base-lyra/ui/term"
+import {
+  CareCard,
+  DisclaimerNote,
+  EXAMPLE_SOURCE,
+  RelativeTime,
+  ResultCard,
+  Surface,
+  Term,
+  TermGlossaryProvider,
+  type ClinicalStatus,
+  type GlossaryEntry,
+  type HealthCategory,
+} from "@opsinjs/react"
 
 /** The instant the whole screen is measured against. Read once, passed to each part. */
 const NOW = "2026-04-06T09:00:00+00:00"

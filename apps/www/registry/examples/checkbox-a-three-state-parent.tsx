@@ -16,7 +16,7 @@
 
 import { useState } from "react"
 
-import { Checkbox } from "@/registry/base-lyra/ui/checkbox"
+import { Checkbox } from "@opsinjs/react"
 
 const ITEMS = [
   { id: "notes", label: "Recent notes" },

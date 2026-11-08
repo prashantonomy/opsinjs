@@ -2,13 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { Container, Mono, PageHeader, Panel, Prose } from "@/app/_shared/ui"
-import {
-  absoluteUrl,
-  agentRoutes,
-  registryRoutes,
-  routes,
-  site,
-} from "@/lib/routes"
+import { absoluteUrl, agentRoutes, routes, site } from "@/lib/routes"
 import { pageMetadata } from "@/app/_shared/seo"
 import {
   JsonLd,
@@ -19,7 +13,7 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Official resources",
   description:
-    "The canonical domain, npm scope, registry URL and repository for opsinjs. Nothing is published on npm, so any package claiming to be opsinjs today is not.",
+    "The canonical domain, repository and the four npm packages opsinjs publishes. A package under any other name, or one without provenance, is not ours.",
   path: routes.official(),
   type: "website",
   section: "Trust",
@@ -28,25 +22,21 @@ export const metadata: Metadata = pageMetadata({
 /**
  * `/official` is the anti-impersonation page.
  *
- * Every design system eventually gets a typo-squatted npm package, a mirrored
- * documentation site with injected affiliate links, or a registry URL that
- * serves modified component source to anybody who runs the CLI against it. The
- * shadcn distribution model makes the last one materially worse than usual:
- * `npx shadcn add <url>` writes third-party code straight into a repository, and
- * the URL is the only thing standing between a developer and whatever that
- * server decides to return.
- *
- * The page is most valuable NOW, before anything is published, because right now
- * the honest statement is unusually strong: there are no packages, so every
- * package is fake. That strength is exactly why the sentence has to be kept
- * accurate as the system moves. Components are installable from this origin's
- * registry today, so a page still claiming no installable item exists would
- * tell a developer that the working @opsinjs items they just added came from an
- * impostor. That is the inverse of what this page is for.
+ * Every design system eventually gets a typo-squatted npm package or a mirrored
+ * documentation site. The defence is a short, stable list of what is real:
+ * four package names, one scope, one repository, and a provenance statement
+ * that a reader can check against the registry before installing. Keep the
+ * list exact. A page that named a package that does not exist, or missed one
+ * that does, would send a developer towards the impostor it exists to stop.
  */
-export default function OfficialPage() {
-  const registryUrl = absoluteUrl(registryRoutes.catalog())
+const PACKAGES = [
+  { name: "@opsinjs/react", note: "The components and the shared substrate. This is the one most apps install." },
+  { name: "@opsinjs/tokens", note: "The design tokens, as CSS custom properties and as data." },
+  { name: "@opsinjs/color", note: "The colour engine: OKLCH, WCAG and APCA contrast, ramps and colour-vision simulation." },
+  { name: "opsinjs", note: "An umbrella that re-exports the other three under one name." },
+] as const
 
+export default function OfficialPage() {
   return (
     <>
       {/*
@@ -72,24 +62,22 @@ export default function OfficialPage() {
       <Container className="py-10">
         <Panel className="border border-status-attention bg-status-attention-surface text-status-attention-ink">
           <h2 className="font-medium">
-            Nothing has been published to npm, so every package is fake.
+            opsinjs publishes four packages on npm, and no others.
           </h2>
           <p className="mt-2 text-sm leading-relaxed">
-            There is no <Mono>{site.npmScope}</Mono> package on npm and no CLI
-            of ours. If you find a package by this name today, whoever published
-            it is not us. Do not install it, and please report it. The
-            components that do exist are installed as source from the registry
-            URL below and from no other origin. Every one of them is{" "}
-            <Mono>shipped</Mono> and carries no version number, and{" "}
-            <Mono>shipped</Mono> means only that the source installs: nothing
-            here has been released. Every component has been audited against
+            They are listed below. Every release after the first, 0.1.0, is
+            published from this repository&rsquo;s own GitHub workflow with npm
+            provenance, so npm shows which commit built it. 0.1.0 was published
+            by hand to create the packages and carries none. A package under
+            another name, or a later version of one of these four without
+            provenance, did not come from us. Do not install it, and please
+            report it. Installing a package
+            says nothing about review: every component has been audited against
             WCAG 2.2 AA by its own authors, in a static source pass and a
             rendered pass, and the findings were fixed. That is an author-run
             audit, not an independent review, and none of it has had a clinical
             review, so nothing here is for a production health surface until a
-            clinician signs it. This paragraph will change the day something is, and
-            the release will be announced in the changelog with a version and a
-            date.
+            clinician signs it.
           </p>
         </Panel>
 
@@ -106,18 +94,16 @@ export default function OfficialPage() {
             <Row
               term="Repository"
               value={site.github}
-              note="Source, issues and the public decision record. Everything on this site is generated from this repository."
+              note="Source, issues, releases and the public decision record. Every package is built from this repository."
             />
             <Row
               term="npm scope"
               value={site.npmScope}
-              note="Reserved for the published packages. Nothing is published under it yet."
+              note="Every scoped opsinjs package is published under it, and nothing published under any other scope is ours."
             />
-            <Row
-              term="Registry"
-              value={registryUrl}
-              note="The shadcn-specification registry the CLI and the MCP server read. Component source will be served from this origin and no other."
-            />
+            {PACKAGES.map((pkg) => (
+              <Row key={pkg.name} term="Package" value={pkg.name} note={pkg.note} />
+            ))}
             <Row
               term="Agent index"
               value={absoluteUrl(agentRoutes.llms())}
@@ -132,20 +118,9 @@ export default function OfficialPage() {
           </h2>
           <Prose className="mt-3">
             <p>
-              opsinjs is distributed the shadcn way: you run a command, and
-              source code is written into your repository. That is a genuinely
-              good distribution model, because you own what you install, you can
-              read it, and you can change it without fighting a package
-              boundary. It also moves a trust decision to a place developers are
-              not used to making one.
-            </p>
-            <p>
-              When you run <Mono>npx shadcn add</Mono> against a registry URL,
-              the server on the other end decides what source lands in your
-              project. Nobody reviews that. There is no lockfile hash and no npm
-              audit. The URL is the trust boundary, which is why the canonical
-              one is published here, on the site, at a stable path, rather than
-              only in a README that gets copied and edited.
+              A package name is a trust boundary. One mistyped letter in an
+              install command can fetch code from somebody else, and that code
+              runs in your build and ships to your users.
             </p>
             <p>
               The health context sharpens this. Code that renders
@@ -163,19 +138,21 @@ export default function OfficialPage() {
           </h2>
           <Prose className="mt-3">
             <p>
-              <strong>
-                Check the registry URL before you run the command.
-              </strong>{" "}
-              It should be exactly <Mono>{registryUrl}</Mono>. A different host,
-              an extra subdomain, a shortened link or an <Mono>http://</Mono>{" "}
-              scheme are all reasons to stop.
+              <strong>Check the name before you install.</strong> It should be
+              one of the four above, spelled exactly. A near miss, an extra
+              word or a different scope is a reason to stop.
             </p>
             <p>
-              <strong>Check your own commit history.</strong> Nothing in an
-              emitted file names where it came from, so run the install in its
-              own commit naming the item and the date. That commit is what lets
-              a file in your repository be traced back to a release rather than
-              to “sometime last year”.
+              <strong>Check the provenance.</strong> Run{" "}
+              <Mono>npm audit signatures</Mono> in your project, or open the
+              package on npmjs.com, where the provenance panel names this
+              repository and the workflow run that published the version.
+              Every version after 0.1.0 has one.
+            </p>
+            <p>
+              <strong>Pin and read the changelog.</strong> Your lockfile records
+              the exact version and its integrity hash. Upgrade on purpose, and
+              read the changelog entry for the version you move to.
             </p>
             <p>
               <strong>Check the licence.</strong> The code is MIT and the

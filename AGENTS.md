@@ -12,16 +12,17 @@ the code, and the code is what the page must now describe.
 
 **A component that exists is documented, not proposed.** Its page carries
 `status: shipped`, a `<ComponentPreview>` that actually renders, and real
-`parts`/`tree`/`rows` data. A page reads `shipped` only when its file under
-`registry/bases/base/` renders at `/view/base/base-lyra/component/<id>` and
+`parts`/`tree`/`rows` data. A page reads `shipped` only when
+`packages/react/src/components/<id>.tsx` exists, its demo at
+`apps/www/registry/demos/<id>.tsx` renders at `/view/base/base-lyra/component/<id>`, and
 `pnpm typecheck`, `pnpm lint` and `pnpm check` all pass. "It typechecks" is not "it
 renders". Frontmatter `status` and the `registry/catalogue.ts` row's `status` move in
 the same commit, because nothing cross-checks them for you.
 
-**`shipped` says the source installs, and it says nothing about review.** No opsinjs
-component has had an accessibility review or a clinical review, so nothing here is for
-a production health surface, and the API may change in any release with a changelog
-entry. That sentence is authored in each component page's `<StubNotice>` rather than
+**`shipped` says the component installs with `@opsinjs/react`, and it says nothing about
+review.** No opsinjs component has had an accessibility review or a clinical review, so
+nothing here is for a production health surface, and the API may change in any release
+with a changelog entry. That sentence is authored in each component page's `<StubNotice>` rather than
 generated into it, because the `.md` twins are built from page text, and `assert-ia`
 rule SAFE001 fails the build on a component page that drops it. Do not soften it, and
 do not move it into a generated string.
@@ -35,16 +36,22 @@ honest vocabulary is `<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>`
 `<NotBuiltYet>` and `<Todo>` are removed from a page in the same commit that builds what
 it describes, and not before.
 
-The directory listing of `registry/bases/base/` is the answer to "does code exist for
-this id". One flat `.tsx` file per component id; `scripts/build-registry.mts` registers
-every direct child and produces the index entry, the `/view` route and the preview. No
-file, no entry, and `<ComponentPreview>` renders `<NotBuiltYet>`. Read the directory
-rather than any prose about it, including this prose.
+The directory listing of `packages/react/src/components/` is the answer to "does code
+exist for this id". One flat `.tsx` file per component id, with named exports only.
+`apps/www/scripts/build-registry.mts` reads every direct child: the listing decides which
+ids are implemented, and it is what the generated package entry point
+`packages/react/src/index.ts` exports. The preview is a separate file,
+`apps/www/registry/demos/<id>.tsx`, which imports the component from `@opsinjs/react` the
+way a consumer does, and that file is what gets the index entry and the `/view` route. No
+demo, no entry, and `<ComponentPreview>` renders `<NotBuiltYet>`. Read the directories
+rather than any prose about them, including this prose.
 
 It is not the answer to "is this ready to use". A file can be in the directory and not
-be a component at all: a helper or a throwaway dropped in beside them picks up a `/view`
-route and a preview with no catalogue row behind it. What makes an id a component is the
-catalogue row, and what would make it ready is the review nobody has done.
+be a component at all: a helper or a throwaway dropped in beside them is exported from
+`@opsinjs/react` and published with no catalogue row behind it. Shared code belongs in
+`packages/react/src/utils.ts` or the substrate, never in `components/`. What makes an id a
+component is the catalogue row, and what would make it ready is the review nobody has
+done.
 
 `status` is frontmatter on a `kind: component` page and on nothing else. The three
 values are `planned` (a written specification and no code), `shipped`, and `deprecated`
@@ -89,7 +96,7 @@ switcher is a **client** component using `useSearchParams()` that re-points an
   **`page.data.content` does not exist** and fails typecheck (TS2339). This is why
   `source.config.ts` sets `postprocess: { includeProcessedMarkdown: true }`.
 
-## 5. Pinned versions are pinned
+## 5. Pinned versions are pinned, except where a package publishes a range
 
 Every version in `apps/www/package.json` was resolved live and corresponds to a build
 that actually ran green. In particular: `typescript` is `5.9.3` and **never `^5`**,
@@ -99,11 +106,21 @@ range to "get the latest". A security advisory is the exception that moves a pin
 waiting: 16.3.8 is the first release that fixes both GHSA-vcvr-r3jv-pc5j and
 GHSA-mcj8-r9mp-w47p.
 
-`shadcn` is a **runtime** dependency, not a CLI-only tool: `app/globals.css` does
-`@import "shadcn/tailwind.css"`.
+**The published packages are the one exception, on purpose.** In `packages/*/package.json`,
+`dependencies` take caret ranges and `peerDependencies` take ranges (`react` and
+`react-dom` are `^19.0.0`), because an exact pin in a library forces its version on every
+project that installs it. A dependency between two opsinjs packages is `workspace:^`,
+which pnpm rewrites to a caret range when it publishes. `devDependencies` in the packages
+stay exact, and so does everything in the docs app and at the root.
+`apps/www/scripts/check-versions.mts` enforces both halves.
+
+`shadcn` is not a dependency of anything here. `app/globals.css` does not import
+`shadcn/tailwind.css`, nothing installs through the shadcn CLI, and there is no
+`components.json` ([ADR 0030](decisions/0030-opsinjs-ships-as-npm-packages.md)).
 
 Deliberately absent, do not add: `tsx`/`ts-node` (Node 24 runs `.mts` natively),
-`culori`/`apca-w3` (the colour maths is hand-written in `lib/color/`), `next-themes`
+`culori`/`apca-w3` (the colour maths is hand-written in `packages/color/src/` and
+published as `@opsinjs/color`), `next-themes`
 and `motion` (already transitive under `@fumadocs/base-ui`, so installing them directly
 gives you two theme providers), `@tailwindcss/typography` (collides with fumadocs'
 forked `prose`), `playwright` (a nightly P2 job; `capture-registry.mts` no-ops without it).
@@ -115,31 +132,69 @@ forked `prose`), `playwright` (a nightly P2 job; `capture-registry.mts` no-ops w
 **erasable-syntax-only** TypeScript: no `enum`, no parameter properties, no `namespace`.
 Node type stripping rejects anything that needs code generation.
 
+The published packages declare `engines.node` `>=20.19.0`. That is the floor for a
+project that installs them, not for working in this repository.
+
 ## 7. Generated, never hand-authored
 
 Prop tables, token tables, data-attribute tables, CSS-variable tables, contrast numbers,
 bundle sizes, catalogue rows and the glossary are **generated** into committed files.
 `pnpm check:generated` regenerates and then does `git add -N . && git diff --exit-code`
-over eight paths. The eight are `lib/generated`, `lib/opsinjs.ts`, `registry/__index__.ts`,
-`registry/generated`, `app/tokens.generated.css`, `content/docs/reference/generated`,
-`content/docs/reference/error-codes.mdx` and `public/r`. The list here is the one in
-`apps/www/package.json`'s `check:generated` script; if the two ever disagree, that script
-wins and this line is the bug. If you hand-edit one of those
-paths, CI fails. That is the point. Change the source (`tokens/*.json`,
-`registry/catalogue.ts`, or the file under `registry/bases/` the generator reads) and
-regenerate.
+over a fixed list of paths. **The `check:generated` script in `apps/www/package.json` is
+the authority for that list**; if this paragraph and that script ever disagree, the
+script wins and this paragraph is the bug. In the docs app the list is `lib/generated`,
+`registry/__index__.ts`, `registry/generated`, `content/docs/reference/generated` and
+`content/docs/reference/error-codes.mdx`. In the packages it is
+`packages/react/src/index.ts`, `packages/react/src/opsinjs.ts`,
+`packages/tokens/tokens.css`, `packages/tokens/tokens.json`,
+`packages/tokens/src/index.ts` and `packages/tokens/src/accents.ts`. If you hand-edit one
+of those paths, CI fails. That is the point. Change the source (`tokens/*.json`,
+`registry/catalogue.ts`, or the component file under `packages/react/src/components/`
+the generator reads) and regenerate.
 
-Two of those eight paths are hand-written files carrying one spliced generated region
-each: `lib/opsinjs.ts`, the substrate `shadcn add` copies into a consumer's project, and
-`content/docs/reference/error-codes.mdx`. The prose outside the markers is yours to write;
-everything between them is rewritten by `build-tokens.mts` on every run. Nothing under
+Two of those paths are hand-written files carrying spliced generated regions:
+`packages/react/src/opsinjs.ts`, the substrate every component imports, holds three (the
+error table, the unit table and the banned words), and
+`content/docs/reference/error-codes.mdx` holds one. The prose and code outside the
+markers are yours to write; everything between them is rewritten by `build-tokens.mts`
+on every run. Nothing under
 `content/docs/components` is generated; every page there is authored. CI also runs
 `--check` on each of the three generator scripts *before* `generate`, so that each one
 compares the tree as checked out against what it would write. Afterwards it would only
 be comparing freshly written files with themselves.
 
-`app/tokens.generated.css` is emitted by `scripts/build-tokens.mts`. `app/globals.css`
-owns only the one `@import` line that pulls it in, at its fixed position.
+`packages/tokens/tokens.css` is emitted by `scripts/build-tokens.mts`. `app/globals.css`
+and `app/product.css` each own only the one `@import "@opsinjs/tokens/tokens.css"` line
+that pulls it in, at its fixed position.
+
+## 7a. The packages build and release from here
+
+opsinjs publishes four packages from `packages/`: `@opsinjs/react`, `@opsinjs/tokens`,
+`@opsinjs/color` and the unscoped umbrella `opsinjs`. They share one fixed version on
+the 0.x line, are MIT licensed and ESM-only, and
+[ADR 0030](decisions/0030-opsinjs-ships-as-npm-packages.md) is the record.
+
+- **Build:** `pnpm -r --filter "./packages/*" build`. `tsc` compiles each source file to
+  its own output file, with no bundler, so every `"use client"` directive stays at the
+  top of its own module and a consumer's bundler can drop what it does not import.
+  `@opsinjs/react` also compiles `dist/styles.css` from `styles/standalone.css` with the
+  Tailwind CLI. Do not add a bundler to a package build without a new decision record.
+  The root script `pnpm build:packages` runs the same command.
+- **Check the published shape:** `pnpm -r --filter "./packages/*" lint:package`
+  (`pnpm lint:packages`) runs publint and Are the Types Wrong on each package, and
+  `node scripts/smoke-pack.mts` (`pnpm smoke:packages`) packs the four, installs the
+  tarballs into a throwaway project with npm and imports, renders and resolves what a
+  consumer would. It needs the network.
+- **Changesets:** a pull request that changes anything under `packages/` carries a
+  changeset from `pnpm changeset`. Merging to `main` opens the
+  `chore(release): version packages` pull request, and merging that runs `pnpm release`
+  from `.github/workflows/release.yml`, which publishes with provenance. Nobody runs
+  `npm publish` by hand after the first release. [RELEASING.md](RELEASING.md) is the
+  procedure.
+- **The docs app consumes the packages through the workspace** (`workspace:*`), and its
+  TypeScript paths point at the package sources, so `pnpm dev` needs no package build.
+  A demo, an example or a screen imports from `@opsinjs/react` exactly as a consumer
+  does, never by a relative path into `packages/`.
 
 ## 8. The corpus lives under `/docs`, and paths come from `lib/routes.ts`
 

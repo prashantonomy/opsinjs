@@ -41,7 +41,7 @@
 
 import { useState } from "react"
 
-import { ReadingInput } from "@/registry/base-lyra/ui/reading-input"
+import { ReadingInput } from "@opsinjs/react"
 
 export default function ReadingInputSwitchingTheUnit() {
   const [reading, setReading] = useState<number | null>(10)

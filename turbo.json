@@ -1,7 +1,10 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalDependencies": ["tsconfig.base.json", ".npmrc"],
+  "globalDependencies": [
+    "tsconfig.base.json",
+    ".npmrc"
+  ],
   "tasks": {
     "generate": {
       "inputs": [
@@ -10,35 +13,51 @@
         "scripts/**",
         "lib/**",
         "content/docs/components/**",
-        "content/docs/reference/**"
+        "content/docs/reference/**",
+        "$TURBO_ROOT$/packages/react/src/**",
+        "$TURBO_ROOT$/packages/react/styles/**",
+        "$TURBO_ROOT$/packages/color/src/**"
       ],
       "outputs": [
         "lib/generated/**",
-        "lib/opsinjs.ts",
         "registry/__index__.ts",
-        "registry/generated/**",
-        "app/tokens.generated.css",
         "content/docs/reference/generated/**",
         "content/docs/reference/error-codes.mdx",
-        "public/r/**"
+        "$TURBO_ROOT$/packages/react/src/index.ts",
+        "$TURBO_ROOT$/packages/react/src/opsinjs.ts",
+        "$TURBO_ROOT$/packages/tokens/tokens.css",
+        "$TURBO_ROOT$/packages/tokens/tokens.json",
+        "$TURBO_ROOT$/packages/tokens/src/**"
       ]
     },
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "public/r/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "check": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     }
   }
 }

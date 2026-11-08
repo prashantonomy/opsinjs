@@ -4,6 +4,8 @@ One substrate module, appended to every component's files list with its real con
 
 ## Status
 
+**Superseded by [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md)** on 2026-11-09: the substrate is part of `@opsinjs/react` and installs once with the package, rather than inside every registry item. The record below is kept as written.
+
 **Accepted.** 2026-09-03. Verified end to end against shadcn 4.20.0 rather than
 reasoned about: a registry item served from this repository installed into a
 throwaway app outside it, the substrate landed at `lib/opsinjs.ts` and

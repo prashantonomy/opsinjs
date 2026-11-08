@@ -1,0 +1,132 @@
+/* ==========================================================================
+   base.css holds the opsinjs element rules, and it is opt-in.
+
+   These rules select elements rather than components: every border takes the
+   border role, a selection is a wash of the brand light, focus draws the
+   opsinjs ring, a measurement uses tabular figures, and anything tappable
+   clears the target floor. Load it when opsinjs is the design system of the
+   whole page. Leave it out when opsinjs components sit inside an app with its
+   own base styles, because these rules reach every element on the page and
+   not only opsinjs ones.
+   ========================================================================== */
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  * {
+    border-color: var(--border);
+  }
+
+
+
+  /* A selection is a wash of the brand light under the ink, never a fill the
+     ink has to fight: the text keeps its own colour, so a selected reading
+     stays as legible as an unselected one. */
+  ::selection {
+    background-color: color-mix(in oklab, var(--brand) 24%, transparent);
+  }
+
+  /* Squircle. The theme intentionally does not stamp a `data-opsin-shape`
+     attribute to deliver this, so there is no rule here. The squircle is set
+     per component instead, as the arbitrary property
+     `[corner-shape:var(--opsin-corner-shape)]` on the shape role of Card,
+     Callout and Dialog. Two reasons, both stated on those components: a
+     `data-opsin-shape` attribute would be a fifth member of a data-attribute
+     vocabulary that is closed at four, and this stylesheet is opt-in, so a rule
+     here would never reach a product that leaves it out.
+     An engine without `corner-shape` drops the inline declaration and draws an
+     ordinary rounded corner, which is the fallback tokens/shape.json specifies.
+     `--opsin-corner-shape` stays declared above because those components read
+     it. See foundations/shape. */
+
+  /* The width and the offset read the generated tokens, so the stryk theme's
+     3px ring reaches every control that falls back on this rule. */
+  :focus-visible {
+    outline: var(--opsin-border-focus, 2px) solid var(--ring);
+    outline-offset: var(--opsin-border-focus-offset, 2px);
+  }
+
+  /* Tap-highlight, restored. Tailwind v4 preflight zeroes
+     -webkit-tap-highlight-color globally, so without this rule a tap on a
+     control produces no native flash at all. This puts one back. It is honoured only by WebKit and
+     Chromium and only on touch, so it does nothing with a mouse or a keyboard,
+     and it is a backstop rather than a substitute for the per-component press
+     state, which lands as interaction-and-accessibility-09. The value is built
+     from --ring with color-mix rather than a literal so the flash follows the
+     theme in both light and dark, and it stays deliberately faint at 20 percent
+     so it reads as an acknowledgement and not as a selection. The selector list
+     tracks the target-floor rule below so the two stay in step, with plain
+     anchors, summary and label added because those are tapped too. No global
+     :active fill is added: a page-level press treatment would fight the
+     per-component press states, and this file is opt-in, so a press state that
+     lived here would be missing from every app that leaves it out. */
+  a,
+  button,
+  [role="button"],
+  summary,
+  label,
+  select,
+  textarea,
+  input:not([type="hidden"]) {
+    -webkit-tap-highlight-color: color-mix(in oklab, var(--ring) 20%, transparent);
+  }
+
+  /* Numbers a person reads as a measurement line up column-wise, so a change
+     between two readings is a change in the digits and not in the kerning.
+     `data-opsinjs-value` is the component anatomy attribute closed by ADR 0011
+     and is what every opsinjs component emits. `data-opsin-value` is accepted
+     alongside it so a consumer who reaches for the theme prefix by analogy with
+     `data-opsin-shape` and `data-opsin-target` still gets tabular figures
+     rather than silently losing them on a reading. */
+  [data-opsinjs-value],
+  [data-opsin-value] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Anything tappable clears the product floor. This is a backstop, not a
+     substitute for sizing the component correctly.
+
+     The token is `--opsin-target-minimum`, generated from tokens/space.json,
+     and the unit is the point. It is 2.75rem, not 44px: [data-text-size="200"]
+     changes the ROOT FONT SIZE for real rather than applying a transform, so a
+     rem floor grows with the type and a control that sat exactly on the floor
+     still sits exactly on it. A px floor would stay at 44 device-independent
+     pixels while the label inside it doubled, which turns a control that was
+     merely at the limit into one that overflows or clips. This rule previously
+     read `--opsin-target-min`, a name nothing generated, so the measured floor
+     never reached it.
+
+     The var() fallback is the same 2.75rem rather than 44px, for the same
+     reason: if tokens.css is missing, the backstop still has to scale.
+
+     TEXT ENTRY IS IN THE LIST. It used to name only buttons, links carrying
+     `data-opsin-target`, checkboxes and radios, which left every text input,
+     `<select>` and `<textarea>` outside the floor. A hand-rolled `<input>` next
+     to a correctly sized `<Field>` therefore reproduced the sub-floor target in
+     silence, and a text field is the control a reader with a tremor has the
+     hardest time hitting. `input` is matched by exclusion rather than by listing
+     the twenty-odd type values, so a type nobody thought about is inside the
+     floor rather than outside it. `[type="hidden"]` is excluded because it has
+     no box at all, and a minimum size on a box that does not render is noise in
+     the cascade rather than a rule. */
+  button,
+  [role="button"],
+  a[data-opsin-target],
+  select,
+  textarea,
+  input:not([type="hidden"]) {
+    min-block-size: var(--opsin-target-minimum, 2.75rem);
+    min-inline-size: var(--opsin-target-minimum, 2.75rem);
+  }
+}

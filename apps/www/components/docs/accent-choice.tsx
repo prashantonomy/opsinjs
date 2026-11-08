@@ -8,7 +8,7 @@ import {
   ACCENT_THEMES,
   DEFAULT_ACCENT,
   DEFAULT_ACCENT_THEME,
-} from "@/lib/generated/accents"
+} from "@opsinjs/tokens"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================

@@ -18,7 +18,7 @@
  * rate, no temperature and no proportion in this table lands anywhere a reader
  * could take for their own. That is the whole reason it is not a smaller,
  * tidier number. A magnitude that is plausible in even one of the six units is
- * a reading, and this file ships as registry source under `shadcn add` and is
+ * a reading, and this file is printed as source on the component page and is
  * captured as a preview image that outlives the page it came from. That is
  * exactly the case ADR 0012 is written about. It is also below a thousand on
  * purpose, so the left column and the right column show the same digits with no
@@ -27,8 +27,7 @@
  * What changes down the column is only the words.
  */
 
-import { spokenUnit } from "@/lib/opsinjs"
-import { Value } from "@/registry/base-lyra/ui/value"
+import { Value, spokenUnit } from "@opsinjs/react"
 
 /* Every symbol here is in the unit table. A symbol that is NOT in it renders as
    written and is left in the accessibility tree unchanged rather than handed a

@@ -98,34 +98,34 @@ import {
   Users,
 } from "lucide-react"
 
-import { Accordion } from "@/registry/base-lyra/ui/accordion"
-import { Avatar } from "@/registry/base-lyra/ui/avatar"
-import { Badge } from "@/registry/base-lyra/ui/badge"
-import { Button } from "@/registry/base-lyra/ui/button"
-import { Callout } from "@/registry/base-lyra/ui/callout"
-import { Card } from "@/registry/base-lyra/ui/card"
-import { Checkbox } from "@/registry/base-lyra/ui/checkbox"
-import { Dialog } from "@/registry/base-lyra/ui/dialog"
-import { DisclaimerNote } from "@/registry/base-lyra/ui/disclaimer-note"
-import { Divider } from "@/registry/base-lyra/ui/divider"
-import { EmptyState } from "@/registry/base-lyra/ui/empty-state"
-import { Field } from "@/registry/base-lyra/ui/field"
-import { IconButton } from "@/registry/base-lyra/ui/icon-button"
-import { Link } from "@/registry/base-lyra/ui/link"
-import { RadioGroup } from "@/registry/base-lyra/ui/radio-group"
-import { SegmentedControl } from "@/registry/base-lyra/ui/segmented-control"
-import { Select } from "@/registry/base-lyra/ui/select"
-import { Sheet } from "@/registry/base-lyra/ui/sheet"
-import { SourceCitation } from "@/registry/base-lyra/ui/source-citation"
-import { Surface } from "@/registry/base-lyra/ui/surface"
-import { Switch } from "@/registry/base-lyra/ui/switch"
-import { TabBar } from "@/registry/base-lyra/ui/tab-bar"
 import {
+  Accordion,
+  Avatar,
+  Badge,
+  Button,
+  Callout,
+  Card,
+  Checkbox,
+  Dialog,
+  DisclaimerNote,
+  Divider,
+  EmptyState,
+  Field,
+  IconButton,
+  Link,
+  RadioGroup,
+  SegmentedControl,
+  Select,
+  Sheet,
+  SourceCitation,
+  Surface,
+  Switch,
+  TabBar,
   Term,
   TermGlossaryProvider,
+  VisuallyHidden,
   type GlossaryEntry,
-} from "@/registry/base-lyra/ui/term"
-import { VisuallyHidden } from "@/registry/base-lyra/ui/visually-hidden"
+} from "@opsinjs/react"
 
 /* ====================================================================== *
  * The fixed instant, and dates written by hand                            *

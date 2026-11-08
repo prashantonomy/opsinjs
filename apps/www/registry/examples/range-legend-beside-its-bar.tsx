@@ -13,9 +13,12 @@
  * it owns; the legend states none of that and only names the tones.
  */
 
-import { EXAMPLE_SOURCE, type ClinicalStatus } from "@/lib/opsinjs"
-import { RangeBar } from "@/registry/base-lyra/ui/range-bar"
-import { RangeLegend } from "@/registry/base-lyra/ui/range-legend"
+import {
+  EXAMPLE_SOURCE,
+  RangeBar,
+  RangeLegend,
+  type ClinicalStatus,
+} from "@opsinjs/react"
 
 const ROWS: { label: string; value: number; status: ClinicalStatus; measuredAt: string }[] = [
   {

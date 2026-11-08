@@ -22,7 +22,7 @@
  * date; the product that installs this component writes all three.
  */
 
-import { SourceCitation } from "@/registry/base-lyra/ui/source-citation"
+import { SourceCitation } from "@opsinjs/react"
 
 export default function SourceCitationADeviceEstimate() {
   return (

@@ -1,0 +1,412 @@
+/* ==========================================================================
+   roles.css is the opsinjs role layer, in plain CSS.
+
+   It maps the generated tokens in @opsinjs/tokens onto the role names every
+   opsinjs component reads (--background, --foreground, --primary, the state
+   fills, the placeholder triple), for light, for dark and for every accent
+   scope. It also owns the reduced-motion and print rules. It assumes
+   @opsinjs/tokens/tokens.css is loaded first, and both styles.css and
+   tailwind.css load them in that order.
+
+   The roles apply to `:root` and to any element carrying `opsin-product`,
+   and their dark half to `.dark`.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Surface roles. Deliberately few: a health screen that needs nine background
+   roles has a layout problem, not a token problem.
+
+   Every chrome role now resolves through a token, `var(--opsin-chrome-*)`,
+   declared once in tokens/color.json and emitted into the imported
+   @opsinjs/tokens/tokens.css. This matters for one reason above the others: the
+   audited page and the rendered page have to be the same page, or every
+   published contrast figure describes a screen nobody sees. The roles used to be
+   raw oklch values here, at three grey hues (250, 255 and 260) and at
+   lightnesses that were not ladder steps, so the gate measured neutral-0 and
+   neutral-950 while the screen showed something else. There is one grey hue
+   across the ladder-derived roles now, and one declaration site. The one
+   exception is named rather than absorbed: dark --primary-foreground stays at
+   hue 260, where D5 fixes it, and at chroma 0.01 it reads as a grey; it is
+   the ink of every primary fill in dark. A custom property resolves where it is
+   used rather than where it is declared, so a role here may point at any step
+   @opsinjs/tokens/tokens.css declares.
+
+   `--muted-foreground` is `--opsin-chrome-muted-foreground`, which resolves to
+   neutral-600 in light and neutral-300 in dark, the two steps the audit records
+   as clearing the Lc 75 floor. It used to be oklch(0.505 0.012 260) in light and
+   oklch(0.712 0.01 255) in dark, neither of which is a ladder step, and the dark
+   value sat below the APCA body floor while WCAG still passed, which is how the
+   miss stayed invisible to a ratio-only check.
+
+   Two shifts are expected here and are not regressions: the light page moves
+   from L 0.991 to L 0.985, and the dark page from L 0.162 to the darker L 0.145.
+   -------------------------------------------------------------------------- */
+
+:root,
+.opsin-product {
+  /* Tell the browser the theme, so native controls follow it: the unit <select>
+     popup in ReadingInput, the text caret, the autofill fill, the scrollbars
+     and the date picker. Plain `light`, not `only light`, so a reader's forced
+     colours or user-agent preference still comes through. */
+  color-scheme: light;
+  --background: var(--opsin-chrome-background);
+  --foreground: var(--opsin-chrome-foreground);
+  --card: var(--opsin-chrome-card);
+  --card-foreground: var(--opsin-chrome-card-foreground);
+  --muted: var(--opsin-chrome-muted);
+  --muted-foreground: var(--opsin-chrome-muted-foreground);
+  /* Hairline on the neutral ladder, so the one elevation cue a shadowless card
+     has is measured and visible. neutral-500 reads Lc 69.75 / WCAG 4.52 on a
+     neutral-50 page and Lc 72.83 / WCAG 4.72 on a neutral-0 card, both clearing
+     the Lc 45 non-text floor and the 3:1 WCAG floor. It replaces oklch(0.905),
+     which measured about Lc 13 / 1.29:1 and vanished at low screen brightness. */
+  --border: var(--opsin-chrome-border);
+  --input: var(--opsin-chrome-input);
+  /* The decorative edge of a sheet that is not a control, from tokens/color.json
+     (ADR 0028). `--edge` draws around a card, a tile or a table; a control keeps
+     `--border`, its 3:1 boundary. */
+  --edge: var(--opsin-chrome-edge);
+  /* The accent roles, from tokens/accent.json (ADR 0029). Each one points at an
+     `--opsin-accent-*` token, which carries the default theme's default accent
+     here and whatever theme and accent the page chose under `data-accent-theme`
+     and `data-accent`. The block further down re-declares all of them on any
+     element that starts an accent scope.
+
+     `--primary` is the one filled action, ink in the normal theme. `--brand` is
+     the selected state of a selection control and `--brand-foreground` the tick
+     or label on it. `--brand-ink` is accent-coloured text on the page or a card.
+     The two `-edge` roles are transparent unless a bright fill needs a rim to
+     separate from the page, and `--brand-glow` is light the action throws, which
+     only the vibes theme casts. None of them ever fills a surface that reports a
+     result, and none carries a status or a category. */
+  --ring: var(--opsin-accent-ring);
+  --primary: var(--opsin-accent-action);
+  --primary-foreground: var(--opsin-accent-action-foreground);
+  --primary-edge: var(--opsin-accent-action-edge);
+  --brand: var(--opsin-accent-fill);
+  --brand-foreground: var(--opsin-accent-fill-foreground);
+  --brand-edge: var(--opsin-accent-fill-edge);
+  --brand-ink: var(--opsin-accent-ink);
+  --brand-glow: var(--opsin-accent-glow);
+
+  /* Interaction state fills. interaction-states.mdx:35-37 asks for a state that
+     is a fixed OKLCH lightness step off the role it derives from, darker in
+     light and lighter in dark, and until now no such token existed, so Button
+     hand-picked hover:bg-muted, which measured about 1.08:1 and did not
+     register. These are opaque and not alpha: an alpha fill resolves to a
+     different colour on --background than on --card, and a derived state token
+     is not allowed to depend on what is behind it.
+
+     Measured with @opsinjs/color. The two neutral fills sit just under their
+     surfaces: --state-hover reads 1.13:1 against --background and 1.18:1
+     against --card, --state-press 1.21:1 and 1.26:1. --foreground stays above
+     12:1 on all four of these fills and --primary, which is quiet's ink, stays
+     at 4.53:1 or better, so the label never dims when the surface does. The
+     trade is stated rather than hidden: the light neutral fills do not reach the
+     report's 1.5:1 floor, and cannot, because --background sits at L 0.985 and
+     --card at L 1.0, and a fill dark enough for 1.5:1 pushes --primary ink below
+     the 4.5 body floor. 1.21:1 for press is a real and visible lift on 1.08:1,
+     not a pass against a floor.
+
+     The two primary fills carry a filled label, so they come from the accent
+     layer with the action itself: `--opsin-accent-action-hover` and `-press`.
+     In the normal theme they are the next two neutral steps up from the ink
+     action, white on neutral-800 and on neutral-700; in every theme they move
+     away from the label, and scripts/build-tokens.mts refuses a state whose
+     label falls below the body floor, so a hover or a press never costs the
+     label its contrast. */
+  --state-hover: oklch(0.945 0.004 252);
+  --state-press: oklch(0.920 0.005 252);
+  --state-primary-hover: var(--opsin-accent-action-hover);
+  --state-primary-press: var(--opsin-accent-action-press);
+
+  /* --- Placeholder. A dedicated opaque neutral triple for the loading
+     Skeleton, because --muted over a --border hairline is barely perceivable on
+     a light page: the fill measured 1.08:1 and the hairline 1.29:1 against the
+     page, both under the 3:1 non-text floor, and the pulse dropped them further.
+     `-fill` is the block, `-line` is its boundary and `-sheen` is the lighter
+     shimmer stop. All three are opaque steps of the neutral ramp rather than an
+     alpha, because an alpha resolves to a different colour on --background than
+     on --card and a published figure would then never match the rendered one.
+     Measured over these steps: the fill reads about 1.18:1 on the page and
+     1.23:1 on a card, the hairline 4.72:1 on a card at Lc 72.83, and the
+     hairline against its own fill 3.84:1. The values reference the imported
+     @opsinjs/tokens/tokens.css ramp, which is safe because a custom property resolves
+     where it is used. --- */
+  --opsin-placeholder-fill: var(--opsin-neutral-200);
+  --opsin-placeholder-line: var(--opsin-neutral-500);
+  --opsin-placeholder-sheen: var(--opsin-neutral-300);
+
+  /* --- Type. The platform UI font, not a brand face. A patient-facing app
+     inherits the reader's Dynamic Type / font-scale settings; shipping a
+     webfont that ignores them is how "200% text" stops working. --- */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Text",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* --- Space. Tailwind derives its whole spacing scale from --spacing, so one
+     value tunes every utility at once. The product theme takes the same 0.25rem
+     base step as the docs chrome, which is the 4px grid at a 16px root, so p-4
+     is 16px and p-5 is 20px, and each of those is a published opsin step. The
+     theme buys its generosity from the fixed opsin steps and from the type
+     scale, not from an off-grid base. */
+  --spacing: 0.25rem;
+
+  /* The comfortable density is the unstamped default, which tokens/space.json
+     publishes at scale 1. Declaring the multiplier here gives every consumer of
+     --opsin-density-scale a defined value of 1 at the default density; only the
+     [data-density="compact"] block below moves it. That keeps one definition of
+     the multiplier and stops a component reading an undefined property when the
+     reader has not asked for a denser view. */
+  --opsin-density-scale: 1;
+
+  /* --- Shape. Squircle where the browser supports corner-shape; a plain
+     rounded rectangle at the same radius where it does not. The degradation is
+     a matter of taste and never of function. See foundations/shape. --- */
+  --radius: var(--opsin-radius-base);
+
+  /* --- Targets. There is deliberately NO authored target token in this block.
+     The floor is `--opsin-target-minimum`, generated from tokens/space.json
+     into @opsinjs/tokens/tokens.css, which loads before this file.
+
+     This block used to author `--opsin-target-min: 44px`. That is a different
+     property name from the generated one, so the two never met: the generated
+     floor could not supersede the authored one, and the authored one was a hard
+     pixel value that does not grow when a reader asks for 200% text, while
+     `2.75rem` does. Re-adding a `-min` spelling would silently reintroduce
+     both halves of that. A minimum for anything a person taps while
+     distracted, one-handed or with a tremor is deliberately above the
+     WCAG 2.2 SC 2.5.8 minimum; accessibility/target-size-and-motor states
+     which figure comes from where. --- */
+
+}
+
+.dark {
+  /* The dark counterpart, so the same native controls, scrollbars, caret and
+     date picker render dark rather than in the light platform style over a
+     near-black surface. Plain `dark` for the same reason as the root above. */
+  color-scheme: dark;
+  --background: var(--opsin-chrome-background);
+  --foreground: var(--opsin-chrome-foreground);
+  --card: var(--opsin-chrome-card);
+  --card-foreground: var(--opsin-chrome-card-foreground);
+  --muted: var(--opsin-chrome-muted);
+  --muted-foreground: var(--opsin-chrome-muted-foreground);
+  /* Hairline on the ladder for the same reason as the light half, and opaque
+     rather than the old oklch(1 0 0 / 0.11) alpha, which composited to a
+     different figure on every backdrop. neutral-500 reads WCAG 4.19 against the
+     dark page, clearing the 3:1 WCAG floor. It falls short of the Lc 45 non-text
+     floor at Lc -28.72, and that shortfall is stated rather than implied; an
+     alpha at 0.18 was measured too and read no better, at Lc 0.00 / WCAG 1.64. */
+  --border: var(--opsin-chrome-border);
+  --input: var(--opsin-chrome-input);
+  --edge: var(--opsin-chrome-edge);
+  --ring: var(--opsin-accent-ring);
+  --primary: var(--opsin-accent-action);
+  --primary-foreground: var(--opsin-accent-action-foreground);
+  --primary-edge: var(--opsin-accent-action-edge);
+  --brand: var(--opsin-accent-fill);
+  --brand-foreground: var(--opsin-accent-fill-foreground);
+  --brand-edge: var(--opsin-accent-fill-edge);
+  --brand-ink: var(--opsin-accent-ink);
+  --brand-glow: var(--opsin-accent-glow);
+
+  /* Interaction state fills, dark half. Lighter than their surfaces here, which
+     is the direction interaction-states.mdx:35-37 specifies for a dark theme
+     and the direction the old alpha fills were getting backwards. Opaque for
+     the same reason as the light half. Measured with @opsinjs/color:
+     --state-hover reads 1.42:1 against --background and 1.29:1 against --card,
+     --state-press 1.65:1 and 1.50:1, so press clears the report's 1.5:1 mark
+     on both surfaces in dark where the light theme cannot. The primary pair
+     comes from the accent layer, as in the light half. */
+  --state-hover: oklch(0.300 0.008 260);
+  --state-press: oklch(0.345 0.009 260);
+  --state-primary-hover: var(--opsin-accent-action-hover);
+  --state-primary-press: var(--opsin-accent-action-press);
+
+  /* Placeholder, dark half. Opaque steps for the same reason the hairline
+     above is opaque: the alpha the old dark --border carried, oklch(1 0 0 /
+     0.11), composited to a different figure on every backdrop it landed on, so
+     its published figure and its rendered figure were never the same number,
+     and that alpha is gone now. Measured over these steps, the dark hairline
+     reads 7.62:1 against the dark page at Lc 51.00 and 4.01:1 against its own
+     fill. */
+  --opsin-placeholder-fill: var(--opsin-neutral-700);
+  --opsin-placeholder-line: var(--opsin-neutral-400);
+  --opsin-placeholder-sheen: var(--opsin-neutral-600);
+
+}
+
+/* Accent scopes (ADR 0029). A role is resolved where it is declared, so a role
+   inherited from `:root` keeps the root's accent even inside an element that
+   chose another one. Every element carrying `data-accent-theme` or
+   `data-accent` therefore re-declares every chrome and accent role, and they
+   resolve against that element's own tokens from @opsinjs/tokens/tokens.css. On
+   `<html>` this repeats the root block; on a card or a preview it is what makes
+   a scope a scope. */
+[data-accent],
+[data-accent-theme] {
+  --background: var(--opsin-chrome-background);
+  --foreground: var(--opsin-chrome-foreground);
+  --card: var(--opsin-chrome-card);
+  --card-foreground: var(--opsin-chrome-card-foreground);
+  --muted: var(--opsin-chrome-muted);
+  --muted-foreground: var(--opsin-chrome-muted-foreground);
+  --border: var(--opsin-chrome-border);
+  --input: var(--opsin-chrome-input);
+  --edge: var(--opsin-chrome-edge);
+  --ring: var(--opsin-accent-ring);
+  --primary: var(--opsin-accent-action);
+  --primary-foreground: var(--opsin-accent-action-foreground);
+  --primary-edge: var(--opsin-accent-action-edge);
+  --brand: var(--opsin-accent-fill);
+  --brand-foreground: var(--opsin-accent-fill-foreground);
+  --brand-edge: var(--opsin-accent-fill-edge);
+  --brand-ink: var(--opsin-accent-ink);
+  --brand-glow: var(--opsin-accent-glow);
+  --state-primary-hover: var(--opsin-accent-action-hover);
+  --state-primary-press: var(--opsin-accent-action-press);
+}
+
+/* Density. Set `data-density="compact"` on any element to tighten what is
+   inside it; the documentation's preview toolbar drives the same attribute.
+   Only spacing moves. Type size and target minimum do not move, because "compact"
+   must never become "harder to hit". Comfortable is the unstamped default and
+   has no block of its own, so it can never drift from the base. Compact is one
+   multiplier, 0.875, carried by `--opsin-density-scale`; at that scale `p-4`
+   renders 14px and leaves the 4px grid on purpose, because no single multiplier
+   can hold the grid for both `p-4` and `p-5` at once. The 4px guarantee is on
+   the fixed `--opsin-space-*` steps, which density never moves. */
+[data-density="compact"] {
+  --opsin-density-scale: 0.875;
+  --spacing: calc(0.25rem * var(--opsin-density-scale));
+}
+
+/* Reduced motion. Declared after @opsinjs/tokens/tokens.css on purpose:
+   `@media` adds no specificity, so this block wins only because it comes
+   later than the generated durations it collapses. All five standalone
+   durations go to 1ms. The four sampled springs are not collapsed here; they
+   collapse inside tokens.css's own reduced-motion block, per token, to the
+   settle times tokens/motion.json declares for each of them, which is a better
+   answer than 1ms for a cue whose job is to say that a value changed. */
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  .opsin-product {
+    --opsin-duration-instant: 1ms;
+    --opsin-duration-fast: 1ms;
+    --opsin-duration-base: 1ms;
+    --opsin-duration-slow: 1ms;
+    --opsin-duration-deliberate: 1ms;
+  }
+}
+
+/* Print. The theme layer owns the printed palette; a component owns only
+   whether its own boundary is drawn with a property a printer keeps.
+
+   There was no `@media print` block here at all, and several downstream files
+   each worked around its absence a different way. This is the one block, so they
+   no longer have to. It does four things and no more.
+
+   First, it forces ink. A product screen printed from the dark theme prints
+   near-white text on white paper, because `--foreground` is a near-white and
+   `--border` is a faint neutral, both invisible on a page. Redeclaring the roles
+   a printed page reads as ink on paper closes, for every component at once, the
+   dark-theme failure callout.tsx documents and names as unclosable from inside a
+   component, and makes `print:border-border` in card.tsx and metric-tile.tsx,
+   and `print:border-foreground` in callout.tsx, resolve to a line a printer
+   can draw. So Card and Callout carry a printed boundary through the palette
+   roles alone.
+
+   Second, it lands the third convergent path. The materials doctrine promises
+   that reduced transparency, a missing backdrop-filter and print all end at the
+   same opaque fallback. The first two are emitted into @opsinjs/tokens/tokens.css;
+   print was never written, so a translucent rung printed as a fill-less block.
+   Every rung in the ladder, the token-only `inset` rung included, is taken to its
+   opaque fallback here, with its tint alpha at 1, its blur at 0 and its saturation
+   back at 1, written out per rung because this file is authored rather than
+   generated, mirroring the reduced-transparency block in @opsinjs/tokens/tokens.css.
+   Resetting saturation matters: without it a printed sheet still runs the
+   sheet and overlay backdrop saturation over whatever is behind the paper.
+
+   Both the light and the dark selector groups are covered for the reason that
+   reduced-transparency block gives: `.opsin-product.dark` is (0,2,0) and a media
+   query adds no specificity, so a light-only rule here would leave a page
+   printed from the dark theme still near-white on white. Paper is paper, so all
+   four selectors carry identical values.
+
+   Third, it does NOT force `print-color-adjust: exact` globally. The fill is the
+   reader's setting to make; the boundary is the system's job and is now carried
+   by a border a printer keeps, so forcing every scrim to print solid would spend
+   the reader's toner on a dimmer that carries no information.
+
+   Fourth, it carries the edged rungs' border tokens to that same neutral ink.
+   The primitive Surface draws its boundary as an outline whose colour is
+   `--opsin-material-<rung>-border`, and every rung publishes that token at a
+   faint alpha in light and at a near-white alpha in dark, so on paper the
+   outline is there but invisible. Redeclaring the four edged rungs (card,
+   raised, sheet and overlay) to the same `#767676` the border role takes gives
+   the surface edge a line a printer draws, in both themes, without spending a
+   rung tint on paper. The three edgeless rungs (canvas, inset and scrim) keep
+   their `none` and gain no boundary they were specified not to have, so a
+   full-screen scrim still prints as no box at all. This is what closes the two
+   surfaces the palette roles could not reach: Dialog and Sheet are each a bare
+   `Surface rung="sheet"`, so both now print with a real boundary drawn by the
+   surface edge and no `print:` rule of their own. Ink and a neutral border
+   only: no category colour and no status colour reaches paper here. */
+@media print {
+  :root,
+  .opsin-product,
+  .dark,
+  .opsin-product.dark {
+    --background: #fff;
+    --card: #fff;
+    --foreground: #000;
+    --card-foreground: #000;
+    --muted-foreground: #333;
+    --border: #767676;
+
+    /* The primitive Surface edge, and with it the Dialog popup and the Sheet
+       panel that are each a bare `Surface rung="sheet"`, draws its boundary as
+       an outline coloured `--opsin-material-<rung>-border`. Carry the four
+       edged rungs to the neutral border ink so that outline reaches paper in
+       both themes; leave canvas, inset and scrim at their `none` so an
+       edgeless rung prints no box. Card and Callout are already covered above
+       through `--border` and `--foreground`. */
+    --opsin-material-card-border: #767676;
+    --opsin-material-raised-border: #767676;
+    --opsin-material-sheet-border: #767676;
+    --opsin-material-overlay-border: #767676;
+
+    --opsin-material-canvas-tint: var(--opsin-material-canvas-opaque);
+    --opsin-material-canvas-tint-alpha: 1;
+    --opsin-material-canvas-blur: 0px;
+    --opsin-material-canvas-saturation: 1;
+    --opsin-material-inset-tint: var(--opsin-material-inset-opaque);
+    --opsin-material-inset-tint-alpha: 1;
+    --opsin-material-inset-blur: 0px;
+    --opsin-material-inset-saturation: 1;
+    --opsin-material-card-tint: var(--opsin-material-card-opaque);
+    --opsin-material-card-tint-alpha: 1;
+    --opsin-material-card-blur: 0px;
+    --opsin-material-card-saturation: 1;
+    --opsin-material-raised-tint: var(--opsin-material-raised-opaque);
+    --opsin-material-raised-tint-alpha: 1;
+    --opsin-material-raised-blur: 0px;
+    --opsin-material-raised-saturation: 1;
+    --opsin-material-sheet-tint: var(--opsin-material-sheet-opaque);
+    --opsin-material-sheet-tint-alpha: 1;
+    --opsin-material-sheet-blur: 0px;
+    --opsin-material-sheet-saturation: 1;
+    --opsin-material-overlay-tint: var(--opsin-material-overlay-opaque);
+    --opsin-material-overlay-tint-alpha: 1;
+    --opsin-material-overlay-blur: 0px;
+    --opsin-material-overlay-saturation: 1;
+    --opsin-material-scrim-tint: var(--opsin-material-scrim-opaque);
+    --opsin-material-scrim-tint-alpha: 1;
+    --opsin-material-scrim-blur: 0px;
+    --opsin-material-scrim-saturation: 1;
+  }
+}

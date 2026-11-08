@@ -9,7 +9,7 @@
  * The titles and bodies are synthetic (ADR 0012), and `now` is fixed so the
  * example is the same every render.
  */
-import { TimelineEntry } from "@/registry/base-lyra/ui/timeline-entry"
+import { TimelineEntry } from "@opsinjs/react"
 
 const NOW = "2026-03-14T11:12:00+00:00"
 

@@ -5,7 +5,7 @@
  * (ADR 0012).
  */
 
-import { Divider } from "@/registry/base-lyra/ui/divider"
+import { Divider } from "@opsinjs/react"
 
 export default function DividerVerticalBetweenInlineFacts() {
   return (
