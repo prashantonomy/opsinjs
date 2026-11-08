@@ -128,7 +128,7 @@ function warnDevelopmentOnce(cause: string, message: string): void {
  * keystroke that was going to complete it. Anything that does not match is still
  * KEPT in the box and reported as no reading. See `parseReading`.
  */
-const NUMERIC = /^-?\d*\.?\d*$/
+const NUMERIC = /^-?(?:\d+(?:\.\d*)?|\.\d*)?$/
 
 /**
  * The text in a box, as a number, or `null` when there is no number in it.

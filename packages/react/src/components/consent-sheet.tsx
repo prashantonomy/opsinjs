@@ -74,7 +74,7 @@ import { ChevronDown } from "lucide-react"
 import { useEffect, useId, useRef, useState, type ReactNode } from "react"
 
 import { isDevelopment } from "../opsinjs.ts"
-import { cn } from "../utils.ts"
+import { cn, trimTrailing } from "../utils.ts"
 import { Button } from "./button.tsx"
 import { Sheet, type SheetProps } from "./sheet.tsx"
 
@@ -243,7 +243,7 @@ function isSupplied(value: unknown): value is string {
 
 /** Case- and punctuation-insensitive, for comparing a label against a list. */
 function plainLabel(value: string): string {
-  return value.toLowerCase().replace(/[.…!?:;,\s]+$/u, "").trim()
+  return trimTrailing(value.toLowerCase(), ".…!?:;,").trim()
 }
 
 /**

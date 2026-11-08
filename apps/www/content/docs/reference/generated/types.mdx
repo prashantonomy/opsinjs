@@ -253,6 +253,7 @@ The substrate rows are what a consumer imports from `@opsinjs/react`, and the cl
 | `toRgb255` | function | `packages/color/src/oklch.ts` | 0 to 1 sRGB → 0 to 255 integers, clamped. |
 | `toRgb255Input` | function | `packages/color/src/apca.ts` | Coerce any accepted colour form to an sRGB triple. |
 | [`TrendPoint`](#trendpoint) | interface | `packages/react/src/opsinjs.ts` | One reading in a series, for the components that draw change over time. |
+| `trimTrailing` | function | `packages/react/src/utils.ts` | `value` with any run of the given characters, and of whitespace, removed from its end. A loop rather than a `/[…\s]+$/` pattern, because that pattern backtracks polynomially on a long run of whitespace that does not reach the end, and a component that publishes it would let an app's own string slow a render down. Not exported from @opsinjs/react. |
 | [`Unit`](#unit) | interface | `packages/react/src/opsinjs.ts` | One unit: what it is called, what a reader sees, and how it is SPOKEN. |
 | `UNIT_CONVERSIONS` | const | `packages/react/src/opsinjs.ts` | Every convertible ordered pair, composed by the generator. Never authored by hand. |
 | `unitConversion` | function | `packages/react/src/opsinjs.ts` | The authored conversion between two symbols, or `undefined` when there is none. |

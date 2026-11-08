@@ -199,11 +199,13 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Build the packages
+        # Before the typecheck, because the umbrella package resolves the other
+        # three through their published types in dist.
+        run: pnpm build:packages
+
       - name: Typecheck the packages
         run: pnpm -r --filter "./packages/*" run typecheck
-
-      - name: Build the packages
-        run: pnpm build:packages
 
       - name: Package metadata and types (publint, attw)
         run: pnpm lint:packages

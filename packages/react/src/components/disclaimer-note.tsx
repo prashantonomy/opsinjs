@@ -51,7 +51,7 @@ import { Info } from "lucide-react"
 import { Children, type ReactNode } from "react"
 
 import { isDevelopment } from "../opsinjs.ts"
-import { cn } from "../utils.ts"
+import { cn, trimTrailing } from "../utils.ts"
 import { Link } from "./link.tsx"
 
 /**
@@ -431,7 +431,7 @@ function statementLink(
     return null
   }
 
-  const plain = label.toLowerCase().replace(/[.…!?:>»\s]+$/u, "")
+  const plain = trimTrailing(label.toLowerCase(), ".…!?:>»")
   if (UNHELPFUL_LABELS.includes(plain)) {
     warnDev(
       `link-unhelpful:${plain}`,

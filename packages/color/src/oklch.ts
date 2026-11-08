@@ -368,7 +368,7 @@ export function parseHex(input: string): Rgb | null {
 export function parseColor(input: string): Oklch | null {
   const value = input.trim()
 
-  const oklchMatch = value.match(/^oklch\(\s*([^)]+)\)$/i)
+  const oklchMatch = value.match(/^oklch\(([^)]+)\)$/i)
   if (oklchMatch) {
     const [coords, alphaPart] = oklchMatch[1].split("/")
     const parts = coords
@@ -393,7 +393,7 @@ export function parseColor(input: string): Oklch | null {
     return rgb ? srgbToOklch(rgb) : null
   }
 
-  const rgbMatch = value.match(/^rgba?\(\s*([^)]+)\)$/i)
+  const rgbMatch = value.match(/^rgba?\(([^)]+)\)$/i)
   if (rgbMatch) {
     const [coords, alphaPart] = rgbMatch[1].split("/")
     const parts = coords

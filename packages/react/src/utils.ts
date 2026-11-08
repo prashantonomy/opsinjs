@@ -65,3 +65,20 @@ const twMerge = extendTailwindMerge<"opsin-font-size">({
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+/**
+ * `value` with any run of the given characters, and of whitespace, removed
+ * from its end. A loop rather than a `/[…\s]+$/` pattern, because that pattern
+ * backtracks polynomially on a long run of whitespace that does not reach the
+ * end, and a component that publishes it would let an app's own string slow a
+ * render down. Not exported from @opsinjs/react.
+ */
+export function trimTrailing(value: string, characters: string): string {
+  let end = value.length
+  while (end > 0) {
+    const last = value[end - 1] as string
+    if (!characters.includes(last) && last.trim() !== "") break
+    end -= 1
+  }
+  return value.slice(0, end)
+}
