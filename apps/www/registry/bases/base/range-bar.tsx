@@ -1025,7 +1025,7 @@ export function RangeBar({
               <span
                 aria-hidden="true"
                 className={
-                  "absolute inset-y-[0.42em] start-1/2 w-[0.26em] -translate-x-1/2 rounded-full rtl:translate-x-1/2 forced-colors:bg-[Highlight] " +
+                  "absolute inset-y-[0.42em] inset-s-1/2 w-[0.26em] -translate-x-1/2 rounded-full rtl:translate-x-1/2 forced-colors:bg-[Highlight] " +
                   (level === undefined ? "bg-foreground" : TICK_TONE[level])
                 }
               />

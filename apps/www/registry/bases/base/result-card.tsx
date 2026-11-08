@@ -886,7 +886,7 @@ export function ResultCard({
                   className={
                     last || !unitPrintedAfterLast
                       ? undefined
-                      : "[&_[data-slot=value-unit]]:sr-only"
+                      : "**:data-[slot=value-unit]:sr-only"
                   }
                 />
               </Fragment>
@@ -950,17 +950,17 @@ export function ResultCard({
           summary={summary}
           /* Mute the bar's own summary sentence so it reads as a caption to the
              picture rather than as a peer of the `meaning` paragraph beneath it.
-             A descendant variant belongs to no tailwind-merge conflict group,
-             which is why it is spelled here rather than passed as a colour to the
-             bar, exactly as the label is suppressed one class over. The bar's
+             The `**:` descendant variant belongs to no tailwind-merge conflict
+             group, which is why it is spelled here rather than passed as a colour
+             to the bar, exactly as the label is suppressed one class over. The bar's
              sentence is the component's own body copy on its own page and on the
              MetricTile surface, so it is not muted globally in range-bar.tsx: the
              competition with `meaning` exists only inside this card. The
              `--muted-foreground` on `--card` pair is the one the footnote below
              already uses at 13px, so a 17px line in it is a smaller ask. */
           className={
-            "[&_[data-slot=range-bar-label]]:hidden " +
-            "[&_[data-slot=range-bar-summary]]:text-muted-foreground"
+            "**:data-[slot=range-bar-label]:hidden " +
+            "**:data-[slot=range-bar-summary]:text-muted-foreground"
           }
         />
       ) : null}

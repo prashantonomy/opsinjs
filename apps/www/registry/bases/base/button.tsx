@@ -576,12 +576,12 @@ export function Button({
            each, which is the same discipline `EDGE` uses above, so the ring
            follows a consumer who raises `--opsin-border-focus` for a low-vision
            theme and still draws in a project that installed this file without
-           the stylesheet. The `length:` hint is required: without it a bare
-           `var()` in an arbitrary outline value is read as an outline colour and
-           the ring silently loses its width. The colour stays a class,
+           the stylesheet. The `length:` hint inside the `outline-()` value is required:
+           without it a bare variable in an outline utility is read as an outline
+           colour and the ring silently loses its width. The colour stays a class,
            `outline-ring`, and not a token, because `--ring` is a product surface
            role and is not a generated token. */
-        "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring",
+        "focus-visible:outline-(length:--opsin-border-focus,2px) focus-visible:outline-offset-(--opsin-border-focus-offset,2px) focus-visible:outline-ring",
         /* THE TWO UNAVAILABLE STATES LOOK DIFFERENT BECAUSE THEY ARE DIFFERENT,
            and the selectors land on exactly one each. Base UI sets the native
            attribute when `focusableWhenDisabled` is off and `aria-disabled`
@@ -652,7 +652,7 @@ export function Button({
            fill on specificity, so it wins whether or not the pointer is over the
            control. Neither state touches the tab order. Busy keeps its stop by construction, and a natively disabled
            control loses it to the platform rather than to this rule. */
-        "disabled:bg-muted disabled:[color:var(--muted-foreground)] disabled:border-border disabled:pointer-events-none",
+        "disabled:bg-muted disabled:text-muted-foreground disabled:border-border disabled:pointer-events-none",
         "aria-disabled:cursor-progress aria-disabled:active:translate-y-0",
         TONE[variant],
         SIZE[size],
@@ -686,7 +686,7 @@ export function Button({
       <span
         data-slot="button-target"
         aria-hidden="true"
-        className="absolute top-1/2 left-1/2 size-full min-h-[var(--opsin-target-minimum,2.75rem)] min-w-[var(--opsin-target-minimum,2.75rem)] -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-1/2 left-1/2 size-full min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) -translate-x-1/2 -translate-y-1/2"
       />
       {iconPosition === "leading" ? slot : null}
       {/* OPTICALLY CENTRED, NOT METRICALLY. A label is set in sentence case, so
