@@ -151,8 +151,9 @@ function warnDev(key: string, message: string): void {
  *
  * Which role does which job matters more here than anywhere else in the system,
  * because this is the only surface in opsinjs that takes a status fill. `-ink`
- * is the text guaranteed legible on `-surface`, and the bare `-<level>` name is
- * the LINE role, which is the boundary. `-accent` is absent on purpose: it is
+ * is the text guaranteed legible on `-surface`. The LINE role rides as
+ * `--banner-line` and draws the boundary at a little over a third of its
+ * strength on screen and at full strength on paper. `-accent` is absent on purpose: it is
  * the identity fill, chosen for recognition rather than contrast, and it is
  * never text and never a sole boundary.
  *
@@ -166,11 +167,49 @@ function warnDev(key: string, message: string): void {
  * aid for the readers who have it.
  */
 const TONE: Record<ClinicalStatus, string> = {
-  steady: "border-status-steady bg-status-steady-surface text-status-steady-ink",
-  watch: "border-status-watch bg-status-watch-surface text-status-watch-ink",
+  steady:
+    "bg-status-steady-surface text-status-steady-ink [--banner-line:var(--opsin-status-steady-line)]",
+  watch:
+    "bg-status-watch-surface text-status-watch-ink [--banner-line:var(--opsin-status-watch-line)]",
   attention:
-    "border-status-attention bg-status-attention-surface text-status-attention-ink",
-  urgent: "border-status-urgent bg-status-urgent-surface text-status-urgent-ink",
+    "bg-status-attention-surface text-status-attention-ink [--banner-line:var(--opsin-status-attention-line)]",
+  urgent:
+    "bg-status-urgent-surface text-status-urgent-ink [--banner-line:var(--opsin-status-urgent-line)]",
+}
+
+/**
+ * The recommended action, filled with the level's own ink and labelled in the
+ * level's own surface colour. It is the measured `-ink` on `-surface` pair
+ * turned inside out, so it needs no new colour and stays on the status axis:
+ * measured with `lib/color`, the surface on the ink reads APCA Lc 91.5 to 92.8
+ * and 9.62 to 10.58:1 in light, and Lc 80.2 to 82.7 and 12.52 to 12.58:1 in
+ * dark, across the four levels. Hover, press and busy move the fill away from
+ * the label, darker by day and lighter by night, so a state never costs the
+ * label contrast; a fill mixed towards the label instead measured Lc 61 in
+ * dark, under the floor. The four levels get the same treatment, so the top of
+ * the ladder gains no extra weight.
+ *
+ * Every class is an arbitrary property or an arbitrary value, so the action's
+ * own `cn()` files each one against the matching class of the rung or the
+ * recipe it lands on and keeps this one, because a caller's classes come last.
+ */
+const FILLED_ACTION: Record<ClinicalStatus, string> = {
+  steady:
+    "border-transparent bg-[var(--opsin-status-steady-ink)] [color:var(--opsin-status-steady-surface)] " +
+    "hover:bg-[color-mix(in_oklab,var(--opsin-status-steady-ink),black_16%)] active:bg-[color-mix(in_oklab,var(--opsin-status-steady-ink),black_28%)] not-disabled:aria-busy:bg-[color-mix(in_oklab,var(--opsin-status-steady-ink),black_28%)] " +
+    "dark:hover:bg-[color-mix(in_oklab,var(--opsin-status-steady-ink),white_30%)] dark:active:bg-[color-mix(in_oklab,var(--opsin-status-steady-ink),white_50%)] dark:not-disabled:aria-busy:bg-[color-mix(in_oklab,var(--opsin-status-steady-ink),white_50%)]",
+  watch:
+    "border-transparent bg-[var(--opsin-status-watch-ink)] [color:var(--opsin-status-watch-surface)] " +
+    "hover:bg-[color-mix(in_oklab,var(--opsin-status-watch-ink),black_16%)] active:bg-[color-mix(in_oklab,var(--opsin-status-watch-ink),black_28%)] not-disabled:aria-busy:bg-[color-mix(in_oklab,var(--opsin-status-watch-ink),black_28%)] " +
+    "dark:hover:bg-[color-mix(in_oklab,var(--opsin-status-watch-ink),white_30%)] dark:active:bg-[color-mix(in_oklab,var(--opsin-status-watch-ink),white_50%)] dark:not-disabled:aria-busy:bg-[color-mix(in_oklab,var(--opsin-status-watch-ink),white_50%)]",
+  attention:
+    "border-transparent bg-[var(--opsin-status-attention-ink)] [color:var(--opsin-status-attention-surface)] " +
+    "hover:bg-[color-mix(in_oklab,var(--opsin-status-attention-ink),black_16%)] active:bg-[color-mix(in_oklab,var(--opsin-status-attention-ink),black_28%)] not-disabled:aria-busy:bg-[color-mix(in_oklab,var(--opsin-status-attention-ink),black_28%)] " +
+    "dark:hover:bg-[color-mix(in_oklab,var(--opsin-status-attention-ink),white_30%)] dark:active:bg-[color-mix(in_oklab,var(--opsin-status-attention-ink),white_50%)] dark:not-disabled:aria-busy:bg-[color-mix(in_oklab,var(--opsin-status-attention-ink),white_50%)]",
+  urgent:
+    "border-transparent bg-[var(--opsin-status-urgent-ink)] [color:var(--opsin-status-urgent-surface)] " +
+    "hover:bg-[color-mix(in_oklab,var(--opsin-status-urgent-ink),black_16%)] active:bg-[color-mix(in_oklab,var(--opsin-status-urgent-ink),black_28%)] not-disabled:aria-busy:bg-[color-mix(in_oklab,var(--opsin-status-urgent-ink),black_28%)] " +
+    "dark:hover:bg-[color-mix(in_oklab,var(--opsin-status-urgent-ink),white_30%)] dark:active:bg-[color-mix(in_oklab,var(--opsin-status-urgent-ink),white_50%)] dark:not-disabled:aria-busy:bg-[color-mix(in_oklab,var(--opsin-status-urgent-ink),white_50%)]",
 }
 
 /**
@@ -534,33 +573,33 @@ function actionControl(
      is a DOM contract that describes two different components depending on
      which prop the caller passed. */
   /* ONE LADDER FOR BOTH TRANSPORTS, AND NO NEUTRAL ROLE ON A STATUS SURFACE.
-     `Button variant="primary"` is a brand fill and `variant="secondary"` is a
-     neutral `bg-card` island; both would sit on the four tints unmeasured, and
-     the neutral island in particular is no boundary against them, measuring 1.07
-     to 1.22 in both themes. Using secondary would also make the way out read as
-     the same weight as the action. So a handler-form action is `variant="quiet"`,
-     which brings no fill of its own and takes the level's ink from
-     ON_SURFACE_INK on the wrapper, for the same reason the dismiss control does.
-     The recommended arm passes the level's line colour for the hairline Button
-     already draws, so the href and onSelect forms of one action look alike, and
-     the quiet arm turns that hairline to the surrounding ink. Neither arm is
-     underlined: each is a capsule with a boundary, so neither transport of an
-     action reads as a paragraph. Both deltas come from
-     `cardActionClassName({..., ground: "tinted", as: "button"})` in `button.tsx`,
-     the same recipe the `href` form takes through `Link`, so the two transports
-     of one action are drawn from one source and cannot drift. The size follows
-     the weight: recommended takes `md` at the headline step and the second takes
-     `sm`, so the two forms of one action stop
-     reading as different amounts of emphasis. Button renders its own boundary
-     width as an inline style, so the recommended button's edge lands at the
-     hairline rather than the anchor's 2px, and the boundary is present and
-     level-coloured on both. */
+     `Button variant="primary"` is the accent's fill and `variant="secondary"`
+     is a neutral `bg-card` island; both would sit on the four tints unmeasured,
+     and the neutral island in particular is no boundary against them,
+     measuring 1.07 to 1.22 in both themes. So both transports are built from
+     the level's own two colours.
+
+     The recommended action is FILLED_ACTION: the level's ink as the fill and
+     its surface as the label, a pair measured above. It is the one solid
+     object on the banner, which is what a reader scanning an interruption
+     needs to find first. The second action is a hairline capsule in the
+     level's ink, from the recipe's tinted quiet arm, so it reads as a control
+     and as the lesser one. Neither is underlined.
+
+     Both transports draw from `cardActionClassName({..., ground: "tinted"})` in
+     `button.tsx`, the same recipe the `href` form takes through `Link`, with
+     FILLED_ACTION laid over the recommended arm, so the two transports of one
+     action cannot drift. The size follows the weight: recommended takes `md`
+     at the headline step and the second takes `sm`. The second action's
+     Button takes the level's ink from ON_SURFACE_INK on its wrapper; the
+     recommended one carries its own label colour and takes no wrapper ink,
+     which would otherwise paint ink on ink. */
   const size = emphasis === "primary" ? "md" : "sm"
   const buttonDelta =
     emphasis === "primary"
       ? cn(
           cardActionClassName({ weight: "recommended", ground: "tinted", as: "button" }),
-          LINE_EDGE[status],
+          FILLED_ACTION[status],
         )
       : cardActionClassName({ weight: "quiet", ground: "tinted", as: "button" })
 
@@ -568,24 +607,23 @@ function actionControl(
     <div
       key={id}
       data-slot="alert-banner-action"
-      className={cn("min-w-0", !navigates && ON_SURFACE_INK[status])}
+      className={cn("min-w-0", !navigates && emphasis !== "primary" && ON_SURFACE_INK[status])}
     >
       {navigates ? (
         /* The `href` form is the shared `Link`, so the anchor and the
            handler-form Button above are the same control drawn from one recipe.
-           `ground="tinted"` selects the arm that brings no neutral fill: on the
-           banner's status tint the label inherits the level's own `-ink` from
-           TONE, and the recommended arm's 2px boundary takes the level's line
-           colour, passed here as `LINE_EDGE[status]` beside the recipe. The
-           quiet arm keeps `hover:bg-muted`, which puts a neutral fill under
-           status ink for the duration of a hover; that is a cross-scope pair
-           nothing has measured, and it is disclosed on the page beside the focus
-           ring rather than left to be found. */
+           `ground="tinted"` selects the arms that bring no neutral fill: the
+           second action inherits the level's ink from TONE for its words and
+           its hairline, and the recommended one takes FILLED_ACTION. The quiet
+           arm keeps `hover:bg-muted`, which puts a neutral fill under status
+           ink for the duration of a hover; that is a cross-scope pair nothing
+           has measured, and it is disclosed on the page beside the focus ring
+           rather than left to be found. */
         <Link
           href={action.href!}
           emphasis={emphasis === "primary" ? "action" : "secondary"}
           ground="tinted"
-          className={emphasis === "primary" ? LINE_EDGE[status] : undefined}
+          className={emphasis === "primary" ? FILLED_ACTION[status] : undefined}
         >
           {label}
         </Link>
@@ -876,14 +914,28 @@ export function AlertBanner({
            are fixed steps, because their job is to keep the heading off the body
            and the actions apart, and neither should close up because somebody
            asked for a denser list. */
-        "flex flex-col gap-opsin-3 p-4",
-        "rounded-opsin-md border [corner-shape:var(--opsin-corner-shape)]",
+        "flex flex-col gap-opsin-4 p-5",
+        /* A SHEET WITH DEPTH, TINTED BY ITS LEVEL. The fill is the level's
+           measured surface, and everything else about the box is light rather
+           than colour: a boundary in the level's line at a little over a third
+           of its strength, a line of light along the top and a soft wash of it
+           down the first half, and a drop tinted with the level. The wash only
+           lightens the surface by day, so the ink's measured contrast can only
+           rise there, and by night it is four per cent of white, which moves
+           the ink pair by less than the rounding of the published figure. The
+           four levels take the same treatment, so `urgent` gains no weight
+           here; the word in the heading carries the level. */
+        "rounded-opsin-lg border [corner-shape:var(--opsin-corner-shape)]",
+        "border-[color-mix(in_oklab,var(--banner-line)_36%,transparent)]",
+        "bg-[linear-gradient(180deg,color-mix(in_oklab,var(--card)_40%,transparent),transparent_45%)] dark:bg-[linear-gradient(180deg,color-mix(in_oklab,var(--foreground)_4%,transparent),transparent_45%)]",
+        "shadow-[inset_0_1px_0_oklch(1_0_0/0.65),0_1px_2px_color-mix(in_oklab,var(--banner-line)_14%,transparent),0_18px_40px_-22px_color-mix(in_oklab,var(--banner-line)_55%,transparent)]",
+        "dark:shadow-[inset_0_1px_0_oklch(1_0_0/0.06),0_1px_2px_oklch(0_0_0/0.4),0_18px_40px_-22px_oklch(0_0_0/0.75)]",
         /* Print drops background colours by default and keeps border and text
            colours, so on paper the banner is a box defined by its status-coloured
            edge with the level's word inside it. The fill is dropped explicitly
            rather than left to the reader's print settings, so the page looks the
            same whichever way that setting is left. */
-        "print:bg-transparent",
+        "print:bg-transparent print:bg-none print:shadow-none print:border-[var(--banner-line)]",
         TONE[status],
         className,
       )}
