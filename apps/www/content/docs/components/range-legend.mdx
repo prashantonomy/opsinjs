@@ -52,7 +52,7 @@ import { RangeLegend } from "@/components/ui/range-legend"
 
 ### The legend beside its bar
 
-The same container as the bars it names, `bands` holding the tones they draw. The swatches match the ticks above.
+The same container as the bars it names, `bands` holding the tones they draw. Each swatch is a miniature of the bar's own piece: the lit band in the tube, or the cursor with its index line.
 
 <ComponentPreview name="range-legend-beside-its-bar" kind="example" align="start" />
 
@@ -89,13 +89,13 @@ The whole vocabulary in one key: the neutral band and four status levels, each r
 
 ## Accessibility
 
-Each swatch and glyph carries `aria-hidden`, so a screen reader skips the decoration. No element carries both `data-category` and `data-status`, and this file writes no category colour. Nothing takes focus, answers a key or animates, so `prefers-reduced-motion` has no state to reduce. At 200% text the swatches hold size and the words wrap with no ellipsis, and under `forced-colors: active` a status fill is stripped while the swatch keeps a `CanvasText` outline.
+Each swatch and glyph carries `aria-hidden`, so a screen reader skips the decoration. No element carries both `data-category` and `data-status`, and this file writes no category colour. Nothing takes focus, answers a key or animates, so `prefers-reduced-motion` has no state to reduce. At 200% text the swatches grow with the words, which wrap with no ellipsis, and under `forced-colors: active` the tube keeps a `CanvasText` outline and a status swatch's index line takes `Highlight`.
 
 The audit fixed two gaps. The legend `<ul>` had no accessible name, and optional `aria-label` and `aria-labelledby` props now forward onto the root, so a caller names the key or points it at the bar's heading. A blank status label would draw colour and glyph with no word, a colour-alone failure, and a guard now warns on it, with the empty-bands and invalid-tone guards.
 
 **Residual items.**
 
-- Status swatches are fills of RangeBar's tick tones with no explicit border, so swatch-to-page contrast is unmeasured. Each is `aria-hidden` decoration redundant to the word and glyph, so a low-contrast swatch loses nothing, and measuring the four fills and the neutral border in light and dark is a recommended enhancement.
+- A status swatch's index line takes RangeBar's tick tone, the level's line role, inside a glass cursor, so its contrast against the cursor is unmeasured. Each is `aria-hidden` decoration redundant to the word and glyph, so a low-contrast swatch loses nothing, and measuring the four lines and the neutral border in light and dark is a recommended enhancement.
 - Label and description use the foreground and muted-foreground role tokens, not re-measured in this pass.
 - The legend cannot enforce in code that it sits beside its bar. `aria-labelledby` is how a caller binds it, and the audit cannot verify callers do.
 

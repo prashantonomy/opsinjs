@@ -208,9 +208,18 @@ export function Link({
     : callerRel
   const relProp = relValue ? { rel: relValue } : {}
 
+  /* The box emphases centre their label optically, the way Button does: the
+     words ride in a span whose line box is trimmed to the x-height and the
+     baseline, so the lowercase band a reader sees as the text sits on the
+     capsule's centre line. An `inline` link sits in running text and keeps its
+     line box, so its baseline stays the sentence's. */
   const content = (
     <>
-      {children}
+      {emphasis === "inline" ? (
+        children
+      ) : (
+        <span className="[text-box:trim-both_ex_alphabetic]">{children}</span>
+      )}
       {opensNewTab ? <span className="sr-only"> (opens in a new tab)</span> : null}
     </>
   )

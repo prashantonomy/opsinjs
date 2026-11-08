@@ -60,6 +60,7 @@
  */
 
 import { Circle, CircleDot, Diamond, Octagon } from "lucide-react"
+import { useId } from "react"
 
 import {
   CLINICAL_STATUS_META,
@@ -258,40 +259,50 @@ function reportOnce(key: string, message: string): void {
  * Geometry                                                            *
  * ------------------------------------------------------------------ */
 
-/* The arc: a 240-degree sweep opening at the bottom, drawn clockwise from the
-   lower left. None of these numbers is a clinical decision. They are the shape
-   of a picture, in the SVG's own user units, and they are constants only so
-   that the path, the boundary marks, the indicator and the viewBox cannot drift
-   apart. */
+/* The dial: a 240-degree sweep opening at the bottom, drawn clockwise from the
+   lower left, on a round face inside a bezel. None of these numbers is a
+   clinical decision. They are the shape of a picture, in the SVG's own user
+   units, and they are constants only so that the face, the graduations, the
+   track, the boundary marks, the needle and the viewBox cannot drift apart. */
 const SWEEP_DEGREES = 240
 const START_DEGREES = 210
-const RADIUS = 38
 
-/** The track's thickness, and how far the two kinds of mark reach past it. */
-const TRACK_WIDTH = 8
-const BOUNDARY_REACH = 7
-const INDICATOR_REACH = 10
-const INDICATOR_WIDTH = 4
+/** The square the dial is drawn in, and its centre. */
+const VIEW_WIDTH = 100
+const VIEW_HEIGHT = 100
+const CENTRE_X = 50
+const CENTRE_Y = 50
+
+/** The bezel's outer edge and the face inside it. */
+const BEZEL_RADIUS = 48.5
+const FACE_RADIUS = 43
 
 /**
- * The furthest from the centre anything is drawn, and the box that fits it.
- *
- * Derived rather than typed in, because the previous constants were typed in
- * and were wrong: the indicator's outer tip reached radius 48 while the centre
- * sat at y=46, so for every score in the middle of the scale the tip was cut
- * off at the top of the viewBox. That was about a fifth of the only mark that
- * shows position, missing at exactly the place a reader looks first.
- *
- * `INDICATOR_WIDTH / 2` is the round cap, which extends the mark past its
- * endpoint. The half of `OUTER_REACH` in the height is `sin(30°)`: the sweep
- * ends at 210° and -30°, so the lowest drawn point is half a radius below the
- * centre. The `+ 1` and `+ 2` are margin, in user units.
+ * The graduations: a fine tick every fiftieth of the scale and a longer one
+ * every tenth, outside the track, the way a gauge is ruled. They divide the
+ * product's own scale into equal steps and carry no number, so they assert no
+ * band and no threshold; they are the ruler the needle is read against.
  */
-const OUTER_REACH = RADIUS + INDICATOR_REACH + INDICATOR_WIDTH / 2
-const CENTRE_X = 50
-const CENTRE_Y = OUTER_REACH + 1
-const VIEW_WIDTH = 100
-const VIEW_HEIGHT = Math.ceil(CENTRE_Y + OUTER_REACH / 2) + 2
+const TICK_OUTER = 40.5
+const TICK_MINOR_INNER = 38.6
+const TICK_MAJOR_INNER = 37
+const TICK_MINOR_COUNT = 50
+const TICK_MAJOR_EVERY = 5
+
+/** The track the bands are drawn on, and how far a boundary mark reaches past it. */
+const RADIUS = 32.5
+const TRACK_WIDTH = 4.5
+const BOUNDARY_REACH = 4.2
+
+/** The needle: its tip reaches just past the track; its tail balances it. */
+const NEEDLE_TIP = 35.5
+const NEEDLE_HALF_WIDTH = 1.35
+const NEEDLE_TAIL = 7.5
+const NEEDLE_TAIL_HALF_WIDTH = 1.9
+const HUB_RADIUS = 4.4
+
+/** Where the scale's two ends are written, inside the opening of the sweep. */
+const END_LABEL_RADIUS = 27
 
 /** `Intl.NumberFormat`'s ceiling, and the way to say "show the digits you were handed". */
 const MAX_FRACTION_DIGITS = 20
@@ -341,6 +352,43 @@ function clampFraction(fraction: number): number {
   if (!Number.isFinite(fraction)) return 0
   return Math.min(Math.max(fraction, 0), 1)
 }
+
+/**
+ * The needle as a polygon: a long taper from the hub to just past the track,
+ * and a short, wider tail on the far side of the hub, which is how an
+ * instrument's needle is balanced. Returned as an SVG `points` string.
+ */
+function needlePoints(fraction: number): string {
+  const radians = ((START_DEGREES - fraction * SWEEP_DEGREES) * Math.PI) / 180
+  const ux = Math.cos(radians)
+  const uy = -Math.sin(radians)
+  /* The perpendicular, a quarter turn from the needle's own direction. */
+  const px = -uy
+  const py = ux
+  const at = (along: number, across: number) =>
+    `${round(CENTRE_X + ux * along + px * across)},${round(CENTRE_Y + uy * along + py * across)}`
+  return [
+    at(NEEDLE_TIP, 0),
+    at(0, NEEDLE_HALF_WIDTH),
+    at(-NEEDLE_TAIL, NEEDLE_TAIL_HALF_WIDTH),
+    at(-NEEDLE_TAIL, -NEEDLE_TAIL_HALF_WIDTH),
+    at(0, -NEEDLE_HALF_WIDTH),
+  ].join(" ")
+}
+
+/** The graduations, as one path: a fine tick every fiftieth, a longer one every tenth. */
+const GRADUATIONS = (() => {
+  const minor: string[] = []
+  const major: string[] = []
+  for (let index = 0; index <= TICK_MINOR_COUNT; index += 1) {
+    const fraction = index / TICK_MINOR_COUNT
+    const isMajor = index % TICK_MAJOR_EVERY === 0
+    const inner = pointAt(fraction, isMajor ? TICK_MAJOR_INNER : TICK_MINOR_INNER)
+    const outer = pointAt(fraction, TICK_OUTER)
+    ;(isMajor ? major : minor).push(`M ${inner.x} ${inner.y} L ${outer.x} ${outer.y}`)
+  }
+  return { minor: minor.join(" "), major: major.join(" ") }
+})()
 
 /* ------------------------------------------------------------------ *
  * The API                                                             *
@@ -832,12 +880,11 @@ export function ScoreDial({
   /* No mark when there is no score to place, none when the scale cannot be
      read, and none when the score is off the scale. A mark drawn anyway would
      be a position asserted about a number that does not have one. */
-  const indicator = placeable
-    ? {
-        inner: pointAt(fraction, RADIUS - INDICATOR_REACH),
-        outer: pointAt(fraction, RADIUS + INDICATOR_REACH),
-      }
-    : undefined
+  const indicator = placeable ? needlePoints(fraction) : undefined
+
+  /* The gradients the bezel, the face and the hub are filled with are defined
+     inside this SVG, so they need ids no other dial on the page shares. */
+  const gradientId = useId().replace(/[^a-zA-Z0-9_-]/g, "")
 
   const calculatedOn =
     calculatedAt !== undefined && !Number.isNaN(Date.parse(calculatedAt))
@@ -901,42 +948,103 @@ export function ScoreDial({
         focusable="false"
         viewBox={`0 0 ${String(VIEW_WIDTH)} ${String(VIEW_HEIGHT)}`}
         /* Capped by the --opsin-graphic-dial token, which is spelled in rem so
-           the arc grows with the reader's root font size instead of staying put
+           the dial grows with the reader's root font size instead of staying put
            while the words around it grow. The cap still yields to w-full when the
-           column is narrower than the token, so a cramped layout shrinks the arc
-           rather than clipping it. */
-        className="h-auto w-full max-w-(--opsin-graphic-dial,17rem)"
+           column is narrower than the token, so a cramped layout shrinks the dial
+           rather than clipping it. The drop under the bezel is what lifts the
+           instrument off the page; it is light and carries nothing. */
+        className="h-auto w-full max-w-(--opsin-graphic-dial,17rem) [--dial-recess-top:color-mix(in_oklab,var(--foreground)_22%,transparent)] [--dial-recess-bottom:color-mix(in_oklab,var(--card)_55%,transparent)] dark:[--dial-recess-top:color-mix(in_oklab,var(--background)_75%,transparent)] dark:[--dial-recess-bottom:color-mix(in_oklab,var(--foreground)_9%,transparent)] drop-shadow-[0_10px_14px_oklch(0.205_0.006_250/0.14)] dark:drop-shadow-[0_12px_18px_oklch(0_0_0/0.6)] print:drop-shadow-none"
       >
-        {/* Forced colours repaints boxes, borders and text with the system
-            palette, but it leaves an SVG stroke where the author set it, so a
-            pale neutral arc stays pale on a theme somebody turned on precisely
-            because pale lines are invisible to them. Each stroke below carries a
-            `forced-colors:` rule that maps it to a system colour: the track, the
-            unfilled bands, the boundary marks and the indicator become
-            `CanvasText`, and the one band the reading fell in becomes
-            `Highlight` so it stays distinct from the track. All four status
-            levels collapse to that one `Highlight` under the mode, which costs
-            nothing on this surface because the band name and the StatusPill
-            beneath the dial already carry the level in a word and a glyph. */}
-        {/* The full sweep, always fully drawn, so the scale's extent is visible
-            whether or not there is a score to place on it. The colour is the
-            `--border` role, and it is worth naming what that role now is:
-            wave-1 token work moved `--border` onto the neutral ladder at a
-            mid-ramp step in both themes, so the arc is a rail a reader can see
-            rather than the faint hairline that measured below every floor
-            before. The pair this component composes, the arc against the card
-            it sits on, is not yet in the measured set: `lib/generated/contrast.json`
-            still holds only a hairline-on-page row from before the role moved,
-            not a border-on-card row for the colour now drawn. What that pairing
-            measures is therefore recorded in this change's state file rather than
-            in the rig, and no figure is typed here. */}
+        {/* A REAL INSTRUMENT, AND STILL ONLY A PICTURE. A bezel lit from above,
+            a face dished like a gauge's, graduations that rule the product's
+            own scale in equal steps, the scale's two ends written inside the
+            opening, and a needle on a hub. Everything except the one band the
+            reading fell in and the needle is light and neutral ink, and none of
+            it is a measurement: the graduations carry no number and no band,
+            and the words beneath the dial say everything the picture shows.
+            The gradients read the card's own colour, mixed towards white or
+            black, so the instrument is drawn in whichever theme it is in.
+
+            Forced colours repaint boxes, borders and text and leave an SVG's
+            fills and strokes where the author set them, so every mark below
+            carries a `forced-colors:` rule: the face becomes Canvas, the rim,
+            the ruling, the track, the boundaries and the needle CanvasText, and
+            the one band the reading fell in Highlight. */}
+        <defs>
+          <linearGradient id={`${gradientId}-bezel`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style={{ stopColor: "color-mix(in oklab, var(--card), white 55%)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--card), black 16%)" }} />
+          </linearGradient>
+          <radialGradient id={`${gradientId}-face`} cx="0.5" cy="0.38" r="0.62">
+            <stop offset="0" style={{ stopColor: "var(--card)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--card), black 7%)" }} />
+          </radialGradient>
+          <linearGradient id={`${gradientId}-recess`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style={{ stopColor: "var(--dial-recess-top)" }} />
+            <stop offset="0.55" style={{ stopColor: "color-mix(in oklab, var(--card) 0%, transparent)" }} />
+            <stop offset="1" style={{ stopColor: "var(--dial-recess-bottom)" }} />
+          </linearGradient>
+          <radialGradient id={`${gradientId}-hub`} cx="0.35" cy="0.3" r="0.8">
+            <stop offset="0" style={{ stopColor: "color-mix(in oklab, var(--card), white 70%)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--card), black 30%)" }} />
+          </radialGradient>
+        </defs>
+
+        {/* The bezel and the face. */}
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={BEZEL_RADIUS}
+          fill={`url(#${gradientId}-bezel)`}
+          stroke="var(--edge)"
+          strokeWidth={0.6}
+          className="forced-colors:fill-[Canvas] forced-colors:stroke-[CanvasText]"
+        />
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={FACE_RADIUS}
+          fill={`url(#${gradientId}-face)`}
+          className="forced-colors:fill-[Canvas]"
+        />
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={FACE_RADIUS - 0.6}
+          fill="none"
+          stroke={`url(#${gradientId}-recess)`}
+          strokeWidth={1.2}
+          className="forced-colors:hidden"
+        />
+
+        {/* The graduations, in the muted ink: the fine ticks lighter than the
+            long ones, so the ruler reads in steps of ten. */}
+        <path
+          d={GRADUATIONS.minor}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={0.45}
+          strokeLinecap="round"
+          className="text-muted-foreground/55 forced-colors:stroke-[CanvasText]"
+        />
+        <path
+          d={GRADUATIONS.major}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={0.8}
+          strokeLinecap="round"
+          className="text-muted-foreground forced-colors:stroke-[CanvasText]"
+        />
+
+        {/* The full sweep, always drawn, as a groove in the face, so the scale's
+            extent is visible whether or not there is a score to place on it. */}
         <path
           d={TRACK_PATH}
           fill="none"
           stroke="currentColor"
           strokeWidth={TRACK_WIDTH}
-          strokeLinecap="butt"
-          className="text-border forced-colors:stroke-[CanvasText]"
+          strokeLinecap="round"
+          className="text-[color-mix(in_oklab,var(--card),var(--foreground)_12%)] forced-colors:stroke-[CanvasText]"
         />
 
         {scaleUsable
@@ -950,9 +1058,11 @@ export function ScoreDial({
                 <path
                   key={`${String(index)}:${String(entry.from)}:${entry.name}`}
                   data-slot="score-dial-band"
-                  /* Only the band the score fell in, and only when the product
-                     assigned a level to the reading. Colouring every band at
-                     once is the traffic light this component exists not to be. */
+                  /* Only the band the score fell in is tinted, and only when the
+                     product assigned a level to the reading. Colouring every
+                     band at once is the traffic light this component exists
+                     not to be, so every other band is drawn in the groove's own
+                     colour, where its boundary marks are what set it apart. */
                   data-status={active ? shownLevel : undefined}
                   d={TRACK_PATH}
                   pathLength={100}
@@ -965,7 +1075,7 @@ export function ScoreDial({
                   className={
                     active && shownLevel
                       ? `${BAND_TONE[shownLevel]} forced-colors:stroke-[Highlight]`
-                      : "text-border forced-colors:stroke-[CanvasText]"
+                      : "text-[color-mix(in_oklab,var(--card),var(--foreground)_12%)] forced-colors:stroke-[CanvasText]"
                   }
                 />
               )
@@ -973,15 +1083,10 @@ export function ScoreDial({
           : null}
 
         {/* Boundary marks: how the bands are told apart with no colour at all,
-            alongside their position and their names below. They take
-            `text-foreground`, the darkest ink in light and the lightest in
-            dark, because the track is now a mid-ramp neutral rail and a mark in
-            the muted role would sit a single step from it. Foreground is the one
-            neutral that separates from that rail in both themes. It leaves a
-            boundary mark and a no-status indicator the same colour, and the two
-            stay told apart by geometry alone: a mark is 1.5 wide and reaches 7
-            either side of the track, while the indicator is 4 wide, reaches 10
-            and carries a round cap, all fixed by the geometry constants above. */}
+            alongside their position and their names below. They cross the
+            groove in the foreground ink, the one neutral that separates from it
+            in both themes, and they are thinner than the needle and carry no
+            hub, so a boundary and the reading are told apart by shape. */}
         {boundaries.map((edge) => {
           const inner = pointAt(edge, RADIUS - BOUNDARY_REACH)
           const outer = pointAt(edge, RADIUS + BOUNDARY_REACH)
@@ -994,30 +1099,82 @@ export function ScoreDial({
               x2={outer.x}
               y2={outer.y}
               stroke="currentColor"
-              strokeWidth={1.5}
+              strokeWidth={1.1}
+              strokeLinecap="round"
               className="text-foreground forced-colors:stroke-[CanvasText]"
             />
           )
         })}
 
+        {/* The scale's two ends, written inside the opening of the sweep, as a
+            gauge writes its own. They are the same two numbers the scale
+            sentence beneath the dial states in words, so the picture says
+            nothing the words do not. Hidden from the tree, which reads the
+            image's own label. */}
+        {scaleUsable ? (
+          <g
+            aria-hidden="true"
+            className="fill-muted-foreground forced-colors:fill-[CanvasText]"
+            style={{ fontSize: 5.2, fontVariantNumeric: "tabular-nums" }}
+          >
+            <text
+              x={pointAt(0, END_LABEL_RADIUS).x}
+              y={pointAt(0, END_LABEL_RADIUS).y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {plain(min, locale)}
+            </text>
+            <text
+              x={pointAt(1, END_LABEL_RADIUS).x}
+              y={pointAt(1, END_LABEL_RADIUS).y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {plain(max, locale)}
+            </text>
+          </g>
+        ) : null}
+
+        {/* The needle, with a soft shadow on the face, so it reads as a piece
+            standing above the dial. It is filled in the level's ink when
+            the product assigned one, the pair the contrast rig measures on the
+            page, and in the foreground ink otherwise. No needle when there is
+            no score to place, when the scale cannot be read, or when the score
+            is off the scale: a needle drawn anyway would be a position asserted
+            about a number that does not have one. */}
         {indicator === undefined ? null : (
-          <line
+          <polygon
             data-slot="score-dial-indicator"
             data-status={shownLevel}
-            x1={indicator.inner.x}
-            y1={indicator.inner.y}
-            x2={indicator.outer.x}
-            y2={indicator.outer.y}
-            stroke="currentColor"
-            strokeWidth={INDICATOR_WIDTH}
-            strokeLinecap="round"
+            points={indicator}
+            fill="currentColor"
+            strokeLinejoin="round"
             className={
-              shownLevel
-                ? `${INDICATOR_TONE[shownLevel]} forced-colors:stroke-[CanvasText]`
-                : "text-foreground forced-colors:stroke-[CanvasText]"
+              "drop-shadow-[0_0.6px_0.8px_oklch(0_0_0/0.35)] dark:drop-shadow-[0_0.6px_1px_oklch(0_0_0/0.8)] print:drop-shadow-none " +
+              (shownLevel
+                ? `${INDICATOR_TONE[shownLevel]} forced-colors:fill-[CanvasText]`
+                : "text-foreground forced-colors:fill-[CanvasText]")
             }
           />
         )}
+
+        {/* The hub the needle turns on, lit like the bezel. */}
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={HUB_RADIUS}
+          fill={`url(#${gradientId}-hub)`}
+          stroke="var(--edge)"
+          strokeWidth={0.5}
+          className="forced-colors:fill-[Canvas] forced-colors:stroke-[CanvasText]"
+        />
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={1.5}
+          className="fill-foreground forced-colors:fill-[CanvasText]"
+        />
       </svg>
 
       <div

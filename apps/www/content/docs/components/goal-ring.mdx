@@ -103,16 +103,16 @@ GoalRing ships no default goal and no clinical vocabulary.
 **Checked by `pnpm run check:a11y` on every commit.**
 
 - No element carries both axes: the fill carries `data-category` alone and nothing stamps `data-status`.
-- No raw colour literal and no ramp step. The track is the neutral border role and the fill a category `-accent` role.
-- No type size in pixels: label, readout and sentence are the `subheadline`, `title2` and `footnote` steps.
+- No raw colour literal and no ramp step. The plate, the face and the groove are mixed from the card and foreground roles, and the fill is the category accent role.
+- No type size in pixels: the label, the figure, the goal beside it and the sentence are the `subheadline`, `title1`, `body` and `footnote` steps.
 
-The audit found nothing to change in the source. The graphic is `role="img"`
+The fill had drawn in the inherited ink rather than its category, because its class named a utility the theme does not declare; it is fixed. The graphic is `role="img"`
 with an accessible name that speaks the label, the value against the goal and the
 progress sentence, all repeated in the visible words beside it. Nothing takes
 focus or animates on first paint, so there is no keyboard contract. Three states
 stay three: a finite value draws a fill, null says "no reading yet", and a broken
-value says "not available". Under forced colours the track maps to CanvasText and
-the fill to Highlight.
+value says "not available". Under forced colours the plate maps to Canvas, the track
+to CanvasText and the fill to Highlight.
 
 **Residual items.**
 

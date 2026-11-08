@@ -80,11 +80,12 @@ if (isDevelopment()) {
  * be built from the level at runtime. `bg-status-${status}-surface` generates
  * no CSS at all and the pill renders unstyled. Written out, once.
  *
- * Note which role does which job. `-surface` is the tinted background, `-ink` is
- * the text that is guaranteed legible on it, and the bare `-<level>` name is the
- * LINE role, which is the boundary. `-accent` is deliberately absent: it is the
- * identity fill, chosen for recognition rather than contrast, and it is never
- * text and never a sole boundary.
+ * Note which role does which job. `-surface` is the tinted background and `-ink`
+ * is the text that is guaranteed legible on it. The LINE role rides as
+ * `--pill-line`, and it draws the glyph at full strength and the boundary at a
+ * little under half, beside the root's class list below. `-accent` is
+ * deliberately absent: it is the identity fill, chosen for recognition rather
+ * than contrast, and it is never text and never a sole boundary.
  *
  * AND THE INK IS AN ARBITRARY PROPERTY, WHICH IS NOT A STYLE CHOICE. `cn` is
  * `twMerge(clsx(…))` and tailwind-merge is unconfigured: it has never been told
@@ -138,13 +139,36 @@ if (isDevelopment()) {
  */
 const TONE: Record<ClinicalStatus, string> = {
   steady:
-    "border-status-steady bg-status-steady-surface [color:var(--opsin-status-steady-ink)]",
+    "bg-status-steady-surface [color:var(--opsin-status-steady-ink)] [--pill-line:var(--opsin-status-steady-line)] print:border-status-steady",
   watch:
-    "border-status-watch bg-status-watch-surface [color:var(--opsin-status-watch-ink)]",
+    "bg-status-watch-surface [color:var(--opsin-status-watch-ink)] [--pill-line:var(--opsin-status-watch-line)] print:border-status-watch",
   attention:
-    "border-status-attention bg-status-attention-surface [color:var(--opsin-status-attention-ink)]",
+    "bg-status-attention-surface [color:var(--opsin-status-attention-ink)] [--pill-line:var(--opsin-status-attention-line)] print:border-status-attention",
   urgent:
-    "border-status-urgent bg-status-urgent-surface [color:var(--opsin-status-urgent-ink)]",
+    "bg-status-urgent-surface [color:var(--opsin-status-urgent-ink)] [--pill-line:var(--opsin-status-urgent-line)] print:border-status-urgent",
+}
+
+/**
+ * The glyph's colour, one class per level: the LINE role, which is the colour
+ * the contrast report measures against the level's own surface at the non-text
+ * floor, so the glyph is a mark a reader can see rather than a tint. Written
+ * out for the same reason TONE is.
+ */
+/*
+ * WHICH GLYPHS ARE FILLED is carried in the same strings. The iconography rule
+ * is that each silhouette is heavier than the last, so the order survives
+ * greyscale: a ring, a ringed dot, a solid diamond, a solid octagon. Filling
+ * the two upper levels makes that ladder steeper without changing a glyph's
+ * name, so A11Y017's four distinct names are the same four names. Steady and
+ * Watch stay outlines, because a solid disc would outweigh the ringed dot above
+ * it. `fill-current` beats lucide's `fill="none"` attribute, because a class is
+ * a declaration and an attribute is only a presentation hint.
+ */
+const GLYPH_TONE: Record<ClinicalStatus, string> = {
+  steady: "fill-none [color:var(--opsin-status-steady-line)]",
+  watch: "fill-none [color:var(--opsin-status-watch-line)]",
+  attention: "fill-current [color:var(--opsin-status-attention-line)]",
+  urgent: "fill-current [color:var(--opsin-status-urgent-line)]",
 }
 
 /* The ladder is the type step the word and its glyph sit at: sm at footnote,
@@ -154,9 +178,9 @@ const TONE: Record<ClinicalStatus, string> = {
    weight 400 lifts the label off the caption floor and out of the provenance
    step without turning a label into an alarm. */
 const SIZE = {
-  sm: "gap-opsin-1 px-opsin-2 py-opsin-0-5 text-opsin-footnote",
-  md: "gap-opsin-1 px-opsin-3 py-opsin-1 text-opsin-subheadline",
-  lg: "gap-opsin-1 px-opsin-3 py-opsin-1 text-opsin-headline",
+  sm: "gap-[0.35em] py-[0.32em] ps-[0.5em] pe-[0.65em] text-opsin-footnote",
+  md: "gap-[0.4em] py-[0.36em] ps-[0.55em] pe-[0.75em] text-opsin-subheadline",
+  lg: "gap-[0.4em] py-[0.36em] ps-[0.6em] pe-[0.8em] text-opsin-headline",
 } as const
 
 export interface StatusPillProps {
@@ -303,6 +327,18 @@ export function StatusPill({
            does. `max-w-full` caps the pill at its containing block so it never
            overflows the column. */
         "inline-flex max-w-full shrink-0 items-center whitespace-normal rounded-full border align-middle",
+        /* A JEWEL RATHER THAN A STAMP. The boundary is the level's line at a
+           little under half strength, because a full-strength ring around a
+           tinted capsule read as a form field; the glyph now carries the line
+           role at full strength, where the contrast report measures it. A line
+           of light along the top and a drop tinted with the level make the
+           capsule sit on the surface rather than be printed into it. None of
+           the three carries the level: the word does, then the glyph, then the
+           fill. On paper the boundary returns to full strength and the light
+           and the drop go, through the `print:` classes in TONE. */
+        "border-[color-mix(in_oklab,var(--pill-line)_42%,transparent)]",
+        "shadow-[inset_0_1px_0_oklch(1_0_0/0.6),0_1px_2px_color-mix(in_oklab,var(--pill-line)_22%,transparent)]",
+        "dark:shadow-[inset_0_1px_0_oklch(1_0_0/0.07),0_1px_2px_oklch(0_0_0/0.4)] print:shadow-none",
         TONE[status],
         SIZE[size],
         className
@@ -313,9 +349,16 @@ export function StatusPill({
       <Icon
         data-slot="status-pill-icon"
         aria-hidden="true"
-        className="size-[1em] shrink-0"
+        strokeWidth={2.25}
+        className={cn("size-[1.05em] shrink-0", GLYPH_TONE[status])}
       />
-      <span data-slot="status-pill-label">{word}</span>
+      {/* Trimmed to the x-height and the baseline, so the word's lowercase band
+          sits on the capsule's centre line beside the glyph, which flex centres
+          on the same line. The padding above is in `em` to put back the room
+          the trimmed line box no longer brings. */}
+      <span data-slot="status-pill-label" className="[text-box:trim-both_ex_alphabetic]">
+        {word}
+      </span>
       {/* The subject, for the accessible name only. A sighted reader sees
           "Needs attention" next to the thing it describes; a screen-reader user
           hears "Needs attention, HbA1c result" and does not have to hold a

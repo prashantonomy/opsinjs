@@ -60,6 +60,8 @@ import {
   warnOnce,
   type HealthCategory,
 } from "@/lib/opsinjs"
+import { useId } from "react"
+
 import { cn } from "@/lib/utils"
 
 /**
@@ -68,7 +70,11 @@ import { cn } from "@/lib/utils"
  * `text-category-${x}-accent` generates no CSS at all.
  *
  * `-accent` is the identity fill: chosen for recognition rather than for
- * contrast, and it is exactly what a ring's colour is here. It never carries
+ * contrast, and it is exactly what a ring's colour is here. The product theme
+ * bridges it as the bare `category-<id>` utility, and the bare name is the one
+ * spelled below: an earlier `-accent` spelling named a utility the theme never
+ * declared, so the class produced no CSS and every ring drew in the inherited
+ * ink rather than in its category. It never carries
  * text and it is never the only thing that tells the fill from the track, because
  * the words beside the ring say the progress in full and the fill's own arc
  * length shows it. The track stays neutral in every case, so one colour on the
@@ -76,12 +82,12 @@ import { cn } from "@/lib/utils"
  * doubles as a verdict.
  */
 const CATEGORY_TONE: Record<HealthCategory, string> = {
-  sleep: "text-category-sleep-accent",
-  heart: "text-category-heart-accent",
-  activity: "text-category-activity-accent",
-  nutrition: "text-category-nutrition-accent",
-  mind: "text-category-mind-accent",
-  labs: "text-category-labs-accent",
+  sleep: "text-category-sleep",
+  heart: "text-category-heart",
+  activity: "text-category-activity",
+  nutrition: "text-category-nutrition",
+  mind: "text-category-mind",
+  labs: "text-category-labs",
 }
 
 /**
@@ -115,9 +121,12 @@ function reportOnce(key: string, message: string): void {
    with `pathLength={100}` so a dash length is a percentage of the whole ring and
    the fraction arithmetic below is unchanged by the radius. */
 const CENTRE = 50
-const RADIUS = 42
-const TRACK_WIDTH = 10
+const RADIUS = 39.5
+const TRACK_WIDTH = 9
 const VIEW = 100
+/** The plate the ring sits on, and the recessed face inside it. */
+const PLATE_RADIUS = 49
+const FACE_RADIUS = RADIUS - TRACK_WIDTH / 2 - 1.2
 
 /** `Intl.NumberFormat`'s ceiling, and the way to say "show the digits you were handed". */
 const MAX_FRACTION_DIGITS = 20
@@ -308,6 +317,10 @@ export function GoalRing({
    */
   const spoken = `${label}: ${valueWords}. ${derivationWords}`
 
+  /* The plate and the gloss are gradients defined inside this SVG, so they need
+     ids no other ring on the page shares. */
+  const gradientId = useId().replace(/[^a-zA-Z0-9_-]/g, "")
+
   return (
     <div
       data-slot="goal-ring"
@@ -335,15 +348,47 @@ export function GoalRing({
            grows with the reader's root font size instead of staying put while the
            words grow. The cap yields to w-full when the column is narrower, so a
            cramped layout shrinks the ring rather than clipping it. */
-        className="h-auto w-full max-w-(--opsin-graphic-dial,12rem)"
+        className="h-auto w-full max-w-(--opsin-graphic-dial,12rem) [--goal-light:var(--card)] dark:[--goal-light:var(--foreground)] drop-shadow-[0_8px_12px_oklch(0.205_0.006_250/0.12)] dark:drop-shadow-[0_10px_16px_oklch(0_0_0/0.6)] print:drop-shadow-none"
       >
-        {/* The track: the whole ring, always fully drawn, so the goal's extent is
-            visible whether or not there is a reading to place on it. It is the
-            neutral border role, never a category or a status colour, so the one
-            tinted thing on the surface is the fill. Forced colours leaves an SVG
-            stroke where the author set it, so the track carries a rule that maps
-            it to CanvasText and stays visible on a theme somebody turned on
-            precisely because pale lines are invisible to them. */}
+        {/* A RING ON A PLATE. The ring is set into a plate lit from above, with
+            a recessed face inside it, the way the dial is, so the two read as
+            one family of instruments. Everything except the fill is light and
+            neutral, read from the card's own colour, so the plate is drawn in
+            whichever theme it is in and the one tinted thing on the surface is
+            still the fill. Forced colours leave an SVG's paint where the author
+            set it, so the plate becomes Canvas and the groove CanvasText. */}
+        <defs>
+          <radialGradient id={`${gradientId}-plate`} cx="0.5" cy="0.3" r="0.75">
+            <stop offset="0" style={{ stopColor: "color-mix(in oklab, var(--card), white 45%)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--card), black 9%)" }} />
+          </radialGradient>
+          <radialGradient id={`${gradientId}-face`} cx="0.5" cy="0.38" r="0.62">
+            <stop offset="0" style={{ stopColor: "var(--card)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--card), black 6%)" }} />
+          </radialGradient>
+          <linearGradient id={`${gradientId}-gloss`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style={{ stopColor: "color-mix(in oklab, var(--goal-light) 45%, transparent)" }} />
+            <stop offset="0.5" style={{ stopColor: "color-mix(in oklab, var(--goal-light) 8%, transparent)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--goal-light) 0%, transparent)" }} />
+          </linearGradient>
+        </defs>
+
+        <circle
+          cx={CENTRE}
+          cy={CENTRE}
+          r={PLATE_RADIUS}
+          fill={`url(#${gradientId}-plate)`}
+          stroke="var(--edge)"
+          strokeWidth={0.6}
+          className="forced-colors:fill-[Canvas] forced-colors:stroke-[CanvasText]"
+        />
+
+        {/* The track: the whole ring, always fully drawn, as a groove in the
+            plate, so the goal's extent is visible whether or not there is a
+            reading to place on it. It is an opaque neutral, never a category or
+            a status colour, and forced colours map it to CanvasText so it stays
+            visible on a theme somebody turned on precisely because pale lines
+            are invisible to them. */}
         <circle
           data-slot="goal-ring-track"
           cx={CENTRE}
@@ -352,40 +397,68 @@ export function GoalRing({
           fill="none"
           stroke="currentColor"
           strokeWidth={TRACK_WIDTH}
-          className="text-border forced-colors:stroke-[CanvasText]"
+          className="text-[color-mix(in_oklab,var(--card),var(--foreground)_12%)] forced-colors:stroke-[CanvasText]"
+        />
+
+        <circle
+          cx={CENTRE}
+          cy={CENTRE}
+          r={FACE_RADIUS}
+          fill={`url(#${gradientId}-face)`}
+          stroke="var(--edge)"
+          strokeWidth={0.5}
+          className="forced-colors:fill-[Canvas]"
         />
 
         {/* The fill: the arc from the top, clockwise, its length the fraction of
-            the goal reached. It carries the category tint and `data-category`,
-            never `data-status`, because progress is not a verdict. It is drawn
-            only when there is progress with length, so an absent or zero reading
-            shows the bare track. Nothing animates it: `motion-in-health-ui` names
-            the ring sweep specifically, and a sweep shows, for every frame of its
-            travel, a progress that is not true. Under forced colours the tint is
-            stripped, so the fill maps to Highlight to stay distinct from the
-            track, and the words carry the progress regardless. */}
+            the goal reached, with a gloss along its upper face so it reads as a
+            body set into the groove. It carries the category tint and
+            `data-category`, never `data-status`, because progress is not a
+            verdict. It is drawn only when there is progress with length, so an
+            absent or zero reading shows the bare groove. Nothing animates it:
+            `motion-in-health-ui` names the ring sweep specifically, and a sweep
+            shows, for every frame of its travel, a progress that is not true.
+            Under forced colours the tint is stripped, so the fill maps to
+            Highlight to stay distinct from the track, and the words carry the
+            progress regardless. */}
         {drawsFill ? (
-          <circle
-            data-slot="goal-ring-fill"
-            data-category={tint}
-            cx={CENTRE}
-            cy={CENTRE}
-            r={RADIUS}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={TRACK_WIDTH}
-            strokeLinecap="round"
-            pathLength={100}
-            strokeDasharray={`${String(Math.round(fraction * 100))} 100`}
-            /* Rotated a quarter turn anticlockwise so the arc opens at the top
-               rather than at three o'clock, which is where a person reads a ring
-               as starting. */
-            transform={`rotate(-90 ${String(CENTRE)} ${String(CENTRE)})`}
-            className={cn(
-              tint ? CATEGORY_TONE[tint] : "text-foreground",
-              "forced-colors:stroke-[Highlight]",
-            )}
-          />
+          <>
+            <circle
+              data-slot="goal-ring-fill"
+              data-category={tint}
+              cx={CENTRE}
+              cy={CENTRE}
+              r={RADIUS}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={TRACK_WIDTH}
+              strokeLinecap="round"
+              pathLength={100}
+              strokeDasharray={`${String(Math.round(fraction * 100))} 100`}
+              /* Rotated a quarter turn anticlockwise so the arc opens at the top
+                 rather than at three o'clock, which is where a person reads a
+                 ring as starting. */
+              transform={`rotate(-90 ${String(CENTRE)} ${String(CENTRE)})`}
+              className={cn(
+                tint ? CATEGORY_TONE[tint] : "text-foreground",
+                "forced-colors:stroke-[Highlight]",
+              )}
+            />
+            <circle
+              aria-hidden="true"
+              cx={CENTRE}
+              cy={CENTRE}
+              r={RADIUS + TRACK_WIDTH * 0.18}
+              fill="none"
+              stroke={`url(#${gradientId}-gloss)`}
+              strokeWidth={TRACK_WIDTH * 0.32}
+              strokeLinecap="round"
+              pathLength={100}
+              strokeDasharray={`${String(Math.max(Math.round(fraction * 100) - 2, 0))} 100`}
+              transform={`rotate(-89 ${String(CENTRE)} ${String(CENTRE)})`}
+              className="forced-colors:hidden print:hidden"
+            />
+          </>
         ) : null}
       </svg>
 
@@ -402,11 +475,24 @@ export function GoalRing({
         >
           {label}
         </p>
+        {/* The figure the reader came for is set large, and the goal and the
+            unit beside it are quieter, so the line reads as one number against
+            another. The words are the same string the ring's label speaks, so a
+            copy and a screen reader get "6,200 of 8,000 steps". */}
         <p
           data-slot="goal-ring-value"
-          className={cn("m-0 text-opsin-title2 font-medium tabular-nums", "[color:var(--foreground)]")}
+          className="m-0 tabular-nums [color:var(--foreground)]"
         >
-          {valueWords}
+          {reading !== null && !broken ? (
+            <>
+              <span className="text-opsin-title1">{plain(reading, locale)}</span>
+              <span className="text-opsin-body [color:var(--muted-foreground)]">
+                {` of ${plain(goal, locale)}${unitWords}`}
+              </span>
+            </>
+          ) : (
+            <span className="text-opsin-title3">{valueWords}</span>
+          )}
         </p>
         <p
           data-slot="goal-ring-derivation"

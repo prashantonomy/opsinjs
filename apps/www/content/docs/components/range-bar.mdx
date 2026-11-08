@@ -54,7 +54,7 @@ import { RangeBar } from "@/components/ui/range-bar"
 
 ### Beyond the top of the range
 
-The tick sits outside the band, and that is not a verdict.
+The cursor sits outside the band, and that is not a verdict.
 
 <ComponentPreview name="range-bar-outside-the-range" kind="example" align="start" />
 
@@ -66,7 +66,7 @@ One bound has no width, so no track is drawn. The summary names the direction.
 
 ### Three readings down a page
 
-`category` on the labels, `status` on the ticks, no element taking both.
+`category` on the labels, `status` on the cursors, no element taking both.
 
 <ComponentPreview name="range-bar-in-a-list-of-results" kind="example" align="start" />
 
@@ -82,7 +82,7 @@ The extent stretches to contain `value`, so a far reading squeezes the band.
 | --- | --- |
 | Error | It owns no fetch. A range with no `source`, neither bound, or downward bounds is discarded and reported. |
 | Loading | No skeleton or spinner; renders synchronously. |
-| Empty | `value` of `null` differs from `0`: no tick, and the summary names the range. |
+| Empty | `value` of `null` differs from `0`: no cursor, and the summary names the range. |
 | Partial | No range, or one bound, draws no track. The summary carries the comparison. |
 | Stale | It states when the reading was taken, or that nobody knows. No boundary. |
 
@@ -134,8 +134,9 @@ horizontal scroll at 320px.
   above or below in words, so the picture is never named.
 - `RangeBar.Track` is `aria-hidden`, with no `slider`, `meter` or `progressbar` role.
 - Numbers go through [Value](./value.mdx), so the unit is spoken, not spelled.
-- Status carries a word and a glyph through StatusPill, redundant to the tick colour.
-- Under `forced-colors` the tick keeps a `Highlight` fill and `CanvasText` outline.
+- Status carries a word and a glyph through StatusPill, redundant to the cursor's index line.
+- Under `forced-colors` the cursor keeps a `CanvasText` outline and its index line a
+  `Highlight` fill.
 
 **Residual items.** The band outline and the two boundary marks fall below the 3:1
 non-text contrast floor, and stay because the graphic is `aria-hidden` and the summary

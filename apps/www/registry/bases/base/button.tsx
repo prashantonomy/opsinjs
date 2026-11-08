@@ -550,6 +550,11 @@ export function Button({
            button has to grow with it. A truncated label is unreadable and
            unspeakable, and a fixed height is how it happens. */
         "relative inline-flex items-center justify-center whitespace-normal rounded-full text-center align-middle",
+        /* The height floor is the target minimum, set here as well as in the
+           product stylesheet, because the label below trims its own line box
+           and a project without that stylesheet would otherwise see the button
+           shrink to its padding. 2.75rem grows with the reader's text size. */
+        "min-h-(--opsin-target-minimum,2.75rem)",
         /* The second piece of motion in this file, and the one that needs no
            branch: `--opsin-duration-fast` collapses to 1ms inside the product
            stylesheet's own reduced-motion block, so the colour change becomes
@@ -684,7 +689,21 @@ export function Button({
         className="absolute top-1/2 left-1/2 size-full min-h-[var(--opsin-target-minimum,2.75rem)] min-w-[var(--opsin-target-minimum,2.75rem)] -translate-x-1/2 -translate-y-1/2"
       />
       {iconPosition === "leading" ? slot : null}
-      <span data-slot="button-label">{children}</span>
+      {/* OPTICALLY CENTRED, NOT METRICALLY. A label is set in sentence case, so
+          its weight sits in the lowercase band, and a line box centres the
+          font's ascent and descent instead. Measured in this system's own face
+          at 17px, the capitals sat on the centre line and the lowercase band
+          sat 1.46px below it, which reads as a label dropped towards the
+          bottom of the capsule; the gap is larger in Segoe UI. `text-box:
+          trim-both ex alphabetic` trims the line box to the x-height and the
+          baseline, so flex centring centres the band a reader sees as the
+          text, from each font's own metrics rather than from a nudge tuned to
+          one of them. Capitals and ascenders rise above it, which is how a
+          sentence-case label looks centred. An engine without `text-box`
+          ignores the declaration and centres the line box as before. */}
+      <span data-slot="button-label" className="[text-box:trim-both_ex_alphabetic]">
+        {children}
+      </span>
       {iconPosition === "trailing" ? slot : null}
     </BaseButton>
   )
