@@ -803,13 +803,13 @@ export function RangeBar({
            step, body size at weight 600, never below the floor tokens/type.json
            rules[1] fixes. Below it sit the two boundary numbers, which are axis
            labels and stay at caption1, a step smaller. The top therefore needs
-           more room than the bottom, so `pt` is `2.875em` to clear a 24px line
-           plus the `mb-opsin-3` gap, and `pb` is `2.25em` to clear a caption line
-           plus `mt-opsin-3`. Both gaps are a step wider than the track needs on
-           its own, because the round reading stands proud of the track by about
-           half its own diameter and must never touch a label. */
+           more room than the bottom, so `pt` is `3.3em` to clear a 24px line
+           plus the `mb-opsin-4` gap, and `pb` is `2.55em` to clear a caption line
+           plus `mt-opsin-4`. Both gaps are wider than the track needs on its
+           own, because the cursor stands proud of the tube by about a third of
+           its own height above and below and must never touch a label. */
         <div
-          className="relative pt-[2.875em] pb-[2.25em] text-opsin-footnote"
+          className="relative pt-[3.3em] pb-[2.55em] text-opsin-footnote"
           style={{ "--rb-label-half": "3.5em" } as CSSProperties}
         >
           <div
@@ -839,7 +839,23 @@ export function RangeBar({
                rung's tint. The rung is opaque by design (tint-alpha 1, no blur),
                so a flat background colour is the whole of the treatment and no
                backdrop layer is needed here. */
-            className="relative h-[0.75em] rounded-full border border-edge bg-(--opsin-material-inset-tint) shadow-[inset_0_1px_2px_oklch(0_0_0/0.12)] print:border-border"
+            /* A GLASS TUBE. The groove reads the inset rung as before; on top of
+               it sit a shadow along the inner top edge, a line of light along
+               the inner bottom edge, and a streak of reflected light across
+               the upper third, the `after:` layer, which is what makes a
+               recess read as glass. The streak and both inner lines are light,
+               never a colour, and the cursor below is stacked above the streak
+               so nothing crosses the reading. Print drops the light and keeps
+               the line. */
+            className={
+              "relative h-[0.9em] rounded-full border border-edge bg-(--opsin-material-inset-tint) " +
+              "shadow-[inset_0_1px_3px_oklch(0_0_0/0.16),inset_0_-1px_0_oklch(1_0_0/0.7)] " +
+              "dark:shadow-[inset_0_1px_3px_oklch(0_0_0/0.55),inset_0_-1px_0_oklch(1_0_0/0.07)] " +
+              "after:pointer-events-none after:absolute after:inset-x-[0.6em] after:top-[0.12em] after:h-[0.22em] after:rounded-full " +
+              "after:bg-[linear-gradient(90deg,transparent,color-mix(in_oklab,var(--card)_80%,transparent)_14%,color-mix(in_oklab,var(--card)_80%,transparent)_86%,transparent)] " +
+              "dark:after:bg-[linear-gradient(90deg,transparent,color-mix(in_oklab,var(--foreground)_14%,transparent)_14%,color-mix(in_oklab,var(--foreground)_14%,transparent)_86%,transparent)] " +
+              "print:border-border print:shadow-none print:after:hidden"
+            }
           >
             {/* THE BAND IS NEVER STATUS-COLOURED. It is the range, which is a
                 fact about a laboratory rather than about the reader, and a
@@ -861,7 +877,11 @@ export function RangeBar({
                 insetInlineStart: `${at(extent.low).toFixed(3)}%`,
                 inlineSize: `${(at(extent.high) - at(extent.low)).toFixed(3)}%`,
               }}
-              className="absolute inset-y-0 rounded-full border border-muted-foreground bg-card shadow-[0_1px_2px_oklch(0_0_0/0.1)]"
+              /* The lit section of the tube: an opaque card-coloured capsule
+                 inside the groove, outlined in the boundary ink, with its own
+                 line of light along the top so it reads as a body of glass
+                 inside the tube rather than a sticker on it. Still neutral. */
+              className="absolute inset-y-[0.08em] rounded-full border border-muted-foreground bg-card shadow-[inset_0_1px_0_oklch(1_0_0/0.95),0_1px_2px_oklch(0_0_0/0.12)] dark:shadow-[inset_0_1px_0_oklch(1_0_0/0.1),0_1px_2px_oklch(0_0_0/0.5)]"
             />
 
             {[extent.low, extent.high].map((bound) => (
@@ -869,7 +889,7 @@ export function RangeBar({
                 key={bound}
                 data-slot="range-bar-mark"
                 style={{ insetInlineStart: `${at(bound).toFixed(3)}%` }}
-                className="absolute -top-opsin-1 -bottom-opsin-1 w-px -translate-x-1/2 bg-muted-foreground rtl:translate-x-1/2 forced-colors:bg-[CanvasText]"
+                className="absolute -top-[0.4em] -bottom-[0.4em] w-px -translate-x-1/2 rounded-full bg-muted-foreground rtl:translate-x-1/2 forced-colors:bg-[CanvasText]"
               />
             ))}
 
@@ -922,7 +942,7 @@ export function RangeBar({
                 font-size namespace and would file `text-opsin-caption1` with
                 `text-muted-foreground` and drop one of them. */}
             <div
-              className="absolute top-full mt-opsin-3 flex justify-end-safe"
+              className="absolute top-full mt-opsin-4 flex justify-end-safe"
               style={{
                 insetInlineStart: 0,
                 inlineSize: `${at(extent.low).toFixed(3)}%`,
@@ -938,7 +958,7 @@ export function RangeBar({
               </span>
             </div>
             <div
-              className="absolute top-full mt-opsin-3"
+              className="absolute top-full mt-opsin-4"
               style={{
                 insetInlineEnd: 0,
                 inlineSize: `calc(100% - ${at(extent.high).toFixed(3)}%)`,
@@ -959,12 +979,10 @@ export function RangeBar({
             {/* The tick is the only part of the RAIL that may carry status
                 colour. The band, the track and the boundary marks stay
                 neutral, so the one coloured thing on the bar is the reader's
-                own reading. The status word above it carries the same level in
-                `-ink`, which is the point: the colour is redundant to a word
-                that is always there. Neither is the sole carrier, and the
-                reading is a disc, ringed in the card colour the way the opsinjs
-                mark draws its reading, while a boundary mark is a 1px line, so the
-                two are told apart by shape before colour. `data-status` is the DOM contract
+                own reading, and only its index line carries it. The status word
+                above it carries the same level in `-ink`, which is the point: the
+                colour is redundant to a word that is always there. Neither is the
+                sole carrier. `data-status` is the DOM contract
                 the print stylesheet and every product-side test key on, and it
                 is stamped here and on the status word alike.
 
@@ -985,11 +1003,33 @@ export function RangeBar({
               data-slot="range-bar-tick"
               data-status={level}
               style={{ insetInlineStart: `${at(extent.reading).toFixed(3)}%` }}
+              /* THE READING IS A CURSOR THAT RIDES THE TUBE. A capsule of
+                 frosted glass, taller than the tube and standing proud of it
+                 above and below, so it reads as a piece that slides along the
+                 gauge, with an index line down its middle that marks the exact
+                 position. The glass is light, never a colour, and the one
+                 coloured thing in it is the index line, in the level's line
+                 role, which is the colour the legend's swatch names. A
+                 boundary mark is a 1px line and the index sits inside a body
+                 of glass, so the two are told apart by shape before colour.
+                 It is stacked above the tube's streak of light, so the
+                 reflection never crosses the reading. */
               className={
-                "absolute top-1/2 size-[1.375em] -translate-x-1/2 -translate-y-1/2 rounded-full ring-[0.25em] ring-card shadow-[0_1px_3px_oklch(0_0_0/0.3)] rtl:translate-x-1/2 forced-colors:bg-[Highlight] forced-colors:[outline:1px_solid_CanvasText] " +
-                (level === undefined ? "bg-foreground" : TICK_TONE[level])
+                "absolute top-1/2 z-10 h-[2.35em] w-[1.45em] -translate-x-1/2 -translate-y-1/2 rounded-full rtl:translate-x-1/2 " +
+                "border border-edge bg-[color-mix(in_oklab,var(--card)_58%,transparent)] backdrop-blur-[3px] backdrop-saturate-150 " +
+                "shadow-[inset_0_1px_0_oklch(1_0_0/0.95),inset_0_-1px_0_oklch(0_0_0/0.05),0_1px_2px_oklch(0_0_0/0.16),0_6px_16px_-6px_oklch(0_0_0/0.32)] " +
+                "dark:bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] dark:shadow-[inset_0_1px_0_oklch(1_0_0/0.22),0_1px_2px_oklch(0_0_0/0.5),0_8px_18px_-8px_oklch(0_0_0/0.8)] " +
+                "print:bg-card print:shadow-none forced-colors:[outline:1px_solid_CanvasText]"
               }
-            />
+            >
+              <span
+                aria-hidden="true"
+                className={
+                  "absolute inset-y-[0.42em] start-1/2 w-[0.26em] -translate-x-1/2 rounded-full rtl:translate-x-1/2 forced-colors:bg-[Highlight] " +
+                  (level === undefined ? "bg-foreground" : TICK_TONE[level])
+                }
+              />
+            </div>
 
             {/* THE READING LABEL IS A CHILD OF THE TRACK, NOT OF THE TICK, so
                 the track bounds it the way it bounds the two boundary labels. It
@@ -1011,7 +1051,7 @@ export function RangeBar({
                 position underneath it. */}
             <span
               data-slot="range-bar-value"
-              className="absolute bottom-full mb-opsin-3 -translate-x-1/2 whitespace-nowrap text-opsin-headline rtl:translate-x-1/2"
+              className="absolute bottom-full mb-opsin-4 -translate-x-1/2 whitespace-nowrap text-opsin-headline rtl:translate-x-1/2"
               style={{
                 insetInlineStart: `clamp(var(--rb-label-half), ${at(extent.reading).toFixed(3)}%, calc(100% - var(--rb-label-half)))`,
               }}

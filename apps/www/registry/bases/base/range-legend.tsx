@@ -87,11 +87,11 @@ if (isDevelopment()) {
 }
 
 /**
- * The status swatch fill, one class per level, written out because Tailwind
- * reads class names out of source as literal strings. These are RangeBar's
- * `TICK_TONE` verbatim: the bare status name is the line role, which is the
- * boundary colour a small mark on a neutral row is, so a swatch here is the
- * same colour as the tick it explains.
+ * The status swatch's index line, one class per level, written out because
+ * Tailwind reads class names out of source as literal strings. These are
+ * RangeBar's `TICK_TONE` verbatim: the bare status name is the line role, the
+ * colour of the index line inside the bar's cursor, so a swatch here is the
+ * same colour as the mark it explains.
  */
 const SWATCH_TONE: Record<ClinicalStatus, string> = {
   steady: "bg-status-steady",
@@ -101,11 +101,33 @@ const SWATCH_TONE: Record<ClinicalStatus, string> = {
 }
 
 /**
- * The neutral reference-range band swatch, copied from RangeBar's own band:
- * an outlined near-neutral rather than a fill, because the band is a fact
- * about a laboratory and never a verdict.
+ * The swatch is a miniature of the bar it explains: the same glass tube, with
+ * the piece the row names inside it. RangeBar's tube, band and cursor are
+ * restated here at swatch size rather than imported, because a registry file
+ * ships on its own and this one must not depend on RangeBar's internals.
  */
-const NEUTRAL_SWATCH = "border border-muted-foreground bg-background"
+const SWATCH_TUBE =
+  "relative block h-[0.95em] w-[2.4em] shrink-0 overflow-visible rounded-full border border-edge bg-(--opsin-material-inset-tint) " +
+  "shadow-[inset_0_1px_2px_oklch(0_0_0/0.14),inset_0_-1px_0_oklch(1_0_0/0.7)] dark:shadow-[inset_0_1px_2px_oklch(0_0_0/0.5),inset_0_-1px_0_oklch(1_0_0/0.07)] " +
+  "forced-colors:[outline:1px_solid_CanvasText]"
+
+/**
+ * The neutral reference-range band, copied from RangeBar's own band: an opaque
+ * card-coloured capsule outlined in the boundary ink, because the band is a
+ * fact about a laboratory and never a verdict.
+ */
+const NEUTRAL_SWATCH =
+  "absolute inset-y-[0.08em] inset-x-[0.35em] rounded-full border border-muted-foreground bg-card " +
+  "shadow-[inset_0_1px_0_oklch(1_0_0/0.95)] dark:shadow-[inset_0_1px_0_oklch(1_0_0/0.1)]"
+
+/**
+ * RangeBar's cursor, at swatch size: a capsule of frosted glass standing proud
+ * of the tube, with the level's index line down its middle.
+ */
+const CURSOR_SWATCH =
+  "absolute top-1/2 start-1/2 z-10 h-[1.35em] w-[0.85em] -translate-x-1/2 -translate-y-1/2 rounded-full rtl:translate-x-1/2 " +
+  "border border-edge bg-[color-mix(in_oklab,var(--card)_60%,transparent)] shadow-[inset_0_1px_0_oklch(1_0_0/0.95),0_1px_2px_oklch(0_0_0/0.16),0_3px_8px_-3px_oklch(0_0_0/0.3)] " +
+  "dark:bg-[color-mix(in_oklab,var(--foreground)_12%,transparent)] dark:shadow-[inset_0_1px_0_oklch(1_0_0/0.22),0_1px_2px_oklch(0_0_0/0.5)]"
 
 /**
  * Development warnings, said once per offending call site and keyed on the
@@ -209,7 +231,9 @@ export function RangeLegend({
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledby}
       className={cn(
-        "m-0 flex w-full list-none flex-col gap-opsin-2 p-0 text-opsin-body",
+        /* A ledger: one row per tone, ruled with the decorative edge, so the key
+           reads as a short table rather than a loose list. */
+        "m-0 flex w-full list-none flex-col divide-y divide-edge p-0 text-opsin-body",
         className,
       )}
     >
@@ -233,32 +257,43 @@ export function RangeLegend({
             key={`${band.label}:${index}`}
             data-slot="range-legend-item"
             data-status={level}
-            className="m-0 flex items-start gap-opsin-2"
+            className="m-0 flex items-start gap-opsin-3 py-opsin-3 first:pt-0 last:pb-0"
           >
-            {/* The swatch: the bar's own colour for this tone. Decorative, so
-                it is out of the accessibility tree; the label carries the
-                meaning. The neutral swatch is outlined; a status swatch is a
-                fill and gains a CanvasText outline under forced colours so
-                the mark survives where a background alone is stripped. */}
+            {/* The swatch: a miniature of the bar's own piece for this tone, the
+                lit band for the neutral row and the cursor with its index line
+                for a status row. Decorative, so it is out of the accessibility
+                tree; the label carries the meaning. Its top sits on the label's
+                first line, and forced colours keep the tube as an outline and
+                the index line as Highlight. */}
             <span
               data-slot="range-legend-swatch"
               aria-hidden="true"
-              className={
-                "mt-[0.15em] size-opsin-4 shrink-0 rounded-opsin-xs forced-colors:[outline:1px_solid_CanvasText] " +
-                (level === undefined ? NEUTRAL_SWATCH : SWATCH_TONE[level])
-              }
-            />
+              className={`mt-[0.28em] ${SWATCH_TUBE}`}
+            >
+              {level === undefined ? (
+                <span className={NEUTRAL_SWATCH} />
+              ) : (
+                <span className={CURSOR_SWATCH}>
+                  <span
+                    className={
+                      "absolute inset-y-[0.25em] start-1/2 w-[0.18em] -translate-x-1/2 rounded-full rtl:translate-x-1/2 forced-colors:bg-[Highlight] " +
+                      SWATCH_TONE[level]
+                    }
+                  />
+                </span>
+              )}
+            </span>
 
-            {/* The glyph, on status rows only: the shape carrier the colour
-                is redundant to, in a neutral ink so no new status-ink-on-host
-                pairing is introduced. Decorative; the word below is the
-                semantic level. */}
-            {Glyph === null ? null : (
-              <Glyph
-                aria-hidden="true"
-                className="mt-[0.15em] size-opsin-4 shrink-0 [color:var(--muted-foreground)]"
-              />
-            )}
+            {/* The glyph, on status rows only: the shape carrier the colour is
+                redundant to, in a neutral ink so no new status-ink-on-host
+                pairing is introduced. A neutral row keeps the glyph's column
+                empty, so every label in the key starts at the same edge.
+                Decorative; the word below is the semantic level. */}
+            <span aria-hidden="true" className="mt-[0.2em] flex size-[1.1em] shrink-0 items-center justify-center">
+              {Glyph === null ? null : (
+                <Glyph className="size-full [color:var(--muted-foreground)]" />
+              )}
+            </span>
 
             <span className="flex min-w-0 flex-col gap-opsin-0-5">
               <span
