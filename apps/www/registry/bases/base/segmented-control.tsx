@@ -264,7 +264,11 @@ export function SegmentedControl({
           data-slot="segmented-control-segment"
           className={cn(SEGMENT, SIZE[size], fullWidth ? "flex-1 basis-0" : null)}
         >
-          <span data-slot="segmented-control-label">{option.label}</span>
+          {/* Trimmed to the x-height and the baseline so the label's lowercase
+              band sits on the segment's centre line, as Button's does. */}
+          <span data-slot="segmented-control-label" className="[text-box:trim-both_ex_alphabetic]">
+            {option.label}
+          </span>
         </Radio.Root>
       ))}
     </RadioGroup>

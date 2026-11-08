@@ -268,7 +268,9 @@ export function Tabs({ items, value, onValueChange, label, className }: TabsProp
             data-slot="tabs-tab"
             className={TAB}
           >
-            {item.label}
+            {/* Trimmed to the x-height and the baseline so the label's lowercase
+                band sits on the tab's centre line, as Button's does. */}
+            <span className="[text-box:trim-both_ex_alphabetic]">{item.label}</span>
           </BaseTabs.Tab>
         ))}
         <BaseTabs.Indicator data-slot="tabs-indicator" className={INDICATOR} />
