@@ -35,18 +35,18 @@ Set the roles in your own stylesheet, imported after the opsinjs one:
 }
 ```
 
-opsinjs ships `--primary` as ink, the darkest neutral by day and the lightest by night, so a filled control carries no hue until a theme gives it one. A theme sets `--primary`, `--primary-foreground`, `--ring` and the surface roles, never the status ramps, the category ramps or the contrast floor. Radius and space steps change only in `tokens/*.json`. Only one colour owns `--primary`, and a brand hue near a status hue stays off any surface that reports a result.
+In the default accent theme `--primary` is ink, the darkest neutral by day and the lightest by night, so a filled control carries no hue; the vibes and stryk themes make it the accent, and [Accent](./foundations/accent.mdx) lists every role. A theme sets `--primary`, `--primary-foreground`, `--ring` and the surface roles, never the status ramps, the category ramps or the contrast floor. Radius and space steps change only in `tokens/*.json`. Only one colour owns `--primary`, and a brand hue near a status hue stays off any surface that reports a result.
 
 ## Presets and preset codes
 
-A preset is a whole theme as one `registry:theme` item, with `cssVars` for light and dark and no files. Only `opsinjs-default`, the generated token layer, is published.
+A preset is a whole theme as one `registry:theme` item, with `cssVars` for light and dark and no files. `opsinjs-default` is the generated token layer. Each [accent theme](./foundations/accent.mdx) and accent is a preset that layers on it, named `opsinjs-<theme>-<accent>`, so `opsinjs-stryk-graphite` is the high-contrast preset.
 
 ```npm
 npx shadcn@latest add https://opsinjs.pensievelabs.org/r/themes/opsinjs-default.json
 ```
 
 <Todo>
-A higher-contrast preset and a large-type preset are specified and not built.
+A large-type preset is specified and not built.
 </Todo>
 
 Preset names begin `opsinjs-` so they cannot collide with shadcn styles such as `lyra`. Prefix yours with your organisation. An encoder for short `opsinjs-*` codes is planned, not built. A shadcn preset code is opaque, so run `npx shadcn@latest preset decode <code>` before `npx shadcn@latest apply <code> --only theme`.

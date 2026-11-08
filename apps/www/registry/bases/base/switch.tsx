@@ -29,9 +29,9 @@
  * NEITHER COLOUR AXIS. A switch sets a preference. It names no clinical level
  * and no kind of measurement, so it carries neither data-status nor
  * data-category, and it must never stand in for a status control. The on state
- * is drawn with the bridged primary fill on the track, which is the system's
- * "this is active" role and not a step on the status ramp, and the off state is
- * the muted chrome surface. The state a reader relies on is carried by
+ * is drawn with the accent fill on the track, `--brand`, which is the system's
+ * selected-state role (ADR 0029) and not a step on the status ramp, and the off
+ * state is the muted chrome surface. The state a reader relies on is carried by
  * aria-checked and by the thumb's position, not by the fill alone, so the switch
  * survives greyscale: the thumb sits left for off and right for on, and a
  * hairline around it keeps it legible when a reader stylesheet strips the fills.
@@ -72,12 +72,13 @@ const ROW =
 /**
  * The track, spelled once.
  *
- * A muted pill in the off state and the bridged primary fill in the on state,
- * with a hairline on both so the shape survives a reader stylesheet that removes
- * the fill. The on colour is `bg-primary`, the "active" role the product theme
- * bridges, not a status step: a switch is on neither colour axis, and the state
- * a reader depends on is aria-checked and the thumb's position rather than the
- * fill. The focus ring is carried here rather than left to the product
+ * A muted pill in the off state and the accent fill in the on state (ADR 0029),
+ * with a hairline at rest so the shape survives a reader stylesheet that removes
+ * the fill. The on colour is `bg-brand`, the selected-state role the accent
+ * layer sets, and its boundary is `--brand-edge`, which is transparent unless a
+ * bright accent needs an ink rim to stand off the page. It is not a status step:
+ * a switch is on neither colour axis, and the state a reader depends on is
+ * aria-checked and the thumb's position rather than the fill. The focus ring is carried here rather than left to the product
  * stylesheet, so a project installed without that stylesheet does not lose it.
  * The transition is chrome only, the fill fading across the flip; the thumb's
  * travel is on the thumb below.
@@ -85,7 +86,7 @@ const ROW =
 const TRACK =
   "relative inline-flex shrink-0 items-center rounded-full border border-border " +
   "h-opsin-6 w-opsin-10 p-opsin-0-5 bg-muted " +
-  "data-[checked]:bg-primary " +
+  "data-[checked]:border-brand-edge data-[checked]:bg-brand " +
   "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60 " +
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
   "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"

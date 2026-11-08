@@ -37,10 +37,9 @@
  *
  * NEITHER COLOUR AXIS. A checkbox records a choice; it states no clinical level
  * and names no category, so it carries neither `data-status` nor `data-category`
- * and draws only neutral chrome. The ticked and mixed box is filled with the
- * shared action role `--primary` and its paired ink, which is the same fill the
- * primary Button uses and the one a reader already reads as "the thing I acted
- * on", never a status hue. The unticked box is a neutral hairline on the page
+ * and draws no status or category hue. The ticked and mixed box is filled with
+ * the accent, `--brand`, and its paired ink, the selected-state role every
+ * selection control shares (ADR 0029), never a status hue. The unticked box is a neutral hairline on the page
  * ground. The semantic carrier underneath the fill is `aria-checked`, which is
  * `mixed` for the indeterminate box, rather than any pixel at all.
  *
@@ -65,13 +64,14 @@ import { cn } from "@/lib/utils"
  * The box itself, spelled once.
  *
  * The ticked and mixed states are carried three ways so none of them is
- * load-bearing alone: `aria-checked` for assistive technology, the `--primary`
- * fill lifting the box off the page ground for a sighted reader, and the glyph
+ * load-bearing alone: `aria-checked` for assistive technology, the accent fill
+ * `--brand` lifting the box off the page ground for a sighted reader (ADR 0029),
+ * inside its `--brand-edge` rim where a bright accent needs one, and the glyph
  * inside it for greyscale and for a reader stylesheet that strips fills. The
  * unticked box is a neutral hairline on the background, so the two states differ
  * in fill, in border and in glyph at once.
  *
- * The ink is written as the arbitrary property `[color:var(--primary-foreground)]`
+ * The ink is written as the arbitrary property `[color:var(--brand-foreground)]`
  * rather than a `text-*` class, for the reason `button.tsx` sets out at length:
  * tailwind-merge files a `text-*` colour in the same conflict group as a type
  * step and would drop one of them. The disabled box drops to the measured
@@ -87,8 +87,8 @@ const CONTROL =
   "grid shrink-0 place-items-center size-[1.25rem] mt-[0.125rem] rounded-opsin-sm " +
   "border border-border bg-background [color:var(--foreground)] " +
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
-  "data-[checked]:border-transparent data-[checked]:bg-primary data-[checked]:[color:var(--primary-foreground)] " +
-  "data-[indeterminate]:border-transparent data-[indeterminate]:bg-primary data-[indeterminate]:[color:var(--primary-foreground)] " +
+  "data-[checked]:border-brand-edge data-[checked]:bg-brand data-[checked]:[color:var(--brand-foreground)] " +
+  "data-[indeterminate]:border-brand-edge data-[indeterminate]:bg-brand data-[indeterminate]:[color:var(--brand-foreground)] " +
   "data-[disabled]:cursor-not-allowed data-[disabled]:[color:var(--muted-foreground)] " +
   "focus-visible:outline-ring focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)]"
 

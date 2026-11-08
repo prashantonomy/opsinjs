@@ -130,11 +130,12 @@ const TRACK =
 
 /**
  * The filled portion, from the start of the track to the thumb. It draws the
- * bridged `primary` role, which resolves to a colour both under the docs chrome
- * and at `/view`, and it inherits the track's height. It is neutral chrome, not
- * a status: the fill says "this much", never "this urgent".
+ * accent fill, `--brand` (ADR 0029), with the accent's rim as an inset line so a
+ * bright accent still separates from the muted rail, and it inherits the track's
+ * height. It is chrome, not a status: the fill says "this much", never "this
+ * urgent".
  */
-const INDICATOR = "rounded-full bg-primary"
+const INDICATOR = "rounded-full bg-brand shadow-[inset_0_0_0_1px_var(--brand-edge)]"
 
 /**
  * The thumb: the 44px hit area, transparent and centred on the value by Base UI.

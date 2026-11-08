@@ -351,7 +351,7 @@ function actionControl(
 
   /* NO BRAND FILL ON THE ACTING FORM. `Button variant="primary"` is `bg-primary`
      on `text-primary-foreground`, and the navigating form above is `<Link
-     emphasis="action">`, a neutral outlined underlined link on `bg-card`.
+     emphasis="action">`, a neutral outlined capsule on `bg-card`.
      Reaching for the brand fill here made the same recommended action carry a
      solid blue button on `onSelect` and a quiet link on `href`, so the reader met
      two different amounts of emphasis for one step depending on a prop they cannot
@@ -365,29 +365,16 @@ function actionControl(
     <Button
       variant={emphasis === "primary" ? "secondary" : "quiet"}
       size={emphasis === "primary" ? "md" : "sm"}
-      className={cn(
-        cardActionClassName({
-          weight: emphasis === "primary" ? "recommended" : "quiet",
-          ground: "neutral",
-          as: "button",
-        }),
-        /* STOPGAP for a recipe/TONE disagreement, not the real fix. The quiet
-           neutral link arm asserts [color:var(--foreground)] (button.tsx:808),
-           but Button's quiet TONE asserts [color:var(--primary)]
-           (button.tsx:256) and the quiet button delta ("underline
-           underline-offset-4") names no ink, so without this the onSelect
-           transport of a quiet action renders brand ink while the href
-           transport renders foreground ink. That is the transport-dependent
-           appearance D3 forbids. Re-asserting the foreground ink here restores
-           transport-invariance because cn() puts the caller's classes last, so
-           it wins the color conflict group over TONE. The recommended branch
-           needs nothing: Button variant="secondary" already carries
-           [color:var(--foreground)] in its TONE. The durable fix reconciles
-           cardActionClassName's quiet neutral arm and Button's quiet TONE on
-           one ink inside button.tsx, so all four action-bearing cards get it at
-           once; see the crossUnitNotes for comp:button on 09.e. */
-        emphasis === "primary" ? null : "[color:var(--foreground)]",
-      )}
+      /* The recipe and Button's quiet rung now agree on one ink, the accent
+         ink (ADR 0029), so the quiet action reads the same on `onSelect` as on
+         `href` with no override here. The recommended branch needs nothing
+         either: Button variant="secondary" already carries the foreground ink
+         and the boundary the recipe's recommended link arm draws. */
+      className={cardActionClassName({
+        weight: emphasis === "primary" ? "recommended" : "quiet",
+        ground: "neutral",
+        as: "button",
+      })}
       onClick={action.onSelect}
     >
       {label}

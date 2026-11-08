@@ -78,15 +78,32 @@
      which measured about Lc 13 / 1.29:1 and vanished at low screen brightness. */
   --border: var(--opsin-chrome-border);
   --input: var(--opsin-chrome-input);
-  --ring: var(--opsin-chrome-ring);
-  --primary: var(--opsin-chrome-primary);
-  --primary-foreground: var(--opsin-chrome-primary-foreground);
-  /* The decorative edge of a sheet that is not a control, and the brand light.
-     Both come from tokens/color.json (ADR 0028). `--edge` draws around a card,
-     a tile or a table; a control keeps `--border`, its 3:1 boundary. `--brand`
-     is spent as light and never as a fill that reports a result. */
+  /* The decorative edge of a sheet that is not a control, from tokens/color.json
+     (ADR 0028). `--edge` draws around a card, a tile or a table; a control keeps
+     `--border`, its 3:1 boundary. */
   --edge: var(--opsin-chrome-edge);
-  --brand: var(--opsin-chrome-brand);
+  /* The accent roles, from tokens/accent.json (ADR 0029). Each one points at an
+     `--opsin-accent-*` token, which carries the default theme's default accent
+     here and whatever theme and accent the page chose under `data-accent-theme`
+     and `data-accent`. The block further down re-declares all of them on any
+     element that starts an accent scope.
+
+     `--primary` is the one filled action, ink in the normal theme. `--brand` is
+     the selected state of a selection control and `--brand-foreground` the tick
+     or label on it. `--brand-ink` is accent-coloured text on the page or a card.
+     The two `-edge` roles are transparent unless a bright fill needs a rim to
+     separate from the page, and `--brand-glow` is light the action throws, which
+     only the vibes theme casts. None of them ever fills a surface that reports a
+     result, and none carries a status or a category. */
+  --ring: var(--opsin-accent-ring);
+  --primary: var(--opsin-accent-action);
+  --primary-foreground: var(--opsin-accent-action-foreground);
+  --primary-edge: var(--opsin-accent-action-edge);
+  --brand: var(--opsin-accent-fill);
+  --brand-foreground: var(--opsin-accent-fill-foreground);
+  --brand-edge: var(--opsin-accent-fill-edge);
+  --brand-ink: var(--opsin-accent-ink);
+  --brand-glow: var(--opsin-accent-glow);
 
   /* Interaction state fills. interaction-states.mdx:35-37 asks for a state that
      is a fixed OKLCH lightness step off the role it derives from, darker in
@@ -107,16 +124,17 @@
      the 4.5 body floor. 1.21:1 for press is a real and visible lift on 1.08:1,
      not a pass against a floor.
 
-     The two primary fills carry a filled label, so they are measured against
-     --primary-foreground. Since ADR 0028 the primary action is ink, so its
-     states are the next two neutral steps up from it rather than a darker blue:
-     white on neutral-800 reads 15.15:1 and on neutral-700 10.42:1, measured with
-     lib/color, both far above the body floor, so a hover or a press never costs
-     the label its contrast. */
+     The two primary fills carry a filled label, so they come from the accent
+     layer with the action itself: `--opsin-accent-action-hover` and `-press`.
+     In the normal theme they are the next two neutral steps up from the ink
+     action, white on neutral-800 and on neutral-700; in every theme they move
+     away from the label, and scripts/build-tokens.mts refuses a state whose
+     label falls below the body floor, so a hover or a press never costs the
+     label its contrast. */
   --state-hover: oklch(0.945 0.004 252);
   --state-press: oklch(0.920 0.005 252);
-  --state-primary-hover: var(--opsin-neutral-800);
-  --state-primary-press: var(--opsin-neutral-700);
+  --state-primary-hover: var(--opsin-accent-action-hover);
+  --state-primary-press: var(--opsin-accent-action-press);
 
   /* --- Placeholder. A dedicated opaque neutral triple for the loading
      Skeleton, because --muted over a --border hairline is barely perceivable on
@@ -258,11 +276,16 @@
      alpha at 0.18 was measured too and read no better, at Lc 0.00 / WCAG 1.64. */
   --border: var(--opsin-chrome-border);
   --input: var(--opsin-chrome-input);
-  --ring: var(--opsin-chrome-ring);
-  --primary: var(--opsin-chrome-primary);
-  --primary-foreground: var(--opsin-chrome-primary-foreground);
   --edge: var(--opsin-chrome-edge);
-  --brand: var(--opsin-chrome-brand);
+  --ring: var(--opsin-accent-ring);
+  --primary: var(--opsin-accent-action);
+  --primary-foreground: var(--opsin-accent-action-foreground);
+  --primary-edge: var(--opsin-accent-action-edge);
+  --brand: var(--opsin-accent-fill);
+  --brand-foreground: var(--opsin-accent-fill-foreground);
+  --brand-edge: var(--opsin-accent-fill-edge);
+  --brand-ink: var(--opsin-accent-ink);
+  --brand-glow: var(--opsin-accent-glow);
 
   /* Interaction state fills, dark half. Lighter than their surfaces here, which
      is the direction interaction-states.mdx:35-37 specifies for a dark theme
@@ -270,13 +293,12 @@
      the same reason as the light half. Measured with lib/color: --state-hover
      reads 1.42:1 against --background and 1.29:1 against --card, --state-press
      1.65:1 and 1.50:1, so press clears the report's 1.5:1 mark on both surfaces
-     in dark where the light theme cannot. The primary action is the lightest
-     neutral by night, so its states step down from it: the near-black label
-     reads 16.09:1 on neutral-200 and 13.44:1 on neutral-300. */
+     in dark where the light theme cannot. The primary pair comes from the
+     accent layer, as in the light half. */
   --state-hover: oklch(0.300 0.008 260);
   --state-press: oklch(0.345 0.009 260);
-  --state-primary-hover: var(--opsin-neutral-200);
-  --state-primary-press: var(--opsin-neutral-300);
+  --state-primary-hover: var(--opsin-accent-action-hover);
+  --state-primary-press: var(--opsin-accent-action-press);
 
   /* Placeholder, dark half. Opaque steps for the same reason the hairline
      above is opaque: the alpha the old dark --border carried, oklch(1 0 0 /
@@ -334,6 +356,37 @@
   --opsin-category-labs-line: oklch(0.806 0.073 210);
   --opsin-category-labs-ink: oklch(0.884 0.046 210);
   --opsin-category-labs-accent: oklch(0.714 0.097 210);
+}
+
+/* Accent scopes (ADR 0029). A role is resolved where it is declared, so a role
+   inherited from `:root` keeps the root's accent even inside an element that
+   chose another one. Every element carrying `data-accent-theme` or
+   `data-accent` therefore re-declares every chrome and accent role, and they
+   resolve against that element's own tokens from tokens.generated.css. On
+   `<html>` this repeats the root block; on a card or a preview it is what makes
+   a scope a scope. */
+[data-accent],
+[data-accent-theme] {
+  --background: var(--opsin-chrome-background);
+  --foreground: var(--opsin-chrome-foreground);
+  --card: var(--opsin-chrome-card);
+  --card-foreground: var(--opsin-chrome-card-foreground);
+  --muted: var(--opsin-chrome-muted);
+  --muted-foreground: var(--opsin-chrome-muted-foreground);
+  --border: var(--opsin-chrome-border);
+  --input: var(--opsin-chrome-input);
+  --edge: var(--opsin-chrome-edge);
+  --ring: var(--opsin-accent-ring);
+  --primary: var(--opsin-accent-action);
+  --primary-foreground: var(--opsin-accent-action-foreground);
+  --primary-edge: var(--opsin-accent-action-edge);
+  --brand: var(--opsin-accent-fill);
+  --brand-foreground: var(--opsin-accent-fill-foreground);
+  --brand-edge: var(--opsin-accent-fill-edge);
+  --brand-ink: var(--opsin-accent-ink);
+  --brand-glow: var(--opsin-accent-glow);
+  --state-primary-hover: var(--opsin-accent-action-hover);
+  --state-primary-press: var(--opsin-accent-action-press);
 }
 
 /* Density. `(view)` reads ?density= and stamps it on <html>; the preview
@@ -421,6 +474,10 @@
   --color-ring: var(--ring);
   --color-edge: var(--edge);
   --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-edge: var(--brand-edge);
+  --color-brand-ink: var(--brand-ink);
+  --color-primary-edge: var(--primary-edge);
 
   /* The drop under a card, so a component that paints its own card rather
      than wrapping Surface takes the same lift: `shadow-card`. */
@@ -744,9 +801,11 @@
      `--opsin-corner-shape` stays declared above because those components read
      it. See foundations/shape. */
 
+  /* The width and the offset read the generated tokens, so the stryk theme's
+     3px ring reaches every control that falls back on this rule. */
   :focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
+    outline: var(--opsin-border-focus, 2px) solid var(--ring);
+    outline-offset: var(--opsin-border-focus-offset, 2px);
   }
 
   /* Tap-highlight, restored. Tailwind v4 preflight zeroes

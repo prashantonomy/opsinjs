@@ -1154,7 +1154,7 @@ function ResultCardAction({
     /* NO BRAND FILL FOR THE RECOMMENDED ACTION, SO THE TWO TRANSPORTS MATCH.
        `Button variant="primary"` is `bg-primary` on `text-primary-foreground`:
        the biggest control on the screen. The `href` form of the same
-       recommended action is the recipe's neutral bordered underlined link on
+       recommended action is the recipe's neutral bordered capsule link on
        `bg-card`. So one semantic step would read as a faint link or as a loud
        blue button purely by which prop the product happened to pass, a
        difference the reader cannot see. `secondary` is `border-border bg-card
@@ -1167,14 +1167,12 @@ function ResultCardAction({
        THE CLASS DELTA COMES FROM THE SHARED RECIPE, NOT A LOCAL STRING. Button
        already brings the box, the fill and the type step through its TONE and
        SIZE, so `cardActionClassName(..., { as: "button" })` returns only what is
-       left: nothing for the recommended weight, and `underline underline-offset-4`
-       for the quiet one. Routing it through the recipe is what keeps the handler
-       form and the link form from drifting, and it is why this file now holds no
-       private action class string of its own. The underline follows D3 rule 2,
-       not the transport: an anchor carries it because it is an anchor, the
-       `secondary` Button does not because its boundary already says it is a
-       control, and the quiet handler draws neither border nor fill, so the
-       recipe hands it the underline to keep it from reading as a paragraph. */
+       left, which on this card's neutral ground is nothing for either weight.
+       Routing it through the recipe is what keeps the handler form and the link
+       form from drifting, and it is why this file now holds no private action
+       class string of its own. Neither form is underlined: the recommended one
+       is a bordered capsule and the quiet one is set in the accent ink (ADR
+       0029), so neither reads as a paragraph. */
     <Button
       variant={emphasis === "recommended" ? "secondary" : "quiet"}
       /* THE SIZE FOLLOWS THE WEIGHT ON BOTH TRANSPORTS. Button with no size

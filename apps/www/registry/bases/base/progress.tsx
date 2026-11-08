@@ -66,9 +66,10 @@ const TRACK =
  * The fill, spelled once per case because Tailwind reads class names out of
  * source as literal text and a computed class generates no CSS.
  *
- * The determinate fill is the primary action role, so it reads as the same
- * "done" colour a Button's fill reads as, and its width is set inline by Base
- * UI from the value. The width change eases over the fast duration token so a
+ * The determinate fill is the accent fill, `--brand` (ADR 0029), the colour a
+ * ticked box and a switch that is on read as, with the accent's rim as an inset
+ * line so a bright accent still separates from the muted groove. Its width is
+ * set inline by Base UI from the value. The width change eases over the fast duration token so a
  * step forward slides rather than jumps, and it is turned off under
  * `prefers-reduced-motion`. This is chrome motion on a task, not a health value
  * animating on first paint, which the system forbids and which this bar never
@@ -76,7 +77,7 @@ const TRACK =
  * first render.
  */
 const FILL_DETERMINATE =
-  "h-full rounded-full bg-primary transition-[width] duration-(--opsin-duration-fast) ease-opsin-standard motion-reduce:transition-none"
+  "h-full rounded-full bg-brand shadow-[inset_0_0_0_1px_var(--brand-edge)] transition-[width] duration-(--opsin-duration-fast) ease-opsin-standard motion-reduce:transition-none"
 
 /**
  * The indeterminate fill fills the whole track and pulses, so it is told apart
@@ -85,7 +86,7 @@ const FILL_DETERMINATE =
  * `prefers-reduced-motion`, where the words carry the state on their own.
  */
 const FILL_INDETERMINATE =
-  "h-full w-full rounded-full bg-primary animate-pulse motion-reduce:animate-none"
+  "h-full w-full rounded-full bg-brand shadow-[inset_0_0_0_1px_var(--brand-edge)] animate-pulse motion-reduce:animate-none"
 
 /**
  * The screen-reader-only clip, spelled once rather than imported from

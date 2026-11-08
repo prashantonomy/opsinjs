@@ -381,6 +381,17 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-border-emphasis` | `2px` | The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status. |
 | `--opsin-border-focus` | `2px` | The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed. See /docs/accessibility/keyboard-and-focus. |
 | `--opsin-border-focus-offset` | `2px` | Offset for the focus boundary. |
+| `--opsin-accent-action` | `oklch(0.145 0.005 250)` | The fill of the one filled action on a surface, Button's primary rung. Read as --primary. |
+| `--opsin-accent-action-foreground` | `oklch(1 0 0)` | The label on the action fill. Measured against the fill and both of its states at the body floor. Read as --primary-foreground. |
+| `--opsin-accent-action-hover` | `oklch(0.269 0.007 250)` | The action fill under a pointer. It moves away from the label, so the label never loses contrast. Read as --state-primary-hover. |
+| `--opsin-accent-action-press` | `oklch(0.371 0.008 250)` | The action fill while pressed or busy. It moves away from the label as well. Read as --state-primary-press. |
+| `--opsin-accent-action-edge` | `transparent` | The action's boundary. Transparent where the fill alone clears the non-text floor against the page; an ink rim where a bright fill does not. Read as --primary-edge. |
+| `--opsin-accent-fill` | `oklch(0.53 0.155 250)` | The selected state of a selection control: a switch that is on, a ticked checkbox, a chosen radio, the range of a slider, a progress fill, the current tab. Read as --brand. |
+| `--opsin-accent-fill-foreground` | `oklch(1 0 0)` | A glyph or a label on the accent fill: a checkbox tick, a chosen scale value. Measured at the body floor. Read as --brand-foreground. |
+| `--opsin-accent-fill-edge` | `transparent` | The boundary of an accent fill, for the same reason as actionEdge. Read as --brand-edge. |
+| `--opsin-accent-ink` | `oklch(0.5 0.142 250)` | Accent-coloured text on the page and on a card: a quiet button, an alternative action. Measured at the body floor on both. Read as --brand-ink. |
+| `--opsin-accent-ring` | `oklch(0.53 0.155 250)` | The focus ring. Measured at the non-text floor on the page and on a card. Read as --ring. |
+| `--opsin-accent-glow` | `transparent` | Light thrown by the action, as a shadow colour. Decorative, never a boundary, so it is not measured. Only vibes casts one. Read as --brand-glow. |
 
 ### `.dark, .opsin-product.dark`
 
@@ -468,6 +479,17 @@ Every opsinjs custom property starts `--opsin-`. Anything else in the cascade be
 | `--opsin-material-scrim-tint` | `var(--opsin-neutral-1000)` | Rung 5 (scrim): the tint over what is behind it. The dimming layer behind a modal dialog or a consent sheet. Its job is to remove the page from consideration, not to look like glass. |
 | `--opsin-material-scrim-tint-alpha` | `0.6` | Rung 5 (scrim): how opaque that tint is. |
 | `--opsin-material-scrim-opaque` | `oklch(0 0 0 / 0.8)` | Rung 5 (scrim): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
+| `--opsin-accent-action` | `oklch(0.985 0.002 250)` | The fill of the one filled action on a surface, Button's primary rung. Read as --primary. |
+| `--opsin-accent-action-foreground` | `oklch(0.145 0.005 250)` | The label on the action fill. Measured against the fill and both of its states at the body floor. Read as --primary-foreground. |
+| `--opsin-accent-action-hover` | `oklch(0.929 0.004 250)` | The action fill under a pointer. It moves away from the label, so the label never loses contrast. Read as --state-primary-hover. |
+| `--opsin-accent-action-press` | `oklch(0.871 0.005 250)` | The action fill while pressed or busy. It moves away from the label as well. Read as --state-primary-press. |
+| `--opsin-accent-action-edge` | `transparent` | The action's boundary. Transparent where the fill alone clears the non-text floor against the page; an ink rim where a bright fill does not. Read as --primary-edge. |
+| `--opsin-accent-fill` | `oklch(0.845 0.079 250)` | The selected state of a selection control: a switch that is on, a ticked checkbox, a chosen radio, the range of a slider, a progress fill, the current tab. Read as --brand. |
+| `--opsin-accent-fill-foreground` | `oklch(0.145 0.005 250)` | A glyph or a label on the accent fill: a checkbox tick, a chosen scale value. Measured at the body floor. Read as --brand-foreground. |
+| `--opsin-accent-fill-edge` | `transparent` | The boundary of an accent fill, for the same reason as actionEdge. Read as --brand-edge. |
+| `--opsin-accent-ink` | `oklch(0.855 0.074 250)` | Accent-coloured text on the page and on a card: a quiet button, an alternative action. Measured at the body floor on both. Read as --brand-ink. |
+| `--opsin-accent-ring` | `oklch(0.75 0.13 250)` | The focus ring. Measured at the non-text floor on the page and on a card. Read as --ring. |
+| `--opsin-accent-glow` | `transparent` | Light thrown by the action, as a shadow colour. Decorative, never a boundary, so it is not measured. Only vibes casts one. Read as --brand-glow. |
 
 ### `@supports (color-gamut: p3)`
 

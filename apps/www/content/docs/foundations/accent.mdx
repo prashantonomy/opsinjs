@@ -1,0 +1,87 @@
+---
+title: Accent
+description: Three accent themes, normal, vibes and stryk, each with the same nine accents for action, selection, focus and accent text, and never for a result.
+kind: foundation
+aliases: [accent colour, accent theme, theme colour, high contrast theme, stryk, vibes, data-accent, data-accent-theme]
+---
+
+opsinjs has three kinds of colour. Status says how much attention something needs and category says what kind of measurement it is; both are fixed, and [Colour](./colour.mdx) owns them. The accent is the product's own colour, and it is the one you choose. An accent theme decides how loudly it is spent, and an accent decides its hue.
+
+<ComponentPreview name="accent-themes-a-settings-card" kind="example" minHeight={400} />
+
+Change the theme and the accent with the picker above any preview. The choice follows you to every preview and every [showcase](/showcase) screen on this site.
+
+## Three themes
+
+| Theme | The filled action | The selected state | Floors | Default accent |
+| --- | --- | --- | --- | --- |
+| Normal, the default | Ink, a near-black capsule by day and a near-white one by night | The accent | Standard | Cobalt |
+| Vibes | The accent at full chroma, casting a glow | The accent | Standard | Volt |
+| Stryk | The accent, deep by day and light by night | The accent | Enhanced | Graphite |
+
+**Normal** keeps the ink and paper look and spends the accent as light: what is selected, what has focus, and a quiet action set in words.
+
+**Vibes** makes the accent the action. Deep accents carry a white label. Volt, jade and sky are bright and carry an ink label, with an ink rim by day where the fill alone would not separate from the page; by night a deep fill takes a light rim for the same reason.
+
+**Stryk** is high contrast. The page is pure white or pure black, every boundary and edge is full ink, shadows and translucency go, and the focus ring widens to 3px. Every label clears WCAG 2.2 AAA, 7:1, and APCA Lc 85, and every boundary and ring clears 4.5:1 and Lc 60. **Stryk applies whenever the reader's system asks for more contrast**, whatever theme the product chose, and keeps the accent they picked.
+
+## Nine accents
+
+Every theme defines the same nine, so changing the theme never changes the accent.
+
+| Accent | Hue |
+| --- | --- |
+| Cobalt | 250 |
+| Sky | 212 |
+| Jade | 152 |
+| Volt | 122 |
+| Rose | 354 |
+| Orchid | 326 |
+| Violet | 300 |
+| Iris | 278 |
+| Graphite | none, the monochrome accent |
+
+<ComponentPreview name="accent-themes-the-palette" kind="example" align="start" minHeight={620} />
+
+## Choosing one
+
+Set the theme and the accent on `<html>`. With neither, a page renders normal and cobalt.
+
+```html
+<html data-accent-theme="vibes" data-accent="volt">
+```
+
+Any element can start a scope of its own, and `.dark` may sit on the same element, above it or inside it. Set both attributes on one element: a theme on one element and an accent on another do not combine.
+
+Each pairing is also a theme item that layers on the default one:
+
+```npm
+npx shadcn@latest add https://opsinjs.pensievelabs.org/r/themes/opsinjs-default.json
+npx shadcn@latest add https://opsinjs.pensievelabs.org/r/themes/opsinjs-vibes-volt.json
+```
+
+A theme item sets `:root` and `.dark` only, so it fixes one pairing. Switching at runtime needs the attribute blocks in `app/tokens.generated.css`.
+
+## Roles
+
+| Role | Token | Read by |
+| --- | --- | --- |
+| `--primary`, `--primary-foreground` | `--opsin-accent-action`, `-action-foreground` | [Button](../components/button.mdx) `primary` |
+| `--state-primary-hover`, `-press` | `--opsin-accent-action-hover`, `-press` | The same, under a pointer and pressed |
+| `--brand`, `--brand-foreground` | `--opsin-accent-fill`, `-fill-foreground` | [Switch](../components/switch.mdx), [Checkbox](../components/checkbox.mdx), [RadioGroup](../components/radio-group.mdx), [Slider](../components/slider.mdx), [Progress](../components/progress.mdx), [ScaleInput](../components/scale-input.mdx) |
+| `--primary-edge`, `--brand-edge` | `-action-edge`, `-fill-edge` | The rim a bright fill needs, transparent otherwise |
+| `--brand-ink` | `--opsin-accent-ink` | Button `quiet`, a card's quiet action, the [Tabs](../components/tabs.mdx) indicator |
+| `--ring` | `--opsin-accent-ring` | Every focus ring |
+| `--brand-glow` | `--opsin-accent-glow` | The light a vibes action throws |
+
+## Rules
+
+1. An accent never fills a surface that reports a result and never carries a status or a category. On a status surface, such as an [AlertBanner](../components/alert-banner.mdx), a control takes that level's own ink instead.
+2. Every accent hue keeps at least 25 degrees from the status hues 27, 45, 82 and 178, so red, orange, amber and the steady teal stay with status. Graphite has no hue.
+3. Every pair is measured. `scripts/build-tokens.mts` refuses to write an accent below its floor, so a failing accent fails the build, and [Accent contrast](../reference/generated/accents.mdx) publishes every figure.
+4. A control drawn as words is set in the accent ink and never underlined. An underline marks a link inside running text.
+5. A custom accent is a fork of `tokens/accent.json`, measured the same way, never a colour set in a component.
+
+<Todo>
+Stryk has not been used by a reader with low vision, and no accent theme has been checked by eye under forced colours, where the platform replaces every accent with its own pair.
+</Todo>

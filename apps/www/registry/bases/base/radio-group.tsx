@@ -32,13 +32,12 @@
  *
  * NEITHER COLOUR AXIS. A radio group asks the reader to pick one of a set of
  * choices; it states no clinical level and names no category, so it carries
- * neither `data-status` nor `data-category` and draws only neutral chrome. The
- * chosen option is marked three ways so none of them is load-bearing alone:
- * `aria-checked` for assistive technology, a filled dot inside the circle for a
- * sighted reader, and the circle's own border lifting to the primary ink for
- * greyscale and for a reader stylesheet that strips fills. The dot and the ring
- * are neutral primary ink, not a hue, so the selection survives greyscale and
- * reads without colour doing the work.
+ * neither `data-status` nor `data-category` and draws no status or category hue.
+ * The chosen option is marked three ways so none of them is load-bearing alone:
+ * `aria-checked` for assistive technology, the circle filling with the accent
+ * (ADR 0029) for a sighted reader, and the dot inside it for greyscale and for a
+ * reader stylesheet that strips fills. The accent is the selected-state role, not
+ * a status, so the selection reads without a level's colour doing the work.
  *
  * THE LABEL IS A VISIBLE LEGEND, NOT ONLY AN ACCESSIBLE NAME. `label` is
  * required, and it is rendered as a heading above the list and wired to the
@@ -133,25 +132,26 @@ const ITEM =
 
 /**
  * The circle, spelled once. A neutral ring on the background so the dot has
- * something to sit against. When the row is checked the ring lifts to the primary
- * ink, which is a neutral dark rather than a hue, so the selected circle reads in
- * greyscale as well as in colour. Sized in `em` so it grows with the option's
- * text. It is `aria-hidden` because the selected state is carried by the row's
+ * something to sit against. When the row is checked the circle fills with the
+ * accent, `--brand`, inside its `--brand-edge` rim (ADR 0029), the way a ticked
+ * checkbox does, so the two selection controls read as one family. The dot
+ * inside it keeps the selected circle readable in greyscale. Sized in `em` so it
+ * grows with the option's text. It is `aria-hidden` because the selected state is carried by the row's
  * `aria-checked` and the label text, so the circle is decoration for the eye.
  */
 const CONTROL =
   "relative mt-[0.15em] flex size-[1.15em] shrink-0 items-center justify-center " +
   "rounded-full border border-border bg-background " +
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
-  "group-data-[checked]:border-primary"
+  "group-data-[checked]:border-brand-edge group-data-[checked]:bg-brand"
 
 /**
  * The dot, spelled once. Base UI's Radio.Indicator renders this span only when
  * the option is checked, so an unchecked circle is genuinely empty rather than
- * holding a hidden dot. It is the primary ink, the same neutral dark the ring
- * lifts to, sized in `em` so it grows with the option.
+ * holding a hidden dot. It is `--brand-foreground`, the ink measured on the
+ * accent fill at the body floor, sized in `em` so it grows with the option.
  */
-const INDICATOR = "size-[0.5em] rounded-full bg-primary"
+const INDICATOR = "size-[0.45em] rounded-full bg-brand-foreground"
 
 /** The label and description column, kept narrow so a long label wraps rather than pushes the circle. */
 const ITEM_TEXT = "flex min-w-0 flex-col gap-opsin-0-5"

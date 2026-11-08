@@ -75,18 +75,19 @@ const TRACK = "flex w-full flex-wrap gap-opsin-1"
  * One point, spelled once.
  *
  * The chosen point is carried four ways so none of them is load-bearing alone:
- * `aria-checked` for assistive technology, the primary fill for a sighted reader,
+ * `aria-checked` for assistive technology, the accent fill for a sighted reader,
  * and the loss of the resting hairline as the fill takes over for greyscale. Under
  * `forced-colors: active` the fill is flattened and a transparent border would
  * leave the chosen point unmarked, so the point repaints to the system `Highlight`
  * with `HighlightText` ink and a `Highlight` border, the same repair `button.tsx`
  * makes on its primary control, which keeps the selection distinct in that mode.
- * The fill is the neutral primary role rather than a status colour, because the
- * point is a rating the reader gave, not a level the component reached.
+ * The fill is the accent fill, `--brand` inside its `--brand-edge` rim (ADR 0029),
+ * rather than a status colour, because the point is a rating the reader gave, not
+ * a level the component reached.
  *
  * The ink is written as the arbitrary property `[color:var(--foreground)]` and
- * the selected ink as `[color:var(--primary-foreground)]`, not `text-foreground`
- * or `text-primary-foreground`, for the reason `button.tsx` records at length:
+ * the selected ink as `[color:var(--brand-foreground)]`, not `text-foreground`
+ * or a `text-*` colour, for the reason `button.tsx` records at length:
  * tailwind-merge files a `text-*` colour in the same group as the `text-opsin-*`
  * type step and drops one of them, so the arbitrary property keeps both the size
  * and the ink. A disabled point drops to the measured muted ink rather than an
@@ -105,7 +106,7 @@ const POINT =
   "text-opsin-headline font-medium [color:var(--foreground)] " +
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
   "data-[unchecked]:hover:bg-state-hover " +
-  "data-[checked]:border-transparent data-[checked]:bg-primary data-[checked]:[color:var(--primary-foreground)] " +
+  "data-[checked]:border-brand-edge data-[checked]:bg-brand data-[checked]:[color:var(--brand-foreground)] " +
   "data-[checked]:forced-colors:[background-color:Highlight] data-[checked]:forced-colors:[color:HighlightText] data-[checked]:forced-colors:border-[Highlight] data-[checked]:forced-colors:forced-color-adjust-none " +
   "data-[disabled]:cursor-not-allowed data-[disabled]:[color:var(--muted-foreground)] data-[disabled]:hover:bg-transparent " +
   "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
@@ -298,7 +299,7 @@ export function ScaleInput({
  * because the scale is controlled and a demo has to close that loop somewhere,
  * and it shows a five point scale with two end words and one point chosen, which
  * is the one thing worth seeing at a glance: the chosen point is lifted by the
- * primary fill rather than by a status colour, so read it in greyscale and it is
+ * accent fill rather than by a status colour, so read it in greyscale and it is
  * still plainly the answer.
  *
  * The words are a fictional rating with abstract ends (ADR 0012). There is no

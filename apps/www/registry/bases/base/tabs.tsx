@@ -123,8 +123,10 @@ const TAB =
  * that rides under the active tab, sized and placed from the CSS variables
  * Base UI writes onto it (`--active-tab-width` and `--active-tab-left`), so it
  * follows the active tab without this file measuring anything. Its thickness is
- * the half-space token rather than a pixel literal, and its fill is the chrome
- * `--primary` ink, which is neutral and on neither colour axis. It is
+ * the half-space token rather than a pixel literal, and its fill is the accent
+ * ink, `--brand-ink` (ADR 0029), which clears the body floor on the page in every
+ * accent theme, so a two-pixel line stays visible where a bright accent fill
+ * would not. It is on neither colour axis. It is
  * decorative: `aria-selected` on the tab is the carrier a screen reader reads,
  * and this bar is the sighted echo of it, so it is not the only thing telling
  * the two states apart.
@@ -134,7 +136,7 @@ const TAB =
  * reading on first paint. It moves only when the reader changes tab.
  */
 const INDICATOR =
-  "pointer-events-none absolute bottom-0 left-0 h-opsin-0-5 rounded-full bg-primary " +
+  "pointer-events-none absolute bottom-0 left-0 h-opsin-0-5 rounded-full bg-brand-ink " +
   "w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] " +
   "transition-[transform,width] duration-(--opsin-duration-fast) ease-opsin-standard"
 

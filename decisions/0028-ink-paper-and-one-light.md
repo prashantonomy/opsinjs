@@ -4,7 +4,7 @@ The product and the documentation take one visual language from the Pensieve Lab
 
 ## Status
 
-**Accepted.** 2026-11-08. Supersedes the lyra half of [ADR 0004](./0004-lyra-docs-chrome.md): the documentation chrome no longer wears shadcn's `lyra` values. The rest of 0004 stands, so the two stylesheets stay separate and every preview is still an iframe onto `/view`. Answers the question the September visual audit (decision D5) left for a human, that the primary action and the focus ring were as chromatic as the category axis. Proposed in issue #37. Held by `tokens/color.json` (the chrome roles), `tokens/shape.json`, `tokens/material.json`, `tokens/type.json`, `apps/www/app/product.css`, `apps/www/app/globals.css` and the landing page's own stylesheet.
+**Accepted.** 2026-11-08. Amended by [ADR 0029](./0029-accent-themes.md) the same day: ink for action now holds in the normal accent theme, the one light became the accent a product chooses, and a `quiet` Button is set in the accent ink rather than underlined. Supersedes the lyra half of [ADR 0004](./0004-lyra-docs-chrome.md): the documentation chrome no longer wears shadcn's `lyra` values. The rest of 0004 stands, so the two stylesheets stay separate and every preview is still an iframe onto `/view`. Answers the question the September visual audit (decision D5) left for a human, that the primary action and the focus ring were as chromatic as the category axis. Proposed in issue #37. Held by `tokens/color.json` (the chrome roles), `tokens/shape.json`, `tokens/material.json`, `tokens/type.json`, `apps/www/app/product.css`, `apps/www/app/globals.css` and the landing page's own stylesheet.
 
 ## Context
 

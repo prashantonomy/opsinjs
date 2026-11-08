@@ -218,24 +218,21 @@ function hasNoLabel(children: ReactNode): boolean {
  * comment. That is a change to every component in the registry at once and
  * belongs in `lib/utils.ts`, which this file does not own.
  *
- * QUIET IS THE ONE RUNG WITH NEITHER A FILL NOR A BOUNDARY, so its underline
- * is what tells a reader it is a control. Before ADR 0028 the action colour was
- * a blue, and the quiet label's blue ink was its only cue at rest. The action
- * role is ink now, so the label alone would read as bold body text and a reader
- * who could not hover would have no way to tell it was pressable. It takes the
- * underline instead, the same answer the card action recipe below gives a
- * handler with no fill and no boundary, so one rule covers both: a control
- * drawn as words is underlined. It still asserts the action role,
- * `[color:var(--primary)]`, and the arbitrary-property spelling is required and
- * not decorative: a plain `text-primary` lands in tailwind-merge's `text-*`
- * group with the type step `SIZE[size]` contributes and is deleted, exactly as
- * `text-foreground` is today, so it would never reach the DOM. `--primary` is
- * neither a category nor a status colour, so this touches neither axis.
- * Measured with `lib/color` against the current chrome tokens, the label clears
- * both body floors on every surface in both themes: 18.95:1 and Lc 102.8 on
- * `--background` in light, and 18.95:1 and Lc -104.3 on `--background` and
- * 17.18:1 and Lc -103.5 on `--card` in dark. The dark APCA shortfall this
- * comment used to record was the old blue action ink, and it is gone with it.
+ * QUIET IS THE ONE RUNG WITH NEITHER A FILL NOR A BOUNDARY, so its ink is what
+ * tells a reader it is a control. It is the accent ink, `[color:var(--brand-ink)]`
+ * (ADR 0029): in every accent theme it is the accent's own hue at a lightness
+ * that clears the body floor on the page and on a card, and scripts/build-tokens.mts
+ * refuses to emit one that does not, so the label is legible and reads as the
+ * one coloured word in a row of ink. No underline: an underline marks a link
+ * inside running text, and a control already standing on its own in a row of
+ * controls needs only to look pressable, which the accent and the hover fill
+ * do. The arbitrary-property spelling is required and not decorative: a plain
+ * `text-brand-ink` lands in tailwind-merge's `text-*` group with the type step
+ * `SIZE[size]` contributes and is deleted, exactly as `text-foreground` is, so
+ * it would never reach the DOM. The accent is neither a category nor a status
+ * colour, so this touches neither axis, and a quiet button on a status surface
+ * takes that level's own ink from the surface instead, which AlertBanner
+ * supplies.
  */
 /**
  * WHY ONLY PRIMARY OPTS OUT OF FORCED COLOURS. The four rungs differ only in
@@ -255,11 +252,11 @@ function hasNoLabel(children: ReactNode): boolean {
  */
 const TONE: Record<ButtonVariant, string> = {
   primary:
-    "border-transparent bg-primary [color:var(--primary-foreground)] hover:bg-state-primary-hover active:bg-state-primary-press not-disabled:aria-busy:bg-state-primary-press forced-colors:[background-color:Highlight] forced-colors:[color:HighlightText] forced-colors:border-[Highlight] forced-colors:forced-color-adjust-none",
+    "border-primary-edge bg-primary [color:var(--primary-foreground)] shadow-[0_10px_26px_-12px_var(--brand-glow)] hover:bg-state-primary-hover active:bg-state-primary-press not-disabled:aria-busy:bg-state-primary-press forced-colors:[background-color:Highlight] forced-colors:[color:HighlightText] forced-colors:border-[Highlight] forced-colors:forced-color-adjust-none",
   secondary:
     "border-border bg-card [color:var(--foreground)] hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
   quiet:
-    "border-transparent bg-transparent [color:var(--primary)] underline underline-offset-4 hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
+    "border-transparent bg-transparent [color:var(--brand-ink)] hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
   destructive:
     "border-foreground bg-transparent [color:var(--foreground)] hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
 }
@@ -738,29 +735,28 @@ const CARD_ACTION_RING =
  * type step land in one conflict group and one of them is deleted, which is the
  * trap the `TONE` comment above spells out. The four original `ACTION_LINK`
  * constants were template-joined for exactly this reason, and so is this. Every
- * neutral ink is the arbitrary property `[color:var(--foreground)]` for the same
- * reason, and so is the quiet neutral button arm, which carries the same
- * `[color:var(--foreground)]` its link twin does. A tinted arm asserts no ink
- * and no fill: on a status tint the ink is the level's own `-ink` role, which
- * the caller's surface supplies, and the recommended tinted arm brings a 2px
- * boundary whose colour the caller passes per level beside this return. Nothing
- * here names a status colour, so the two colour axes never meet on one class
- * list. The neutral quiet button arm now carries its own ink for a reason the
- * link arms never had: `Button`'s `quiet` variant asserts `[color:var(--primary)]`
- * of its own, the shared action role, so a quiet button that supplied no ink
- * fell through to the brand colour while its anchor twin stayed foreground, and
- * the same alternative action drifted by transport. Asserting
- * `[color:var(--foreground)]` on the neutral button arm reconciles both
- * transports on one ink at this shared source: it wins because it is an
- * arbitrary property, so `cn()` files it in the same `color` group as Button's
- * `[color:var(--primary)]` rather than beside a type step, and because the
- * caller's `className` is the last argument to Button's own `cn()`. The tinted
- * button arm still asserts no ink, so a tinted caller who supplies the level's
- * `-ink` role by inheritance keeps it. Such a caller must supply that ink above
- * a single class, which a descendant wrapper like `alert-banner.tsx`'s
- * `[&_button]:` selector carrying the level's own `-ink` role already does, or
- * pass it as its own arbitrary property in `className`, which wins because
- * `cn()` puts the caller's classes last.
+ * ink here is an arbitrary property for the same reason.
+ *
+ * WHICH INK EACH ARM CARRIES. The recommended neutral link is foreground ink in
+ * a bordered capsule, the same pair `Button`'s `secondary` rung draws, so the
+ * recommended action reads at one weight on both transports. The quiet neutral
+ * link is the accent ink, `[color:var(--brand-ink)]` (ADR 0029), at the
+ * subheadline step and weight 600, which is exactly what `Button`'s `quiet` rung
+ * at `sm` draws, so its handler twin needs no delta at all. A tinted arm asserts
+ * no ink and no fill: on a status tint the ink is the level's own `-ink` role,
+ * which the caller's surface supplies, and an accent there would put a chrome
+ * colour on a status surface nothing has measured. A tinted caller supplies that
+ * ink above a single class, which `alert-banner.tsx`'s `[&_button]:` selector
+ * does. Nothing here names a status colour, so the two colour axes never meet on
+ * one class list.
+ *
+ * NO ARM IS UNDERLINED. An underline is how a link inside running text says it
+ * is a link, and `Link`'s `inline` emphasis keeps it for exactly that. A card
+ * action is never in running text: it stands in a row of actions, and each arm
+ * already says it is a control by its shape or its colour. The recommended arms
+ * have a capsule boundary, the quiet neutral arm has the accent ink, and the
+ * quiet tinted arm, which can carry neither an accent nor a fill on a status
+ * tint, draws a hairline capsule in the surrounding ink instead.
  *
  * WHY THE WEIGHT UNION HAS NO BRAND OPTION. The `weight` union is
  * `"recommended" | "quiet"` and carries no brand-filled arm, because a card's
@@ -791,55 +787,38 @@ export function cardActionClassName(options: {
 
   if (as === "button") {
     /* The caller renders a real <Button>, whose TONE and SIZE supply the box,
-       the fill and the type step. Only the delta is returned here. The tinted
-       recommended arm still needs the boundary and the radius, because a tinted
-       Button brings neither; the caller passes the level's line colour beside
-       this return. A Button with neither a fill nor a boundary takes the
-       underline so a handler-form action never reads as a paragraph. */
-    if (weight === "recommended") {
-      return ground === "tinted"
-        ? "rounded-full border-2 underline underline-offset-4"
-        : ""
-    }
-    /* The quiet neutral button arm asserts the same neutral ink the quiet
-       neutral link arm does, `[color:var(--foreground)]`, so a quiet card
-       action is foreground ink whether the caller passes `href` or `onSelect`.
-       Without it a `<Button variant="quiet">` falls through to Button's own
-       `TONE.quiet`, which is `[color:var(--primary)]`, the shared action role,
-       and the same alternative action then reads in the action role on a
-       handler and in foreground ink on an anchor, the drift by transport the
-       recipe exists to remove. The ink wins because it is spelled as an arbitrary property and
-       arrives last: `cn()` files `[color:var(--foreground)]` and Button's
-       `[color:var(--primary)]` in one `color` conflict group, and the caller's
-       `className` is the last argument to Button's own `cn()`, so the recipe's
-       ink outranks the rung's. The tinted arm still asserts no ink, because on
-       a status tint the surrounding ink is the level's own `-ink` role, which
-       the caller's surface supplies, and a neutral ink there would put a chrome
-       colour on a status surface nothing has measured. */
-    return ground === "tinted"
-      ? "underline underline-offset-4"
-      : "underline underline-offset-4 [color:var(--foreground)]"
+       the fill, the ink, the type step and a hairline boundary as an inline
+       width. Only the delta is returned here. The tinted quiet arm turns the
+       quiet rung's transparent hairline to the surrounding ink, so the action
+       reads as a control on a status tint. The tinted recommended arm needs
+       nothing from here: its caller passes the level's line colour beside this
+       return, which colours the same hairline. The two neutral arms need
+       nothing either, because the `secondary` and `quiet` rungs already are what
+       the link arms below draw. */
+    if (weight === "recommended") return ""
+    return ground === "tinted" ? "border-current" : ""
   }
 
   /* as === "link". The anchor brings nothing of its own, so the recipe returns
-     the whole class list: the box, the type step, the ink, the underline and
-     the ring, plus a fill and a boundary on the neutral recommended arm only. */
+     the whole class list: the box, the type step, the ink and the ring, plus a
+     fill and a boundary on the neutral recommended arm, and a boundary on both
+     tinted arms. */
   if (weight === "recommended") {
     return ground === "tinted"
       ? `${CARD_ACTION_BOX} rounded-full border-2 px-opsin-5 py-opsin-2 ` +
-          "text-center text-opsin-headline underline underline-offset-4 " +
+          "text-center text-opsin-headline active:translate-y-px " +
           `hover:bg-muted ${CARD_ACTION_RING}`
       : `${CARD_ACTION_BOX} rounded-full border border-border bg-card px-opsin-5 py-opsin-2 ` +
-          "text-center text-opsin-headline [color:var(--foreground)] underline underline-offset-4 " +
-          `hover:bg-muted ${CARD_ACTION_RING}`
+          "text-center text-opsin-headline [color:var(--foreground)] active:translate-y-px " +
+          `hover:bg-state-hover ${CARD_ACTION_RING}`
   }
   return ground === "tinted"
-    ? `${CARD_ACTION_BOX} px-opsin-2 py-opsin-1 ` +
-        "text-center text-opsin-subheadline underline underline-offset-4 " +
+    ? `${CARD_ACTION_BOX} rounded-full border border-current px-opsin-4 py-opsin-1 ` +
+        "text-center text-opsin-subheadline-emphasis active:translate-y-px " +
         `hover:bg-muted ${CARD_ACTION_RING}`
-    : `${CARD_ACTION_BOX} px-opsin-2 py-opsin-1 ` +
-        "text-center text-opsin-subheadline [color:var(--foreground)] underline underline-offset-4 " +
-        `${CARD_ACTION_RING}`
+    : `${CARD_ACTION_BOX} rounded-full px-opsin-2 py-opsin-1 ` +
+        "text-center text-opsin-subheadline-emphasis [color:var(--brand-ink)] active:translate-y-px " +
+        `hover:bg-state-hover ${CARD_ACTION_RING}`
 }
 
 /**
