@@ -8,15 +8,14 @@ two, and as long as nobody reads "built" as "reviewed".
 
 A built component is `shipped`, and every component in the opsinjs catalogue is
 shipped today. `shipped` means implemented: the code exists, it renders, and it
-installs as source. It does not mean reviewed. The API may change in any release
-without a deprecation cycle, and no opsinjs component has had an accessibility
-review or a clinical review, so none of them belongs on a production health
-surface. There is no published npm package either, because distribution is
-registry copy-in, so no bare `@opsinjs/*` import resolves.
+installs with `npm install @opsinjs/react`. It does not mean reviewed. The API may
+change in any release without a deprecation cycle, and no opsinjs component has had
+an accessibility review or a clinical review, so none of them belongs on a
+production health surface.
 
 Read the status; do not infer it from prose. The page's frontmatter carries
-`status`, and `/r/<id>.json` carries `meta.opsinjs.implemented` with the same
-answer in an `x-opsinjs-implemented` response header. A built page carries a
+`status` and `implemented`, and the roster at `/r/index.json` carries the same
+answer for every id. A built page carries a
 `<StubNotice status="shipped">` saying the component is implemented and
 installable and listing what has not been measured. That notice is where the
 review gap is written down, so read it rather than assuming the absence of a
@@ -25,11 +24,26 @@ warning means somebody checked. Do not substring-search a page for the words
 tell you nothing about the component.
 
 ```tsx
-// WRONG - there is no npm package, so this import cannot resolve, and these
-// props are guesses. RangeBar is installed as source:
+// WRONG. opsinjs is not a shadcn registry any more, so this command fails,
+// and the props below are guesses taken from the component's name.
 //   npx shadcn@latest add @opsinjs/range-bar
-import { RangeBar } from "@opsinjs/react"
+import { RangeBar } from "@/components/ui/range-bar"
 <RangeBar value={51} min={20} max={42} unit="mmol/mol" status="attention" />
+```
+
+```tsx
+// RIGHT. The package is real (npm install @opsinjs/react), and every prop here
+// is on the RangeBar page's props table. The value, the range and the status
+// all come from the product's data; none of them is decided in the UI.
+import { RangeBar } from "@opsinjs/react"
+<RangeBar
+  label="HbA1c"
+  value={result.value}
+  unit={result.unit}
+  precision={result.precision}
+  range={result.range}
+  status={result.status}
+/>
 ```
 
 What to do instead:
@@ -39,10 +53,11 @@ What to do instead:
    that nobody has run an accessibility review or a clinical review on it, and
    that its own page lists what has not been measured. Say the caveat every
    time. An agent that presents a shipped health component as settled has made
-   the newer of the two mistakes. Check the `@opsinjs` namespace before you emit
-   the command, and `rules/registry.md` says why.
+   the newer of the two mistakes. The install is `npm install @opsinjs/react`
+   and the import is from `@opsinjs/react`, and `rules/install.md` says why
+   nothing else is.
 2. **For an id opsinjs does not have, say so and stop.** "opsinjs does not have
-   one" is a complete answer. The catalogue at `/r/registry.json` and the
+   one" is a complete answer. The roster at `/r/index.json` and the
    generated page at `/components.md` are authoritative
    for what exists, and neither is a gap you should fill by inventing X.
 3. **If you write one anyway**, build it from a primitive the project already
@@ -50,7 +65,7 @@ What to do instead:
 
 A `shipped` API is real rather than a proposal, but it is narrow and it is
 unstable. Take it from the component page's generated props table or from the
-source in the `files` of its registry item. Do not extend it by guessing, and do
+type declarations `@opsinjs/react` installs. Do not extend it by guessing, and do
 not quote it as though it were released or as though it were reviewed.
 
 ## Thresholds belong to whoever supplies the data
@@ -74,7 +89,7 @@ that is a supported, designed state with its own token family
 
 ```tsx
 // Shape, not an API: ResultSurface is not an opsinjs component. Read the real
-// props off the component page or its registry item before you write this.
+// props off the component page or the package's types before you write this.
 <ResultSurface status={result.status ?? undefined}>
   {result.status === undefined && <p>Your clinic has not added a range for this test.</p>}
 </ResultSurface>

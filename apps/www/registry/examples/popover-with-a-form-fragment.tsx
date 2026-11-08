@@ -19,7 +19,7 @@
 
 import { useState } from "react"
 
-import { Popover } from "@/registry/base-lyra/ui/popover"
+import { Popover } from "@opsinjs/react"
 
 const INPUT =
   "w-full rounded-opsin-md border border-border bg-background " +

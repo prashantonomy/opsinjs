@@ -138,3 +138,5 @@ the trigger for adding to the compound exception list; `Card`, `Sheet` and
 surprising. Do **not** revisit in order to add a fifth data attribute without
 amending the table above: those four are what the static accessibility check and
 the generated tables both read, and a fifth added quietly appears in neither.
+
+**Note, 2026-11-09.** The copy-in wording in this record predates [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md), which ships opsinjs as npm packages, and the substance stands. A consumer now restyles a part through its `data-slot` from the outside rather than by editing a copied file.

@@ -13,7 +13,7 @@
 
 import { useState } from "react"
 
-import { RadioGroup } from "@/registry/base-lyra/ui/radio-group"
+import { RadioGroup } from "@opsinjs/react"
 
 const THEMES = [
   { value: "system", label: "Match the system" },

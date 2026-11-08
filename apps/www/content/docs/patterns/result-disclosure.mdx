@@ -51,8 +51,7 @@ No screen shows the whole sequence yet. The results screen below covers the valu
 4. Write the sentence first. The bar adds speed, never information. With no range, say so and draw no bar, because an empty bar reads as a missing result.
 
 ```tsx
-import { ResultCard } from "@/components/ui/result-card"
-import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
+import { ResultCard, EXAMPLE_SOURCE } from "@opsinjs/react"
 
 <ResultCard
   title="Example measurement"
@@ -80,7 +79,7 @@ A [MetricTile](../components/metric-tile.mdx) identifies and reports, and opens 
 - Decide all five [states](../foundations/states.mdx) first. Stale and partial are the two that mislead.
 
 ```tsx
-import { MetricTile } from "@/components/ui/metric-tile"
+import { MetricTile } from "@opsinjs/react"
 
 <MetricTile
   label="Example measurement"
@@ -97,7 +96,7 @@ import { MetricTile } from "@/components/ui/metric-tile"
 
 <IframePreview kind="screen" name="results-screen" embed />
 
-Every part of the results screen ships, but its composition has had no clinical review. It is not served from `/r`, so there is no `shadcn add` for it.
+Every part of the results screen ships, but its composition has had no clinical review. `@opsinjs/react` does not export it, so you compose it from the components yourself.
 
 ## Content
 

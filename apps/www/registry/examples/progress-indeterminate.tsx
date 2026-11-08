@@ -10,7 +10,7 @@
  * because a progress bar counts a task and never a health value.
  */
 
-import { Progress } from "@/registry/base-lyra/ui/progress"
+import { Progress } from "@opsinjs/react"
 
 export default function ProgressIndeterminate() {
   return (

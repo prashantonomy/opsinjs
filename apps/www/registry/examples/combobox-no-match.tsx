@@ -11,7 +11,7 @@
 
 import { useState } from "react"
 
-import { Combobox } from "@/registry/base-lyra/ui/combobox"
+import { Combobox } from "@opsinjs/react"
 
 export default function ComboboxNoMatch() {
   const [swatch, setSwatch] = useState<string | null>(null)

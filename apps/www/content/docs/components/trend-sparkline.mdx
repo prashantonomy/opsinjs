@@ -25,15 +25,10 @@ usedIn: [trend-review]
 
 ## Usage
 
-<ComponentInstall
-  name="trend-sparkline"
-  unbuilt={false}
-  importPath="@/components/ui/trend-sparkline"
-  registryDependencies={["status-pill", "value"]}
-/>
+<ComponentInstall name="trend-sparkline" unbuilt={false} />
 
 ```tsx
-import { TrendSparkline } from "@/components/ui/trend-sparkline"
+import { TrendSparkline } from "@opsinjs/react"
 ```
 
 ```tsx
@@ -164,9 +159,9 @@ gate reruns the literal, bound, colour and axis rules.
 
 <PropsTable name="TrendSparklineProps" />
 
-`precision`, `series` and `minimumPoints` are required with no default, because none is a
-number opsinjs could supply. `TrendPoint` and `ReferenceRange` come from `@/lib/opsinjs`,
-so no second copy can drift.
+`precision`, `series` and `minimumPoints` are required with no default, because none
+is a number opsinjs could supply. `TrendPoint` and `ReferenceRange` come from
+`@opsinjs/react`, so no second copy can drift.
 
 ### Data attributes
 

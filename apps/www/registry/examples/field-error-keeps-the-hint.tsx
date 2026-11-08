@@ -14,7 +14,7 @@
  * field, the emphasis shadow on the control and the words.
  */
 
-import { Field } from "@/registry/base-lyra/ui/field"
+import { Field } from "@opsinjs/react"
 
 export default function FieldErrorKeepsTheHint() {
   return (

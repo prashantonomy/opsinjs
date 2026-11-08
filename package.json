@@ -1,8 +1,8 @@
 {
-  "name": "opsinjs",
+  "name": "opsinjs-monorepo",
   "private": true,
   "version": "0.0.0",
-  "description": "opsinjs is a React design system for consumer health apps, and its documentation site.",
+  "description": "The opsinjs monorepo: the @opsinjs packages and the documentation site.",
   "license": "MIT",
   "packageManager": "pnpm@11.5.0",
   "engines": {
@@ -15,9 +15,17 @@
     "typecheck": "turbo run typecheck",
     "check": "turbo run check",
     "generate": "turbo run generate",
-    "format": "prettier --write \"**/*.{ts,tsx,mdx,json,css,md,yml}\""
+    "format": "prettier --write \"**/*.{ts,tsx,mdx,json,css,md,yml}\"",
+    "build:packages": "pnpm -r --filter \"./packages/*\" run build",
+    "lint:packages": "pnpm -r --filter \"./packages/*\" run lint:package",
+    "smoke:packages": "node scripts/smoke-pack.mts",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build:packages && pnpm lint:packages && pnpm smoke:packages && changeset publish"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "1.0.1",
+    "@changesets/cli": "3.0.3",
     "prettier": "3.9.9",
     "turbo": "2.11.7",
     "typescript": "5.9.3"

@@ -1,4 +1,4 @@
-import { Stepper } from "@/registry/base-lyra/ui/stepper"
+import { Stepper } from "@opsinjs/react"
 
 export default function StepperSetupFlow() {
   return (

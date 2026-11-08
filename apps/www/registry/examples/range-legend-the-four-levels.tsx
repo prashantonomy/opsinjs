@@ -15,7 +15,7 @@
  * component rather than restated in this example.
  */
 
-import { RangeLegend } from "@/registry/base-lyra/ui/range-legend"
+import { RangeLegend } from "@opsinjs/react"
 
 export default function RangeLegendTheFourLevels() {
   return (

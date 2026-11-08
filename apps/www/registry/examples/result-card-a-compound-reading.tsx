@@ -23,7 +23,7 @@
  * default. The numbers keep the unit and are nothing anybody would act on.
  */
 
-import { ResultCard } from "@/registry/base-lyra/ui/result-card"
+import { ResultCard } from "@opsinjs/react"
 
 const EXAMPLE_NOW = "2026-03-14T11:12:00+00:00"
 

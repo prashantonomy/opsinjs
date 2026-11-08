@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 
 import "../product.css"
 import { SITE_LANG } from "@/app/_shared/seo"
-import { ACCENTS, ACCENT_THEMES } from "@/lib/generated/accents"
+import { ACCENTS, ACCENT_THEMES } from "@opsinjs/tokens"
 
 /**
  * ROOT LAYOUT #2 of 2 is the chrome-less preview surface.

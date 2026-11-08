@@ -54,14 +54,20 @@ surfaces, and a scheduled check reports pages past their `reviewed` date.
 ## Dependencies
 
 Dependabot opens pull requests every week. The versions in `apps/www/package.json` are
-exact pins, as AGENTS.md section 5 explains, so a bump is merged only when the gates pass
-and the pin rules allow it.
+exact pins, and a published package takes ranges in its `dependencies` and
+`peerDependencies`, as AGENTS.md section 5 explains. A bump is merged only when the gates
+pass and the pin rules allow it.
 
 ## Releases
 
-Nothing is versioned or published to npm yet. The
-[changelog](https://opsinjs.pensievelabs.org/docs/changelog) records every change a user would
-notice.
+opsinjs publishes four packages to npm, `@opsinjs/react`, `@opsinjs/tokens`,
+`@opsinjs/color` and `opsinjs`, at one shared version on the 0.x line
+([ADR 0030](decisions/0030-opsinjs-ships-as-npm-packages.md)). The owner holds the npm
+organisation. Merging the Changesets pull request `chore(release): version packages`
+cuts a release, and GitHub Actions publishes it with provenance.
+[RELEASING.md](RELEASING.md) is the procedure. Each package's `CHANGELOG.md` records its
+releases, and the [changelog](https://opsinjs.pensievelabs.org/docs/changelog) records
+every change a user would notice.
 
 ## Changing this document
 

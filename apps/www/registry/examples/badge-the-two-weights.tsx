@@ -6,7 +6,7 @@
  * clinical vocabulary (ADR 0012).
  */
 
-import { Badge } from "@/registry/base-lyra/ui/badge"
+import { Badge } from "@opsinjs/react"
 
 export default function BadgeTheTwoWeights() {
   return (

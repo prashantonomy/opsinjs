@@ -7,7 +7,7 @@
  * one import. Every line is fictional copy (ADR 0012), not a reading.
  */
 
-import { ScrollArea } from "@/registry/base-lyra/ui/scroll-area"
+import { ScrollArea } from "@opsinjs/react"
 
 const PARAGRAPHS = [
   "This panel holds a longer stretch of text than the card can show at once, so the body scrolls while the heading above it stays put.",

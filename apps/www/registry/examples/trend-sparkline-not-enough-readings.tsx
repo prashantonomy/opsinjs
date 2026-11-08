@@ -27,8 +27,7 @@
  * sentence a caller cannot take away.
  */
 
-import { type TrendPoint } from "@/lib/opsinjs"
-import { TrendSparkline } from "@/registry/base-lyra/ui/trend-sparkline"
+import { TrendSparkline, type TrendPoint } from "@opsinjs/react"
 
 /** The product's rule about how many readings make a trend. See the demo. */
 const EXAMPLE_READINGS_A_TREND_NEEDS = 4

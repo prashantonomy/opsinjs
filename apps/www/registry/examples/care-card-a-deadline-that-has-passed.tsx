@@ -33,7 +33,7 @@
  * leaves nothing about a deadline to the machine that happens to render it.
  */
 
-import { CareCard } from "@/registry/base-lyra/ui/care-card"
+import { CareCard } from "@opsinjs/react"
 
 export default function CareCardADeadlineThatHasPassed() {
   return (

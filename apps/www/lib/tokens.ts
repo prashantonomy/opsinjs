@@ -30,7 +30,7 @@ import type {
   TokenTier,
 } from "./generated/tokens.ts"
 import { TOKENS, TOKEN_META } from "./generated/tokens.ts"
-import { formatHex, parseColor } from "./color/oklch.ts"
+import { formatHex, parseColor } from "../../../packages/color/src/oklch.ts"
 
 export type { GeneratedToken, TokenNamespace, TokenTier }
 

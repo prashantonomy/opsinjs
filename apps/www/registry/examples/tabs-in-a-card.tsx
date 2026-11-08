@@ -17,7 +17,7 @@
 
 import { useState } from "react"
 
-import { Tabs } from "@/registry/base-lyra/ui/tabs"
+import { Tabs } from "@opsinjs/react"
 
 const ITEMS = [
   {

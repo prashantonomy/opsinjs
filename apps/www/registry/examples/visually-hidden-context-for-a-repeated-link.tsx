@@ -8,7 +8,7 @@
  * titles are fictional so nothing here can be mistaken for real content.
  */
 
-import { VisuallyHidden } from "@/registry/base-lyra/ui/visually-hidden"
+import { VisuallyHidden } from "@opsinjs/react"
 
 const ARTICLES = [
   "Keeping a simple daily log",

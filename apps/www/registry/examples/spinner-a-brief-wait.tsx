@@ -9,7 +9,7 @@
  * (ADR 0012).
  */
 
-import { Spinner } from "@/registry/base-lyra/ui/spinner"
+import { Spinner } from "@opsinjs/react"
 
 export default function SpinnerABriefWait() {
   return (

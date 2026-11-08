@@ -7,7 +7,7 @@
  * a screen reader through the required `label` (ADR 0012, plain words only).
  */
 
-import { Spinner } from "@/registry/base-lyra/ui/spinner"
+import { Spinner } from "@opsinjs/react"
 
 export default function SpinnerTwoSizes() {
   return (

@@ -26,7 +26,7 @@
  * both timestamps carry the same `text-opsin-footnote` and nothing more.
  */
 
-import { RelativeTime } from "@/registry/base-lyra/ui/relative-time"
+import { RelativeTime } from "@opsinjs/react"
 
 const NOW = "2026-03-14T11:12:00+00:00"
 

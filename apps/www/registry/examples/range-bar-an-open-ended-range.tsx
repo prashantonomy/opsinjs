@@ -18,8 +18,7 @@
  * picture is no reason to lose the date as well.
  */
 
-import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
-import { RangeBar } from "@/registry/base-lyra/ui/range-bar"
+import { EXAMPLE_SOURCE, RangeBar } from "@opsinjs/react"
 
 export default function RangeBarAnOpenEndedRange() {
   return (

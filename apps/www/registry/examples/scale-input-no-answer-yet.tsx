@@ -15,7 +15,7 @@
 
 import { useState } from "react"
 
-import { ScaleInput } from "@/registry/base-lyra/ui/scale-input"
+import { ScaleInput } from "@opsinjs/react"
 
 export default function ScaleInputNoAnswerYet() {
   const [rating, setRating] = useState<number | null>(null)

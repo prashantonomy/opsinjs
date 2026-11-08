@@ -10,7 +10,7 @@
 
 import { useState } from "react"
 
-import { NumberField } from "@/registry/base-lyra/ui/number-field"
+import { NumberField } from "@opsinjs/react"
 
 export default function NumberFieldAQuantity() {
   const [copies, setCopies] = useState<number | null>(3)

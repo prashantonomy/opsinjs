@@ -24,7 +24,7 @@
  * the two are worth reading together.
  */
 
-import { SourceCitation } from "@/registry/base-lyra/ui/source-citation"
+import { SourceCitation } from "@opsinjs/react"
 
 export default function SourceCitationNoSourceSupplied() {
   return (

@@ -67,29 +67,30 @@
  * for. The submit handler stops the browser rather than sending anywhere.
  *
  * IT STILL CARRIES THE TARGET FLOOR, and depending on nothing is exactly why it
- * has to. `app/product.css` backstops `button`, `[role="button"]`,
- * `a[data-opsin-target]`, checkboxes and radios. It does not backstop text
- * inputs, so a hand-rolled input has nothing holding it open, and this one
- * measured 40px beside a 44px Button. `shadcn add` copies this file into
- * somebody else's project as the worked answer to "what does an opsinjs form
- * look like", so a short box here is a short box in a patient-facing app. The
- * class is the same one every control in the registry carries, fallback
- * included; it adds a utility, not a dependency.
+ * has to. `@opsinjs/react/base.css` backstops `button`, `[role="button"]`,
+ * `a[data-opsin-target]` and text entry, but it is opt-in. In a product that
+ * leaves it out, a hand-rolled input has nothing holding it open, and without
+ * its own floor this one measured 40px beside a 44px Button. The Button page
+ * prints this file under its preview as the worked answer to "what does an
+ * opsinjs form look like", and developers copy it from there, so a short box
+ * here is a short box in a patient-facing app. The class is the same one every
+ * opsinjs control carries, fallback included; it adds a utility, not a
+ * dependency.
  *
  * IT ALSO CARRIES THE HINT'S WIRING, for the same reason it carries the floor.
  * The hint below the field is a fact about what to type, and a screen-reader
  * user who reaches the input never hears it unless the two are associated, so
  * the `<p>` takes an `id` and the input points `aria-describedby` at it.
- * `app/product.css` backstops target sizes; it does not backstop
- * `aria-describedby`, and nothing else will. In a real form the Field component
- * owns this wiring. This example hand-rolls it precisely because it depends on
- * nothing but Button, and a description a reader cannot hear is the same kind of
- * gap as a box a thumb cannot hit.
+ * `base.css` backstops target sizes where a product loads it; it does not
+ * backstop `aria-describedby`, and nothing else will. In a real form the Field
+ * component owns this wiring. This example hand-rolls it precisely because it
+ * depends on nothing but Button, and a description a reader cannot hear is the
+ * same kind of gap as a box a thumb cannot hit.
  */
 
 import { ArrowRight } from "lucide-react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
+import { Button } from "@opsinjs/react"
 
 export default function ButtonBusyAtTheFootOfAForm() {
   return (

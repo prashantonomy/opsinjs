@@ -4,41 +4,40 @@
    THE ORDER OF THIS FILE IS LOAD-BEARING. Read before editing:
 
    1  tailwindcss            the engine
-   2  tw-animate-css         shadcn's animation utilities
-   3  shadcn/tailwind.css    shadcn's own theme bridge, imported because it is a
-                             runtime dependency rather than a CLI-only tool
-   4  fumadocs shadcn.css    maps fumadocs' chrome onto the shadcn tokens, so
-                             the docs chrome inherits the theme instead of
-                             shipping a second one
-   5  fumadocs preset.css    the docs chrome itself
+   2  fumadocs shadcn.css    maps fumadocs' chrome onto its shadcn-named role
+                             variables, so the docs chrome inherits the theme
+                             instead of shipping a second one. The file belongs
+                             to fumadocs, not to the shadcn package.
+   3  fumadocs preset.css    the docs chrome itself
       -- do NOT also import fumadocs-ui/css/neutral.css: that is a complete
          second theme and the two fight silently.
       -- do NOT add an @source for fumadocs-ui/dist: obsolete in v16, the
          preset ships its own @source inline(...).
       -- do NOT add @tailwindcss/typography: it collides with fumadocs'
          forked `prose`.
-   6  @source                content and registry, so class names written in
-                             MDX and in registry files survive scanning
-   7  the chrome theme       the shadcn role names, with values from the opsinjs
+   4  @source                content, registry and the @opsinjs/react sources,
+                             so class names written in any of them survive
+                             scanning
+   5  the chrome theme       the shadcn role names, with values from the opsinjs
                              language since ADR 0028: ink and paper, one
                              brand light, sheets with depth. The shell's own
                              material (the ambient field, the grain, the glass
                              sidebar) is declared at the head of the shell
                              layer below. It is not the product theme, which
                              keeps its own stylesheet and its platform face.
-   8  the opsinjs token layer  the two colour axes, the material ladder, the
+   6  the opsinjs token layer  the two colour axes, the material ladder, the
                              motion springs. AUTHORED FALLBACKS only, so a clean
                              clone renders before `generate` has run.
-   9  tokens.generated.css   emitted by scripts/build-tokens.mts from
-                             tokens/*.json. Never hand-edited; committed and
-                             diffed by `pnpm check:generated`. Imported AFTER
-                             section 8 so it wins the cascade; the two
+   7  @opsinjs/tokens        tokens.css, emitted by scripts/build-tokens.mts
+                             from tokens/*.json. Never hand-edited; committed
+                             and diffed by `pnpm check:generated`. Imported
+                             AFTER section 6 so it wins the cascade; the two
                              reduced-motion overrides sit BELOW that import
                              for the same reason. They are the token collapse
                              and then the blanket that reaches the fumadocs
                              chrome the tokens do not reach.
-   10 @layer base, the 640-767px nav reflow repair, @media print
-   11 @custom-variant dark   pinned LAST on purpose. See the note there.
+   8  @layer base, the 640-767px nav reflow repair, @media print
+   9  @custom-variant dark   pinned LAST on purpose. See the note there.
 
    The opsinjs PRODUCT theme lives in ./product.css and is loaded only by
    app/(view)/layout.tsx, so every preview renders under the product theme
@@ -48,13 +47,12 @@
    ========================================================================== */
 
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
 
 @source "../content/**/*.{md,mdx}";
 @source "../registry/**/*.{ts,tsx}";
+@source "../../../packages/react/src/**/*.{ts,tsx}";
 
 /* --------------------------------------------------------------------------
    7. The chrome theme.
@@ -76,7 +74,7 @@
      neutral-500 boundary of a control.
 
    A custom property resolves where it is used, so pointing a role at a token
-   that tokens.generated.css declares further down this file is safe.
+   that @opsinjs/tokens/tokens.css declares further down this file is safe.
    -------------------------------------------------------------------------- */
 
 @theme inline {
@@ -311,7 +309,7 @@
 
      Rungs 0 to 5 here are the numbered aliases the landing-page specimen
      consumes; the shipped ladder is emitted by build-tokens.mts into
-     tokens.generated.css under its rung NAMES (canvas card raised sheet overlay
+     @opsinjs/tokens/tokens.css under its rung NAMES (canvas card raised sheet overlay
      scrim). The two must agree, because the landing page tells the reader it is
      showing the shipped definition. Rungs 3 and 4 had drifted and are corrected
      to match. They had read 8px and 20px against the emitted sheet 20px and
@@ -551,7 +549,7 @@
    Committed, and diffed by `pnpm check:generated`. Never hand-edit it; change
    the JSON and regenerate.
 
-   POSITION IS LOAD-BEARING, and it sits AFTER the whole of section 8, which is
+   POSITION IS LOAD-BEARING, and it sits AFTER the whole of section 6, which is
    its :root and .dark blocks and its gamut and reduced-transparency overrides.
    This file redeclares the same custom properties from the token source, with
    values `pnpm contrast` has measured, and it carries its own P3 escalation and
@@ -560,7 +558,7 @@
    Section 8 above is the authored fallback and nothing else: it exists so a
    clean checkout renders in the right colours before anybody has run
    `pnpm run generate`, and it is the source of truth for no value at all. It
-   was previously imported BEFORE section 8, which meant the authored guesses
+   was previously imported BEFORE section 6, which meant the authored guesses
    silently beat the generated values. That is the drift this whole layer exists
    to make impossible.
 
@@ -570,10 +568,10 @@
    the other way round; see the comments on those blocks.
    -------------------------------------------------------------------------- */
 
-@import "./tokens.generated.css";
+@import "@opsinjs/tokens/tokens.css";
 
 /* Reduced motion, and it has to be declared HERE, below the import, rather
-   than beside the authored durations in section 8.
+   than beside the authored durations in section 6.
 
    Reduced motion collapses duration but never removes the state change: an
    element still arrives, it simply arrives immediately. Opacity cross-fades are
@@ -582,7 +580,7 @@
 
    `@media` contributes no specificity. `:root` inside a media query and `:root`
    in the imported sheet are both (0,1,0), so the one declared last simply wins.
-   This block used to sit above the @import, where tokens.generated.css
+   This block used to sit above the @import, where @opsinjs/tokens/tokens.css
    re-declared all five plain durations at their full lengths a few lines later
    and quietly undid it: a reader who had asked for reduced motion still got the
    full 80ms to 560ms everywhere in the docs chrome, including in <MotionDemo>,
@@ -593,9 +591,9 @@
    the only thing that makes the measured values beat the authored fallbacks at
    all.
 
-   The two springs stay in the list because they are authored in section 8 and
+   The two springs stay in the list because they are authored in section 6 and
    the generator does not emit them. The four sampled springs and `ease-standard`
-   are absent because tokens.generated.css collapses those itself, per token, to
+   are absent because @opsinjs/tokens/tokens.css collapses those itself, per token, to
    the settle times tokens/motion.json declares for each of them. A settle time
    is a better answer than 1ms for a cue whose job is to say that a value
    changed. */

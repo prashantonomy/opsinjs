@@ -71,14 +71,14 @@ argued with while arguing is cheap.
 | # | Decision | Status |
 | --- | --- | --- |
 | [0001](./0001-base-ui-not-radix.md) | Base UI, not Radix, as the primitive layer | Accepted |
-| [0002](./0002-shadcn-registry-distribution.md) | Distribute as a shadcn registry; no CLI first | Accepted |
+| [0002](./0002-shadcn-registry-distribution.md) | Distribute as a shadcn registry; no CLI first | Superseded by 0030 |
 | [0003](./0003-two-colour-axes.md) | Two independent colour axes that never mix | Accepted |
 | [0004](./0004-lyra-docs-chrome.md) | lyra themes the documentation chrome only | Accepted, lyra half superseded by 0028 |
 | [0005](./0005-no-lang-segment-yet.md) | No `[lang]` segment; bound the retrofit instead | Accepted |
 | [0006](./0006-generated-not-authored.md) | Source, tables and measured numbers are generated | Accepted |
 | [0007](./0007-two-root-layouts.md) | Two sibling root layouts, and no `app/layout.tsx` | Accepted |
-| [0009](./0009-default-export-is-a-demo.md) | The default export of a registry file is a zero-prop demo | Accepted |
-| [0010](./0010-shared-code-ships-with-every-item.md) | Shared code ships inside every registry item | Accepted |
+| [0009](./0009-default-export-is-a-demo.md) | The default export of a registry file is a zero-prop demo | Superseded by 0030 |
+| [0010](./0010-shared-code-ships-with-every-item.md) | Shared code ships inside every registry item | Superseded by 0030 |
 | [0011](./0011-anatomy-parts-are-data-slots.md) | Anatomy parts are internal structure, identified by `data-slot` | Accepted |
 | [0012](./0012-synthetic-example-data.md) | Example data is synthetic and explicitly unsourced | Accepted |
 | [0013](./0013-previews-are-iframes.md) | A component preview is an iframe, not an inline render | Accepted |
@@ -94,6 +94,7 @@ argued with while arguing is cheap.
 | [0027](./0027-the-site-gets-a-landing-page.md) | The site gets a landing page, and the documentation moves under `/docs` | Accepted |
 | [0028](./0028-ink-paper-and-one-light.md) | Ink and paper, one light, and sheets with depth | Accepted, the single light and the quiet underline amended by 0029 |
 | [0029](./0029-accent-themes.md) | Accent themes: normal, vibes and stryk, with nine accents each | Accepted |
+| [0030](./0030-opsinjs-ships-as-npm-packages.md) | opsinjs ships as npm packages | Accepted |
 
 The numbers are not contiguous. There is no 0008, no 0018 to 0020 and no 0022.
 0008 and 0022 were withdrawn and deleted; 0018 to 0020 were never written. The

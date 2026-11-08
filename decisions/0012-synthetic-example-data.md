@@ -126,3 +126,5 @@ realistic *shape* with a value nobody would act on, which this record already
 permits; it is written down here because it is the boundary somebody will argue
 about, and the argument should start from the permission rather than from the
 prohibition.
+
+**Note, 2026-11-09.** The copy-in wording in this record predates [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md), which ships opsinjs as npm packages, and the substance stands. The demo now lives in the documentation site rather than in the package, and `EXAMPLE_SOURCE` is still exported from `@opsinjs/react`.

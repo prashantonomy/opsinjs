@@ -8,7 +8,7 @@
  * anybody's health value, which a progress bar must never carry.
  */
 
-import { Progress } from "@/registry/base-lyra/ui/progress"
+import { Progress } from "@opsinjs/react"
 
 export default function ProgressATaskCompleting() {
   return (

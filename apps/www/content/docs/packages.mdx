@@ -1,0 +1,86 @@
+---
+title: Packages
+description: The four npm packages opsinjs ships, which one to install, the stylesheet entry points, and how a release is versioned, published and deprecated.
+kind: guide
+aliases: [npm, npm packages, distribution, "@opsinjs/react", "@opsinjs/tokens", "@opsinjs/color", changesets, provenance, npm deprecate]
+---
+
+opsinjs is four npm packages on one version line. All four are MIT, ESM-only and need Node 20.19 or later. Most apps install one of them, and it brings the tokens with it.
+
+```npm
+npm install @opsinjs/react
+```
+
+<Callout>
+All 60 components are `shipped`, so each installs and renders. None has had an independent accessibility review or any clinical review, and none is for a production health surface. The API may change in any release.
+</Callout>
+
+## The four packages
+
+| Package | Holds | Install it when |
+| --- | --- | --- |
+| `@opsinjs/react` | The 60 components and the substrate they share: `cn`, the unit table, the error codes and `warnOnce`, `BANNED_WORDS`, the clinical vocabulary and its types | You build a React screen. This is the usual install |
+| `@opsinjs/tokens` | `tokens.css`, `tokens.json`, and the tokens and accent names as JavaScript constants | You want the tokens without the components. `@opsinjs/react` already depends on it |
+| `@opsinjs/color` | The colour engine: OKLCH parsing, conversion and gamut mapping, the WCAG 2 contrast ratio, APCA lightness contrast, ramp derivation and colour-vision-deficiency simulation. It has no dependencies | You measure contrast or derive a ramp, in CI or in a tool |
+| `opsinjs` | One install that re-exports the other three | You would rather name one package |
+
+`@opsinjs/react` takes `react` and `react-dom` ^19 as peer dependencies. Its own dependencies are `@base-ui/react`, `lucide-react`, `clsx`, `tailwind-merge` and `@opsinjs/tokens`.
+
+## Imports
+
+```tsx
+import { Button, StatusPill } from "@opsinjs/react"
+import { ResultCard } from "@opsinjs/react/result-card"
+```
+
+The entry point exports every component and the substrate. A subpath is the component's kebab-case id and holds that component alone. The package declares only its CSS as having side effects, so a bundler that tree-shakes can drop what you never import.
+
+The umbrella maps one to one onto the scoped packages.
+
+| From `opsinjs` | Is |
+| --- | --- |
+| `opsinjs` | `@opsinjs/react` |
+| `opsinjs/tokens` | `@opsinjs/tokens` |
+| `opsinjs/color` | `@opsinjs/color` |
+| `opsinjs/styles.css`, `opsinjs/tailwind.css`, `opsinjs/base.css`, `opsinjs/tokens.css` | The package stylesheet of the same name |
+
+## Stylesheets
+
+Import exactly one of the first two, once, at the root of the app.
+
+| Entry | For | Holds |
+| --- | --- | --- |
+| `@opsinjs/react/styles.css` | An app without Tailwind | Precompiled tokens, the role layer and only the utilities the components use. It has no preflight, and its utilities sit in cascade layers, so your unlayered CSS wins |
+| `@opsinjs/react/tailwind.css` | An app with Tailwind CSS v4, imported after `tailwindcss` | The tokens, the role layer and the theme bridge, plus an `@source` line that points Tailwind at the compiled components |
+| `@opsinjs/react/base.css` | Either, and optional | Element rules for the whole page: font, body background and ink, borders, selection, the focus ring, tabular figures and a 2.75rem target floor |
+| `@opsinjs/tokens/tokens.css` | The tokens alone | Every custom property: light, `.dark`, the accent themes, prefers-contrast, Display-P3, reduced motion and reduced transparency |
+
+`base.css` is opt-in because it reaches every element on the page, not only opsinjs ones. `@opsinjs/react/roles.css` and `@opsinjs/react/theme.css` are the role layer and the Tailwind bridge on their own, for a setup that assembles its own entry. [Getting started](./getting-started.mdx) walks through both setups, and [Theming](./theming.mdx) covers dark mode and the accent attributes.
+
+## Versions and the changelog
+
+All four packages share one version and release together. opsinjs follows semver at 0.x, because a shipped API may change in any release. Changesets manages the versions and writes a `CHANGELOG.md` into each package. The [Changelog](./changelog.mdx) on this site summarises each release and holds the versioning and deprecation rules.
+
+```bash
+npm update @opsinjs/react
+```
+
+Read the changelog before you upgrade, because a 0.x minor release may break something. A security or safety fix reaches every app that upgrades.
+
+## Provenance
+
+GitHub Actions publishes every release after 0.1.0 from `.github/workflows/release.yml` through npm trusted publishing. Each of those versions carries npm provenance, which links the published tarball to the repository and the workflow run that built it. `npm audit signatures` verifies it in your own project. Version 0.1.0 was published by hand to create the packages on npm, and it carries no provenance, because npm signs provenance only inside a CI runner.
+
+## Deprecation
+
+A bad release is deprecated with `npm deprecate` and is never unpublished, so a lockfile that already names it still installs. A deprecated component, prop or token follows the rule on [Changelog](./changelog.mdx).
+
+## Changing a component
+
+Theme through the tokens and the role layer, which are CSS custom properties, and wrap or compose a component rather than editing it. [Theming](./theming.mdx) and [Styling](./styling.mdx) have the hooks. You can still fork a component, because its source is in the [repository](https://github.com/prashantonomy/opsinjs) under MIT, but a fork no longer receives upgrades.
+
+## The retired registry
+
+Before 0.1.0, opsinjs shipped as a shadcn registry that copied source into your project. That registry is retired. [`/r/index.json`](/r/index.json) and [`/r/docs.json`](/r/docs.json) remain as machine surfaces, and every other `/r/` address answers HTTP 410 with a pointer to `npm install @opsinjs/react`. ADR 0030 in the repository's `decisions/` folder is the record.
+
+A project that installed copies moves any edits it made into a wrapper, points its imports at `@opsinjs/react`, and then deletes the copied component files and the copied `lib/opsinjs.ts` and `lib/status.ts`. A team coming from shadcn/ui itself starts at [Migrating from shadcn/ui](./migrating.mdx).

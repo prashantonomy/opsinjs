@@ -41,8 +41,7 @@
  * with the token for whatever you are actually asking for.
  */
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { Field } from "@/registry/base-lyra/ui/field"
+import { Button, Field } from "@opsinjs/react"
 
 export default function FieldValidatingOnSubmit() {
   return (

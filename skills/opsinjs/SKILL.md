@@ -1,6 +1,6 @@
 ---
 name: opsinjs
-description: Use when building, reviewing or generating consumer- and patient-facing health UI with opsinjs - result cards, reference ranges, clinical status, alerts, consent, health logging, vitals, lab results - or when asked to add an opsinjs component, use its colour tokens, or answer a question about the opsinjs design system. Enforces the two-colour-axes rule, tokens over raw values, the registry namespace, and the gap between a component that installs and a component anybody has reviewed.
+description: Use when building, reviewing or generating consumer- and patient-facing health UI with opsinjs - result cards, reference ranges, clinical status, alerts, consent, health logging, vitals, lab results - or when asked to add an opsinjs component, install @opsinjs/react, use its colour tokens, or answer a question about the opsinjs design system. Enforces the two-colour-axes rule, tokens over raw values, installing the npm package rather than copying source, and the gap between a component that installs and a component anybody has reviewed.
 ---
 
 # opsinjs
@@ -10,40 +10,35 @@ layperson reads something about their own body. Its documentation is at
 `https://opsinjs.pensievelabs.org`, its machine-readable index is `https://opsinjs.pensievelabs.org/llms.txt`,
 and every page is available as plain markdown at its own URL with a `.md` suffix.
 
-**`opsinjs.pensievelabs.org` is the canonical address and does not resolve yet**, so every URL
-in this skill is a *path* that resolves against whichever host is serving the site
-- a local `pnpm dev` on port 4000, or a preview deployment - and not against the
-public internet today. Keep the paths; substitute the origin. If nothing is
-serving them, say that you could not reach the documentation. Answering from
+**`opsinjs.pensievelabs.org` is the canonical address.** Every URL in this skill is a
+*path*, so it also resolves against a local `pnpm dev` or a preview deployment: keep the
+paths and substitute the origin. If nothing is serving them, say that you could not
+reach the documentation. Answering from
 recall instead is the failure this whole skill exists to prevent.
 
 ## Read this first: check before you claim
 
 opsinjs has three release phases, and `/reading-the-docs.md` says what
 each one promises: `planned` is a written specification with no code, `shipped`
-is installable source, and `deprecated` still installs while naming its
-replacement and its removal version. Every opsinjs component is `shipped` today.
-`shipped` means the code exists, it renders, and it installs into a project as
-source, and it does not mean anybody has reviewed it. There is no npm package
-either: distribution is registry copy-in, so `import … from "@opsinjs/react"`
-does not resolve.
+is an implemented component in the `@opsinjs/react` package, and `deprecated` still
+installs while naming its replacement and its removal version. Every opsinjs
+component is `shipped` today. `shipped` means the code exists, it renders, and it
+installs with `npm install @opsinjs/react`, and it does not mean anybody has
+reviewed it. Import it as `import { ResultCard } from "@opsinjs/react"`.
 
 Which id is which is generated, so read the roster instead of trusting a count
-written in prose, including one written here. Three addresses answer for a
-single id, and they are the only three that do:
+written in prose, including one written here. Two addresses answer for a single
+id, and they are the only two that do:
 
-- `https://opsinjs.pensievelabs.org/r/index.json` - every id with its `status` and an
-  `implemented` boolean, in one document. This is the roster; read it once and
-  you have all of them.
-- `https://opsinjs.pensievelabs.org/r/<id>.json` - the same answer for one id at
-  `meta.opsinjs.implemented`, repeated in the `x-opsinjs-implemented` and
-  `x-opsinjs-status` response headers. This is the one URL where a HEAD request
-  settles it, because it is the one that scopes those headers to the id you
-  asked about - and the `x-opsinjs-status` beside the boolean is what proves the
-  scoping.
-- `https://opsinjs.pensievelabs.org/components/<id>.md` - the page itself. Its
-  frontmatter carries `status:` and a per-page `implemented:` field, and that
+- `https://opsinjs.pensievelabs.org/r/index.json` is the roster: every id with its
+  `status` and an `implemented` boolean, in one document. Read it once and you
+  have all of them.
+- `https://opsinjs.pensievelabs.org/docs/components/<id>.md` is the page itself.
+  Its frontmatter carries `status:` and a per-page `implemented:` field, and that
   field is about the component the page is for.
+
+The per-id `/r/<id>.json` items are gone with the shadcn registry, and every `/r`
+URL other than `/r/index.json` and `/r/docs.json` answers HTTP 410.
 
 **Do not HEAD a documentation URL to decide whether a component is built.** On
 a documentation URL and on its `.md` twin, `x-opsinjs-implemented` is scoped to the
@@ -52,8 +47,8 @@ this one is among them - and no `x-opsinjs-status` is sent beside it to
 disambiguate, so it reads `true` on any documentation page whatever that page
 is about. Nothing in the build gates that header against the body underneath
 it. If you have the page open, read its `implemented:` frontmatter; if all you want is the
-boolean, ask `/r/<id>.json`. A header on a docs response is never the answer
-about one component.
+boolean, read the row in `/r/index.json`. A header on a docs response is never the
+answer about one component.
 
 Do not look for `meta.notImplemented`, and do not read a missing key as a
 negative answer.
@@ -72,19 +67,20 @@ That means:
   with both halves said out loud: it works, and it belongs in a prototype rather
   than in a production health surface.
 - **Never invent a prop.** A shipped surface is narrow. Read the component page's
-  generated props table, or the source in the `files` of its registry item. Do
+  generated props table, or the type declarations `@opsinjs/react` installs. Do
   not infer the API from the component's name.
-- **Install it; do not rewrite it.** `npx shadcn@latest add @opsinjs/<id>` is the
-  path, but only once `@opsinjs` is registered in the project's
-  `components.json` - check that first, every time. `rules/registry.md` is the
-  rule and it comes before the command.
+- **Install it; do not copy or rewrite it.** `npm install @opsinjs/react` is the
+  path, followed by one stylesheet import, and every component imports from
+  `@opsinjs/react`. Never emit `npx shadcn add` and never write
+  `@/components/ui/<id>`: opsinjs is not a shadcn registry any more.
+  `rules/install.md` is the rule.
 
 ## When to use this skill
 
 Trigger on any of: a health value shown to the person it belongs to; a lab or
 test result; a reference or "normal" range; a vital sign; a trend over time; a
 symptom or medication log; a clinical alert or escalation; consent for health
-data; anything using opsinjs tokens, its registry, or its colour engine.
+data; anything using opsinjs tokens, its packages, or its colour engine.
 
 Do **not** use it for clinician-facing EHR interfaces, regulated medical device
 UI, or anything that triages, diagnoses or advises. opsinjs is explicitly out of
@@ -101,8 +97,8 @@ short and they are hard rules, not preferences.
    token; never write a raw `oklch()`, `hsl()` or hex value.
 3. [`rules/never-invent.md`](rules/never-invent.md) - never invent a component,
    an API, a threshold, a statistic or a citation.
-4. [`rules/registry.md`](rules/registry.md) - ask which registry; never assume
-   `@opsinjs` is configured.
+4. [`rules/install.md`](rules/install.md) - install the package; never copy
+   source or invent an import path.
 
 When two rules appear to conflict, the one earlier in this list wins. In
 practice they do not conflict: they are four faces of one idea, which is that a
@@ -140,13 +136,12 @@ Prefer the documentation over recall, in this order:
    `llms-foundations.txt` - the three shards, when you need a whole pillar.
 4. `https://opsinjs.pensievelabs.org/r/index.json` - the roster: every component id with its
    status and its `implemented` flag. This is the authority for what is built.
-5. `https://opsinjs.pensievelabs.org/r/registry.json` - the component catalogue in shadcn
-   item shape, covering every id. This is what the shadcn MCP server reads. The per-item `https://opsinjs.pensievelabs.org/r/<id>.json` is what carries
-   the source.
-6. `https://opsinjs.pensievelabs.org/r/docs.json` - the whole corpus in one bundle, for
+5. `https://opsinjs.pensievelabs.org/r/docs.json` - the whole corpus in one bundle, for
    working without a network.
 
-All six are paths on whichever host is serving the site, per the note at the top
+Those two are the only `/r` addresses left. `/r/registry.json` and `/r/<id>.json`
+went with the shadcn registry and answer HTTP 410, and the shadcn MCP server has
+nothing of opsinjs to read. All five are paths on whichever host is serving the site, per the note at the top
 of this file. Every measured number on them - contrast ratios, token values, prop
 tables, the catalogue - is generated from source and regenerated in CI. Quote
 those freely. Do not quote a number that is not on one of those pages.

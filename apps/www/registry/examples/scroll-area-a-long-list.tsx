@@ -6,7 +6,7 @@
  * mistaken for somebody's own data.
  */
 
-import { ScrollArea } from "@/registry/base-lyra/ui/scroll-area"
+import { ScrollArea } from "@opsinjs/react"
 
 const ITEMS = [
   "Blood pressure cuff",

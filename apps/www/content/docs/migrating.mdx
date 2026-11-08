@@ -5,8 +5,9 @@ kind: guide
 aliases: [shadcn migration, asChild to render, token mapping]
 ---
 
-The registry mechanism, code ownership, `cn()` and Tailwind all carry over, and both registries install side by side under their own namespaces. Three things change.
+`cn()`, the role names and Tailwind utilities carry over, and shadcn/ui can stay installed while you move screens over. Four things change.
 
+- **Copied source becomes a dependency.** opsinjs is the `@opsinjs/react` npm package, so you import a component rather than own its file, and an upgrade is `npm update`. See [Packages](./packages.mdx).
 - **Radix becomes Base UI**, so `asChild` becomes `render`. See [Styling](./styling.mdx).
 - **`variant` splits in two.** `category` says what a reading is about and `status` says how urgent it is, and they never mix. See [Two colour axes](./health/two-colour-axes.mdx).
 - **`destructive` has no equivalent**, because nothing about a person's reading is destructive.
@@ -33,9 +34,9 @@ The registry mechanism, code ownership, `cn()` and Tailwind all carry over, and 
 
 ## Tokens
 
-opsinjs components use shadcn role utilities such as `bg-card` and `border-border`, so your role variables still reach them. To adopt the opsinjs values, point each role at its token.
+opsinjs components read the role names shadcn/ui uses, through utilities such as `bg-card` and `border-border`. The opsinjs role layer, loaded by either stylesheet, already points each role at its token, as below. Where your own stylesheet sets the same roles, both libraries render with whichever value the cascade applies, so check one screen of each before you go on.
 
-| shadcn/ui role | Point it at |
+| shadcn/ui role | opsinjs points it at |
 | --- | --- |
 | `--background`, `--foreground` | `--opsin-chrome-background`, `--opsin-chrome-foreground` |
 | `--muted`, `--muted-foreground` | `--opsin-chrome-muted`, `--opsin-chrome-muted-foreground` |
@@ -46,12 +47,12 @@ opsinjs components use shadcn role utilities such as `bg-card` and `border-borde
 
 ## Order of work
 
-1. Add the `@opsinjs` entry and the token layer from [Getting started](./getting-started.mdx), keeping shadcn/ui installed.
+1. Install `@opsinjs/react` and load one stylesheet, as [Getting started](./getting-started.mdx) shows, keeping shadcn/ui installed.
 2. Re-check contrast, because your shadcn values were never measured against the opsinjs floor. See [Theming](./theming.mdx).
 3. Migrate screens that show a health value first, a whole screen at a time.
 4. Rewrite each `variant` by hand as identity or severity. One that meant both was a bug.
 5. Move overlays as a group, because Radix and Base UI focus management can fight on one screen.
-6. Commit the files `shadcn add` writes in their own commit. Nothing in a copied file says which system it came from.
+6. Delete each shadcn/ui file under `components/ui` once nothing imports it, so no screen keeps using the old component by accident.
 
 ## Pitfalls
 

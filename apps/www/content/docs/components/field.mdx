@@ -24,15 +24,10 @@ reviewer: engineering
 
 ## Usage
 
-<ComponentInstall
-  name="field"
-  unbuilt={false}
-  importPath="@/components/ui/field"
-  dependencies={["@base-ui/react", "lucide-react"]}
-/>
+<ComponentInstall name="field" unbuilt={false} />
 
 ```tsx
-import { Field } from "@/components/ui/field"
+import { Field } from "@opsinjs/react"
 ```
 
 ```tsx
@@ -101,8 +96,8 @@ visible. `pnpm run check:a11y` guards role tokens and non-`px` sizes.
 **Residual items.**
 
 - The required and optional word is English only and untranslatable by prop.
-- The focus ring lives in `product.css`, so a `shadcn add` copy without it shows no
-  ring until you add one.
+- The focus ring lives in `@opsinjs/react/base.css`, which is opt-in, so an app that
+  does not load it shows no ring until it adds one.
 - The invalid shadow drops under forced colours and print, where the glyph, words and
   rule still carry the state.
 

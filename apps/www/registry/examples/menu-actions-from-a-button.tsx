@@ -15,7 +15,7 @@
 
 import { useState } from "react"
 
-import { Menu } from "@/registry/base-lyra/ui/menu"
+import { Menu } from "@opsinjs/react"
 
 const TRIGGER =
   "inline-flex items-center justify-center gap-opsin-2 rounded-opsin-md " +

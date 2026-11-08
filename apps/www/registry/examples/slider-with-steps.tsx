@@ -13,7 +13,7 @@
 
 import { useState } from "react"
 
-import { Slider } from "@/registry/base-lyra/ui/slider"
+import { Slider } from "@opsinjs/react"
 
 export default function SliderWithSteps() {
   const [zoom, setZoom] = useState(5)

@@ -9,7 +9,7 @@
  * real validated instrument, and nothing is scored.
  */
 
-import { Questionnaire } from "@/registry/base-lyra/ui/questionnaire"
+import { Questionnaire } from "@opsinjs/react"
 
 function Choice({ name, options }: { name: string; options: string[] }) {
   return (

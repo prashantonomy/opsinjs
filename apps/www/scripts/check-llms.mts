@@ -69,7 +69,7 @@ const REQUIRED_ROUTES = [
   { path: "llms-reference.txt", purpose: "shard: the generated reference tables" },
   { path: "llms.mdx", purpose: "the processed-markdown twin behind the /docs/:path*.md rewrite" },
   { path: join("r", "docs.json"), purpose: "the offline agent bundle" },
-  { path: join("r", "registry.json"), purpose: "the catalog the shadcn MCP server requires" },
+  { path: join("r", "index.json"), purpose: "the roster: status, implemented and the import for every id" },
 ]
 
 /**
@@ -94,7 +94,7 @@ const FULL_SIZE_WARNING = 900_000
  * courtesy, not a contract.
  */
 const GUESSABLE_PATHS = [
-  { from: docsPath("installation"), why: "shadcn's URL for the same page" },
+  { from: docsPath("installation"), why: "the URL other design systems use for the same page" },
   {
     from: docsPath("foundations", "color"),
     why: "the American spelling of the colour foundation",
@@ -671,7 +671,7 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
           `disagree${disagreements.length === 1 ? "s" : ""} with the roster about whether code ` +
           `exists: ${disagreements.join("; ")}. Both are generated, so the fix is in the ` +
           "generator that is wrong, never in the page. registry/catalogue.ts and the files " +
-          "under registry/bases/base/ are the ground truth both of them read.",
+          "in packages/react/src/components/ are the ground truth both of them read.",
       )
     }
     if (headerDisagreements.length > 0) {
@@ -760,19 +760,13 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     }
   }
 
-  /* The registry catalog. */
-  const registry = await fetchText(`${base}/r/registry.json`)
-  if (!registry || registry.status !== 200) {
-    fail(`GET ${base}/r/registry.json returned ${registry?.status ?? "no response"}; the shadcn MCP server requires it.`)
-  } else {
-    try {
-      const parsed = JSON.parse(registry.body) as { items?: unknown[] }
-      if (!Array.isArray(parsed.items)) {
-        fail("/r/registry.json has no `items` array; the shadcn registry schema requires one.")
-      }
-    } catch {
-      fail("/r/registry.json is not valid JSON.")
-    }
+  /* The retired shadcn registry answers 410 with a pointer to npm, rather
+     than a 404 that looks like a mistake (ADR 0030). */
+  const retired = await fetchText(`${base}/r/registry.json`)
+  if (!retired || retired.status !== 410) {
+    fail(`GET ${base}/r/registry.json returned ${retired?.status ?? "no response"}; the retired registry should answer 410.`)
+  } else if (!retired.body.includes("npm install")) {
+    fail("/r/registry.json answers 410 without saying what replaced it.")
   }
 }
 

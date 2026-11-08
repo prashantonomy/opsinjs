@@ -28,8 +28,7 @@
 
 import { useState } from "react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { Dialog } from "@/registry/base-lyra/ui/dialog"
+import { Button, Dialog } from "@opsinjs/react"
 
 export default function DialogConfirmingADeletion() {
   const [open, setOpen] = useState(false)

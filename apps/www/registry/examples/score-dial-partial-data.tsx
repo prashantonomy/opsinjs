@@ -39,8 +39,7 @@
  * they may show band geometry at all while the shipped demo may not.
  */
 
-import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
-import { ScoreDial } from "@/registry/base-lyra/ui/score-dial"
+import { EXAMPLE_SOURCE, ScoreDial } from "@opsinjs/react"
 
 export default function ScoreDialPartialData() {
   return (

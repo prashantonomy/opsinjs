@@ -10,7 +10,7 @@
 
 import { useState } from "react"
 
-import { Select } from "@/registry/base-lyra/ui/select"
+import { Select } from "@opsinjs/react"
 
 export default function SelectWithAPlaceholder() {
   const [frequency, setFrequency] = useState("")

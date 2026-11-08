@@ -25,9 +25,7 @@
 
 import { useState } from "react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { Field } from "@/registry/base-lyra/ui/field"
-import { Sheet } from "@/registry/base-lyra/ui/sheet"
+import { Button, Field, Sheet } from "@opsinjs/react"
 
 export default function SheetAFormThatStaysPut() {
   const [open, setOpen] = useState(false)

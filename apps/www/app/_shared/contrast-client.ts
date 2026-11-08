@@ -2,7 +2,7 @@
  * The browser's client for `POST /api/contrast`.
  *
  * There is exactly one implementation of APCA and of the WCAG 2.2 ratio in this
- * repository, hand-written in `lib/color/`. The API route wraps it, CI calls the
+ * repository, hand-written in `packages/color/src/`. The API route wraps it, CI calls the
  * same code through `scripts/check-contrast.mts`, and the playground calls it
  * over the network. A second implementation living in the browser would
  * eventually disagree with the one CI runs, and the disagreement would surface

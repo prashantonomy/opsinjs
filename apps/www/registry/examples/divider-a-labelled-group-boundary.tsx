@@ -5,7 +5,7 @@
  * are fictional (ADR 0012), with no number anywhere.
  */
 
-import { Divider } from "@/registry/base-lyra/ui/divider"
+import { Divider } from "@opsinjs/react"
 
 const TODAY = ["A note from this morning", "A reminder due later"]
 const EARLIER = ["A note you wrote", "A reminder you set", "A page you opened"]

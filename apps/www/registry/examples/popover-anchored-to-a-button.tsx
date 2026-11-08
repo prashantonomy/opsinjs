@@ -15,7 +15,7 @@
  * explanation and nothing that looks like a measurement.
  */
 
-import { Popover } from "@/registry/base-lyra/ui/popover"
+import { Popover } from "@opsinjs/react"
 
 export default function PopoverAnchoredToAButton() {
   return (

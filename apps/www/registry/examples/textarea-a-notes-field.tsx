@@ -8,7 +8,7 @@
  * word (ADR 0012).
  */
 
-import { Textarea } from "@/registry/base-lyra/ui/textarea"
+import { Textarea } from "@opsinjs/react"
 
 export default function TextareaANotesField() {
   return (

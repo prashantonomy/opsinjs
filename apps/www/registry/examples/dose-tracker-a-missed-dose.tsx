@@ -11,7 +11,7 @@
  * (ADR 0012). `now` is fixed so the example says the same thing every time.
  */
 
-import { DoseTracker } from "@/registry/base-lyra/ui/dose-tracker"
+import { DoseTracker } from "@opsinjs/react"
 
 const NOW = "2026-03-14T20:00:00+00:00"
 

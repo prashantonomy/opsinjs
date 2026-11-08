@@ -1,23 +1,23 @@
 ---
 title: Components
-description: Sixty components in twelve categories, each installed as source you own.
+description: Sixty components in twelve categories, all installed from npm as @opsinjs/react.
 kind: guide
 ---
 
-Every component is `shipped`, which means its source installs and renders and its API may change in any release. Each was audited against WCAG 2.2 AA by its own authors. None has had an independent accessibility review or a clinical review, so none is ready for a production health surface.
+Every component is `shipped`, which means it installs from npm and renders, and its API may change in any release. Each was audited against WCAG 2.2 AA by its own authors. None has had an independent accessibility review or a clinical review, so none is ready for a production health surface.
 
 ## Install
 
-```bash
-npx shadcn@latest add @opsinjs/<name>
+```npm
+npm install @opsinjs/react
 ```
 
-The CLI copies the component's source and the opsinjs `lib/` files it reads into your project, and adds its npm dependencies. `<name>` is the id in each link below. Add the `@opsinjs` entry to `components.json` first, as [Getting started](../getting-started.mdx) shows.
+One package holds all sixty, and it brings the tokens with it. Load one stylesheet at the root of the app, as [Getting started](../getting-started.mdx) shows.
 
 ## Usage
 
 ```tsx
-import { Button } from "@/components/ui/button"
+import { Button } from "@opsinjs/react"
 ```
 
 ```tsx
@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button"
 </Button>
 ```
 
-The import path follows the `ui` alias in `components.json`.
+A component also imports on its own from a subpath named by its id, such as `@opsinjs/react/result-card`. The id is the last part of each link below.
 
 ## Health data display
 
@@ -164,6 +164,6 @@ A rule for choosing between input components. Until then, read each component's 
 
 ## Bundle size
 
-You copy source, so you ship only what you import. Per-component sizes are not measured yet. The limit more likely to bite is the budget of three overlapping composited surfaces in [Materials](../foundations/materials.mdx).
+`@opsinjs/react` declares only its CSS as having side effects, so a bundler that tree-shakes ships only the components you import. Per-component sizes are not measured yet. The limit more likely to bite is the budget of three overlapping composited surfaces in [Materials](../foundations/materials.mdx).
 
 <NoDataYet script="scripts/build-registry.mts" />

@@ -17,8 +17,7 @@
  * opsinjs example may cite.
  */
 
-import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
-import { RangeBar } from "@/registry/base-lyra/ui/range-bar"
+import { EXAMPLE_SOURCE, RangeBar } from "@opsinjs/react"
 
 export default function RangeBarOutsideTheRange() {
   return (

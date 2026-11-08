@@ -1,81 +1,77 @@
 ---
 title: Getting started
-description: Register the @opsinjs namespace, install the token layer and render your first component, then adapt the steps to your framework.
+description: Install @opsinjs/react, choose a stylesheet with or without Tailwind, set dark mode and an accent, and render your first component.
 kind: guide
-aliases: [quick start, installation, components.json, framework support, browser support, troubleshooting]
+aliases: [quick start, installation, styles.css, tailwind.css, base.css, framework support, browser support, troubleshooting]
 ---
 
-The shadcn CLI copies opsinjs into your project as source, and there is no npm package. Paths below are for Next.js, and the table at the end lists what differs elsewhere.
+Install one package, load one stylesheet and render a component. Paths below are for Next.js, and the table at the end lists what differs elsewhere. [Packages](./packages.mdx) says what each package holds.
 
 ## Prerequisites
 
 - React 19 or later. React 18 is not supported.
-- Tailwind CSS v4. There is no v3 path.
-- A current Node LTS for the CLI.
+- Node 20.19 or later. The packages are ESM-only.
+- Tailwind CSS v4, but only if your app already uses Tailwind. There is no v3 path.
 - Control over stylesheet order.
 
-## Initialise shadcn
+## Install
 
 ```npm
-npx shadcn@latest init
+npm install @opsinjs/react
 ```
 
-`init` writes `components.json` and `lib/utils.ts`, whose `cn` helper every opsinjs component imports. The registry does not ship that file.
+It brings `@opsinjs/tokens`, Base UI, `lucide-react`, `clsx` and `tailwind-merge` with it. Nothing is written into your source tree, and an upgrade is `npm update` plus the [changelog](./changelog.mdx).
 
-## Register the namespace
+## Choose a stylesheet
 
-Add one entry to `components.json`.
+Load exactly one of these two, once, at the root of the app.
 
-```json title="components.json"
-{
-  "registries": {
-    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"
-  }
-}
+**Without Tailwind**, import the precompiled stylesheet. It holds the tokens, the role layer and only the utilities the components use. It has no preflight, so it never resets the rest of the page, and its utilities sit in cascade layers, so your own unlayered CSS wins.
+
+```tsx title="app/layout.tsx"
+import "@opsinjs/react/styles.css"
 ```
 
-The CLI substitutes `{name}`. `opsinjs.pensievelabs.org` is the only canonical host, so anything else serving `@opsinjs` is not this project. Keep the other fields `init` wrote, with `tailwind.cssVariables` set to `true` and `iconLibrary` to `lucide`.
-
-## Install the token layer
-
-The tokens are a separate theme item. The CLI writes their light and `.dark` values into the stylesheet named by the `tailwind.css` field.
-
-```npm
-npx shadcn@latest add https://opsinjs.pensievelabs.org/r/themes/opsinjs-default.json
-```
-
-Order is load-bearing: Tailwind, the token layer, an `@source` line for the folder components land in, then your overrides. Getting it wrong is quiet, because components lay out correctly in the wrong colours.
+**With Tailwind CSS v4**, import opsinjs after Tailwind in the stylesheet Tailwind compiles. That loads the tokens, the role layer and the theme bridge, and points Tailwind at the compiled components with `@source`. The opsinjs utilities, such as `text-opsin-headline`, `bg-background` and `rounded-opsin-*`, then work in your own code too.
 
 ```css title="app/globals.css"
 @import "tailwindcss";
-
-/* The :root and .dark blocks the theme item writes. */
-
-@source "../components/ui/**/*.{ts,tsx}";
+@import "@opsinjs/react/tailwind.css";
 
 /* Your own overrides last, so they win. */
 ```
 
-## Add a component
+## Base styles
 
-```npm
-npx shadcn@latest add @opsinjs/status-pill
+`@opsinjs/react/base.css` is optional, with either stylesheet. It sets the html font, the body background and ink, the border role on every element, the selection wash, the focus ring, tabular figures on `[data-opsinjs-value]`, and a 2.75rem target floor on buttons, inputs, selects and textareas. It is opt-in because it reaches every element on the page, not only opsinjs ones.
+
+```tsx title="app/layout.tsx"
+import "@opsinjs/react/styles.css"
+import "@opsinjs/react/base.css"
 ```
 
-It adds `lucide-react` to `package.json`, writes no CSS, and writes three files:
+With Tailwind, add `@import "@opsinjs/react/base.css";` after the opsinjs import instead.
 
-```text
-<aliases.ui>/status-pill.tsx    the component, yours to edit
-<aliases.lib>/opsinjs.ts        units, categories and error codes every component reads
-<aliases.lib>/status.ts         the four clinical levels, their words and their glyphs
+## Dark mode and accent
+
+Dark mode is the `dark` class on an ancestor, usually `<html>`. The accent theme and the accent are attributes, and they theme everything inside the element that carries them. Set both on the same element.
+
+```html
+<html class="dark" data-accent-theme="vibes" data-accent="volt">
 ```
 
-In a default project they land in `components/ui/` and `lib/`. Commit them on their own, so a later `--diff` has something to compare against.
+| Attribute | Values | Default |
+| --- | --- | --- |
+| `data-accent-theme` | `normal`, `vibes`, `stryk` | `normal` |
+| `data-accent` | `cobalt`, `sky`, `jade`, `volt`, `rose`, `orchid`, `violet`, `iris`, `graphite` | `cobalt` |
+| `data-density` | `compact` | Unset |
 
-## Render it
+[Accent](./foundations/accent.mdx) explains the themes, and [Theming](./theming.mdx) covers the tokens behind them.
+
+## Render a component
 
 ```tsx title="app/page.tsx"
-import { StatusPill } from "@/components/ui/status-pill"
+import { StatusPill } from "@opsinjs/react"
 
 export default function Page() {
   return <StatusPill status="watch" describes="Blood pressure" />
@@ -87,7 +83,7 @@ export default function Page() {
 Check that the pill is styled, that its background reads an `--opsin-status-*` custom property, and that in greyscale it still names its level in words and by icon.
 
 <Todo>
-Nobody has walked this path end to end against the published registry. No registry item serves the `@theme inline` mappings behind utilities the components use, such as `gap-opsin-2` and `text-opsin-body`, so a fresh project does not generate those utilities yet.
+This page records no end-to-end install of the published packages into a fresh project, with either stylesheet.
 </Todo>
 
 ## Other frameworks
@@ -95,14 +91,13 @@ Nobody has walked this path end to end against the published registry. No regist
 | Setup | What differs |
 | --- | --- |
 | [Next.js](./nextjs.mdx) App Router | The reference install |
-| Vite | Client only. Declare `@/` in both `vite.config.ts` and `tsconfig.json`. Import `src/index.css` once, at the entry point |
-| React Router framework mode | Export `app/app.css` from the root route's `links`, so error routes get it too. Upgrade Remix to React Router 7 first |
-| TanStack Start | Vite rules apply. Load `src/styles.css` in the root route's document shell |
-| Astro | Import `src/styles/global.css` from your layout. Display components need no hydration directive. An interactive component must share an island with its trigger |
-| Manual, no CLI | Fetch `/r/<name>.json`, write each file in `files` to its target, install its `dependencies` and add the `cn` helper yourself |
-| Monorepo | Run the CLI with `--cwd apps/web`. Every consuming app needs its own `components.json`, its own aliases and its own `@source` lines |
+| Vite | Client only. Import the stylesheet once, at the entry point |
+| React Router framework mode | Load the stylesheet from the root route, through `links` for a CSS file, so error routes get it too. Upgrade Remix to React Router 7 first |
+| TanStack Start | Vite rules apply. Load the stylesheet in the root route's document shell |
+| Astro | Import the stylesheet from your layout. Display components need no hydration directive. An interactive component must share an island with its trigger |
+| Monorepo | List `@opsinjs/react` in the `package.json` of every app that renders it, and load a stylesheet in each |
 
-No row has a recorded end-to-end test, and the TanStack Start and Astro rows come from each framework's architecture, not from a build. Create React App and React Native are not targeted, and there is no Vue or Svelte build, though the tokens are plain CSS and work anywhere.
+No row has a recorded end-to-end test, and the TanStack Start and Astro rows come from each framework's architecture, not from a build. Create React App and React Native are not targeted, and there is no Vue or Svelte build, though `@opsinjs/tokens` is plain CSS and works anywhere.
 
 <NoDataYet script="scripts/build-reference.mts" />
 
@@ -116,13 +111,19 @@ Not one of the sixty components has been tested against any browser, at the floo
 
 ## Troubleshooting
 
-**The CLI reports an unknown registry.** `components.json` has no `registries` entry for `@opsinjs`, or its key is missing the `@`. The URL must include `{name}`.
+**`@opsinjs/react` does not resolve.** It is ESM-only and needs Node 20.19 or later. In a monorepo, it must be listed in the app that imports it.
 
-**Every copied file fails on `@/lib/utils`.** `shadcn init` was never run. Run it, or add the `cn` helper at the path `aliases.utils` names.
+**The component renders unstyled.** No opsinjs stylesheet is loaded. Import `styles.css` at the root, or import `tailwind.css` in the stylesheet Tailwind compiles.
 
-**The component renders unstyled.** Tailwind is not scanning the folder you copied into. Add an `@source` line, with a path relative to the CSS file.
+**An opsinjs utility such as `text-opsin-headline` does nothing in your own markup.** `styles.css` holds only the utilities the components use, so read the custom property with `var()` instead, or move to the Tailwind setup. With Tailwind, the opsinjs import must sit in the stylesheet Tailwind compiles, after `@import "tailwindcss"`.
 
-**Colours are wrong or empty.** The token layer is missing or loads before Tailwind, or `tailwind.css` names a stylesheet your app does not import.
+**Utilities appear twice.** Both `styles.css` and `tailwind.css` are loaded. Keep one.
+
+**Colours are wrong or empty.** Your own CSS sets a role such as `--primary` to a literal, or it reads a primitive token that no theme reaches. See [Theming](./theming.mdx).
+
+**The accent does not change.** `data-accent-theme` and `data-accent` sit on different elements, and they do not combine across elements. Put both on one.
+
+**There is no focus ring and the page font is the browser's.** `base.css` is not loaded. Import it, or style those yourself.
 
 ## Next steps
 

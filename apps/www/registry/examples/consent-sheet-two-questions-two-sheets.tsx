@@ -34,8 +34,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { ConsentSheet } from "@/registry/base-lyra/ui/consent-sheet"
+import { Button, ConsentSheet } from "@opsinjs/react"
 
 const FIRST_SCOPE = {
   collected: "Placeholder for what the first question collects.",

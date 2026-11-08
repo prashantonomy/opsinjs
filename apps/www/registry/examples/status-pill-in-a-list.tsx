@@ -18,7 +18,7 @@
  * free of any adjacent subject.
  */
 
-import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
+import { StatusPill } from "@opsinjs/react"
 
 const ROWS = [
   { subject: "First example measurement", status: "steady" },

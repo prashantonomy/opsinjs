@@ -37,7 +37,7 @@
  * where a reading would sit.
  */
 
-import { Skeleton } from "@/registry/base-lyra/ui/skeleton"
+import { Skeleton } from "@opsinjs/react"
 
 const ROWS = ["first", "second", "third"]
 

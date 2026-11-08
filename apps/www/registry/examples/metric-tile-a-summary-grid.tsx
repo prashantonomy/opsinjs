@@ -32,8 +32,7 @@
  * built.
  */
 
-import { type ClinicalStatus, type HealthCategory } from "@/lib/opsinjs"
-import { MetricTile } from "@/registry/base-lyra/ui/metric-tile"
+import { MetricTile, type ClinicalStatus, type HealthCategory } from "@opsinjs/react"
 
 /** The instant the whole screen is measured against. Read once, passed to six. */
 const NOW = "2026-04-06T09:00:00+00:00"

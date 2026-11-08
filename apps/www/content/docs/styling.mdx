@@ -1,18 +1,18 @@
 ---
 title: Styling
-description: Style a component you own through className, its data attributes and the render slot, without breaking the theme or the colour axes.
+description: Style an opsinjs component through className, its data attributes and the render slot, without breaking the theme or the colour axes.
 kind: guide
 aliases: [className override, cn function, state attributes, render prop, asChild, lint rules]
 ---
 
-Installed components are source you own, so you can edit them, but each edit is yours to merge at every upgrade. Try these hooks first, and fix the token in [Theming](./theming.mdx) when several components look wrong the same way.
+Components install from `@opsinjs/react`, so you style them from outside rather than by editing their source. These hooks cover most needs, and when several components look wrong the same way, fix the token in [Theming](./theming.mdx) instead.
 
 ## className and style
 
 Every component takes `className` and merges it onto its root with `cn()`, which is `clsx` plus `tailwind-merge`. Your class comes last, so it wins a conflict:
 
 ```ts
-import { cn } from "@/lib/utils"
+import { cn } from "@opsinjs/react"
 
 cn("px-4 py-2", isWide && "px-8")
 // "py-2 px-8"
@@ -20,7 +20,7 @@ cn("px-4 py-2", isWide && "px-8")
 
 - `className` styles only the root of what receives it, such as `Card` or `Card.Header`. Reach anything else through its `data-slot`.
 - When you wrap a component, forward `className` last, or the default overwrites the caller's.
-- The registry does not ship `cn`, so yours is the one `shadcn init` wrote. Its stock `tailwind-merge` treats `text-opsin-*` type steps as colours, so `cn("text-opsin-body", "text-foreground")` keeps only the later class. Write the colour as `[color:var(--foreground)]`, as the components do.
+- `cn` ships in `@opsinjs/react`, with `tailwind-merge` configured so the `text-opsin-*` type steps count as sizes. `cn("text-opsin-body", "text-foreground")` keeps both classes. A stock helper, such as the one `shadcn init` writes, treats those steps as colours and keeps only the later class, so use the opsinjs `cn` on opsinjs classes.
 - Most components take a closed set of props with no `style`. [Button](./components/button.mdx) and [Link](./components/link.mdx) forward their native element's attributes, `style` included.
 - Never hardcode a colour such as `bg-[#e11d48]` or a size such as `text-[13px]`, never reach for `!important`, and never style into a component's internals by descendant selector.
 
@@ -53,7 +53,7 @@ Four components take `render`, an element rendered in place of their own. Link, 
 
 ```tsx
 import NextLink from "next/link"
-import { Link } from "@/components/ui/link"
+import { Link } from "@opsinjs/react"
 
 <Link href="/results" emphasis="action" render={<NextLink href="/results" />}>
   See your results
@@ -76,10 +76,10 @@ Prose is British and code is American. Never name anything `normal`, never use `
 
 ## TypeScript
 
-Every component exports a `<Component>Props` interface, from which its page's API table is generated. The axis types ship with every component in `lib/opsinjs.ts`:
+Every component exports a `<Component>Props` interface, from which its page's API table is generated. The axis types are exported from `@opsinjs/react`:
 
 ```ts
-import { type ClinicalStatus, type HealthCategory } from "@/lib/opsinjs"
+import { type ClinicalStatus, type HealthCategory } from "@opsinjs/react"
 ```
 
 `ClinicalStatus` holds the four levels and `HealthCategory` the six categories. `unknown` is a separate `UnknownStatus`, the absence of a verdict rather than a fifth level, and `ClinicalStatusOrUnknown` joins the two. Type a wrapper with `Pick` and `Omit` on the exported interface, and never widen `status` to `string`.
@@ -90,4 +90,4 @@ import { type ClinicalStatus, type HealthCategory } from "@/lib/opsinjs"
 `eslint-plugin-opsinjs` and `stylelint-plugin-opsinjs` are proposed as specifications. Neither is built or published.
 </NotBuiltYet>
 
-Until they exist, review by hand for a colour literal or arbitrary colour value, both axes on one element, a status token in a category role, a banned word such as "normal" in copy, and a component variable set on `:root`. In a fork, `pnpm run check:a11y` catches several of these, but only in the component sources under `registry/`, never in your application.
+Until they exist, review by hand for a colour literal or arbitrary colour value, both axes on one element, a status token in a category role, a banned word such as "normal" in copy, and a component variable set on `:root`. In a fork, `pnpm run check:a11y` catches several of these, but only in opsinjs's own component sources, never in your application.

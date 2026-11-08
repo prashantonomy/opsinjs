@@ -5,7 +5,7 @@ kind: reference
 aliases: [warning codes, dev warnings, OPSIN error, console warning, what does this warning mean]
 ---
 
-Every warning opsinjs emits in development carries a stable code, a sentence saying what to do instead, and a link to the page that explains the rule. `warnOnce()` ships in `lib/opsinjs.ts`, which `shadcn add` copies into your project with the components. Several built components call it, and the remaining codes are allocated with no caller yet. Message wording, severity and which component raises which code may change while the components are unreviewed. The code a message carries does not.
+Every warning opsinjs emits in development carries a stable code, a sentence saying what to do instead, and a link to the page that explains the rule. `warnOnce()` and the `OPSIN_ERRORS` table ship in `@opsinjs/react`. Several built components call it, and the remaining codes are allocated with no caller yet. Message wording, severity and which component raises which code may change while the components are unreviewed. The code a message carries does not.
 
 ## How the codes work
 
@@ -13,7 +13,7 @@ Every warning opsinjs emits in development carries a stable code, a sentence say
 - **One code, one page.** Each code links the page that explains its rule.
 - **Once per session.** A warning fires once per code and message, not once per render. The message includes the values the component passed, so two components making the same mistake print two warnings, and the second render in Strict Mode prints nothing.
 - **Development only.** No warning throws. A production build strips them when your bundler applies the `NODE_ENV` guard, and where `process` is undefined the channel stays silent. Validate anything you need at runtime in your own code.
-- **One source.** `tokens/errors.json` is the only place a code is authored. `scripts/build-tokens.mts` writes it into `lib/opsinjs.ts`, `lib/generated/tokens.ts` and the table below, and the next `pnpm run generate` undoes an edit to any of them.
+- **One source.** `tokens/errors.json` is the only place a code is authored. `scripts/build-tokens.mts` writes it into `packages/react/src/opsinjs.ts`, `lib/generated/tokens.ts` and the table below, and the next `pnpm run generate` undoes an edit to any of them.
 
 ## Handling a warning
 

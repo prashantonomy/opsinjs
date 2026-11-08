@@ -35,7 +35,7 @@
 
 import type { ReactNode } from "react"
 
-import { Skeleton } from "@/registry/base-lyra/ui/skeleton"
+import { Skeleton } from "@opsinjs/react"
 
 function Panel({
   caption,

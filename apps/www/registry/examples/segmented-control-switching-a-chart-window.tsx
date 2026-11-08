@@ -20,7 +20,7 @@
 
 import { useState } from "react"
 
-import { SegmentedControl } from "@/registry/base-lyra/ui/segmented-control"
+import { SegmentedControl } from "@opsinjs/react"
 
 const WINDOWS = [
   { value: "day", label: "Day" },

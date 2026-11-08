@@ -38,8 +38,7 @@
  * without reaching into Card. The root cause sits in `lib/utils.ts`.
  */
 
-import { Card } from "@/registry/base-lyra/ui/card"
-import { Surface } from "@/registry/base-lyra/ui/surface"
+import { Card, Surface } from "@opsinjs/react"
 
 const BACKDROP_TILES = [
   "bg-foreground",

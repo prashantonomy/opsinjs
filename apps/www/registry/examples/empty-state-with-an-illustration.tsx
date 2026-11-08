@@ -24,7 +24,7 @@
  * literal colour cannot be held to anything.
  */
 
-import { EmptyState } from "@/registry/base-lyra/ui/empty-state"
+import { EmptyState } from "@opsinjs/react"
 
 /* Deliberately abstract. A picture of a heart, a chart or a pill bottle beside
    an absence of somebody's own data starts to look like a statement about that

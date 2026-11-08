@@ -6,7 +6,7 @@
  * copy (ADR 0012): no reading, no unit, no clinical instruction.
  */
 
-import { Accordion } from "@/registry/base-lyra/ui/accordion"
+import { Accordion } from "@opsinjs/react"
 
 export default function AccordionOneOpenAtATime() {
   return (

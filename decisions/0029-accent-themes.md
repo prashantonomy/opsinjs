@@ -41,3 +41,5 @@ A health system cannot take a brand colour the way a marketing site does. Status
 **Applying `stryk` only when the product opts in.** Rejected. The reader's request for contrast is an accessibility need, and the product's choice of look should not outrank it.
 
 **Warm accents.** Rejected. Every hue between 2 and 52 degrees, and between 57 and 107, is within reach of a status hue, and an amber or a red action would read as a level.
+
+**Note, 2026-11-09.** The copy-in wording in this record predates [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md), which ships opsinjs as npm packages, and the substance stands. The `registry:theme` items are gone. Every accent theme ships in `@opsinjs/tokens` as the `data-accent-theme` and `data-accent` attribute blocks, so a product switches at runtime without installing anything further.

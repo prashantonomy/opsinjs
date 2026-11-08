@@ -58,7 +58,7 @@
 
 import { useEffect, useRef } from "react"
 
-import { Surface } from "@/registry/base-lyra/ui/surface"
+import { Surface } from "@opsinjs/react"
 
 /* Deliberately contentless rows. This example is about a material, and a
    screenshot of an opsinjs example must never be mistakable for somebody's

@@ -6,9 +6,9 @@
  * and they must agree on every value and every pair, so the reading lives here:
  *
  *   scripts/build-tokens.mts    emits the default accent as tokens, the
- *                               attribute blocks into app/tokens.generated.css,
- *                               one registry theme item per theme and accent,
- *                               and REFUSES to emit a value that fails its floor
+ *                               attribute blocks into @opsinjs/tokens's
+ *                               tokens.css, the accent themes as data in its
+ *                               src/accents.ts, and REFUSES to emit a value that fails its floor
  *                               or an accent hue too near a status hue. That
  *                               refusal is what makes `pnpm check` fail in CI.
  *   scripts/check-contrast.mts  measures the same pairs and publishes the
@@ -27,8 +27,8 @@ export type AccentUse = "body" | "nonText"
 export type AccentFloorName = "standard" | "enhanced"
 
 export const ACCENT_FLOORS: Record<AccentFloorName, Record<AccentUse, { apca: number; wcag: number }>> = {
-  /* The published opsinjs floor, the same numbers lib/color/apca.ts and
-     lib/color/wcag.ts export, restated here so this module needs no import. */
+  /* The published opsinjs floor, the same numbers packages/color/src/apca.ts and
+     packages/color/src/wcag.ts export, restated here so this module needs no import. */
   standard: {
     body: { apca: 75, wcag: 4.5 },
     nonText: { apca: 45, wcag: 3 },
@@ -46,7 +46,7 @@ export interface AccentRole {
   id: string
   /** `--opsin-accent-action-foreground`. */
   cssVar: string
-  /** The product role app/product.css points at it, such as `--primary-foreground`. */
+  /** The product role packages/react/styles/roles.css points at it, such as `--primary-foreground`. */
   productRole: string
   use: string
 }

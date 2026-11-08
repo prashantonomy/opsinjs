@@ -1,0 +1,1335 @@
+/**
+ * ScoreDial is a composite number somebody's product calculated, drawn as an
+ * arc, with the band it falls in named in words and a sentence saying what the
+ * number is made of.
+ *
+ * THE RING IS THE DANGEROUS PART, and everything below is arranged around it. A
+ * number inside a ring reads as authoritative, complete and personal however
+ * thin the evidence behind it is, and a ring that fills up reads as a mark out
+ * of a maximum. So the arc is never the message: it is a picture of where a
+ * number the product supplied sits between two bounds the product supplied, and
+ * the words beside it carry everything a reader needs. Cover the arc with your
+ * hand and nothing is lost.
+ *
+ * OPSINJS SHIPS NO BANDS, NO SCALES AND NO CUT-OFFS. `bands` is a required prop
+ * and it is the caller's: their boundaries, their names, and the name of
+ * whoever chose them. Handed none, this component renders the number and says
+ * in words that it has no band for it, because a default band set would be a
+ * score interpretation with no clinical owner. That is the single worst thing
+ * this file could contain. The zero-prop demo,
+ * apps/www/registry/demos/score-dial.tsx, therefore has no bands at all, since
+ * a developer who copies it would copy the bands with it.
+ *
+ * IT ASSIGNS NO LEVEL. Band membership is arithmetic and it selects a NAME.
+ * That is the product's own word for a stretch of its own scale. It never
+ * selects a clinical status: `status` is a top-level prop, it is the product's
+ * verdict on this reading, and this component has no rule anywhere of the shape
+ * "if the score is past here then it is serious". An earlier version of this
+ * file hung `status` off each band and let the comparison pick one, which meant
+ * a rendering component was deciding what somebody's number meant. It no longer
+ * does. `CLINICAL_STATUS_META.watch.assignedBy` is "The consuming product, from
+ * a reference range it owns", and that is now literally who assigned it.
+ *
+ * AND IT PLACES NOTHING IT CANNOT PLACE HONESTLY. A score outside the scale it
+ * was given gets no mark at all and a sentence saying so, rather than a mark
+ * pinned to the end of the arc. A clamped indicator draws 140 and 100 in the
+ * same place, which is the picture saying something definite and false while
+ * the words say something true.
+ *
+ * WHY `role="img"` AND NOT `meter`. `meter` is exactly the role a dial looks
+ * like it wants and exactly the one it must not have: it announces a value
+ * within a range, which is the assertion this component is not entitled to
+ * make, and it carries no band vocabulary. `progressbar` is worse. It implies
+ * a task advancing towards completion, and a score is something that happened
+ * to a person rather than something they are part-way through. `slider` implies
+ * a value they can change. So: a labelled image, never focusable, never in the
+ * tab order, with a mandatory visible text twin beside it.
+ *
+ * THE TWIN IS NOT AN OPTION AND NO PROP OF THIS COMPONENT TURNS IT OFF.
+ * `ScoreDial.BandName` and `ScoreDial.Derivation` always render, visibly, in
+ * the document. The one way a caller can still lose them is `className`. A
+ * class that clips or hides wins the merge, and the doc comment on that prop
+ * says so. The measured CVD audit in `tokens/color.json` is why a graphic is
+ * worse than a pill here: four ordered levels cannot be made mutually
+ * distinguishable by hue for every form of colour vision, and an arc has no
+ * word in it at all.
+ *
+ * NOTHING ANIMATES. Not on first paint, not on a change, not under any prop.
+ * `health/motion-in-health-ui` names the dial sweep specifically, and a sweep
+ * has displayed, for every frame of its travel, a score that is not true.
+ */
+
+import { Circle, CircleDot, Diamond, Octagon } from "lucide-react"
+import { useId } from "react"
+
+import { CLINICAL_STATUS_META, HEALTH_CATEGORIES, isClinicalStatus, isDevelopment, isHealthCategory, warnOnce, type ClinicalStatus, type HealthCategory } from "../opsinjs.ts"
+import { cn } from "../utils.ts"
+import { StatusPill } from "./status-pill.tsx"
+import { Value } from "./value.tsx"
+
+/**
+ * The glyph for each level, bound from `CLINICAL_STATUS_META[level].icon`.
+ *
+ * This map draws nothing on the dial. ScoreDial delegates the level to
+ * StatusPill, so the glyph a reader sees reaches the screen through the pill
+ * and this file paints no glyph of its own. The map is kept for two reasons.
+ * First, a file that stamps `data-status` and paints a status colour, which
+ * this one does on the indicator and on the one tinted band, must both read
+ * `CLINICAL_STATUS_META` and reference a `lucide-react` icon, or A11Y001 reads
+ * the status as carried by colour alone. The gate downgrades a composed carrier
+ * to a warning rather than crediting it, so the reference has to stay in the
+ * file. Second, it asserts against `../status.ts` below, so the two copies of
+ * the level-to-glyph mapping cannot drift apart. It is written out here rather
+ * than imported for the reason the substrate contract gives: a component file
+ * may import `../utils.ts`, `../opsinjs.ts`, a sibling component and the
+ * package's declared dependencies and nothing else, and a bundler cannot
+ * resolve a `lucide-react` export from a runtime string without pulling the
+ * whole icon set into a consumer's bundle. Typing it `Record<ClinicalStatus,
+ * …>` makes a missing level a compile error rather than a status with no glyph.
+ */
+const ICONS: Record<ClinicalStatus, typeof Circle> = {
+  steady: Circle,
+  watch: CircleDot,
+  attention: Diamond,
+  urgent: Octagon,
+}
+
+/* Development-only, and the same assertion StatusPill carries. If somebody
+   changes an icon name in ../status.ts and not here, the two copies of the
+   level-to-glyph mapping have drifted, and this warns so the lucide reference
+   this file keeps for A11Y001 stays honest about which glyph each level owns. */
+if (isDevelopment()) {
+  for (const [level, Icon] of Object.entries(ICONS)) {
+    const expected = CLINICAL_STATUS_META[level as ClinicalStatus].icon
+    const actual = (Icon as { displayName?: string }).displayName
+    if (actual && actual !== expected) {
+      console.warn(
+        `[opsinjs] ScoreDial's ICONS map binds <${actual}> to status "${level}", ` +
+          `but CLINICAL_STATUS_META says the icon is "${expected}". The dial draws ` +
+          "no glyph itself; StatusPill does. Fix ICONS in score-dial.tsx so this " +
+          "file's reference to status.ts does not drift.",
+      )
+    }
+  }
+}
+
+/**
+ * The two levels a dial may carry, and the two it refuses.
+ *
+ * `attention` "always carries a named action" and `urgent` puts the action in
+ * the first line. That is `health/clinical-status-semantics`, not a house
+ * style. This component has nowhere to put an action: it renders a number, a
+ * band name and a sentence about arithmetic, and a bare "Urgent" beside a
+ * composite score is a level with no route to a person attached to it. So the
+ * two upper levels are refused rather than rendered flat, and the refusal is
+ * reported. A score that needs somebody to act belongs in a CareCard, which has
+ * the action, or an AlertBanner, which has the assertive live region.
+ */
+const DIAL_STATUSES = ["steady", "watch"] as const
+
+type DialStatus = (typeof DIAL_STATUSES)[number]
+
+function isDialStatus(candidate: string): candidate is DialStatus {
+  return (DIAL_STATUSES as readonly string[]).includes(candidate)
+}
+
+/**
+ * The indicator's colour, one class list per level, written out.
+ *
+ * Tailwind reads class names out of source as literal strings, so this cannot
+ * be built from the level at runtime: `text-status-${status}-ink` generates no
+ * CSS at all and the mark renders in whatever it inherits.
+ *
+ * `-ink` rather than the bare `-<level>` (which is the LINE role) because the
+ * indicator sits on the card rather than on the level's own tinted surface, and
+ * `status.<level>.ink-on-page` is a pair the contrast rig actually measures. It
+ * passes, in both themes, for both levels this component accepts.
+ *
+ * BE EXACT ABOUT WHAT "PAGE" IS THERE, because a card is not always it. The rig
+ * measures those rows against `--opsin-neutral-0` in light and
+ * `--opsin-neutral-950` in dark. In light `--card` is `oklch(1 0 0)`, which is
+ * `--opsin-neutral-0` exactly, so a dial on a card is on the measured ground. In
+ * dark `--card` sits one step lighter than `--opsin-neutral-950`, so the
+ * recorded figure is near neighbour to the pairing on a card rather than the
+ * pairing itself, and nothing has measured that one. `range-bar.tsx` reads the
+ * same rows for the same roles and says the same thing; neither file asserts a
+ * number for a pair the rig has not produced.
+ */
+const INDICATOR_TONE: Record<ClinicalStatus, string> = {
+  steady: "text-status-steady-ink",
+  watch: "text-status-watch-ink",
+  attention: "text-status-attention-ink",
+  urgent: "text-status-urgent-ink",
+}
+
+/**
+ * The fill for the one band the score fell in, when the product assigned a
+ * level to the reading.
+ *
+ * `-accent` is the identity fill: chosen for recognition rather than for
+ * contrast, never carrying text, never a sole boundary. That is exactly what a
+ * band segment is here. The word, the glyph, `data-status` and the indicator
+ * all say the same thing beside it. It is worth stating what "never a sole
+ * boundary" is doing for us: `lib/generated/contrast.json` measures
+ * `status.watch.accent-on-page` at Lc 39.29 in light, below the Lc 45 non-text
+ * floor, so a reader who could not tell this segment from its neighbours would
+ * lose nothing that the words do not also carry. The page says so in the same
+ * words rather than leaving the number in a generated file.
+ */
+const BAND_TONE: Record<ClinicalStatus, string> = {
+  steady: "text-status-steady-accent",
+  watch: "text-status-watch-accent",
+  attention: "text-status-attention-accent",
+  urgent: "text-status-urgent-accent",
+}
+
+/**
+ * The label's tint, and the only place the category axis touches this
+ * component.
+ *
+ * `-ink` because the label is text on the page, and `category.<name>.ink-on-page`
+ * is measured. The track, the bands and the indicator never take a category
+ * colour: a reader looking at one colour has to know whether it is answering
+ * what the reading is about or how much attention it wants, and a dial that
+ * mixed the two would make that unanswerable.
+ */
+const CATEGORY_TONE: Record<HealthCategory, string> = {
+  sleep: "text-category-sleep-ink",
+  heart: "text-category-heart-ink",
+  activity: "text-category-activity-ink",
+  nutrition: "text-category-nutrition-ink",
+  mind: "text-category-mind-ink",
+  labs: "text-category-labs-ink",
+}
+
+/**
+ * The label's class list, kept whole because a type step sits beside a colour.
+ *
+ * `cn()` cannot be used where a type step meets a colour. tailwind-merge
+ * classifies an unfamiliar `text-*` utility as a colour, so
+ * `cn("text-opsin-subheadline", "text-category-labs-ink")` returns only the
+ * second and the element silently loses its size, its leading, its tracking and
+ * its weight. That is verified against tailwind-merge 3.6.0. Joining them with a
+ * template passes both through, and the two utilities set different CSS
+ * properties, so both apply. Every place in this file where a type step meets a
+ * colour is written this way. The status word no longer lives here: it is a
+ * StatusPill now, the one capsule every status-bearing component shares, so its
+ * ink and boundary are the pill's concern rather than this file's.
+ */
+const LABEL_ROW = "m-0 text-center text-opsin-subheadline"
+
+/**
+ * Which of this file's own complaints the session has already printed.
+ *
+ * The same shape `Value` uses, and for the same reason: in a production bundle
+ * `isDevelopment()` is statically false, the body that touches this is dead
+ * code, and the set is never allocated. In development it lives for the
+ * session, so a grid of twelve dials with no bands prints one warning rather
+ * than twelve.
+ *
+ * It is not `warnOnce` because none of these complaints has an OPSIN code. That
+ * table is generated from `tokens/errors.json`, and allocating a code in it is
+ * not this component's to do; the omissions are reported upward instead. The
+ * channel and the wording are the same either way.
+ *
+ * The keys name WHICH complaint rather than what the component was holding at
+ * the time. Keying on a score would turn "warn once" into "warn every render".
+ */
+let reported: Set<string> | undefined
+
+function reportOnce(key: string, message: string): void {
+  if (!isDevelopment()) return
+  reported ??= new Set<string>()
+  if (reported.has(key)) return
+  reported.add(key)
+  console.warn(message)
+}
+
+/* ------------------------------------------------------------------ *
+ * Geometry                                                            *
+ * ------------------------------------------------------------------ */
+
+/* The dial: a 240-degree sweep opening at the bottom, drawn clockwise from the
+   lower left, on a round face inside a bezel. None of these numbers is a
+   clinical decision. They are the shape of a picture, in the SVG's own user
+   units, and they are constants only so that the face, the graduations, the
+   track, the boundary marks, the needle and the viewBox cannot drift apart. */
+const SWEEP_DEGREES = 240
+const START_DEGREES = 210
+
+/** The square the dial is drawn in, and its centre. */
+const VIEW_WIDTH = 100
+const VIEW_HEIGHT = 100
+const CENTRE_X = 50
+const CENTRE_Y = 50
+
+/** The bezel's outer edge and the face inside it. */
+const BEZEL_RADIUS = 48.5
+const FACE_RADIUS = 43
+
+/**
+ * The graduations: a fine tick every fiftieth of the scale and a longer one
+ * every tenth, outside the track, the way a gauge is ruled. They divide the
+ * product's own scale into equal steps and carry no number, so they assert no
+ * band and no threshold; they are the ruler the needle is read against.
+ */
+const TICK_OUTER = 40.5
+const TICK_MINOR_INNER = 38.6
+const TICK_MAJOR_INNER = 37
+const TICK_MINOR_COUNT = 50
+const TICK_MAJOR_EVERY = 5
+
+/** The track the bands are drawn on, and how far a boundary mark reaches past it. */
+const RADIUS = 32.5
+const TRACK_WIDTH = 4.5
+const BOUNDARY_REACH = 4.2
+
+/** The needle: its tip reaches just past the track; its tail balances it. */
+const NEEDLE_TIP = 35.5
+const NEEDLE_HALF_WIDTH = 1.35
+const NEEDLE_TAIL = 7.5
+const NEEDLE_TAIL_HALF_WIDTH = 1.9
+const HUB_RADIUS = 4.4
+
+/** Where the scale's two ends are written, inside the opening of the sweep. */
+const END_LABEL_RADIUS = 27
+
+/** `Intl.NumberFormat`'s ceiling, and the way to say "show the digits you were handed". */
+const MAX_FRACTION_DIGITS = 20
+
+function round(figure: number): number {
+  return Math.round(figure * 1000) / 1000
+}
+
+/** A point on the sweep. `fraction` runs 0 at the low bound to 1 at the high one. */
+function pointAt(fraction: number, radius: number): { x: number; y: number } {
+  const radians = ((START_DEGREES - fraction * SWEEP_DEGREES) * Math.PI) / 180
+  return {
+    x: round(CENTRE_X + radius * Math.cos(radians)),
+    /* Minus, because SVG's y grows downwards and the angle does not. */
+    y: round(CENTRE_Y - radius * Math.sin(radians)),
+  }
+}
+
+/**
+ * The whole sweep, as one path, drawn once and reused for every segment.
+ *
+ * Every band is this same path with a dash pattern over it rather than a path
+ * of its own, which is what keeps the segments exactly on the track and saves
+ * working out an arc flag per band. `pathLength={100}` normalises the path's
+ * length to 100 user units, so a dash offset is a percentage of the sweep and
+ * the arithmetic below is the fraction arithmetic, unchanged.
+ *
+ * The two flags: large-arc is 1 because 240 degrees is more than half a turn,
+ * and sweep is 1 because the path runs clockwise on screen. It runs lower left,
+ * over the top, lower right.
+ */
+const TRACK_PATH = (() => {
+  const from = pointAt(0, RADIUS)
+  const to = pointAt(1, RADIUS)
+  return `M ${from.x} ${from.y} A ${RADIUS} ${RADIUS} 0 1 1 ${to.x} ${to.y}`
+})()
+
+/**
+ * Keeps a DRAWING inside the arc. Never applied to a reading.
+ *
+ * A band whose bounds overhang the scale is clipped to the sweep, because the
+ * sweep is all the arc there is; that is a fact about the picture. A score
+ * outside the scale is a different thing entirely and is not clamped anywhere
+ * below. It gets no mark and a sentence instead.
+ */
+function clampFraction(fraction: number): number {
+  if (!Number.isFinite(fraction)) return 0
+  return Math.min(Math.max(fraction, 0), 1)
+}
+
+/**
+ * The needle as a polygon: a long taper from the hub to just past the track,
+ * and a short, wider tail on the far side of the hub, which is how an
+ * instrument's needle is balanced. Returned as an SVG `points` string.
+ */
+function needlePoints(fraction: number): string {
+  const radians = ((START_DEGREES - fraction * SWEEP_DEGREES) * Math.PI) / 180
+  const ux = Math.cos(radians)
+  const uy = -Math.sin(radians)
+  /* The perpendicular, a quarter turn from the needle's own direction. */
+  const px = -uy
+  const py = ux
+  const at = (along: number, across: number) =>
+    `${round(CENTRE_X + ux * along + px * across)},${round(CENTRE_Y + uy * along + py * across)}`
+  return [
+    at(NEEDLE_TIP, 0),
+    at(0, NEEDLE_HALF_WIDTH),
+    at(-NEEDLE_TAIL, NEEDLE_TAIL_HALF_WIDTH),
+    at(-NEEDLE_TAIL, -NEEDLE_TAIL_HALF_WIDTH),
+    at(0, -NEEDLE_HALF_WIDTH),
+  ].join(" ")
+}
+
+/** The graduations, as one path: a fine tick every fiftieth, a longer one every tenth. */
+const GRADUATIONS = (() => {
+  const minor: string[] = []
+  const major: string[] = []
+  for (let index = 0; index <= TICK_MINOR_COUNT; index += 1) {
+    const fraction = index / TICK_MINOR_COUNT
+    const isMajor = index % TICK_MAJOR_EVERY === 0
+    const inner = pointAt(fraction, isMajor ? TICK_MAJOR_INNER : TICK_MINOR_INNER)
+    const outer = pointAt(fraction, TICK_OUTER)
+    ;(isMajor ? major : minor).push(`M ${inner.x} ${inner.y} L ${outer.x} ${outer.y}`)
+  }
+  return { minor: minor.join(" "), major: major.join(" ") }
+})()
+
+/* ------------------------------------------------------------------ *
+ * The API                                                             *
+ * ------------------------------------------------------------------ */
+
+/**
+ * One named region of the scale, defined by the consuming product.
+ *
+ * Half-open: `from` is inclusive and `to` is exclusive, so contiguous bands can
+ * be written without a gap and without an overlap. The one exception is the top
+ * of the scale. A score exactly equal to `max` falls in the band whose `to` is
+ * `max`, because otherwise the highest score a scale allows would belong to no
+ * band at all.
+ */
+export interface ScoreBand {
+  /** Inclusive lower bound, on the score's own scale. */
+  from: number
+  /** Exclusive upper bound, on the score's own scale. */
+  to: number
+  /**
+   * The band in words, in the reader's language. Required: a band with no name
+   * cannot be read aloud, cannot survive a black-and-white printout, and cannot
+   * be told from its neighbour by anybody who does not see the colour.
+   */
+  name: string
+  /**
+   * Whose band this is, named for the reader: a published instrument, a
+   * guideline body, your own clinical review. Required, and rendered on screen
+   * beneath the band list.
+   *
+   * Two numbers that define an interval somebody is compared against are a
+   * comparison a person chose, exactly like a reference range, and OPSIN-0004
+   * says the thing to do about one with nobody's name on it. A band set carries
+   * more weight than a bare range rather than less, because it comes with a
+   * word for each interval. In an example this is `EXAMPLE_SOURCE`.
+   */
+  source: string
+}
+
+export interface ScoreDialProps {
+  /** What the score is called, in the reader's language. Not an internal code. */
+  label: string
+  /**
+   * The score. `null` renders the no-score state, which is not a score of zero:
+   * zero is a real result on many scales and an absent one is not a result. A
+   * value that is not a finite number is a third state again. It is a
+   * calculation that ran and failed, and it is announced as one.
+   */
+  value: number | null
+  /** The scale's lower bound. Required: an unbounded dial is unreadable. */
+  min: number
+  /** The scale's upper bound. Required, and it is stated to the reader. */
+  max: number
+  /**
+   * The product's bands: contiguous, non-overlapping, covering the whole scale,
+   * each named and each with a source. opsinjs ships none and never supplies a
+   * default. An empty list renders the number with no band and says so, rather
+   * than inventing one.
+   */
+  bands: ScoreBand[]
+  /**
+   * The level of attention this reading needs, assigned by the product from a
+   * reference range or a threshold the product owns. An INPUT, never a
+   * derivation: this component does not compare the score with anything and
+   * decide what it means, because it does not know the reader.
+   *
+   * Only `steady` and `watch` are accepted. `attention` and `urgent` are
+   * refused and reported, because both are defined as carrying a named action
+   * and a dial has nowhere to put one. Use CareCard or AlertBanner, which do.
+   */
+  status?: DialStatus
+  /**
+   * One sentence saying what went into the score and over what window.
+   * Required, and always rendered. A dial that cannot explain itself is a
+   * decorative authority claim, and Value is the honest component instead.
+   */
+  derivation: string
+  /**
+   * Decimal places for the score, from the product, and required here rather
+   * than optional as it is on Value. A composite score is arithmetic, so a
+   * fractional double is the ordinary case rather than the edge, and with
+   * nothing stated one IEEE 754 double prints as many as seventeen digits in a
+   * single tabular token that has no break opportunity, which is wider than a
+   * phone column at 200 percent text. Precision belongs to the metric and
+   * opsinjs invents no default, which is why the prop is required here rather
+   * than defaulted. The file ships as source into JavaScript projects, where a
+   * required prop is advice rather than a guarantee: a caller who omits it gets
+   * one console report and the number keeps the digits it arrived with.
+   */
+  precision: number
+  /**
+   * How much of the expected input the score was actually calculated from, as
+   * in `{ available: 4, expected: 6 }`. When it is short the dial says so on
+   * its face, because a reader has no other way to know that today's number
+   * rests on a third of the usual evidence. What was counted is the derivation
+   * sentence's job to name: this component does not know whether they were
+   * nights, readings or days.
+   */
+  coverage?: { available: number; expected: number }
+  /**
+   * Tints the label, and nothing else. Never the track, the bands or the
+   * indicator. Those belong to the status axis, and one surface carries one
+   * axis.
+   */
+  category?: HealthCategory
+  /**
+   * When the score was calculated, ISO 8601. It renders on its own labelled
+   * line, and a dial that has a score but no instant says in words that nobody
+   * knows when it was calculated. It gets no staleness treatment and no relative phrasing: a
+   * relative phrase needs the instant to measure against, which this API does
+   * not carry, and a staleness window is a number opsinjs does not own for any
+   * metric. A caller who needs "2 hours ago", or needs an old score to LOOK
+   * old, renders a RelativeTime beside the dial and passes it one `now` for the
+   * whole screen. This prop is not `measuredAt`: nothing here was measured.
+   */
+  calculatedAt?: string
+  /** BCP 47 locale for every number and the date. Omitted, the reader's own environment decides. */
+  locale?: string
+  /**
+   * Merged onto the root, and a class passed here WINS over the component's own
+   * where the two conflict.
+   *
+   * That includes `truncate`, `sr-only`, a zeroed type size and any fixed
+   * height. The band name, the scale and the derivation are mandatory content
+   * that no prop of this component removes, and a class that clips or hides
+   * them is the one way left to remove them anyway. The accessible sentence on
+   * the arc would survive; the words a sighted reader needs would not.
+   */
+  className?: string
+}
+
+/* ------------------------------------------------------------------ *
+ * The component                                                       *
+ * ------------------------------------------------------------------ */
+
+/**
+ * The band a score falls in, or `undefined`.
+ *
+ * This selects a NAME and nothing else. It is the product's own word for a
+ * stretch of the product's own scale. It does not select a level, and no level
+ * is reachable from it: `status` arrives as a prop or it does not arrive.
+ *
+ * First match wins, so overlapping bands resolve in the order the product
+ * declared them rather than by any rule of this component's. The `max` clause
+ * is the top-of-scale exception described on `ScoreBand`.
+ */
+function bandAt(list: ScoreBand[], score: number, max: number): ScoreBand | undefined {
+  return list.find(
+    (entry) =>
+      (score >= entry.from && score < entry.to) || (score === max && score === entry.to),
+  )
+}
+
+/**
+ * The score as the accessible sentence will say it.
+ *
+ * It exists so that the spoken sentence and the printed reading cannot
+ * disagree: `Value` prints the reading with these same options, and a label
+ * that said "14" beside a dial reading "14.0" would be two answers to one
+ * question.
+ *
+ * Rounding is `halfExpand`, which is round-half-away-from-zero,
+ * `numbers-units-precision` rule 3. It is INHERITED rather than named.
+ * `roundingMode` is an ES2023 addition to `Intl.NumberFormatOptions`, so
+ * spelling it out here makes this file fail to typecheck in a consumer whose
+ * `lib` stops at ES2022, and this file ships as source into those projects.
+ * `halfExpand` is the formatter's own default, so the behaviour is identical
+ * either way; see the longer note in `value.tsx`, which records where the
+ * regression was found. Do not put it back.
+ */
+function spokenScore(score: number, places: number | undefined, locale: string | undefined): string {
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: places,
+    maximumFractionDigits: places ?? MAX_FRACTION_DIGITS,
+  }).format(score)
+}
+
+/**
+ * Every other number this component prints: the bounds, the band edges, the
+ * coverage counts.
+ *
+ * They go through the reader's locale too. They are the product's description
+ * of its own scale rather than the reader's measurement, which settles whether
+ * they need a unit and settles nothing about how a numeral is spelled. A
+ * reader does not change number systems between two lines of one card. Before
+ * this existed, a `de-DE` dial printed the score with a comma three lines above
+ * a scale sentence spelling its bounds with a point, and `String()` printed
+ * 1e21 as "1e+21".
+ */
+function plain(figure: number, locale: string | undefined): string {
+  if (!Number.isFinite(figure)) return String(figure)
+  return new Intl.NumberFormat(locale, {
+    maximumFractionDigits: MAX_FRACTION_DIGITS,
+  }).format(figure)
+}
+
+export function ScoreDial({
+  label,
+  value,
+  min,
+  max,
+  bands,
+  status,
+  derivation,
+  coverage,
+  category,
+  calculatedAt,
+  precision: declaredPrecision,
+  locale,
+  className,
+}: ScoreDialProps) {
+  /* PRECISION IS REQUIRED IN THE TYPE, ADVICE IN JAVASCRIPT. The prop is typed
+     `number`, so a TypeScript caller cannot omit it. This file ships as source
+     into JavaScript projects, where a required prop is advice rather than a
+     guarantee, so the value is re-widened once to `number | undefined` and every
+     runtime check below reads a value that genuinely might not be a number. */
+  const precision: number | undefined = declaredPrecision
+
+  /* THE SCALE HAS TO BE A SCALE. A span of zero or less has no positions in it,
+     and every fraction below would be a division by zero rendered as an
+     indicator pinned to one end. That is a picture that says something definite
+     about a scale nobody can read. Reported, and the arc is drawn without bands
+     or an indicator so that the words are still true. */
+  const span = max - min
+  const scaleUsable = Number.isFinite(span) && span > 0
+  if (!scaleUsable) {
+    reportOnce(
+      "scale",
+      `[opsinjs] <ScoreDial> was given min=${plain(min, locale)} and max=${plain(max, locale)}, ` +
+        "which is not a scale: the upper bound must be above the lower one. The " +
+        "arc was drawn empty, no indicator was placed and no band list was shown, " +
+        "because a position on a scale of no width is a picture with no meaning. " +
+        "The score and its words are unaffected.",
+    )
+  }
+
+  /* THREE STATES, NOT TWO, and keeping them three is the whole of the null
+     handling here. A number that arrived broken is a calculation that ran and
+     failed; an absent one is a calculation that never ran. `Value` keeps them
+     apart in the visible words, and this file has to keep them apart in the
+     spoken ones. The aria-label is this component's own string, and a reader
+     told "no score yet" about a number that DID exist and arrived broken has
+     been told something untrue about their own record. */
+  const broken = value !== null && !Number.isFinite(value)
+  const score = value !== null && !broken ? value : null
+
+  const usableBands = Array.isArray(bands) ? bands : []
+  if (usableBands.length === 0) {
+    reportOnce(
+      "bands",
+      "[opsinjs] <ScoreDial> was given no bands. The score has been drawn with no " +
+        "band and the words say so, which is the honest output: opsinjs ships no " +
+        "scales, no bands and no cut-offs, and a substituted default would be a " +
+        "score interpretation with no clinical owner. Pass the bands your product " +
+        "defined, each with its own name and its own source.",
+    )
+  }
+
+  /* OPSIN-0004, in the shape a band set takes. A band is two numbers that
+     define an interval somebody is compared against, which is the same class of
+     claim as a reference range: somebody chose those boundaries, and the reader
+     is entitled to know who. The type requires `source`; this file ships as
+     source into JavaScript projects where a type is advice. */
+  const bandSources = Array.from(
+    new Set(
+      usableBands
+        .map((entry) => (typeof entry.source === "string" ? entry.source.trim() : ""))
+        .filter((entry) => entry !== ""),
+    ),
+  )
+  const bandSourcesComplete =
+    usableBands.length > 0 &&
+    usableBands.every((entry) => typeof entry.source === "string" && entry.source.trim() !== "")
+  if (usableBands.length > 0 && !bandSourcesComplete) {
+    warnOnce("OPSIN-0004", { component: "ScoreDial" })
+  }
+
+  /* THE LEVEL IS AN INPUT. Refused rather than approximated when it is not one
+     this surface can discharge: there is no glyph for a level outside the four,
+     no action attached to the two upper ones here, and `unknown` is the absence
+     of an assertion rather than a fifth level. A reader who sees it rendered
+     as one reads it as reassurance. `String()` first, because a JavaScript
+     caller can pass anything at all. */
+  const given = status === undefined ? undefined : String(status)
+  let level: DialStatus | undefined
+  if (given !== undefined) {
+    if (isDialStatus(given)) {
+      level = given
+    } else if (given === "unknown") {
+      warnOnce("OPSIN-0011", { component: "ScoreDial" })
+    } else if (isClinicalStatus(given)) {
+      reportOnce(
+        "status-level",
+        `[opsinjs] <ScoreDial> was given status="${given}" and rendered no status ` +
+          "at all. That level is defined as carrying a named action: who to " +
+          "contact, what to do, in the first line. A dial has nowhere to put " +
+          "one: it renders a number, a band name and a sentence about arithmetic. " +
+          "A bare status word beside a composite score is a level with no route to " +
+          "a person attached to it. Render a CareCard, which carries the action, or " +
+          "an AlertBanner, and keep the dial for the number.",
+      )
+    } else {
+      warnOnce("OPSIN-0021", { component: "ScoreDial", status: given })
+    }
+  }
+
+  /* OPSIN-0010. A category outside the six has no ramp, so the label would take
+     no tint at all and the axis would silently be gone. */
+  let tint: HealthCategory | undefined
+  if (category !== undefined) {
+    if (isHealthCategory(category)) {
+      tint = category
+    } else {
+      warnOnce("OPSIN-0010", {
+        category: String(category),
+        known: HEALTH_CATEGORIES.join(", "),
+      })
+    }
+  }
+
+  /* NO OPSIN-0001 HERE, AND THAT IS DELIBERATE. This component takes both a
+     category and a status, and that is not the conflict the code describes: the
+     conflict is two axes resolving on ONE element. The category reaches the
+     label and nothing else; the status reaches the indicator and the band the
+     score fell in and nothing else. Putting the category on the surface and the
+     status inside it is the repair OPSIN-0001 asks for, built in. */
+
+  /* Derivation is mandatory content, so an empty one is reported and replaced
+     by words that say what is missing, rather than by an empty line the reader
+     would read as "there was nothing to say". There is no OPSIN code for this
+     yet; allocating one is not this file's to do, so the omission is reported
+     upward and the channel is the same. */
+  const derivationGiven = typeof derivation === "string" && derivation.trim() !== ""
+  if (!derivationGiven) {
+    reportOnce(
+      "derivation",
+      "[opsinjs] <ScoreDial> was given no derivation. A sentence saying what went " +
+        "into the score and over what window is mandatory content, not an option: " +
+        "a bare number with no method invites the reader to supply one, and they " +
+        "will supply something worse than the truth. The dial now says that it " +
+        "cannot explain itself, which is true and is not what you want on screen. " +
+        "If nobody can write that sentence, render a Value instead of a dial.",
+    )
+  }
+
+  /* PRECISION IS REQUIRED, AND THE RUNTIME HAS TO AGREE WITH THE TYPE. The type
+     is `precision: number` because a composite score is arithmetic and a
+     fractional double is the ordinary case: with nothing stated Value rounds
+     nothing, and one IEEE 754 double prints up to seventeen digits in a single
+     tabular token with no break opportunity, which is wider than a phone column.
+     This file ships as source into JavaScript projects, where a required type is
+     advice a caller can ignore, so a non-number is reported (keyed on the
+     complaint, not the value) and `undefined` is passed on to Value and to the
+     spoken score. That keeps the fallback of showing the digits as handed rather
+     than substituting a number this component did not choose. */
+  const precisionGiven = typeof precision === "number"
+  if (!precisionGiven) {
+    reportOnce(
+      "precision",
+      "[opsinjs] <ScoreDial> was rendered with no numeric `precision`, so the score " +
+        "was shown with exactly the digits it arrived with. A composite score is " +
+        "arithmetic, so a fractional double is the ordinary case, and an unstated " +
+        "precision can print as many as seventeen digits in one tabular token that " +
+        "is wider than a phone column at large text. Pass the decimal places your " +
+        "metric is meaningful to, as precision={1}; opsinjs invents no default.",
+    )
+  }
+  const resolvedPrecision = precisionGiven ? precision : undefined
+
+  const coverageShort =
+    coverage !== undefined &&
+    Number.isFinite(coverage.available) &&
+    Number.isFinite(coverage.expected) &&
+    coverage.available < coverage.expected
+
+  /* OFF THE SCALE IS NOT AT THE END OF IT. The mark is refused and the words
+     say why, because an indicator clamped to the terminal draws 140 and 100 in
+     the same place: the picture asserts something specific and false while the
+     words beside it are true, which is the one configuration the two-channel
+     design exists to prevent. This component will not widen a scale a product
+     declared either. It cannot tell whether the scale is wrong or the score
+     is. */
+  const offScale = score !== null && scaleUsable && (score < min || score > max)
+  if (offScale && score !== null) {
+    reportOnce(
+      "off-scale",
+      `[opsinjs] <ScoreDial> was given the score ${plain(score, locale)} on a scale ` +
+        `of ${plain(min, locale)} to ${plain(max, locale)}. No indicator was drawn ` +
+        "and the dial says in words that the score is outside its scale, because a " +
+        "mark at the end of the arc would show an off-scale score in the same place " +
+        "as one exactly at the bound. Either the scale is wrong or the score is; " +
+        "this component cannot tell which.",
+    )
+  }
+
+  const placeable = score !== null && scaleUsable && !offScale
+  const fraction = placeable && score !== null ? (score - min) / span : 0
+
+  const band = placeable && score !== null ? bandAt(usableBands, score, max) : undefined
+
+  /* The band in words, and there is always something to say. Where the product
+     supplied no bands, or supplied bands this score falls outside, the words
+     say exactly that rather than reaching for a nearby one: a band this
+     component chose would be a score interpretation with no clinical owner. */
+  const bandWords = broken
+    ? "No range is named, because the score could not be worked out."
+    : score === null
+      ? "No range is named, because there is no score yet."
+      : !scaleUsable
+        ? "We cannot place this score, because the scale has no width."
+        : offScale
+          ? `This score is outside the ${plain(min, locale)} to ${plain(max, locale)} scale, so we cannot show where it sits.`
+          : band
+            ? band.name
+            : usableBands.length === 0
+              ? "This score has no named ranges, so we cannot say what it means."
+              : "This score is not inside any of the named ranges, so we cannot say what it means."
+
+  /* The same three states again, in the same words `Value` prints for them, so
+     the ear and the eye get one answer between them. */
+  const scoreWords = broken
+    ? "not available"
+    : score === null
+      ? "no score yet"
+      : spokenScore(score, resolvedPrecision, locale)
+
+  /* "on a scale of" rather than "out of". This component's own specification is
+     explicit that a score is not a mark out of its upper bound, and "out of" is
+     the phrasing that produces exactly that reading. */
+  const scaleWords = `on a scale of ${plain(min, locale)} to ${plain(max, locale)}`
+  const scaleSentence = `On a scale of ${plain(min, locale)} to ${plain(max, locale)}.`
+  const derivationWords = derivationGiven
+    ? derivation
+    : "This app does not say how the score was worked out."
+  /* ATTRIBUTION IS ALL-OR-NOTHING. The gate is `bandSourcesComplete`, not
+     "some band named a source": printing "Ranges from Dr Okafor's 2025 review."
+     over a list where only the first interval came from that review credits the
+     rest of the scale to somebody who never chose it, which is a
+     reference-range-class claim with a false author. That is the thing
+     OPSIN-0004 exists to stop. One unattributed band makes the whole set
+     unattributed. */
+  const bandSourceWords = bandSourcesComplete
+    ? `Ranges from ${bandSources.join("; ")}.`
+    : "Nobody is named as setting these ranges."
+
+  /* The level is about the reading, so with no reading there is no level to
+     show. It is not attached to the band: a band is a stretch of a scale and a
+     status is what the product says about this number. */
+  const shownLevel = score === null ? undefined : level
+
+  /**
+   * The accessible name for the arc: the whole component in one utterance.
+   *
+   * It repeats the visible twin on purpose, and the substrate contract requires
+   * `role="img"` with a label here rather than an `aria-hidden` graphic. The
+   * alternative is a graphic labelled only "dial", which is the tree of
+   * unlabelled shapes that accessible-charts.mdx names as the failure.
+   */
+  const spoken = [
+    `${label}: ${scoreWords}, ${scaleWords}.`,
+    `${bandWords}${score !== null && band ? "." : ""}`,
+    shownLevel ? `${CLINICAL_STATUS_META[shownLevel].word}.` : "",
+    coverageShort && coverage
+      ? `Based on ${plain(coverage.available, locale)} of ${plain(coverage.expected, locale)}.`
+      : "",
+    derivationWords,
+  ]
+    .filter((part) => part !== "")
+    .join(" ")
+
+  /* THE INTERNAL EDGES, BY VALUE RATHER THAN BY POSITION IN THE ARRAY. The API
+     permits unordered and non-contiguous bands and says this component does not
+     reorder, merge or repair them, so taking every edge but the first DECLARED
+     one drew the wrong marks for any band set written out of order, and silently
+     dropped a real edge. Every `from` and every `to` becomes a candidate; the
+     two ends of the scale are excluded because the track's own ends already draw
+     them, and a mark on top of one reads as a band edge with no band beyond it. */
+  const boundaries = scaleUsable
+    ? Array.from(
+        new Set(
+          usableBands
+            .flatMap((entry) => [entry.from, entry.to])
+            .map((edge) => round((edge - min) / span))
+            .filter((edge) => edge > 0 && edge < 1),
+        ),
+      )
+    : []
+
+  /* No mark when there is no score to place, none when the scale cannot be
+     read, and none when the score is off the scale. A mark drawn anyway would
+     be a position asserted about a number that does not have one. */
+  const indicator = placeable ? needlePoints(fraction) : undefined
+
+  /* The gradients the bezel, the face and the hub are filled with are defined
+     inside this SVG, so they need ids no other dial on the page shares. */
+  const gradientId = useId().replace(/[^a-zA-Z0-9_-]/g, "")
+
+  const calculatedOn =
+    calculatedAt !== undefined && !Number.isNaN(Date.parse(calculatedAt))
+      ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(calculatedAt))
+      : undefined
+  if (calculatedAt !== undefined && calculatedOn === undefined) {
+    reportOnce(
+      "calculated-at",
+      `[opsinjs] <ScoreDial> could not read calculatedAt="${String(calculatedAt)}" as ` +
+        "a date, so no date was rendered. Pass ISO 8601 with an offset, as in " +
+        "2026-03-14T08:12:00+01:00. An instant with no offset is read in " +
+        "whichever zone the code happens to be running in.",
+    )
+  }
+
+  return (
+    <div
+      data-slot="score-dial"
+      className={cn(
+        /* Stacked, always, and there is no overlaid variant to reflow from.
+           A score sitting inside the ring is the arrangement that breaks first
+           when a reader turns their text up, and the requirement is that the
+           derivation sentence never truncates. Laying it out this way once
+           means 200% is not a special case that has to be remembered.
+
+           The rhythm is two levels and only two. `gap-opsin-4` (16px) separates
+           the blocks of the root from each other, which space.json names as the
+           default gap between elements inside a card; `gap-opsin-2` (8px), whose
+           published use is the gap between tightly related lines, separates the
+           lines inside one block. Neither reaches for the 2px step space.json
+           calls an optical nudge rather than a layout step.
+
+           The column is capped at `--opsin-measure-comfortable`, the measure
+           token whose published use is the maximum line length for prose
+           anywhere in the product, which is the job the widest thing here does:
+           the derivation sentence. The 66ch fallback keeps the cap for a
+           consumer who installed the component without the token layer. The arc
+           inside keeps its own narrower cap. */
+        "flex w-full max-w-(--opsin-measure-comfortable,66ch) flex-col items-center gap-opsin-4 text-opsin-body",
+        className
+      )}
+    >
+      {/* Joined rather than merged - see LABEL_ROW above for why `cn()` cannot
+          be used where a type step meets a colour. */}
+      <p
+        data-slot="score-dial-label"
+        data-category={tint}
+        className={`${LABEL_ROW} ${tint ? CATEGORY_TONE[tint] : "text-muted-foreground"}`}
+      >
+        {label}
+      </p>
+
+      <svg
+        data-slot="score-dial-track"
+        /* A labelled image, and nothing more. Not a meter, not a progressbar,
+           not a slider, and never in the tab order: this is a picture of a
+           reading somebody else assigned, and it has no value semantics of its
+           own to offer. */
+        role="img"
+        aria-label={spoken}
+        focusable="false"
+        viewBox={`0 0 ${String(VIEW_WIDTH)} ${String(VIEW_HEIGHT)}`}
+        /* Capped by the --opsin-graphic-dial token, which is spelled in rem so
+           the dial grows with the reader's root font size instead of staying put
+           while the words around it grow. The cap still yields to w-full when the
+           column is narrower than the token, so a cramped layout shrinks the dial
+           rather than clipping it. The drop under the bezel is what lifts the
+           instrument off the page; it is light and carries nothing. */
+        className="h-auto w-full max-w-(--opsin-graphic-dial,17rem) [--dial-recess-top:color-mix(in_oklab,var(--foreground)_22%,transparent)] [--dial-recess-bottom:color-mix(in_oklab,var(--card)_55%,transparent)] dark:[--dial-recess-top:color-mix(in_oklab,var(--background)_75%,transparent)] dark:[--dial-recess-bottom:color-mix(in_oklab,var(--foreground)_9%,transparent)] drop-shadow-[0_10px_14px_oklch(0.205_0.006_250/0.14)] dark:drop-shadow-[0_12px_18px_oklch(0_0_0/0.6)] print:drop-shadow-none"
+      >
+        {/* A REAL INSTRUMENT, AND STILL ONLY A PICTURE. A bezel lit from above,
+            a face dished like a gauge's, graduations that rule the product's
+            own scale in equal steps, the scale's two ends written inside the
+            opening, and a needle on a hub. Everything except the one band the
+            reading fell in and the needle is light and neutral ink, and none of
+            it is a measurement: the graduations carry no number and no band,
+            and the words beneath the dial say everything the picture shows.
+            The gradients read the card's own colour, mixed towards white or
+            black, so the instrument is drawn in whichever theme it is in.
+
+            Forced colours repaint boxes, borders and text and leave an SVG's
+            fills and strokes where the author set them, so every mark below
+            carries a `forced-colors:` rule: the face becomes Canvas, the rim,
+            the ruling, the track, the boundaries and the needle CanvasText, and
+            the one band the reading fell in Highlight. */}
+        <defs>
+          <linearGradient id={`${gradientId}-bezel`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style={{ stopColor: "color-mix(in oklab, var(--card), white 55%)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--card), black 16%)" }} />
+          </linearGradient>
+          <radialGradient id={`${gradientId}-face`} cx="0.5" cy="0.38" r="0.62">
+            <stop offset="0" style={{ stopColor: "var(--card)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--card), black 7%)" }} />
+          </radialGradient>
+          <linearGradient id={`${gradientId}-recess`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style={{ stopColor: "var(--dial-recess-top)" }} />
+            <stop offset="0.55" style={{ stopColor: "color-mix(in oklab, var(--card) 0%, transparent)" }} />
+            <stop offset="1" style={{ stopColor: "var(--dial-recess-bottom)" }} />
+          </linearGradient>
+          <radialGradient id={`${gradientId}-hub`} cx="0.35" cy="0.3" r="0.8">
+            <stop offset="0" style={{ stopColor: "color-mix(in oklab, var(--card), white 70%)" }} />
+            <stop offset="1" style={{ stopColor: "color-mix(in oklab, var(--card), black 30%)" }} />
+          </radialGradient>
+        </defs>
+
+        {/* The bezel and the face. */}
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={BEZEL_RADIUS}
+          fill={`url(#${gradientId}-bezel)`}
+          stroke="var(--edge)"
+          strokeWidth={0.6}
+          className="forced-colors:fill-[Canvas] forced-colors:stroke-[CanvasText]"
+        />
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={FACE_RADIUS}
+          fill={`url(#${gradientId}-face)`}
+          className="forced-colors:fill-[Canvas]"
+        />
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={FACE_RADIUS - 0.6}
+          fill="none"
+          stroke={`url(#${gradientId}-recess)`}
+          strokeWidth={1.2}
+          className="forced-colors:hidden"
+        />
+
+        {/* The graduations, in the muted ink: the fine ticks lighter than the
+            long ones, so the ruler reads in steps of ten. */}
+        <path
+          d={GRADUATIONS.minor}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={0.45}
+          strokeLinecap="round"
+          className="text-muted-foreground/55 forced-colors:stroke-[CanvasText]"
+        />
+        <path
+          d={GRADUATIONS.major}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={0.8}
+          strokeLinecap="round"
+          className="text-muted-foreground forced-colors:stroke-[CanvasText]"
+        />
+
+        {/* The full sweep, always drawn, as a groove in the face, so the scale's
+            extent is visible whether or not there is a score to place on it. */}
+        <path
+          d={TRACK_PATH}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={TRACK_WIDTH}
+          strokeLinecap="round"
+          className="text-[color-mix(in_oklab,var(--card),var(--foreground)_12%)] forced-colors:stroke-[CanvasText]"
+        />
+
+        {scaleUsable
+          ? usableBands.map((entry, index) => {
+              const opens = clampFraction((entry.from - min) / span)
+              const closes = clampFraction((entry.to - min) / span)
+              const reach = Math.max(closes - opens, 0) * 100
+              if (reach <= 0) return null
+              const active = band === entry && shownLevel !== undefined
+              return (
+                <path
+                  key={`${String(index)}:${String(entry.from)}:${entry.name}`}
+                  data-slot="score-dial-band"
+                  /* Only the band the score fell in is tinted, and only when the
+                     product assigned a level to the reading. Colouring every
+                     band at once is the traffic light this component exists
+                     not to be, so every other band is drawn in the groove's own
+                     colour, where its boundary marks are what set it apart. */
+                  data-status={active ? shownLevel : undefined}
+                  d={TRACK_PATH}
+                  pathLength={100}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={TRACK_WIDTH}
+                  strokeLinecap="butt"
+                  strokeDasharray={`${String(round(reach))} 100`}
+                  strokeDashoffset={-round(opens * 100)}
+                  className={
+                    active && shownLevel
+                      ? `${BAND_TONE[shownLevel]} forced-colors:stroke-[Highlight]`
+                      : "text-[color-mix(in_oklab,var(--card),var(--foreground)_12%)] forced-colors:stroke-[CanvasText]"
+                  }
+                />
+              )
+            })
+          : null}
+
+        {/* Boundary marks: how the bands are told apart with no colour at all,
+            alongside their position and their names below. They cross the
+            groove in the foreground ink, the one neutral that separates from it
+            in both themes, and they are thinner than the needle and carry no
+            hub, so a boundary and the reading are told apart by shape. */}
+        {boundaries.map((edge) => {
+          const inner = pointAt(edge, RADIUS - BOUNDARY_REACH)
+          const outer = pointAt(edge, RADIUS + BOUNDARY_REACH)
+          return (
+            <line
+              key={`boundary:${String(edge)}`}
+              data-slot="score-dial-boundary"
+              x1={inner.x}
+              y1={inner.y}
+              x2={outer.x}
+              y2={outer.y}
+              stroke="currentColor"
+              strokeWidth={1.1}
+              strokeLinecap="round"
+              className="text-foreground forced-colors:stroke-[CanvasText]"
+            />
+          )
+        })}
+
+        {/* The scale's two ends, written inside the opening of the sweep, as a
+            gauge writes its own. They are the same two numbers the scale
+            sentence beneath the dial states in words, so the picture says
+            nothing the words do not. Hidden from the tree, which reads the
+            image's own label. */}
+        {scaleUsable ? (
+          <g
+            aria-hidden="true"
+            className="fill-muted-foreground forced-colors:fill-[CanvasText]"
+            style={{ fontSize: 5.2, fontVariantNumeric: "tabular-nums" }}
+          >
+            <text
+              x={pointAt(0, END_LABEL_RADIUS).x}
+              y={pointAt(0, END_LABEL_RADIUS).y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {plain(min, locale)}
+            </text>
+            <text
+              x={pointAt(1, END_LABEL_RADIUS).x}
+              y={pointAt(1, END_LABEL_RADIUS).y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {plain(max, locale)}
+            </text>
+          </g>
+        ) : null}
+
+        {/* The needle, with a soft shadow on the face, so it reads as a piece
+            standing above the dial. It is filled in the level's ink when
+            the product assigned one, the pair the contrast rig measures on the
+            page, and in the foreground ink otherwise. No needle when there is
+            no score to place, when the scale cannot be read, or when the score
+            is off the scale: a needle drawn anyway would be a position asserted
+            about a number that does not have one. */}
+        {indicator === undefined ? null : (
+          <polygon
+            data-slot="score-dial-indicator"
+            data-status={shownLevel}
+            points={indicator}
+            fill="currentColor"
+            strokeLinejoin="round"
+            className={
+              "drop-shadow-[0_0.6px_0.8px_oklch(0_0_0/0.35)] dark:drop-shadow-[0_0.6px_1px_oklch(0_0_0/0.8)] print:drop-shadow-none " +
+              (shownLevel
+                ? `${INDICATOR_TONE[shownLevel]} forced-colors:fill-[CanvasText]`
+                : "text-foreground forced-colors:fill-[CanvasText]")
+            }
+          />
+        )}
+
+        {/* The hub the needle turns on, lit like the bezel. */}
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={HUB_RADIUS}
+          fill={`url(#${gradientId}-hub)`}
+          stroke="var(--edge)"
+          strokeWidth={0.5}
+          className="forced-colors:fill-[Canvas] forced-colors:stroke-[CanvasText]"
+        />
+        <circle
+          cx={CENTRE_X}
+          cy={CENTRE_Y}
+          r={1.5}
+          className="fill-foreground forced-colors:fill-[CanvasText]"
+        />
+      </svg>
+
+      <div
+        data-slot="score-dial-reading"
+        className="flex flex-col items-center gap-opsin-2 text-center"
+      >
+        <span data-slot="score-dial-score">
+          {/* A composite score is unitless by definition: it is arithmetic over
+              other numbers, not a quantity in any unit. `unit={null}` is the
+              caller declaring that on purpose, which is a different statement
+              from omitting the prop. It renders the digits alone and, since
+              06.b widened Value's unit to accept null, it stops OPSIN-0003
+              firing here while the warning stays intact for every caller who
+              genuinely forgot a unit on a real measurement. */}
+          <Value
+            value={value}
+            unit={null}
+            /* `precision` is required on Value and is a `number` here, because
+               it is ScoreDial's own required prop passed straight through. A
+               caller who defies the type and hands a non-number is caught by
+               Value's own precision guard, which falls back to the digits as
+               handed, so the "digits as arrived" behaviour is preserved without
+               widening Value's contract. `resolvedPrecision` still feeds the
+               spoken score, where an unstated precision means silence. */
+            precision={precision}
+            locale={locale}
+            absenceLabel="no score yet"
+            size="display"
+          />
+        </span>
+
+        {/* Never omitted, never colour alone, and no prop of this component
+            removes it. A real range name is the boldest line under the number,
+            at the headline step; a sentence admitting nothing can be said drops
+            to body weight, so the loudest thing on the surface is never the
+            admission that the surface has nothing to tell the reader. The class
+            is computed from the same `band` value the words are, so the two
+            cannot fall out of step. */}
+        <p
+          data-slot="score-dial-band-name"
+          className={`m-0 ${band ? "text-opsin-headline" : "text-opsin-body"}`}
+        >
+          {bandWords}
+        </p>
+
+        {/* The level the product assigned, delivered as a StatusPill: the one
+            capsule every status-bearing component in the system shares, at its
+            own md size, so the same level reads as the same object here as on a
+            card or a sparkline. The pill carries the word, a distinct glyph and
+            the colour together and stamps its own data-status; the indicator and
+            the one tinted band inside the arc carry the second copy of the
+            colour. `describes` gives a listener the subject the level applies to,
+            so the pill is not heard as a floating word. */}
+        {shownLevel !== undefined ? (
+          <StatusPill status={shownLevel} describes={label} />
+        ) : null}
+      </div>
+
+      {/* Coverage is the reading's meaning, not its provenance: it tells a
+          reader that today's number rests on part of the usual evidence, which
+          they have no other way to learn. So it is promoted to its own line at
+          the subheadline step in the foreground colour, directly under the
+          reading, rather than spliced as a footnote clause into the derivation
+          paragraph where the SafetyCallout's "on its face" requirement was not
+          being met. */}
+      {coverageShort && coverage ? (
+        <p
+          data-slot="score-dial-coverage"
+          className="m-0 text-center text-opsin-subheadline"
+        >
+          Based on {plain(coverage.available, locale)} of {plain(coverage.expected, locale)}.
+        </p>
+      ) : null}
+
+      {/* The scale bounds are the reading's meaning too, so the scale sentence
+          sits at the subheadline step in the foreground colour, and the band
+          list sits there with it: the named ranges and which one the number
+          landed in are the reading's meaning, not provenance, and a reader over
+          sixty should not have to squint at grey footnote text to learn what the
+          product's ranges are. What stays a footnote in the muted colour is
+          provenance: whose bands these are, and the derivation below. The step
+          and the colour are joined per element as plain strings, never through
+          cn(), for the reason the LABEL_ROW docblock gives. */}
+      <div
+        data-slot="score-dial-scale"
+        className="flex flex-col items-center gap-opsin-2 text-center"
+      >
+        <p className="m-0 text-opsin-subheadline">{scaleSentence}</p>
+        {usableBands.length > 0 && scaleUsable ? (
+          <>
+            <ul className="m-0 flex list-none flex-col gap-opsin-2 p-0 text-opsin-subheadline">
+              {usableBands.map((entry, index) => (
+                <li key={`${String(index)}:${String(entry.from)}:${entry.name}`}>
+                  {plain(entry.from, locale)} up to {plain(entry.to, locale)} is {entry.name}
+                </li>
+              ))}
+            </ul>
+            {/* Whose bands these are. A band set is a comparison somebody chose,
+                and the reader is entitled to the name. Where there isn't one,
+                they are entitled to be told so plainly. */}
+            <p
+              data-slot="score-dial-band-source"
+              className="m-0 text-opsin-footnote text-muted-foreground"
+            >
+              {bandSourceWords}
+            </p>
+          </>
+        ) : null}
+        {usableBands.length > 0 && !scaleUsable ? (
+          /* The band list is suppressed rather than left standing, because a
+             reader told "we cannot place this score" while looking at a list
+             whose first row contains it has been given two answers. */
+          <p className="m-0 text-opsin-footnote text-muted-foreground">
+            No ranges are shown, because the scale has no width.
+          </p>
+        ) : null}
+      </div>
+
+      {/* Provenance, and only provenance: what went into the score. When it was
+          calculated is now its own labelled line below, rather than a token at
+          the tail of this sentence. Coverage used to open this paragraph as a
+          footnote clause; it is now its own subheadline line above the scale,
+          because it is the reading's meaning rather than a note about where it
+          came from. */}
+      <p
+        data-slot="score-dial-derivation"
+        className="m-0 text-center text-opsin-footnote text-muted-foreground"
+      >
+        {derivationWords}
+      </p>
+
+      {/* When the score was calculated, on its own labelled line. It is the last
+          block of the column: it sits after the coverage line, the scale block
+          and the derivation rather than directly under the reading. It is
+          provenance, so the tail of the column with the other provenance lines is
+          where it belongs, and the visible order runs reading, coverage, scale,
+          derivation, then this instant. This is a departure from the finding's
+          named placement (directly under the reading), taken because the score,
+          the band name and the StatusPill are one reading group and an instant
+          wedged into it would split the subject from its level. It is
+          deliberately NOT added to the arc's `spoken` label above:
+          foundations/data-visualisation/accessible-charts.mdx defines that
+          summary as metric, window, direction, coverage and caveat, and a
+          calculation instant is provenance, which a linear reader now reaches as
+          an ordinary line at the end. A dial with no score has no instant to
+          name, the same gate the reading applies, so nothing renders when the
+          score is null. */}
+      {score === null ? null : (
+        <p
+          data-slot="score-dial-calculated-line"
+          className="m-0 text-center text-opsin-footnote text-muted-foreground"
+        >
+          {calculatedOn === undefined ? (
+            "We do not know when this score was calculated."
+          ) : (
+            <>
+              Calculated{" "}
+              <time data-slot="score-dial-calculated-at" dateTime={calculatedAt}>
+                {calculatedOn}
+              </time>
+              .
+            </>
+          )}
+        </p>
+      )}
+    </div>
+  )
+}

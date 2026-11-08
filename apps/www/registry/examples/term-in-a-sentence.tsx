@@ -22,11 +22,7 @@
  * showing somebody a result.
  */
 
-import {
-  Term,
-  TermGlossaryProvider,
-  type GlossaryEntry,
-} from "@/registry/base-lyra/ui/term"
+import { Term, TermGlossaryProvider, type GlossaryEntry } from "@opsinjs/react"
 
 /* Hoisted to a module constant rather than written inline in the JSX below.
    The provider rebuilds its lookup whenever the array's identity changes, and

@@ -5,7 +5,7 @@
  *
  * The measured numbers on this site are APCA Lc, WCAG 2.2 ratios, gamut
  * boundaries and the derived role assignments. Every one of them comes from the
- * hand-written implementations in `lib/color/**`, reached from the browser
+ * hand-written implementations in `packages/color/src/**`, reached from the browser
  * through `POST /api/contrast` and from the build through
  * `scripts/check-contrast.mts`. That is deliberate: two implementations of APCA
  * would eventually disagree, and the one on the marketing page would be the one

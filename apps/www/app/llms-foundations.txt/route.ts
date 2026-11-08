@@ -30,7 +30,7 @@ export async function GET(): Promise<Response> {
     notes: [
       "Foundations says what a token means. Theming says how to change it. The generated list of every one is a separate shard. Quote the right home for the question.",
       `Every token, variable and measured pair: ${absoluteUrl("/llms-reference.txt")}`,
-      `Themes as installable registry items: \`GET /r/themes/<preset>.json\``,
+      "Themes are tokens, not files: `@opsinjs/tokens/tokens.css` carries every accent theme, chosen with the `data-accent-theme` and `data-accent` attributes.",
     ],
   })
   return text(body)

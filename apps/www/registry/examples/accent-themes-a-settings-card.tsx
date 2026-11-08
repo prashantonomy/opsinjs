@@ -19,10 +19,12 @@
 
 import { useState } from "react"
 
-import { Button } from "@/registry/base-lyra/ui/button"
-import { Checkbox } from "@/registry/base-lyra/ui/checkbox"
-import { Progress } from "@/registry/base-lyra/ui/progress"
-import { Switch } from "@/registry/base-lyra/ui/switch"
+import {
+  Button,
+  Checkbox,
+  Progress,
+  Switch,
+} from "@opsinjs/react"
 
 export default function AccentThemesASettingsCard() {
   const [remind, setRemind] = useState(true)

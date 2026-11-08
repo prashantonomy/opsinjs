@@ -43,3 +43,5 @@ The owner named Pensievology, the Pensieve Labs community site, as the reference
 - **Capitals on buttons, as in the reference.** Rejected: capitals slow reading for the readers this system serves, and a status word in a heavier weight spends the urgency budget StatusPill keeps scarce.
 - **Inter in the product.** Rejected for now: `tokens/type.json` records why the product has no brand face, the platform face honours the reader's own settings, and Inter carries the documentation's voice only.
 - **Keep the 3:1 line round every card and add the drop.** Rejected: the line is what made a screen a stack of boxes, and a drop under it is heavier still.
+
+**Note, 2026-11-09.** The copy-in wording in this record predates [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md), which ships opsinjs as npm packages, and the substance stands. A consumer receives a change of look by upgrading the package rather than by copying a file again.

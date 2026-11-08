@@ -10,7 +10,7 @@
 
 import { X } from "lucide-react"
 
-import { VisuallyHidden } from "@/registry/base-lyra/ui/visually-hidden"
+import { VisuallyHidden } from "@opsinjs/react"
 
 export default function VisuallyHiddenANameForAnIconButton() {
   return (

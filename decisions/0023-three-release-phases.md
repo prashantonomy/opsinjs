@@ -187,3 +187,5 @@ Revisit `shipped` itself the first time a component passes an accessibility revi
 that point there genuinely are two kinds of shipped component, the distinction is
 measured rather than asserted, and a second word may earn its cost. Adding a word for a
 reviewed tier is worth doing when there is something to put in it, and not before.
+
+**Note, 2026-11-09.** The copy-in wording in this record predates [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md), which ships opsinjs as npm packages, and the substance stands. `lib/status.ts` now ships inside `@opsinjs/react`, so a change to the `Status` union reaches a consumer as a package release with a changelog entry.

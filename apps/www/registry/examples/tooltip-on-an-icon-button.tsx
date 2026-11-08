@@ -19,7 +19,7 @@
 
 import { CalendarPlus, Share2 } from "lucide-react"
 
-import { Tooltip } from "@/registry/base-lyra/ui/tooltip"
+import { Tooltip } from "@opsinjs/react"
 
 const ICON_BUTTON =
   "inline-flex aspect-square items-center justify-center rounded-opsin-md border border-border bg-card " +

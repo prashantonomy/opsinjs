@@ -33,21 +33,22 @@ opsinjs is a presentation layer. It never triages, diagnoses or advises.
 
 ## State of the system
 
-All sixty components are `shipped`, which means the source installs and renders. Every one has been audited against WCAG 2.2 AA by its own authors. That audit is not an independent review, and no component has had a clinical review. Nothing here is for a production health surface until a clinician signs it. A `shipped` API may change in any release, and each change carries a changelog entry.
+All sixty components are `shipped`, which means each one installs from npm and renders. Every one has been audited against WCAG 2.2 AA by its own authors. That audit is not an independent review, and no component has had a clinical review. Nothing here is for a production health surface until a clinician signs it. A `shipped` API may change in any release, and each change carries a changelog entry.
 
 ## How it ships
 
-opsinjs is a shadcn registry. The CLI copies source into your repository, and you own it.
+opsinjs is four npm packages on one version line. Most apps install `@opsinjs/react`, which brings the tokens with it.
 
 | What | Where |
 | --- | --- |
-| A component | `npx shadcn@latest add @opsinjs/<name>`, served from `/r/<name>.json` |
-| The token layer | A theme item at `/r/themes/opsinjs-default.json` |
-| The catalogue | `/r/registry.json` and `/r/index.json` |
+| The components | `npm install @opsinjs/react`, then `import { StatusPill } from "@opsinjs/react"` |
+| The tokens | `@opsinjs/tokens`, as `tokens.css`, `tokens.json` and JavaScript constants |
+| The colour engine | `@opsinjs/color`, for contrast checks and ramp derivation |
+| One install for all three | The unscoped `opsinjs` package |
+| The catalogue | [`/r/index.json`](/r/index.json) |
 | Docs for machines | `/llms.txt` and a `.md` twin of every page. See [Agents and LLMs](./agents.mdx) |
-| An npm package | None is published. Five are proposed as specifications |
 
-Components use Base UI and Lucide, and need React 19 or later and Tailwind CSS v4. [Registry](./registry.mdx) says what an item holds.
+Components use Base UI and Lucide, and need React 19 or later. Tailwind CSS v4 is optional, because a precompiled stylesheet serves an app without it. [Packages](./packages.mdx) says what each package holds and how releases work.
 
 ## Licence, security and community
 
@@ -57,9 +58,9 @@ The canonical host is `opsinjs.pensievelabs.org`. This project never asks for a 
 
 ## Next steps
 
-- [Getting started](./getting-started.mdx): register the namespace and render a first component.
+- [Getting started](./getting-started.mdx): install the package, load a stylesheet and render a first component.
 - [Next.js](./nextjs.mdx): the stylesheet, the root layout and the client boundary.
-- [Theming](./theming.mdx): the token tiers, presets and dark mode.
+- [Theming](./theming.mdx): the token tiers, accent themes and dark mode.
 - [Health](./health/index.mdx): the rules, useful even without the code.
 - [Components](./components/index.mdx): all sixty, each with its clinical contract.
 

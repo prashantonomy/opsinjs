@@ -10,7 +10,7 @@
  * owns no real note to restore.
  */
 
-import { Toast } from "@/registry/base-lyra/ui/toast"
+import { Toast } from "@opsinjs/react"
 
 import { Toast as ToastPrimitive } from "@base-ui/react/toast"
 

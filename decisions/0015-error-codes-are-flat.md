@@ -146,3 +146,5 @@ message text rather than of the numbering.
 Renumbering stays off the table whatever is decided. A future scheme, if there
 is one, begins above the highest code already allocated, and every code below it
 keeps its row.
+
+**Note, 2026-11-09.** The copy-in wording in this record predates [ADR 0030](./0030-opsinjs-ships-as-npm-packages.md), which ships opsinjs as npm packages, and the substance stands. The runtime copy of the table is generated into `packages/react/src/opsinjs.ts`, which is part of `@opsinjs/react`, so the import constraint above still holds for the published package.

@@ -1,0 +1,309 @@
+/* ==========================================================================
+   theme.css is the Tailwind v4 bridge for opsinjs.
+
+   `@theme inline` turns the opsinjs roles into Tailwind utilities
+   (bg-background, text-opsin-headline, radius-opsin-*, ease-opsin-* and the
+   rest), and the dark variant follows the `.dark` class. Only Tailwind reads
+   this file. tailwind.css imports it for an app that has Tailwind, and the
+   precompiled styles.css is built from it for an app that does not.
+   ========================================================================== */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-edge: var(--edge);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-edge: var(--brand-edge);
+  --color-brand-ink: var(--brand-ink);
+  --color-primary-edge: var(--primary-edge);
+
+  /* The drop under a card, so a component that paints its own card rather
+     than wrapping Surface takes the same lift: `shadow-card`. */
+  --shadow-card: var(--opsin-material-card-shadow);
+  --shadow-raised: var(--opsin-material-raised-shadow);
+
+  /* Placeholder roles for the loading Skeleton. Only fill and line are bridged,
+     because those are the two the component paints as bg-placeholder-fill and
+     border-placeholder-line. The sheen is read straight from the custom
+     property by the skeleton stylesheet as a gradient stop, and a Tailwind
+     utility for a stop nothing else consumes would be a name with no second
+     caller, so it is not bridged. */
+  --color-placeholder-fill: var(--opsin-placeholder-fill);
+  --color-placeholder-line: var(--opsin-placeholder-line);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* Bridge the interaction state fills so bg-state-hover, bg-state-press,
+     bg-state-primary-hover and bg-state-primary-press compile. */
+  --color-state-hover: var(--state-hover);
+  --color-state-press: var(--state-press);
+  --color-state-primary-hover: var(--state-primary-hover);
+  --color-state-primary-press: var(--state-primary-press);
+
+  --color-status-steady: var(--opsin-status-steady-line);
+  --color-status-steady-surface: var(--opsin-status-steady-surface);
+  --color-status-steady-ink: var(--opsin-status-steady-ink);
+  --color-status-steady-accent: var(--opsin-status-steady-accent);
+  --color-status-watch: var(--opsin-status-watch-line);
+  --color-status-watch-surface: var(--opsin-status-watch-surface);
+  --color-status-watch-ink: var(--opsin-status-watch-ink);
+  --color-status-watch-accent: var(--opsin-status-watch-accent);
+  --color-status-attention: var(--opsin-status-attention-line);
+  --color-status-attention-surface: var(--opsin-status-attention-surface);
+  --color-status-attention-ink: var(--opsin-status-attention-ink);
+  --color-status-attention-accent: var(--opsin-status-attention-accent);
+  --color-status-urgent: var(--opsin-status-urgent-line);
+  --color-status-urgent-surface: var(--opsin-status-urgent-surface);
+  --color-status-urgent-ink: var(--opsin-status-urgent-ink);
+  --color-status-urgent-accent: var(--opsin-status-urgent-accent);
+  --color-status-unknown: var(--opsin-status-unknown-line);
+  --color-status-unknown-surface: var(--opsin-status-unknown-surface);
+  --color-status-unknown-ink: var(--opsin-status-unknown-ink);
+  --color-status-unknown-accent: var(--opsin-status-unknown-accent);
+
+  /* --- Category bridge, and there is deliberately NO surface utility here.
+     A category surface and a status surface at the same neutral ladder step
+     measure Lc 0.00 and WCAG 1.00 against each other, so a card tinted by
+     category would be indistinguishable from a card tinted by status, which is
+     the one misreading this system exists to prevent. Lowering category chroma
+     widens the hue gap between two categories but does nothing for the gap
+     against a status tint, so it makes the collision worse rather than better.
+     A category may therefore paint its accent (`--color-category-<id>`), its
+     line and its ink, and never a card fill. The `--opsin-category-<id>-surface`
+     custom properties are kept above and in @opsinjs/tokens/tokens.css as a role a
+     consuming theme may opt into deliberately, and are what <ColorScale>
+     renders; they are simply not exposed as a Tailwind `bg-*` utility. --- */
+  --color-category-sleep: var(--opsin-category-sleep-accent);
+  --color-category-sleep-line: var(--opsin-category-sleep-line);
+  --color-category-sleep-ink: var(--opsin-category-sleep-ink);
+  --color-category-heart: var(--opsin-category-heart-accent);
+  --color-category-heart-line: var(--opsin-category-heart-line);
+  --color-category-heart-ink: var(--opsin-category-heart-ink);
+  --color-category-activity: var(--opsin-category-activity-accent);
+  --color-category-activity-line: var(--opsin-category-activity-line);
+  --color-category-activity-ink: var(--opsin-category-activity-ink);
+  --color-category-nutrition: var(--opsin-category-nutrition-accent);
+  --color-category-nutrition-line: var(--opsin-category-nutrition-line);
+  --color-category-nutrition-ink: var(--opsin-category-nutrition-ink);
+  --color-category-mind: var(--opsin-category-mind-accent);
+  --color-category-mind-line: var(--opsin-category-mind-line);
+  --color-category-mind-ink: var(--opsin-category-mind-ink);
+  --color-category-labs: var(--opsin-category-labs-accent);
+  --color-category-labs-line: var(--opsin-category-labs-line);
+  --color-category-labs-ink: var(--opsin-category-labs-ink);
+
+  /* --- Type. Twelve steps, and each one carries all four of its properties
+     rather than only a size. Tailwind's --text-* namespace takes three
+     sub-keys, so `text-opsin-body` sets font-size, line-height, letter-spacing
+     and font-weight together. The three are --text-<step>--line-height,
+     --text-<step>--letter-spacing and --text-<step>--font-weight.
+
+     Bridging only the size would have been worse than not bridging at all: a
+     component would take its size from the ramp and its leading from whatever
+     Tailwind's default for that size happens to be, and the leading is the part
+     that was tuned for reading a number at arm's length. `headline` and `body`
+     are the proof. They have the same size, the same leading and the same
+     tracking, and they differ ONLY in weight (600 against 400), so a bridge
+     without the weight sub-key would make them the same step. The twelfth step,
+     `subheadlineEmphasis`, is exactly that pairing one step down: it shares the
+     subheadline geometry and takes the headline weight, which is what a compact
+     control needs so that smaller does not mean less deliberate.
+
+     Every size is a rem in tokens/type.json, so the whole ramp scales with
+     [data-text-size] and with the reader's own root font size. Never write a px
+     font size in a component; there is now no reason to. --- */
+  --text-opsin-large-title: var(--opsin-text-large-title-size);
+  --text-opsin-large-title--line-height: var(--opsin-text-large-title-leading);
+  --text-opsin-large-title--letter-spacing: var(--opsin-text-large-title-tracking);
+  --text-opsin-large-title--font-weight: var(--opsin-text-large-title-weight);
+  --text-opsin-title1: var(--opsin-text-title1-size);
+  --text-opsin-title1--line-height: var(--opsin-text-title1-leading);
+  --text-opsin-title1--letter-spacing: var(--opsin-text-title1-tracking);
+  --text-opsin-title1--font-weight: var(--opsin-text-title1-weight);
+  --text-opsin-title2: var(--opsin-text-title2-size);
+  --text-opsin-title2--line-height: var(--opsin-text-title2-leading);
+  --text-opsin-title2--letter-spacing: var(--opsin-text-title2-tracking);
+  --text-opsin-title2--font-weight: var(--opsin-text-title2-weight);
+  --text-opsin-title3: var(--opsin-text-title3-size);
+  --text-opsin-title3--line-height: var(--opsin-text-title3-leading);
+  --text-opsin-title3--letter-spacing: var(--opsin-text-title3-tracking);
+  --text-opsin-title3--font-weight: var(--opsin-text-title3-weight);
+  --text-opsin-headline: var(--opsin-text-headline-size);
+  --text-opsin-headline--line-height: var(--opsin-text-headline-leading);
+  --text-opsin-headline--letter-spacing: var(--opsin-text-headline-tracking);
+  --text-opsin-headline--font-weight: var(--opsin-text-headline-weight);
+  --text-opsin-body: var(--opsin-text-body-size);
+  --text-opsin-body--line-height: var(--opsin-text-body-leading);
+  --text-opsin-body--letter-spacing: var(--opsin-text-body-tracking);
+  --text-opsin-body--font-weight: var(--opsin-text-body-weight);
+  --text-opsin-callout: var(--opsin-text-callout-size);
+  --text-opsin-callout--line-height: var(--opsin-text-callout-leading);
+  --text-opsin-callout--letter-spacing: var(--opsin-text-callout-tracking);
+  --text-opsin-callout--font-weight: var(--opsin-text-callout-weight);
+  --text-opsin-subheadline: var(--opsin-text-subheadline-size);
+  --text-opsin-subheadline--line-height: var(--opsin-text-subheadline-leading);
+  --text-opsin-subheadline--letter-spacing: var(--opsin-text-subheadline-tracking);
+  --text-opsin-subheadline--font-weight: var(--opsin-text-subheadline-weight);
+  --text-opsin-subheadline-emphasis: var(--opsin-text-subheadline-emphasis-size);
+  --text-opsin-subheadline-emphasis--line-height: var(--opsin-text-subheadline-emphasis-leading);
+  --text-opsin-subheadline-emphasis--letter-spacing: var(--opsin-text-subheadline-emphasis-tracking);
+  --text-opsin-subheadline-emphasis--font-weight: var(--opsin-text-subheadline-emphasis-weight);
+  --text-opsin-footnote: var(--opsin-text-footnote-size);
+  --text-opsin-footnote--line-height: var(--opsin-text-footnote-leading);
+  --text-opsin-footnote--letter-spacing: var(--opsin-text-footnote-tracking);
+  --text-opsin-footnote--font-weight: var(--opsin-text-footnote-weight);
+  --text-opsin-caption1: var(--opsin-text-caption1-size);
+  --text-opsin-caption1--line-height: var(--opsin-text-caption1-leading);
+  --text-opsin-caption1--letter-spacing: var(--opsin-text-caption1-tracking);
+  --text-opsin-caption1--font-weight: var(--opsin-text-caption1-weight);
+  --text-opsin-caption2: var(--opsin-text-caption2-size);
+  --text-opsin-caption2--line-height: var(--opsin-text-caption2-leading);
+  --text-opsin-caption2--letter-spacing: var(--opsin-text-caption2-tracking);
+  --text-opsin-caption2--font-weight: var(--opsin-text-caption2-weight);
+
+  /* --- Fonts. `--font-sans` above is what <html> actually uses and it keeps a
+     `ui-sans-serif` head that the generated stack does not have; these three
+     are the token-layer stacks, for a component that wants to name the family
+     it is asking for rather than inherit. `font-opsin-numeric` is about the
+     FAMILY only. Tabular figures come from `[data-opsinjs-value]` in the base
+     layer below, not from this utility, so setting the family is not a
+     substitute for stamping the attribute on a rendered measurement. --- */
+  --font-opsin-sans: var(--opsin-font-sans);
+  --font-opsin-mono: var(--opsin-font-mono);
+  --font-opsin-numeric: var(--opsin-font-numeric);
+
+  --radius-sm: var(--opsin-radius-sm);
+  --radius-md: var(--opsin-radius-base);
+  --radius-lg: var(--opsin-radius-lg);
+  --radius-xl: var(--opsin-radius-xl);
+
+  /* --- Radius, the generated ladder, and the only ladder. `--radius-sm`,
+     `--radius-md`, `--radius-lg` and `--radius-xl` alias the tokens/shape.json
+     steps rather than deriving a second set of multiples, so `rounded-lg` and
+     `rounded-opsin-lg` now resolve to the same token and every product radius
+     is a shape.json step. A component keeps the system's own shape wherever it
+     lands rather than taking the shape of whatever shell it is dropped into.
+
+     Note that `--opsin-radius-base` and `--opsin-radius-md` are the same value
+     today (0.875rem); they are separate tokens because they answer different
+     questions, and a component should ask for the one it means.
+
+     There is deliberately no `rounded-opsin-full`. `--opsin-radius-full` is
+     not generated by the token pipeline, and bridging a name the token
+     pipeline does not own is exactly how `ease-opsin-spring` became a utility
+     backed by a fallback nobody maintained. That bridge has since been removed
+     for that reason. Use `rounded-full`. --- */
+  --radius-opsin-none: var(--opsin-radius-none);
+  --radius-opsin-xs: var(--opsin-radius-xs);
+  --radius-opsin-sm: var(--opsin-radius-sm);
+  --radius-opsin-base: var(--opsin-radius-base);
+  --radius-opsin-md: var(--opsin-radius-md);
+  --radius-opsin-lg: var(--opsin-radius-lg);
+  --radius-opsin-xl: var(--opsin-radius-xl);
+
+  --ease-opsin-standard: var(--opsin-ease-standard);
+
+  /* --- Easing, the rest of it. This file no longer bridges a base
+     `ease-opsin-spring`, because nothing consumed it; the four below are the
+     real springs, sampled from the stiffness/damping/mass triples in
+     tokens/motion.json.
+
+     A sampled spring is only itself when it is paired with its own duration. A
+     `linear()` stop list is normalised to 0-1, so running spring-calm's curve
+     over spring-snap's 283ms is a different spring, not a faster one. Write
+     `ease-opsin-spring-calm duration-(--opsin-duration-spring-calm)` and never
+     cross the pairs.
+
+     `spring-calm` is the only one of the four cleared to carry a health value,
+     and only for a figure that CHANGES while the reader is already looking at
+     it: a bar re-filling from one reading to the next, a dial travelling
+     between two values they have already been shown. Never a first paint and
+     never a first reveal. A value arrives at its final figure, with no
+     count-up, no dial sweep and no line drawing itself in
+     (health/motion-in-health-ui rule 2). It is cleared for the morph because it
+     is overdamped: it reaches its target without passing it, and a number that
+     overshoots has displayed, for one frame, a figure that is not true.
+
+     Overdamping is necessary and not sufficient, so do not reason your way to a
+     second candidate. `spring-sheet` is overdamped too (zeta 1.025, zero
+     overshoot) and is still not cleared: 483ms of travel is a surface's settle,
+     and a figure that takes half a second to arrive reads as a figure the system
+     is unsure of. `spring-settle` and `spring-snap` overshoot by 0.88% and 1.52%
+     and are ruled out on the frame-of-untruth argument alone.
+     tokens/motion.json carries the same rule on each token itself. --- */
+  --ease-opsin-enter: var(--opsin-ease-enter);
+  --ease-opsin-exit: var(--opsin-ease-exit);
+  --ease-opsin-spring-calm: var(--opsin-ease-spring-calm);
+  --ease-opsin-spring-settle: var(--opsin-ease-spring-settle);
+  --ease-opsin-spring-sheet: var(--opsin-ease-spring-sheet);
+  --ease-opsin-spring-snap: var(--opsin-ease-spring-snap);
+
+  /* --- Durations, in Tailwind's --animate-duration-* shape, extended with the
+     four spring settle times.
+
+     Know what it does and does not give you. Tailwind 4 has no `--duration-*`
+     theme namespace. `duration-150` is a bare numeric utility, and a named
+     duration therefore cannot become a `duration-*` class. `--animate-*` is an
+     animation shorthand namespace, so `animate-duration-base` sets `animation`,
+     which is almost never what a transition wants. For a transition, reference
+     the token itself: `duration-(--opsin-duration-base)`, or plain
+     `var(--opsin-duration-base)` in a hand-written rule. Both resolve against
+     the real custom property, so both pick up the reduced-motion collapse
+     declared above. --- */
+  --animate-duration-instant: var(--opsin-duration-instant);
+  --animate-duration-fast: var(--opsin-duration-fast);
+  --animate-duration-base: var(--opsin-duration-base);
+  --animate-duration-slow: var(--opsin-duration-slow);
+  --animate-duration-deliberate: var(--opsin-duration-deliberate);
+  --animate-duration-spring-calm: var(--opsin-duration-spring-calm);
+  --animate-duration-spring-settle: var(--opsin-duration-spring-settle);
+  --animate-duration-spring-sheet: var(--opsin-duration-spring-sheet);
+  --animate-duration-spring-snap: var(--opsin-duration-spring-snap);
+
+  /* --- Space, the named steps, ALONGSIDE the density-scaled default scale and
+     never instead of it. Both must coexist, and the choice between them is a
+     real decision:
+
+     `p-4` is 4 x `--spacing`, which is 0.25rem at the default density and
+     0.21875rem under [data-density="compact"], its 0.875 multiple. There is no
+     [data-density="comfortable"] block, because comfortable is the default.
+     Use it for padding and gaps that SHOULD breathe or tighten when a reader
+     changes density. The inside of a card and the gap between rows in a list
+     are two of them.
+
+     `p-opsin-4` is `--opsin-space-4`, a fixed 1rem that density does not move.
+     Use it where the measurement carries meaning and must not shrink because
+     somebody asked for a denser list: the separation between two touch targets,
+     a focus-ring offset, the gap that stops two tappable rows from merging.
+
+     The half step is `opsin-0-5`, hyphen and not full stop, because
+     `--spacing-opsin-0.5` is not a valid custom property. After `0` the `.5`
+     is a fresh token and the declaration is dropped silently. `p-opsin-px` is
+     `--opsin-space-px` at 0.0625rem, which is 1px at a 16px root and grows with
+     the root; Tailwind's own `p-px` is a device pixel and does not. --- */
+  --spacing-opsin-px: var(--opsin-space-px);
+  --spacing-opsin-0: var(--opsin-space-0);
+  --spacing-opsin-0-5: var(--opsin-space-0-5);
+  --spacing-opsin-1: var(--opsin-space-1);
+  --spacing-opsin-2: var(--opsin-space-2);
+  --spacing-opsin-3: var(--opsin-space-3);
+  --spacing-opsin-4: var(--opsin-space-4);
+  --spacing-opsin-5: var(--opsin-space-5);
+  --spacing-opsin-6: var(--opsin-space-6);
+  --spacing-opsin-8: var(--opsin-space-8);
+  --spacing-opsin-10: var(--opsin-space-10);
+  --spacing-opsin-12: var(--opsin-space-12);
+  --spacing-opsin-16: var(--opsin-space-16);
+  --spacing-opsin-20: var(--opsin-space-20);
+  --spacing-opsin-24: var(--opsin-space-24);
+}
+
+@custom-variant dark (&:where(.dark, .dark *));

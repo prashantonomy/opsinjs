@@ -44,7 +44,11 @@ pnpm dev        # http://localhost:4000
 
 1. Fork the repository and create a branch from `main`.
 2. Make the change, and update the docs page that describes it in the same pull request.
-3. Run the three gates from the repository root. All three must pass, and CI runs them
+3. If the change touches anything under `packages/`, run `pnpm changeset`, pick the
+   packages and the bump, and write a sentence or two a consumer would want in the
+   changelog. Commit the file it writes under `.changeset/`. A docs-only change needs
+   none. [RELEASING.md](RELEASING.md) says what happens after the merge.
+4. Run the three gates from the repository root. All three must pass, and CI runs them
    again on every pull request.
 
    ```bash
@@ -53,10 +57,10 @@ pnpm dev        # http://localhost:4000
    pnpm check
    ```
 
-4. Open a pull request against `main`, fill in the template, and link the issue.
-5. Check the preview deployment linked on the pull request. A fork's preview waits for a
+5. Open a pull request against `main`, fill in the template, and link the issue.
+6. Check the preview deployment linked on the pull request. A fork's preview waits for a
    maintainer to authorise it.
-6. Answer review comments by pushing more commits to the same branch.
+7. Answer review comments by pushing more commits to the same branch.
 
 ## Pull request titles
 

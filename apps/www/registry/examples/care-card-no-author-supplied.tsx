@@ -27,7 +27,7 @@
  * available to an example file would.
  */
 
-import { CareCard } from "@/registry/base-lyra/ui/care-card"
+import { CareCard } from "@opsinjs/react"
 
 export default function CareCardNoAuthorSupplied() {
   return (

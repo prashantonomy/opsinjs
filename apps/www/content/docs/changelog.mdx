@@ -5,15 +5,21 @@ kind: guide
 aliases: [releases, release notes, semver, breaking change policy, what is next]
 ---
 
-Breaking changes lead each entry. A changed presentation default, such as a status word, a default rounding or a unit, leads it on its own line labelled `SAFETY`, because a consumer who copied a file receives the change only when they copy it again. opsinjs owns no clinical threshold, and no entry reads as though it does. A feed is at [`/rss.xml`](/rss.xml).
+Breaking changes lead each entry. A changed presentation default, such as a status word, a default rounding or a unit, leads it on its own line labelled `SAFETY`, because a consumer who upgrades receives it with no change to their own code. opsinjs owns no clinical threshold, and no entry reads as though it does. A feed is at [`/rss.xml`](/rss.xml).
 
 <Todo>
-Sixty components were built after 0.0.0 and no entry records them. Every catalogue row still reads `since: unreleased`, so the version number to file that entry under is the decision blocking it.
+Every catalogue row still reads `since: unreleased`, although 0.1.0 is the first release to carry the sixty components.
 </Todo>
+
+## 9 November 2026
+
+Version 0.1.0. The shadcn registry is retired, and opsinjs ships as npm packages. `npx shadcn add @opsinjs/<name>`, the `@opsinjs` namespace in `components.json`, the theme items under `/r/themes` and the shadcn MCP install path are gone. Every `/r/` address except `/r/index.json` and `/r/docs.json` now answers HTTP 410 with a pointer to `npm install @opsinjs/react`. `/llms.txt` and the `.md` twins are unchanged. A project that installed copies points its imports at `@opsinjs/react` and then deletes the copies. ADR 0030 supersedes ADRs 0002, 0009 and 0010.
+
+There are four packages on one version line: [`@opsinjs/react`](./packages.mdx) holds the sixty components and the substrate they share, `@opsinjs/tokens` the token layer, `@opsinjs/color` the colour engine, and the unscoped `opsinjs` re-exports all three. An app loads one stylesheet, `styles.css` without Tailwind or `tailwind.css` with Tailwind CSS v4, and may add `base.css`. Changesets writes a `CHANGELOG.md` into each package, and from 0.1.1 on GitHub Actions publishes every release with npm provenance. 0.1.0 itself was published by hand, so it has none. The components claim nothing new, and none has had an independent accessibility review or a clinical review.
 
 ## 8 November 2026
 
-The accent is yours to choose now. There are three [accent themes](./foundations/accent.mdx), each with the same nine accents: normal keeps the ink action and spends the accent on what is selected, vibes makes the accent the action at full chroma, and stryk is high contrast, applied on its own whenever a reader's system asks for more contrast. Set them with `data-accent-theme` and `data-accent`, or install a theme item such as `opsinjs-vibes-volt`. In the default theme a switch that is on, a ticked box, a chosen radio, a slider's range, a progress fill and a chosen scale point are cobalt rather than ink. A quiet button and a card's quiet action are set in the accent ink and are no longer underlined; only a link inside running text keeps its underline. Every accent pair is measured, and the build refuses one below its floor. None of it has had an accessibility review.
+The accent is yours to choose now. There are three [accent themes](./foundations/accent.mdx), each with the same nine accents: normal keeps the ink action and spends the accent on what is selected, vibes makes the accent the action at full chroma, and stryk is high contrast, applied on its own whenever a reader's system asks for more contrast. Set them with `data-accent-theme` and `data-accent`. The theme items that also carried them were retired in 0.1.0. In the default theme a switch that is on, a ticked box, a chosen radio, a slider's range, a progress fill and a chosen scale point are cobalt rather than ink. A quiet button and a card's quiet action are set in the accent ink and are no longer underlined; only a link inside running text keeps its underline. Every accent pair is measured, and the build refuses one below its floor. None of it has had an accessibility review.
 
 Six components were redrawn, and none of them claims anything new. [RangeBar](./components/range-bar.mdx) is a glass gauge: the range is a lit section inside a glass tube, and the reading is a frosted cursor that rides the tube with an index line in the level's colour; [RangeLegend](./components/range-legend.mdx) draws each tone as a miniature of that piece. [ScoreDial](./components/score-dial.mdx) is an instrument, with a bezel, a ruled face, the scale's two ends and a needle on a hub. [GoalRing](./components/goal-ring.mdx) sits on a plate and now draws in its category colour, which a class naming a missing utility had turned to black. [StatusPill](./components/status-pill.mdx) draws its glyph in the level's line colour, solid for the two upper levels, inside a softer capsule. [AlertBanner](./components/alert-banner.mdx) is a sheet tinted by its level, with the recommended action filled in the level's own ink. Button labels are centred on the lowercase band a reader sees as the text, rather than sitting a pixel and a half low.
 
@@ -47,21 +53,21 @@ Version 0.0.0 was the scaffold. It shipped a documentation site, a token layer, 
 
 ## Versioning
 
-opsinjs follows semantic versioning, and the versioned surface is wider than the JavaScript API, because you own the source and your styles and tests reach into the markup. Five surfaces are covered:
+opsinjs follows semantic versioning, and the versioned surface is wider than the JavaScript API, because your styles and tests reach into the markup. Five surfaces are covered:
 
 1. The exported API: components, hooks, functions, types, and their prop names, types and defaults.
 2. The rendered DOM: structure, nesting order, roles and accessible names.
 3. The `data-*` attributes listed in [Data attributes](./reference/generated/data-attributes.mdx).
 4. The CSS custom properties listed in [CSS variables](./reference/generated/css-variables.mdx).
-5. The registry contract: item names, the URLs they are served from and the files each installs.
+5. The package contract: package names, entry points, component subpaths and stylesheet paths.
 
 Removing or renaming any of these, or changing the condition that produces it, is a major version. Exact token values are not covered, though a token's meaning and its contrast floor are. Nor are class names, CSS variables without the `--opsin-` prefix, anything marked `@internal`, or this site's own chrome.
 
-Before 1.0, a minor release may break something, with a changelog entry and a migration note, and a patch never deliberately does. Token names are not stable yet, but token meanings are. A `shipped` component's API may change in any release, with a changelog entry rather than a deprecation cycle. Nothing in a copied file records its version, so run `shadcn add` in its own commit naming the item and the date.
+Before 1.0, a minor release may break something, with a changelog entry and a migration note, and a patch never deliberately does. Token names are not stable yet, but token meanings are. A `shipped` component's API may change in any release, with a changelog entry rather than a deprecation cycle. All four packages share one version, and Changesets writes each release into the `CHANGELOG.md` of every package.
 
 ## Deprecation
 
-Nothing is removed without being deprecated first. A deprecated component, prop or token keeps working for at least one minor release before 1.0 and a full major after it. Its entry names the replacement, the version that deprecated it and the version that removes it. Treat it as absent for new work. Nothing has been deprecated yet.
+Nothing is removed without being deprecated first. A deprecated component, prop or token keeps working for at least one minor release before 1.0 and a full major after it. Its entry names the replacement, the version that deprecated it and the version that removes it. Treat it as absent for new work. A bad release is deprecated with `npm deprecate` and never unpublished. Nothing has been deprecated yet.
 
 <NoDataYet what="The deprecation list" script="scripts/build-registry.mts">
 No script projects deprecations out of `registry/catalogue.ts` yet.

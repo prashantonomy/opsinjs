@@ -15,7 +15,7 @@
  * a word.
  */
 
-import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
+import { StatusPill } from "@opsinjs/react"
 
 export default function StatusPillSizes() {
   return (

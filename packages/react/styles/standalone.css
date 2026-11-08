@@ -1,0 +1,20 @@
+/* ==========================================================================
+   standalone.css is the build input for dist/styles.css, the stylesheet for
+   an app that does not use Tailwind.
+
+   It takes Tailwind's theme and utility layers and leaves preflight out, so
+   loading opsinjs never resets the rest of a page. The utilities are
+   generated from the component sources and nothing else, and they sit in
+   cascade layers, so an app's own unlayered CSS still wins.
+   ========================================================================== */
+
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@import "@opsinjs/tokens/tokens.css";
+@import "./roles.css";
+@import "./theme.css";
+
+@source "../src";

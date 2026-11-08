@@ -101,17 +101,17 @@ export function GET(): Response {
     "## Reading this site as a machine",
     "",
     "- Append `.md` to any documentation URL to get that page as processed markdown, with its frontmatter: imports stripped, headings with explicit ids, code and tables as markdown. Documentation components are NOT rendered to prose. For most of them the attributes are the content and the values behind them are published separately at `/r/index.json` and under Reference.",
-    "- `<StubNotice>` is the exception, and on a component page it is the element to read. It is a paired element, never self-closing, and the prose between its opening and closing tags is text an author wrote which survives into the `.md` twin word for word. That prose is where the page states whether the component has been reviewed. Every component page carries one, and every one of them says the source installs, has been audited against WCAG 2.2 AA by the authors rather than independently reviewed, and has had no clinical review.",
+    "- `<StubNotice>` is the exception, and on a component page it is the element to read. It is a paired element, never self-closing, and the prose between its opening and closing tags is text an author wrote which survives into the `.md` twin word for word. That prose is where the page states whether the component has been reviewed. Every component page carries one, and every one of them says the component is published in @opsinjs/react, has been audited against WCAG 2.2 AA by the authors rather than independently reviewed, and has had no clinical review.",
     `- [The whole corpus in one file](${absoluteUrl("/llms-full.txt")}) is size-capped, and it names every page it had to drop. ${shardCoverage}`,
     ...Object.values(SHARDS).map(
       (shard) =>
         `- [${shard.title}](${absoluteUrl(shard.file)}) is one of those shards. ${shard.blurb}`
     ),
-    `- [The registry catalog](${absoluteUrl("/r/registry.json")}) is the shadcn-spec catalog, and the file \`npx shadcn@latest mcp\` reads.`,
-    `- [The component roster](${absoluteUrl("/r/index.json")}) covers every id opsinjs has claimed, its status, and whether anything is installable. This is the definitive answer to "does opsinjs have a …?".`,
+    "- Install with `npm install @opsinjs/react` and import by name: `import { Button } from \"@opsinjs/react\"`. Styles are `@opsinjs/react/styles.css` without Tailwind, or `@import \"@opsinjs/react/tailwind.css\"` after Tailwind CSS v4. The tokens are `@opsinjs/tokens` and the colour engine is `@opsinjs/color`.",
+    `- [The component roster](${absoluteUrl("/r/index.json")}) covers every id opsinjs has claimed, its status, whether @opsinjs/react has it, and the import to use. This is the definitive answer to "does opsinjs have a …?".`,
     `- [The offline bundle](${absoluteUrl("/r/docs.json")}) is the same corpus as JSON, one record per page.`,
     "- `GET /api/search?query=<term>&tag=<section>` runs a full-text search. The parameter is `query`; `q` returns nothing.",
-    "- `GET /r/<name>.json` returns one registry item. Single-word aliases resolve: `modal` reaches `dialog`. Multi-word aliases are not slugs and have no URL of their own. `/r/gauge-bar.json` is a 404, so map a phrase to an id through the `aliases` field on the roster.",
+    "- Map a phrase to an id through the `aliases` field on the roster: `modal` is `dialog`. The shadcn registry that used to answer `/r/<name>.json` is retired, and those URLs answer 410.",
     "",
     "## Rules for generating against opsinjs",
     "",

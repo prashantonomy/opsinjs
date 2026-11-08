@@ -36,7 +36,7 @@ import { useClientValue } from "@/app/_shared/use-client-value"
  * rather than being silently compressed by the display, it escalates into
  * Display-P3 where the display supports it without moving lightness, and it
  * assigns roles by APCA validation rather than by position in the ramp. Those
- * live in `lib/color/`, ship as `@opsinjs/color`, and are not published yet.
+ * live in `packages/color/src/`, ship as `@opsinjs/color`, and are not published yet.
  *
  * The measurements below are real. The ramp is a preview. Both statements are on
  * the page, because a generator that lets you believe its output is the system's

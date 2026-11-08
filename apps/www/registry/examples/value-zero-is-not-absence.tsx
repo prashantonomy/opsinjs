@@ -34,7 +34,7 @@
  * left floating: it is a definition of the same term, and it says so.
  */
 
-import { Value } from "@/registry/base-lyra/ui/value"
+import { Value } from "@opsinjs/react"
 
 const ROWS = [
   {

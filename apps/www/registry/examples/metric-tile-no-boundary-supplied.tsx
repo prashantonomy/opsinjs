@@ -30,7 +30,7 @@
  * time it is built.
  */
 
-import { MetricTile } from "@/registry/base-lyra/ui/metric-tile"
+import { MetricTile } from "@opsinjs/react"
 
 /** The instant both tiles are measured against. Read once, passed to both. */
 const NOW = "2026-04-06T09:00:00+00:00"

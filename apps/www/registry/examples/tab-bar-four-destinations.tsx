@@ -13,7 +13,7 @@ import { useState } from "react"
 
 import { Activity, GraduationCap, House, User } from "lucide-react"
 
-import { TabBar } from "@/registry/base-lyra/ui/tab-bar"
+import { TabBar } from "@opsinjs/react"
 
 export default function TabBarFourDestinations() {
   const [section, setSection] = useState("home")

@@ -53,8 +53,10 @@ export const site = {
    */
   sourcePublic: true,
   npmScope: "@opsinjs",
-  /** The registry namespace a consumer adds to their components.json. */
-  registryNamespace: "@opsinjs",
+  /** The package every component ships in, and what `<ComponentInstall>` installs. */
+  packageName: "@opsinjs/react",
+  /** The package's page on npm. */
+  npmUrl: "https://www.npmjs.com/package/@opsinjs/react",
   /** Where the docs corpus lives in the repository, for "Edit this page". */
   contentRoot: "apps/www/content/docs",
   defaultBranch: "main",
@@ -278,27 +280,17 @@ export function baseStyleQuery(
   return search ? `?${search}` : ""
 }
 
-/* ── the registry ───────────────────────────────────────────────────────── */
+/* ── the roster ─────────────────────────────────────────────────────── */
 
+/**
+ * The two machine files under /r that outlived the shadcn registry. Every
+ * other /r URL answers 410 with a pointer to the npm package (ADR 0030).
+ */
 export const registryRoutes = {
-  /** The catalog. Required by the shadcn MCP server. */
-  catalog: () => "/r/registry.json",
   /** The light index: name, type, status, category, links, aliases. */
   index: () => "/r/index.json",
-  /** One item at the default base and style. */
-  item: (name: string) => joinPath("r", `${name}.json`),
-  /** One item at an explicit style. */
-  styledItem: (style: string, name: string) =>
-    joinPath("r", "styles", style, `${name}.json`),
-  /** A theme-only registry item materialised from an `opsinjs-*` preset code. */
-  theme: (preset: string) => joinPath("r", "themes", `${preset}.json`),
   /** The offline agent bundle. */
   docsBundle: () => "/r/docs.json",
-}
-
-/** What a consumer types to install an item. Rendered by `<ComponentInstall>`. */
-export function registryInstallUrl(name: string): string {
-  return absoluteUrl(registryRoutes.item(name))
 }
 
 /* ── machine surfaces ───────────────────────────────────────────────────── */

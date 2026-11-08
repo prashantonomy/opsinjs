@@ -124,7 +124,7 @@ export default function ContrastPlaygroundPage() {
               <Mono>pnpm contrast</Mono>, which regenerates the committed
               conformance table, and so does the CI gate that fails a build when
               a measured pair regresses. There is one implementation,
-              hand-written in <Mono>lib/color/</Mono>, with no colour library in
+              hand-written in <Mono>@opsinjs/color</Mono>, with no colour library in
               the dependency tree. An answer you get here is therefore the
               answer the build gets, and not an approximation of it.
             </p>
