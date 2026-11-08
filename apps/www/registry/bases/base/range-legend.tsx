@@ -125,7 +125,7 @@ const NEUTRAL_SWATCH =
  * of the tube, with the level's index line down its middle.
  */
 const CURSOR_SWATCH =
-  "absolute top-1/2 start-1/2 z-10 h-[1.35em] w-[0.85em] -translate-x-1/2 -translate-y-1/2 rounded-full rtl:translate-x-1/2 " +
+  "absolute top-1/2 inset-s-1/2 z-10 h-[1.35em] w-[0.85em] -translate-x-1/2 -translate-y-1/2 rounded-full rtl:translate-x-1/2 " +
   "border border-edge bg-[color-mix(in_oklab,var(--card)_60%,transparent)] shadow-[inset_0_1px_0_oklch(1_0_0/0.95),0_1px_2px_oklch(0_0_0/0.16),0_3px_8px_-3px_oklch(0_0_0/0.3)] " +
   "dark:bg-[color-mix(in_oklab,var(--foreground)_12%,transparent)] dark:shadow-[inset_0_1px_0_oklch(1_0_0/0.22),0_1px_2px_oklch(0_0_0/0.5)]"
 
@@ -276,7 +276,7 @@ export function RangeLegend({
                 <span className={CURSOR_SWATCH}>
                   <span
                     className={
-                      "absolute inset-y-[0.25em] start-1/2 w-[0.18em] -translate-x-1/2 rounded-full rtl:translate-x-1/2 forced-colors:bg-[Highlight] " +
+                      "absolute inset-y-[0.25em] inset-s-1/2 w-[0.18em] -translate-x-1/2 rounded-full rtl:translate-x-1/2 forced-colors:bg-[Highlight] " +
                       SWATCH_TONE[level]
                     }
                   />
@@ -291,19 +291,19 @@ export function RangeLegend({
                 Decorative; the word below is the semantic level. */}
             <span aria-hidden="true" className="mt-[0.2em] flex size-[1.1em] shrink-0 items-center justify-center">
               {Glyph === null ? null : (
-                <Glyph className="size-full [color:var(--muted-foreground)]" />
+                <Glyph className="size-full text-muted-foreground" />
               )}
             </span>
 
             <span className="flex min-w-0 flex-col gap-opsin-0-5">
               <span
                 data-slot="range-legend-label"
-                className="[color:var(--foreground)]"
+                className="text-foreground"
               >
                 {band.label}
               </span>
               {band.description === undefined ? null : (
-                <span className="text-opsin-footnote [color:var(--muted-foreground)]">
+                <span className="text-opsin-footnote text-muted-foreground">
                   {band.description}
                 </span>
               )}

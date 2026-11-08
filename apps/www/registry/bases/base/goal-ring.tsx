@@ -464,14 +464,20 @@ export function GoalRing({
 
       {/* The text twin, never omitted and never hidden, so a reader who cannot
           read the arc gets every fact in words. It is not an option and no prop of
-          this component turns it off. */}
+          this component turns it off.
+
+          Its class lists are plain strings and never go through `cn()`.
+          tailwind-merge files a `text-*` colour and a `text-opsin-*` type step
+          in one conflict group and keeps only the later, so `cn()` would drop
+          the step; a plain string keeps both, because the two set different
+          properties. */}
       <div
         data-slot="goal-ring-words"
         className="flex flex-col items-center gap-opsin-1 text-center"
       >
         <p
           data-slot="goal-ring-label"
-          className={cn("m-0 text-opsin-subheadline", "[color:var(--muted-foreground)]")}
+          className="m-0 text-opsin-subheadline text-muted-foreground"
         >
           {label}
         </p>
@@ -481,12 +487,12 @@ export function GoalRing({
             copy and a screen reader get "6,200 of 8,000 steps". */}
         <p
           data-slot="goal-ring-value"
-          className="m-0 tabular-nums [color:var(--foreground)]"
+          className="m-0 tabular-nums text-foreground"
         >
           {reading !== null && !broken ? (
             <>
               <span className="text-opsin-title1">{plain(reading, locale)}</span>
-              <span className="text-opsin-body [color:var(--muted-foreground)]">
+              <span className="text-opsin-body text-muted-foreground">
                 {` of ${plain(goal, locale)}${unitWords}`}
               </span>
             </>
@@ -496,7 +502,7 @@ export function GoalRing({
         </p>
         <p
           data-slot="goal-ring-derivation"
-          className={cn("m-0 text-opsin-footnote", "[color:var(--muted-foreground)]")}
+          className="m-0 text-opsin-footnote text-muted-foreground"
         >
           {derivationWords}
         </p>
