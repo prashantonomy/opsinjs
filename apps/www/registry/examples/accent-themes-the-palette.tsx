@@ -30,7 +30,7 @@ export default function AccentThemesThePalette() {
           <h3 id={`palette-${theme.id}`} className="m-0 text-opsin-headline">
             {theme.label}
           </h3>
-          <ul className="m-0 grid list-none grid-cols-2 gap-opsin-2 p-0 sm:grid-cols-3">
+          <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(100%,11rem),1fr))] gap-opsin-2 p-0">
             {ACCENTS.map((accent) => (
               <li
                 key={accent.id}
