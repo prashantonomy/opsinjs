@@ -80,14 +80,25 @@ if (isDevelopment()) {
  * be built from the level at runtime. `bg-status-${status}-surface` generates
  * no CSS at all and the pill renders unstyled. Written out, once.
  *
- * Note which role does which job. `-surface` is the tinted background and `-ink`
- * is the text that is guaranteed legible on it. The LINE role rides as
- * `--pill-line`, and it draws the glyph at full strength and the boundary at a
- * little under half, beside the root's class list below. `-accent` is
- * deliberately absent: it is the identity fill, chosen for recognition rather
- * than contrast, and it is never text and never a sole boundary.
+ * THE PILL IS AN ENAMEL PLATE, and its colours are the level's plate, not its
+ * ramp roles. `color.json` says why under `status.$plate`: a solid fill held at
+ * the ramp's one lightness turns amber olive and orange brown, so each plate
+ * sits at the lightness where its hue reads as itself. `-plate` is the face,
+ * `-plate-lit` the band along the top edge that faces the light, `-plate-rim`
+ * the outline and the tint of the shadow, and `-plate-word` the word and the
+ * glyph. They ride as `--pill-*` so the root's class list below can draw the
+ * plate once for all four levels. `--pill-gleam` is the strength of the line
+ * of light on the top edge, brighter on the one light plate so it still reads.
+ * The word is white on the three deep plates and deep brown on the gold one;
+ * `build-tokens.mts` refuses a plate whose word falls below the body-text floor
+ * on the face or the lit band, and the contrast report measures both.
  *
- * AND THE INK IS AN ARBITRARY PROPERTY, WHICH IS NOT A STYLE CHOICE. `cn` is
+ * On paper the plate goes. The `print:` classes put back the tinted surface,
+ * the ink and a full-strength boundary in the level's line, which is the pill
+ * this component drew before it was a plate, and which survives a
+ * black-and-white printer.
+ *
+ * AND THE WORD'S COLOUR IS AN ARBITRARY PROPERTY, WHICH IS NOT A STYLE CHOICE. `cn` is
  * `twMerge(clsx(…))` and tailwind-merge is unconfigured: it has never been told
  * that `--text-opsin-*` is a font-size namespace, so it files
  * `text-opsin-caption1` and `text-status-watch-ink` in the SAME conflict group
@@ -118,41 +129,41 @@ if (isDevelopment()) {
  * and a component that renders its own colours only under this repository's
  * build is not repaired.
  *
- * The variable is `--opsin-status-<level>-ink` and not the theme's
- * `--color-status-<level>-ink`, because the `@theme inline` block that declares
+ * The variables are `--opsin-status-<level>-*` and not the theme's
+ * `--color-status-<level>-*`, because the `@theme inline` block that declares
  * the colour namespace inlines its values into utilities and emits no custom
- * property to read back. No literal fallback is written beside it: in an app
- * without the token sheet the declaration resolves to nothing and the word
- * inherits, which is the same ground on which `bg-status-<level>-surface` is
- * also absent, and inventing a colour value here would be worse than inheriting
- * one.
+ * property to read back. No literal fallback is written beside them: in an app
+ * without the token sheet the declarations resolve to nothing and the word
+ * inherits, on a pill whose plate is also absent, and inventing a colour value
+ * here would be worse than inheriting one.
  *
  * WHAT IT COSTS, STATED RATHER THAN SOFTENED: because the two no longer
  * conflict, a `text-*` class passed in `className` can no longer recolour the
- * word. Both declarations are emitted and source order decides. The surface
- * and the boundary are still overridable that way, and there is no `style`
- * prop and no spread here to reach past a class with, so the remaining way to
- * recolour the ink is a rule of your own on `[data-slot="status-pill"]`, which
- * is what the slots are for. `field.tsx` documents the same trap from the other
- * side and answers it by declining to set a colour at all; that answer is not
- * available to a component whose fill is the point.
+ * word. Both declarations are emitted and source order decides. There is no
+ * `style` prop and no spread here to reach past a class with, so the way to
+ * recolour the word or the plate is a rule of your own on
+ * `[data-slot="status-pill"]`, which is what the slots are for. `field.tsx`
+ * documents the same trap from the other side and answers it by declining to
+ * set a colour at all; that answer is not available to a component whose fill
+ * is the point.
  */
 const TONE: Record<ClinicalStatus, string> = {
   steady:
-    "bg-status-steady-surface [color:var(--opsin-status-steady-ink)] [--pill-line:var(--opsin-status-steady-line)] print:border-status-steady",
+    "[--pill-face:var(--opsin-status-steady-plate)] [--pill-lit:var(--opsin-status-steady-plate-lit)] [--pill-rim:var(--opsin-status-steady-plate-rim)] [--pill-gleam:32%] [color:var(--opsin-status-steady-plate-word)] [text-shadow:0_-0.5px_0_oklch(0_0_0/0.18)] print:bg-status-steady-surface print:[color:var(--opsin-status-steady-ink)] print:border-status-steady",
   watch:
-    "bg-status-watch-surface [color:var(--opsin-status-watch-ink)] [--pill-line:var(--opsin-status-watch-line)] print:border-status-watch",
+    "[--pill-face:var(--opsin-status-watch-plate)] [--pill-lit:var(--opsin-status-watch-plate-lit)] [--pill-rim:var(--opsin-status-watch-plate-rim)] [--pill-gleam:55%] [color:var(--opsin-status-watch-plate-word)] [text-shadow:0_0.5px_0_oklch(1_0_0/0.3)] print:bg-status-watch-surface print:[color:var(--opsin-status-watch-ink)] print:border-status-watch",
   attention:
-    "bg-status-attention-surface [color:var(--opsin-status-attention-ink)] [--pill-line:var(--opsin-status-attention-line)] print:border-status-attention",
+    "[--pill-face:var(--opsin-status-attention-plate)] [--pill-lit:var(--opsin-status-attention-plate-lit)] [--pill-rim:var(--opsin-status-attention-plate-rim)] [--pill-gleam:32%] [color:var(--opsin-status-attention-plate-word)] [text-shadow:0_-0.5px_0_oklch(0_0_0/0.18)] print:bg-status-attention-surface print:[color:var(--opsin-status-attention-ink)] print:border-status-attention",
   urgent:
-    "bg-status-urgent-surface [color:var(--opsin-status-urgent-ink)] [--pill-line:var(--opsin-status-urgent-line)] print:border-status-urgent",
+    "[--pill-face:var(--opsin-status-urgent-plate)] [--pill-lit:var(--opsin-status-urgent-plate-lit)] [--pill-rim:var(--opsin-status-urgent-plate-rim)] [--pill-gleam:32%] [color:var(--opsin-status-urgent-plate-word)] [text-shadow:0_-0.5px_0_oklch(0_0_0/0.18)] print:bg-status-urgent-surface print:[color:var(--opsin-status-urgent-ink)] print:border-status-urgent",
 }
 
 /**
- * The glyph's colour, one class per level: the LINE role, which is the colour
- * the contrast report measures against the level's own surface at the non-text
- * floor, so the glyph is a mark a reader can see rather than a tint. Written
- * out for the same reason TONE is.
+ * The glyph takes the word's colour on the plate, which the contrast report
+ * measures at the text floor, well above the non-text floor a glyph needs. On
+ * paper it goes back to the level's LINE role against the tinted surface, the
+ * pairing the report measures at the non-text floor. Written out for the same
+ * reason TONE is.
  */
 /*
  * WHICH GLYPHS ARE FILLED is carried in the same strings. The iconography rule
@@ -165,22 +176,25 @@ const TONE: Record<ClinicalStatus, string> = {
  * a declaration and an attribute is only a presentation hint.
  */
 const GLYPH_TONE: Record<ClinicalStatus, string> = {
-  steady: "fill-none [color:var(--opsin-status-steady-line)]",
-  watch: "fill-none [color:var(--opsin-status-watch-line)]",
-  attention: "fill-current [color:var(--opsin-status-attention-line)]",
-  urgent: "fill-current [color:var(--opsin-status-urgent-line)]",
+  steady: "fill-none print:[color:var(--opsin-status-steady-line)]",
+  watch: "fill-none print:[color:var(--opsin-status-watch-line)]",
+  attention: "fill-current print:[color:var(--opsin-status-attention-line)]",
+  urgent: "fill-current print:[color:var(--opsin-status-urgent-line)]",
 }
 
 /* The ladder is the type step the word and its glyph sit at: sm at footnote,
    md at subheadline, lg at headline. md stops at subheadline rather than
-   headline on purpose. A 17px weight-600 status word on every row of a results
-   list would spend the urgency budget the system keeps scarce, whereas 15px at
-   weight 400 lifts the label off the caption floor and out of the provenance
-   step without turning a label into an alarm. */
+   headline on purpose. A 17px status word on every row of a results list would
+   spend the urgency budget the system keeps scarce, whereas 15px lifts the
+   label off the caption floor and out of the provenance step without turning a
+   label into an alarm. The word is set semibold at every size, because a
+   regular weight reversed out of a deep plate thins and sparkles, and the
+   plate's padding is a little wider than the old capsule's so the word does
+   not crowd its edge. */
 const SIZE = {
-  sm: "gap-[0.35em] py-[0.32em] ps-[0.5em] pe-[0.65em] text-opsin-footnote",
-  md: "gap-[0.4em] py-[0.36em] ps-[0.55em] pe-[0.75em] text-opsin-subheadline",
-  lg: "gap-[0.4em] py-[0.36em] ps-[0.6em] pe-[0.8em] text-opsin-headline",
+  sm: "gap-[0.4em] py-[0.34em] ps-[0.52em] pe-[0.72em] text-opsin-footnote",
+  md: "gap-[0.42em] py-[0.4em] ps-[0.6em] pe-[0.82em] text-opsin-subheadline",
+  lg: "gap-[0.42em] py-[0.4em] ps-[0.65em] pe-[0.88em] text-opsin-headline",
 } as const
 
 export interface StatusPillProps {
@@ -225,22 +239,22 @@ export interface StatusPillProps {
    * className)` puts yours last and `twMerge` keeps the later of a conflicting
    * pair.
    *
-   * That includes the level's fill and its boundary. A class that removes
-   * either of them leaves the word and the glyph carrying the status on their
-   * own, so if you need the pill to sit quietly in a dense row, change `size`
-   * rather than stripping the surface.
+   * That includes the plate's boundary and its shadow. A class that removes
+   * them leaves the word and the glyph carrying the status on their own, so if
+   * you need the pill to sit quietly in a dense row, change `size` rather than
+   * stripping the plate.
    *
-   * THE INK IS THE ONE EXCEPTION, and the comment above `TONE` says why: it is
-   * written as the arbitrary property `color:var(--opsin-status-<level>-ink)`
-   * in square brackets, so `tailwind-merge` does not file it against a `text-*`
-   * class, and a `text-*` class you pass does not replace it. It is spelled out
-   * that way here because Tailwind's scanner reads comments too, and a
-   * bracketed candidate with a `<level>` placeholder in it compiles to CSS that
-   * does not parse. Both declarations are emitted and source order decides.
-   * Recolour it with a rule of your own on `[data-slot="status-pill"]` instead.
-   * Read `tokens/color.json` first, because the ink you would be replacing is
-   * the half of the pairing that was tuned to stay legible on the surface
-   * underneath it.
+   * THE PLATE AND ITS WORD ARE THE EXCEPTION, and the comment above `TONE` says
+   * why: they are written as arbitrary properties in square brackets, the word
+   * as `color:var(--opsin-status-<level>-plate-word)`, so `tailwind-merge` does
+   * not file them against a `bg-*` or `text-*` class, and one you pass does not
+   * replace them. They are spelled out that way here because Tailwind's scanner
+   * reads comments too, and a bracketed candidate with a `<level>` placeholder
+   * in it compiles to CSS that does not parse. Both declarations are emitted
+   * and source order decides. Recolour the pill with a rule of your own on
+   * `[data-slot="status-pill"]` instead. Read `status.$plate` in
+   * `tokens/color.json` first, because the word you would be replacing was
+   * chosen to stay legible on the plate underneath it.
    */
   className?: string
 }
@@ -327,18 +341,24 @@ export function StatusPill({
            does. `max-w-full` caps the pill at its containing block so it never
            overflows the column. */
         "inline-flex max-w-full shrink-0 items-center whitespace-normal rounded-full border align-middle",
-        /* A JEWEL RATHER THAN A STAMP. The boundary is the level's line at a
-           little under half strength, because a full-strength ring around a
-           tinted capsule read as a form field; the glyph now carries the line
-           role at full strength, where the contrast report measures it. A line
-           of light along the top and a drop tinted with the level make the
-           capsule sit on the surface rather than be printed into it. None of
-           the three carries the level: the word does, then the glyph, then the
-           fill. On paper the boundary returns to full strength and the light
-           and the drop go, through the `print:` classes in TONE. */
-        "border-[color-mix(in_oklab,var(--pill-line)_42%,transparent)]",
-        "shadow-[inset_0_1px_0_oklch(1_0_0/0.6),0_1px_2px_color-mix(in_oklab,var(--pill-line)_22%,transparent)]",
-        "dark:shadow-[inset_0_1px_0_oklch(1_0_0/0.07),0_1px_2px_oklch(0_0_0/0.4)] print:shadow-none",
+        /* AN ENAMEL PLATE, LIT FROM ABOVE AND SEEN FROM ABOVE. One light sits
+           above the plate and a little in front of it, and the reader looks
+           down on it, so every cue agrees about where the light is. The face is
+           nearly flat: the lit band brightens only its top half. The top edge
+           turns to the light and carries a thin line of it; the bottom edge
+           turns away and carries a thin line of shade. The plate stands off the
+           page on a tight contact shadow and a soft wide one, both falling
+           down, and in light mode the wide one is tinted with the plate's rim
+           so a plate does not throw a grey stain. In dark mode both shadows
+           are black, because a tinted shadow on a dark page reads as a glow.
+           None of this carries the level: the word does, then the glyph's
+           shape, then the colour. On paper and under forced colours the plate,
+           the light and the shadows all go. */
+        "border-[color-mix(in_oklab,var(--pill-rim)_65%,transparent)]",
+        "bg-(--pill-face) bg-[linear-gradient(to_bottom,var(--pill-lit),var(--pill-face)_55%)]",
+        "shadow-[inset_0_1px_0_oklch(1_0_0/var(--pill-gleam)),inset_0_-1px_0_oklch(0_0_0/0.14),0_1px_1.5px_oklch(0_0_0/0.14),0_3px_8px_-2px_color-mix(in_oklab,var(--pill-rim)_35%,transparent)]",
+        "dark:shadow-[inset_0_1px_0_oklch(1_0_0/var(--pill-gleam)),inset_0_-1px_0_oklch(0_0_0/0.14),0_1px_1.5px_oklch(0_0_0/0.5),0_4px_10px_-2px_oklch(0_0_0/0.6)]",
+        "print:shadow-none print:bg-none print:text-shadow-none forced-colors:bg-none forced-colors:text-shadow-none",
         TONE[status],
         SIZE[size],
         className
@@ -349,14 +369,17 @@ export function StatusPill({
       <Icon
         data-slot="status-pill-icon"
         aria-hidden="true"
-        strokeWidth={2.25}
-        className={cn("size-[1.05em] shrink-0", GLYPH_TONE[status])}
+        strokeWidth={2.5}
+        className={cn("size-[1em] shrink-0", GLYPH_TONE[status])}
       />
       {/* Trimmed to the x-height and the baseline, so the word's lowercase band
-          sits on the capsule's centre line beside the glyph, which flex centres
+          sits on the plate's centre line beside the glyph, which flex centres
           on the same line. The padding above is in `em` to put back the room
           the trimmed line box no longer brings. */}
-      <span data-slot="status-pill-label" className="[text-box:trim-both_ex_alphabetic]">
+      <span
+        data-slot="status-pill-label"
+        className="font-semibold [text-box:trim-both_ex_alphabetic]"
+      >
         {word}
       </span>
       {/* The subject, for the accessible name only. A sighted reader sees
