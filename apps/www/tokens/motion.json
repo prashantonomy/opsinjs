@@ -31,7 +31,7 @@
       "overshootPercent": 1.52,
       "durationMs": 283,
       "easing": "linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)",
-      "use": "Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. It overshoots by 1.5%. That is enough to feel physical but not enough to look playful. The 1.5% is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it.",
+      "use": "Direct manipulation only: a switch the reader just flipped, a box ticked or a radio chosen, a segmented control or a tab indicator gliding to the new choice, a pressed button settling. It overshoots by 1.5%. That is enough to feel physical but not enough to look playful. The 1.5% is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it.",
       "doNotUse": "Anything that displays a health value. A number that overshoots its target has, for one frame, displayed a number that is not true.",
       "reducedMotion": {
         "easing": "linear",
@@ -47,7 +47,7 @@
       "overshootPercent": 0.88,
       "durationMs": 382,
       "easing": "linear(0, 0.0742, 0.2328, 0.4113, 0.5758, 0.7116, 0.8157, 0.8905, 0.9412, 0.9736, 0.9928, 1.003, 1.0076, 1.0088, 1.0082, 1.0068, 1.0053, 1.0038, 1.0026, 1.0017, 1)",
-      "use": "The workhorse for chrome: popovers, tooltips, menus, chips appearing and disappearing.",
+      "use": "The workhorse for chrome: popovers, tooltips, menus, selects and comboboxes unfolding from their anchor, chips and toasts appearing and disappearing, and a swiped toast springing back.",
       "doNotUse": "Full-screen transitions, where 382ms reads as hesitant. And anything that displays a health value: 0.88% is a small overshoot but it is still an overshoot, so the objection `spring-snap` carries applies unchanged, and OPSIN-0007 states it for every token. For one frame the reader is shown a number that is not true.",
       "reducedMotion": {
         "easing": "linear",
@@ -106,7 +106,7 @@
   "durations": {
     "duration-instant": {
       "ms": 80,
-      "use": "State change with no travel: hover tint, focus ring, checkbox tick."
+      "use": "State change with no travel: hover tint, focus ring. Also the way down of a press, which `foundations/states` applies on pointer-down and `spring-snap` brings back up."
     },
     "duration-fast": {
       "ms": 140,

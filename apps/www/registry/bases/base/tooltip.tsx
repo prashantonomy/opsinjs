@@ -66,6 +66,41 @@ import { isDevelopment } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
 
 /**
+ * UNFOLD, the fourth of the five interaction motions (ADR 0031), shared by every
+ * popup in the system so a tooltip opens the way a menu, a select, a combobox, a
+ * popover and a tooltip all do.
+ *
+ * The tooltip grows out of the control that opened it rather than appearing out
+ * of nowhere. `origin-(--transform-origin)` reads the point Base UI's
+ * positioner computes on the control's side of the popup, so it scales up from
+ * there and collapses back into it. It arrives from 0.96 and slightly soft, a
+ * 4px blur that clears as it settles, so it comes into focus the way an object
+ * does when it is brought close, on `spring-settle`, the spring
+ * tokens/motion.json names for popovers, tooltips and menus. It leaves faster
+ * than it came, to 0.98 and transparent on `ease-exit` over `duration-fast`,
+ * because a reader does not need to watch a dismissal finish. `data-instant`
+ * cancels the transition outright, whatever its value. Base UI sets it when a
+ * tooltip opens on keyboard focus, when Escape or a press dismisses one, and
+ * when the reader moves between neighbouring controls inside the delay
+ * window. So a label reached with Tab is there at once, and a row of tooltips
+ * read one after another does not unfold again for each one.
+ *
+ * Under `prefers-reduced-motion: reduce` the scale and the blur are pinned to
+ * rest, and `spring-settle` collapses in the generated sheet to a 100ms linear
+ * fade, so the tooltip still visibly appears and does not travel. The exit's
+ * `duration-fast` collapses to 1ms. A tooltip is a supplementary label and never a reading, so nothing here animates a value.
+ */
+const UNFOLD =
+  "origin-(--transform-origin) " +
+  "transition-[opacity,scale,filter] duration-(--opsin-duration-spring-settle) ease-opsin-spring-settle " +
+  "data-[starting-style]:opacity-0 data-[starting-style]:scale-96 data-[starting-style]:blur-xs " +
+  "data-[ending-style]:opacity-0 data-[ending-style]:scale-98 " +
+  "data-[ending-style]:duration-(--opsin-duration-fast) data-[ending-style]:ease-opsin-exit " +
+  "data-[instant]:transition-none " +
+  "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[starting-style]:blur-none " +
+  "motion-reduce:data-[ending-style]:scale-100"
+
+/**
  * The popup surface, spelled once. A small raised card: `bg-card` lifts it off
  * whatever it floats over, `border-border` draws its edge for greyscale and for
  * a reader stylesheet that strips fills, and the `overlay` material rung casts
@@ -81,18 +116,17 @@ import { cn } from "@/lib/utils"
  * literal `45ch` fallback for a project installed without the generated token
  * sheet.
  *
- * The fade is chrome, not a health value, so animating it on open is allowed
- * where animating a reading would not be: there is no number here to count up
- * and no ring to sweep. It is opacity only and it is dropped under
- * `prefers-reduced-motion`, where the label appears in place instead.
+ * Its entrance and exit are `UNFOLD`, set out above. It is chrome, not a health
+ * value, so animating it on open is allowed where animating a reading would not
+ * be: there is no number here to count up and no ring to sweep. Under
+ * `prefers-reduced-motion` it keeps a 100ms fade rather than appearing between
+ * frames, because a label that arrives with no cue at all is easy to miss.
  */
 const POPUP =
   "z-50 max-w-[var(--opsin-measure-tight,45ch)] rounded-opsin-md border border-edge bg-card " +
   "px-opsin-2 py-opsin-1 text-opsin-footnote [color:var(--foreground)] " +
   "shadow-(--opsin-material-raised-shadow) " +
-  "transition-opacity duration-(--opsin-duration-fast) ease-opsin-standard " +
-  "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 " +
-  "motion-reduce:transition-none"
+  UNFOLD
 
 /**
  * The arrow, a small rotated square that points from the popup back at the

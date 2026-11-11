@@ -15,7 +15,7 @@ reviewer: engineering
   questions={[
     "No contrast pair has been measured: the card thumb against the accent fill when on, against the muted fill when off, and the hairline round both.",
     "Nobody has listened to this switch in a screen reader, so whether role=\"switch\" with its label and helper line reads usefully is reasoned, not heard.",
-    "Forced colours, prefers-contrast: more, right-to-left layout and prefers-reduced-motion are unhandled, so the thumb slides and the fills swap untested.",
+    "Forced colours, prefers-contrast: more and right-to-left layout are unhandled, and the reduced-motion thumb has been checked only in an emulated browser.",
   ]}
 >
   Audited against WCAG 2.2 AA. Clinical review pending.
@@ -83,8 +83,10 @@ The audit found nothing to change in the source.
   and a `border-border` hairline survives `forced-colors: active` and a stripped fill.
 - The 24px AA target floor is met by the track, and the 44pt house floor by the
   enclosing label row, which toggles the control.
-- Focus sits on the track with the house ring, and both transitions collapse under
-  `prefers-reduced-motion: reduce` through the fast-duration token.
+- Focus sits on the track with the house ring. While the row is held the thumb
+  squashes towards where it will go, and it travels on `spring-snap`. Under
+  `prefers-reduced-motion: reduce` it does not squash and reaches the other side in one
+  frame.
 - It uses only neutral chrome and the accent fill, and `pnpm run check:a11y`
   confirms on every commit that no colour literal, `px` type size or banned word appears.
 

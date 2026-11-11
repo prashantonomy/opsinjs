@@ -150,8 +150,24 @@ const CONTROL =
  * the option is checked, so an unchecked circle is genuinely empty rather than
  * holding a hidden dot. It is `--brand-foreground`, the ink measured on the
  * accent fill at the body floor, sized in `em` so it grows with the option.
+ *
+ * TOGGLE, the second of the five interaction motions (ADR 0031), as a radio
+ * draws it. The dot grows out of the centre of the circle on `spring-snap`,
+ * the spring tokens/motion.json names for a control the reader just chose,
+ * from nothing on the indicator's `data-starting-style` frame. The dot of the
+ * option being left shrinks back into its centre at the same moment, on
+ * `ease-exit` over `duration-fast`, because Base UI keeps a leaving indicator
+ * mounted until its `data-ending-style` transition ends. So the choice is seen
+ * to move from one circle to the other, while the circle's fill changes on its
+ * own colour transition underneath. A dot shows a choice and never a reading,
+ * so the overshoot is allowed. Under `prefers-reduced-motion: reduce` both
+ * durations collapse, so the dot is whole, or gone, the frame after the choice.
  */
-const INDICATOR = "size-[0.45em] rounded-full bg-brand-foreground"
+const INDICATOR =
+  "size-[0.45em] rounded-full bg-brand-foreground " +
+  "transition-[scale] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+  "data-[starting-style]:scale-0 data-[ending-style]:scale-0 " +
+  "data-[ending-style]:duration-(--opsin-duration-fast) data-[ending-style]:ease-opsin-exit"
 
 /** The label and description column, kept narrow so a long label wraps rather than pushes the circle. */
 const ITEM_TEXT = "flex min-w-0 flex-col gap-opsin-0-5"

@@ -91,6 +91,41 @@ const TRIGGER =
   "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
 
 /**
+ * UNFOLD, the fourth of the five interaction motions (ADR 0031), shared by every
+ * popup in the system so a panel opens the way a menu, a select, a combobox, a
+ * popover and a tooltip all do.
+ *
+ * The panel grows out of the button that opened it rather than appearing out
+ * of nowhere. `origin-(--transform-origin)` reads the point Base UI's
+ * positioner computes on the button's side of the popup, so it scales up from
+ * there and collapses back into it. It arrives from 0.96 and slightly soft, a
+ * 4px blur that clears as it settles, so it comes into focus the way an object
+ * does when it is brought close, on `spring-settle`, the spring
+ * tokens/motion.json names for popovers, tooltips and menus. It leaves faster
+ * than it came, to 0.98 and transparent on `ease-exit` over `duration-fast`,
+ * because a reader does not need to watch a dismissal finish. When Escape, or
+ * a second press on the control that opened it, closes it, Base UI marks the
+ * popup `data-instant="dismiss"`, and that cancels the transition, so a reader
+ * who asked for it gone has it gone at once. Base UI also marks a popup opened from the keyboard
+ * `data-instant="click"`, and that one is ignored on purpose: a reader who
+ * opens it with Enter sees the same unfold as a reader with a pointer.
+ *
+ * Under `prefers-reduced-motion: reduce` the scale and the blur are pinned to
+ * rest, and `spring-settle` collapses in the generated sheet to a 100ms linear
+ * fade, so the panel still visibly appears and does not travel. The exit's
+ * `duration-fast` collapses to 1ms. Nothing here is a health value, so there is no reading being animated on first paint.
+ */
+const UNFOLD =
+  "origin-(--transform-origin) " +
+  "transition-[opacity,scale,filter] duration-(--opsin-duration-spring-settle) ease-opsin-spring-settle " +
+  "data-[starting-style]:opacity-0 data-[starting-style]:scale-96 data-[starting-style]:blur-xs " +
+  "data-[ending-style]:opacity-0 data-[ending-style]:scale-98 " +
+  "data-[ending-style]:duration-(--opsin-duration-fast) data-[ending-style]:ease-opsin-exit " +
+  "data-[instant=dismiss]:transition-none " +
+  "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[starting-style]:blur-none " +
+  "motion-reduce:data-[ending-style]:scale-100"
+
+/**
  * The panel, spelled once. A raised card: `bg-card` lifts it off whatever it floats
  * over, `border-border` draws its edge for greyscale, and the `overlay` material
  * rung casts the one black-alpha shadow the material ladder publishes for a floating
@@ -100,22 +135,14 @@ const TRIGGER =
  * readable width rather than stretching across the viewport, and the type is the
  * `body` step so it grows with the reader's text size.
  *
- * The entrance is a short fade and a slight scale on the primitive's own
- * `data-starting-style` and `data-ending-style` states, at the fast chrome
- * duration. Under `prefers-reduced-motion` the scale is pinned and only the opacity
- * crossfades, which is the reduced-motion fallback the system asks for: not nothing,
- * but an instant, equally informative state. Nothing here is a health value, so
- * there is no reading being animated on first paint.
+ * Its entrance and exit are `UNFOLD`, set out above.
  */
 const POPUP =
   "z-50 max-w-[min(var(--opsin-measure-tight,45ch),calc(100vw-var(--opsin-space-8,2rem)))] " +
   "rounded-opsin-md border border-edge bg-card p-opsin-4 " +
   "shadow-(--opsin-material-raised-shadow) [color:var(--foreground)] " +
   "text-opsin-body " +
-  "transition-[opacity,scale] duration-(--opsin-duration-fast) ease-opsin-standard " +
-  "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 " +
-  "data-[starting-style]:scale-95 data-[ending-style]:scale-95 " +
-  "motion-reduce:transition-opacity motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100"
+  UNFOLD
 
 /**
  * The arrow, a small card-coloured diamond that points from the panel back to the

@@ -9,7 +9,7 @@
  * a value a component should paint with.
  */
 
-export const ACCENT_SOURCE_HASH = "6bd1511ffc9b"
+export const ACCENT_SOURCE_HASH = "8363afb88302"
 
 export const ACCENT_THEME_ATTRIBUTE = "data-accent-theme"
 export const ACCENT_ATTRIBUTE = "data-accent"

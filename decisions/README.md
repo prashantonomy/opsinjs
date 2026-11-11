@@ -94,9 +94,11 @@ argued with while arguing is cheap.
 | [0027](./0027-the-site-gets-a-landing-page.md) | The site gets a landing page, and the documentation moves under `/docs` | Accepted |
 | [0028](./0028-ink-paper-and-one-light.md) | Ink and paper, one light, and sheets with depth | Accepted, the single light and the quiet underline amended by 0029 |
 | [0029](./0029-accent-themes.md) | Accent themes: normal, vibes and stryk, with nine accents each | Accepted |
+| [0031](./0031-five-interaction-motions.md) | Five interaction motions, on the springs the tokens already define | Accepted |
 
-The numbers are not contiguous. There is no 0008, no 0018 to 0020 and no 0022.
-0008 and 0022 were withdrawn and deleted; 0018 to 0020 were never written. The
+The numbers are not contiguous. There is no 0008, no 0018 to 0020, no 0022 and,
+for now, no 0030. 0008 and 0022 were withdrawn and deleted; 0018 to 0020 were never
+written; 0030 belongs to an open pull request that has not merged yet. The
 gaps are in the numbering rather than in this table, and they are left as they
 are because renumbering a record would break every link and every citation that
 already names it.

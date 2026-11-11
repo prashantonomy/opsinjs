@@ -184,7 +184,7 @@ const PRINT_BOUNDARY = "print:border print:border-border"
 const LINK_ROOT_CLASS = cn(
   "group/card grid min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
   "text-inherit no-underline",
-  "active:translate-y-px",
+  "transition-[scale] duration-(--opsin-duration-fast) ease-opsin-standard active:scale-98 active:duration-(--opsin-duration-instant)",
   "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring",
   SHAPE,
   PRINT_BOUNDARY,
@@ -448,10 +448,17 @@ export function Card({
        there is no hover, and the underline is now the pointer-and-keyboard
        addition on top of it.
 
-       `active:translate-y-px` is the press acknowledgement, the same one-pixel
-       shift Button ships and for the same reason: a transform is instantaneous,
-       which is the timing interaction-states asks of a press, so it carries no
-       transition. The press does NOT tint the fill. The obvious move, an
+       The press is the surface form of the first interaction motion (ADR
+       0031). The card sinks to 0.98 on pointer-down over `duration-instant`
+       and comes back on the standard curve over `duration-fast`, which is the
+       timing `foundations/states` asks of a press. It is shallower than
+       Button's 0.97, because a card is wide and the same fraction moves its
+       edges further, and it returns WITHOUT the snap spring Button settles on,
+       because a card may hold a reading and `spring-snap` is barred from
+       anything that displays a value: for a frame its overshoot would draw the
+       figure larger than it is. Under reduced motion both durations collapse,
+       so the sink becomes a change of state within one frame with no travel.
+       The press does NOT tint the fill. The obvious move, an
        `:active` background on this anchor, cannot reach the fill a Card shows,
        because that fill is Surface's `--opsinjs-surface-tint` written as an
        inline style on Surface's own root, and an inline style beats any custom
