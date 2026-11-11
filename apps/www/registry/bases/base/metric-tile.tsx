@@ -899,11 +899,17 @@ export function MetricTile({
      The focus ring is declared here rather than left to the product
      stylesheet for the same reason: a tile whose focus ring depends on a file
      it was not installed with is a tile that loses it silently. The press cue
-     is declared here on the same principle. `active:translate-y-px` is the
-     transform Button uses, and it is the one acknowledgement touch can show:
-     a tile installed without app/product.css has no state fill to fall back
-     on, so without this line a one-handed tap on a phone would register no
-     change at all and read as lag. */
+     is declared here on the same principle, and it is the one acknowledgement
+     touch can show: a tile installed without app/product.css has no state
+     fill to fall back on, so without it a one-handed tap on a phone would
+     register no change at all and read as lag. It is the surface form of the
+     press (ADR 0031): the tile sinks to 0.98 on pointer-down over
+     `duration-instant` and returns on the standard curve over
+     `duration-fast`. It never settles on Button's snap spring, because this
+     tile displays a reading and `spring-snap` is barred from anything that
+     does: for a frame its overshoot would draw the figure larger than it is.
+     The press moves the whole tile and never the figure within it, and
+     under reduced motion both durations collapse to a single frame. */
   const linkClassName = cn(
     /* `group/tile` is NAMED rather than the bare `group`, and that is not
        cosmetic: an unnamed `group-*` variant matches any ancestor carrying
@@ -916,7 +922,7 @@ export function MetricTile({
     "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
     "text-inherit no-underline",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-    "active:translate-y-px",
+    "transition-[scale] duration-(--opsin-duration-fast) ease-opsin-standard active:scale-98 active:duration-(--opsin-duration-instant)",
     shell,
   )
 

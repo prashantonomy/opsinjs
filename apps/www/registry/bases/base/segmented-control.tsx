@@ -45,7 +45,7 @@
 
 import { Radio } from "@base-ui/react/radio"
 import { RadioGroup } from "@base-ui/react/radio-group"
-import { useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 
 import { isDevelopment } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
@@ -87,10 +87,12 @@ const SIZE: Record<"sm" | "md", string> = {
  * The track, spelled once. A muted capsule with the decorative edge, so the row
  * reads as one object with the options set into it; the 3:1 boundary is on the
  * selected segment, which is the part that carries state. `inline-flex` becomes `flex w-full` when
- * `fullWidth` is set, and tailwind-merge keeps the later `flex`.
+ * `fullWidth` is set, and tailwind-merge keeps the later `flex`. It is
+ * `relative` so the puck below is placed against it, and the named group
+ * `group/track` so the segments and the puck can read `data-glide`.
  */
 const TRACK =
-  "inline-flex items-stretch gap-opsin-0-5 rounded-full border border-edge bg-muted p-opsin-0-5 align-middle"
+  "group/track relative inline-flex items-stretch gap-opsin-0-5 rounded-full border border-edge bg-muted p-opsin-0-5 align-middle"
 
 /**
  * One segment, spelled once.
@@ -100,7 +102,10 @@ const TRACK =
  * the segment off the muted track for a sighted reader, and a `--border`
  * hairline around it for greyscale and for a reader stylesheet that strips
  * fills. Every segment carries a transparent border in its rest state so the
- * selected one gaining a visible border shifts nothing.
+ * selected one gaining a visible border shifts nothing. Once the puck below
+ * has been placed, the track carries `data-glide` and the chosen segment hands
+ * its card, hairline and shadow to the puck, which draws exactly the same
+ * three, so the lifted look is the same before and after the script runs.
  *
  * The ink is written as the arbitrary property `[color:var(--foreground)]` and
  * not `text-foreground`, for the reason `button.tsx` sets out at length:
@@ -127,8 +132,84 @@ const SEGMENT =
   "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
   "data-[unchecked]:hover:bg-state-hover " +
   "data-[checked]:border-border data-[checked]:bg-card data-[checked]:shadow-[0_1px_3px_oklch(0_0_0/0.14)] " +
+  "group-data-[glide]/track:data-[checked]:border-transparent group-data-[glide]/track:data-[checked]:bg-transparent group-data-[glide]/track:data-[checked]:shadow-none " +
   "data-[disabled]:cursor-not-allowed data-[disabled]:[color:var(--muted-foreground)] data-[disabled]:hover:bg-transparent " +
   "focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)] focus-visible:outline-ring"
+
+/**
+ * GLIDE, the third of the five interaction motions (ADR 0031): the chosen
+ * segment's lift is one object, the puck, and it moves to the segment chosen
+ * next rather than one segment losing its card and another gaining one. The
+ * motion doctrine calls that the difference between a morph and a swap: a
+ * swap reads as a different control, and a morph reads as this control's
+ * choice moving. It travels on `spring-snap`, the spring tokens/motion.json
+ * names for a segmented control, and passes its stop by 1.5% of the distance
+ * before it settles. A choice of view is never a reading, so the overshoot is
+ * allowed.
+ *
+ * It draws the same card, hairline and shadow the chosen segment draws on its
+ * own, and sits under the labels, which are positioned and come after it, so
+ * no label moves. It is `aria-hidden` and takes no pointer events, because the
+ * state a reader depends on is still each radio's `aria-checked`.
+ *
+ * It transitions `width` and `height` as well as `translate`, which the motion
+ * foundation otherwise forbids, and this is the exception that page names. The
+ * rule exists because animating a box's size reflows everything after it, and
+ * an absolutely positioned indicator reflows nothing, while a capsule scaled
+ * to a new width would stretch its rounded ends and its hairline instead.
+ *
+ * It stays `hidden` until it has been measured, because a server render or a
+ * reader without the script has no geometry to give it, and the chosen
+ * segment draws its own lift until then. Going from `hidden` to shown starts
+ * no transition, so a row that mounts with a choice shows the puck already in
+ * place with no slide. Under `prefers-reduced-motion: reduce` `spring-snap`
+ * collapses to 0ms in the generated sheet, so the puck is under the new choice
+ * the frame after it is made.
+ */
+const PUCK =
+  "pointer-events-none absolute top-0 left-0 hidden group-data-[glide]/track:block " +
+  "rounded-full border border-border bg-card shadow-[0_1px_3px_oklch(0_0_0/0.14)] " +
+  "transition-[translate,width,height] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap"
+
+/**
+ * Move the puck onto the chosen segment, or hide it when nothing is chosen.
+ *
+ * It writes the geometry straight onto the element rather than through React
+ * state, because it is a measurement of what React has just laid out and
+ * setting state from a layout effect would render the row twice for nothing.
+ * The rectangles are divided by the track's own rendered scale, so a row
+ * measured while an ancestor is mid-transform, a dialog arriving from 0.95
+ * for one, is still placed in the track's own coordinates rather than shrunk
+ * by the ancestor's scale. With `animate` false the move is committed with the
+ * transition switched off, which is how a change of size, such as the reader
+ * raising their text size, re-seats the puck without a slide.
+ */
+function placePuck(track: HTMLElement | null, puck: HTMLElement | null, animate: boolean): void {
+  if (!track || !puck) return
+  const chosen = track.querySelector<HTMLElement>(
+    '[data-slot="segmented-control-segment"][data-checked]',
+  )
+  if (!chosen) {
+    track.removeAttribute("data-glide")
+    return
+  }
+  const from = track.getBoundingClientRect()
+  const to = chosen.getBoundingClientRect()
+  const scaleX = track.offsetWidth > 0 ? from.width / track.offsetWidth : 1
+  const scaleY = track.offsetHeight > 0 ? from.height / track.offsetHeight : 1
+  if (!animate) puck.style.transition = "none"
+  puck.style.width = `${to.width / scaleX}px`
+  puck.style.height = `${to.height / scaleY}px`
+  puck.style.translate =
+    `${(to.left - from.left) / scaleX - track.clientLeft}px ` +
+    `${(to.top - from.top) / scaleY - track.clientTop}px`
+  track.setAttribute("data-glide", "")
+  if (!animate) {
+    /* Reading layout here commits the jump before the transition comes back. */
+    puck.getBoundingClientRect()
+    puck.style.transition = ""
+  }
+}
 
 /**
  * Development warnings, said once per distinct offender. Nothing here has an
@@ -203,6 +284,25 @@ export function SegmentedControl({
   fullWidth = false,
   className,
 }: SegmentedControlProps) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const puckRef = useRef<HTMLSpanElement>(null)
+
+  /* Re-seat the puck, without a slide, whenever the row changes size: the
+     reader's text size, a container query or a wrapping label. */
+  useLayoutEffect(() => {
+    const track = trackRef.current
+    if (!track || typeof ResizeObserver === "undefined") return
+    const observer = new ResizeObserver(() => placePuck(track, puckRef.current, false))
+    observer.observe(track)
+    return () => observer.disconnect()
+  }, [])
+
+  /* Glide to the new choice. The options, the size and the width are listed
+     because each can move the chosen segment without the row changing size. */
+  useLayoutEffect(() => {
+    placePuck(trackRef.current, puckRef.current, true)
+  }, [value, options, size, fullWidth])
+
   if (isDevelopment()) {
     if (!Array.isArray(options) || options.length === 0) {
       warnDev(
@@ -250,12 +350,19 @@ export function SegmentedControl({
 
   return (
     <RadioGroup
+      ref={trackRef}
       data-slot="segmented-control"
       aria-label={label}
       value={value}
       onValueChange={(next) => onValueChange(String(next))}
       className={cn(TRACK, fullWidth ? "flex w-full" : null, className)}
     >
+      <span
+        ref={puckRef}
+        aria-hidden="true"
+        data-slot="segmented-control-indicator"
+        className={PUCK}
+      />
       {options.map((option) => (
         <Radio.Root
           key={option.value}

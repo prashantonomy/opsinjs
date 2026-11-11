@@ -84,7 +84,9 @@ Base UI renders `aria-haspopup`, `role="menu"` and `role="menuitem"`, and wires 
 popup's accessible name to the trigger. The highlighted item takes real keyboard focus,
 so a house focus ring on `focus-visible` marks it, drawn inward so the scroll clip never
 cuts it. A disabled row drops to the muted ink, and Escape and a choice both return focus
-to the trigger. Axe, target size, focus and reflow came back clean, and
+to the trigger. The popup unfolds from its trigger, opened by pointer or by keyboard
+alike, and Escape closes it at once. Under `prefers-reduced-motion` only a short opacity
+crossfade remains. Axe, target size, focus and reflow came back clean, and
 `pnpm run check:a11y` confirms on every commit that there is no colour literal and no
 `px` type size, and that every item floors at `--opsin-target-minimum`.
 

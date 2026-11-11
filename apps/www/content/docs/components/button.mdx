@@ -80,7 +80,10 @@ growing when it appears.
 
 It is a real `button` with the platform role and keys, named by its visible label,
 with the icon `aria-hidden`. `busy` works through `aria-busy` and `aria-disabled`, so
-the control keeps its tab stop, and the outline focus ring never shifts layout.
+the control keeps its tab stop, and the outline focus ring never shifts layout. A press
+sinks it to 0.97 on pointer-down and lets it settle back on `spring-snap`, and a busy
+control does not sink. Under `prefers-reduced-motion` the sink is a single frame with no
+travel. [Motion](../foundations/motion.mdx) sets out all five interaction motions.
 Rendered, it shows no axe, target-size, focus-visible or reflow failure, and the audit
 changed nothing.
 

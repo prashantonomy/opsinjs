@@ -14,7 +14,7 @@ Every interactive component must implement all six, or its page must say why not
 | State | Rule |
 | --- | --- |
 | Hover | Pointer only, so never the only signal. A small lightness step, darker in the light theme and lighter in the dark |
-| Press | Applied on pointer-down, not on click, on `duration-instant` |
+| Press | Applied on pointer-down, not on click, on `duration-instant`, and released on `spring-snap`, or on `duration-fast` where the control holds a reading |
 | Focus | `:focus-visible` only. An offset outline outside the box, in one system-wide colour, so it never moves layout or gets clipped |
 | Selected | Persistent and distinct from focus. A fill and a mark, never a fill alone |
 | Disabled | Dimmed, with no pointer affordance, but readable. It leaves the tab order, so state the reason where a keyboard user will find it |
@@ -26,11 +26,7 @@ States resolve in a fixed order: disabled, busy, pressed, selected, focus, hover
 - A state is never a verdict. A tapped result card may darken, but it never takes a [status colour](../health/two-colour-axes.mdx).
 - When a control becomes disabled or disappears, focus moves somewhere documented, never to the document body.
 
-Press is implemented on Button and [Link](../components/link.mdx), and every component built from them inherits it.
-
-<Todo>
-  The close controls on [Dialog](../components/dialog.mdx) and [Sheet](../components/sheet.mdx) change on hover but give a touch no press cue.
-</Todo>
+Press is implemented on Button and [Link](../components/link.mdx), and every component built from them inherits it. It is also on a linked Card and MetricTile, and on the close controls of [Dialog](../components/dialog.mdx), [Sheet](../components/sheet.mdx) and [Toast](../components/toast.mdx). [Motion](./motion.mdx) sets out how it moves.
 
 Derived state values and their measured contrast are not generated yet.
 

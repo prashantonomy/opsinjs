@@ -89,7 +89,10 @@ Roles, names, the polite live region, pause on hover and focus, Escape and focus
 all come correctly from `@base-ui/react`. The X icon is `aria-hidden` and the close
 carries a translatable `aria-label`. Colours are role tokens, type sizes are
 `text-opsin-*` tokens, and the controls floor their hit area at `--opsin-target-minimum`.
-There is no axe, target-size or 320px reflow failure.
+There is no axe, target-size or 320px reflow failure. A toast follows a finger that
+swipes it, springs back if let go early and leaves the way it was thrown. The close
+control does the same job for a reader who cannot swipe. Under `prefers-reduced-motion`
+its arrival is a short fade with no travel.
 
 **Residual items.**
 
@@ -138,4 +141,4 @@ There is no axe, target-size or 320px reflow failure.
 
 <PropsTable name="ToastProps" />
 
-`position` defaults to `bottom-right`, `limit` to three and `timeout` to 5000ms. Passing `timeout={0}` stops every toast dismissing itself and raises a development warning, because a message that must persist is an AlertBanner or a Callout. `label` and `closeLabel` are props so they can be translated, and both default to English.
+`position` defaults to `bottom-right`, `limit` to three and `timeout` to 5000ms. A toast swipes away from the edge it is docked to and towards its own corner, so a top-docked toast is thrown up rather than down, and a centred one either way. Passing `timeout={0}` stops every toast dismissing itself and raises a development warning, because a message that must persist is an AlertBanner or a Callout. `label` and `closeLabel` are props so they can be translated, and both default to English.

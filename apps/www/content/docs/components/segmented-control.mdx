@@ -78,7 +78,10 @@ charts, which is why it is a radiogroup. The chart is a placeholder.
 It is a radio group, so the row is one tab stop with a roving focus, with
 `radiogroup` plus `radio` and `aria-checked` per segment for name, role and
 value. Selection is carried three ways and never by colour alone: `aria-checked`,
-the card surface lifting the segment off the track, and a hairline. The audit
+the card surface lifting the segment off the track, and a hairline. That lift is one
+`aria-hidden` puck which glides to the next choice on `spring-snap`, and until the
+script has measured the row the chosen segment draws the same lift itself. Under
+`prefers-reduced-motion` the puck moves in one frame. The audit
 moved the 44px hit-area floor from the height axis alone onto both axes, matching
 `scale-input` and `tab-bar`, because a single-character label or the `sm` size
 could shrink a segment below the house minimum.
@@ -139,3 +142,26 @@ could shrink a segment below the house minimum.
 state. A `value` matching no option renders the row with nothing chosen and
 raises a development warning. `label` is required: a radiogroup with no
 accessible name is a defect the type system cannot otherwise prevent.
+
+### Data attributes
+
+<DataAttributesTable
+  name="segmented-control"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and every inner part",
+      value: "segmented-control, segmented-control-indicator, segmented-control-segment, segmented-control-label",
+    },
+    {
+      attribute: "data-checked / data-unchecked",
+      condition: "On each segment, one or the other",
+      value: "Present with no value; reflects the choice",
+    },
+    {
+      attribute: "data-glide",
+      condition: "On the root once the puck has been measured and placed",
+      value: "Present with no value; the chosen segment hands its lift to the puck",
+    },
+  ]}
+/>

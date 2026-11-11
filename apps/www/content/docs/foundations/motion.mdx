@@ -28,11 +28,30 @@ A transition that does none of these five jobs probably should not exist.
 | --- | --- | --- |
 | Enter | Decelerates into place | `ease-enter` with `duration-base`, or `duration-slow` for a full-width or full-height surface |
 | Exit | Accelerates, about two thirds as long as its enter | `ease-exit` with `duration-fast` |
-| Feedback | Acknowledges a touch on pointer-down | `duration-instant` |
+| Feedback | Acknowledges a touch on pointer-down and settles on release | `duration-instant` down, `spring-snap` back |
 | Navigation | The surface beneath recedes and dims | `spring-sheet` |
 | Loading | Loops, so it alone uses keyframes | `duration-shimmer` |
 
 Duration follows distance, not importance, and `duration-deliberate` is the ceiling for anything a reader waits on. Use transitions wherever a reader can interrupt, because a transition reverses from wherever it is. Controls accept input while they animate.
+
+## Five interaction motions
+
+Each is one job above, on the token kept for it, and built into the components listed. Try them, then again with reduced motion on.
+
+<ComponentPreview name="motion-the-five-interactions" kind="example" align="start" minHeight={600} />
+
+| Motion | What moves | Components | Timing | Under reduced motion |
+| --- | --- | --- | --- | --- |
+| Press | A capsule sinks to 0.97 and settles back | Button, a button-shaped Link, the close controls on Dialog, Sheet and Toast | `duration-instant` down, `spring-snap` up | One frame, no travel |
+| Press on a surface | A linked tile sinks to 0.98, with no overshoot | Card, MetricTile | `duration-instant` down, `duration-fast` up | One frame, no travel |
+| Toggle | The thumb squashes while held and travels, the tick draws itself, the dot grows | Switch, Checkbox, RadioGroup | `spring-snap` | No squash, one frame |
+| Glide | One puck or bar moves to the new choice | SegmentedControl, Tabs | `spring-snap` | One frame |
+| Unfold | A popup grows from its anchor and comes into focus from a slight blur | Popover, Menu, Select, Combobox, Tooltip | `spring-settle` in, `ease-exit` out | A short crossfade |
+| Arrive | A toast rises from its edge, follows a swipe and leaves the way it was thrown | Toast | `spring-settle` in, `ease-exit` out | A short fade, and the swipe still follows |
+
+- None of the five moves a value. A tile holding a reading never springs, and Value, RangeBar and ScoreDial stay still.
+- A link inside a sentence keeps its one-pixel press, because a word in running text should not change size.
+- Escape closes a popup at once, and a tooltip reached with Tab appears at once.
 
 ## Health values
 
@@ -90,7 +109,7 @@ Base UI keeps a leaving element mounted and marks it with `data-starting-style` 
 }
 ```
 
-Transition `opacity`, `translate`, `scale` or `filter`, never `width`, `height`, `top` or `margin`. An exit does not run if you unmount the element yourself.
+Transition `opacity`, `translate`, `scale` or `filter`, never `width`, `height`, `top` or `margin`. The exception is an absolutely positioned selection indicator, such as the SegmentedControl puck or the Tabs bar, which may transition its width and height because it reflows nothing. An exit does not run if you unmount the element yourself.
 
 ## Sound and haptics
 

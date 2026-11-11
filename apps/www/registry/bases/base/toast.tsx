@@ -125,26 +125,110 @@ const TOAST_ROOT =
   "[color:var(--foreground)]"
 
 /**
- * The entrance and the exit, and what a reader who asked for less motion gets
- * instead of nothing.
+ * ARRIVE, the fifth of the five interaction motions (ADR 0031): how a toast
+ * comes in, how it follows a finger, and how it goes.
  *
- * A toast fades in and rises a short fixed distance on the way in, and reverses
- * it on the way out, on the fast duration and the standard easing that the rest
- * of the chrome uses. Under `prefers-reduced-motion` the travel is pinned to its
- * resting value and the opacity crossfade is kept, so the toast still announces
- * itself by appearing rather than being removed between frames, which is the
- * fallback the motion doctrine asks for. The travel is an arbitrary
- * `translate-y-[var(--opsin-space-2,0.5rem)]` with a literal fallback rather
- * than a space-step utility, so how far the surface moves does not track the
- * reader's density setting and survives a consumer who has no token sheet.
+ * It comes forward from the edge it is docked to. It rises a short fixed
+ * distance and grows from 0.96 while it fades in, on `spring-settle`, which
+ * tokens/motion.json names for chips appearing and disappearing and which
+ * passes its target by under 1% of the distance before it settles. The travel
+ * is short on purpose: the motion doctrine asks an arriving surface to come
+ * forward rather than slide across the screen, and a toast nobody summoned by
+ * dragging should not cross the page to get here. Which way it rises is the
+ * edge's, in `ARRIVE_FROM` below.
+ *
+ * While a finger is on it, it follows the finger exactly. Base UI already
+ * recognises the swipe and writes the distance into `--toast-swipe-movement-x`
+ * and `-y`, and before this file read them nothing on screen moved until the
+ * toast was gone, so the reader had no sign the gesture was taking. The
+ * resting `translate` is those two variables, and `data-[swiping]` drops the
+ * transition to zero so the surface stays under the finger with no lag. Let
+ * go short of the threshold and Base UI returns both to zero, so the toast
+ * springs home on the same `spring-settle`. Let go past it and the toast
+ * leaves the way it was thrown, `ENDING_SWIPE` below, accelerating on
+ * `ease-exit` over `duration-fast`, because a reader does not need to watch a
+ * dismissal finish. A toast that times out, or is closed with its control,
+ * fades and sinks back to 0.96 where it stands on the same exit timing.
+ *
+ * Nothing here carries meaning. A toast confirms the reader's own action and
+ * never a reading, so no motion in it touches a value or a status, and it is
+ * the reader's own throw, not the product, that sends it sideways.
+ *
+ * Under `prefers-reduced-motion: reduce` the arrival's travel and scale are
+ * pinned to rest, and `spring-settle` collapses in the generated sheet to a
+ * 100ms linear fade, so the toast still announces itself by appearing rather
+ * than being removed between frames, which is the fallback the motion
+ * doctrine asks for. The exit runs on `duration-fast`, which the product
+ * sheet collapses to 1ms, so its travel is never drawn. The finger-follow
+ * stays, because a surface moving with the reader's own finger is the
+ * reader's motion and not an animation. The travel is an arbitrary value with
+ * a literal fallback rather than a space-step utility, so how far the surface
+ * moves does not track the reader's density setting and survives a consumer
+ * who has no token sheet.
  */
 const MOTION =
-  "transition-[opacity,translate] duration-(--opsin-duration-fast) ease-opsin-standard " +
-  "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 " +
-  "data-[starting-style]:translate-y-[var(--opsin-space-2,0.5rem)] " +
-  "data-[ending-style]:translate-y-[var(--opsin-space-2,0.5rem)] " +
-  "motion-reduce:transition-opacity " +
-  "motion-reduce:data-[starting-style]:translate-y-0 motion-reduce:data-[ending-style]:translate-y-0"
+  "[translate:var(--toast-swipe-movement-x,0px)_var(--toast-swipe-movement-y,0px)] " +
+  "transition-[opacity,translate,scale] duration-(--opsin-duration-spring-settle) ease-opsin-spring-settle " +
+  "data-[swiping]:duration-0 " +
+  "data-[starting-style]:opacity-0 data-[starting-style]:scale-96 " +
+  "data-[ending-style]:opacity-0 data-[ending-style]:scale-96 " +
+  "data-[ending-style]:duration-(--opsin-duration-fast) data-[ending-style]:ease-opsin-exit " +
+  "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100"
+
+/**
+ * Where a toast rises from, per edge: up from below for a stack docked to the
+ * bottom, down from above for one docked to the top. Spelled as two literal
+ * class strings because Tailwind reads class names out of source as text. The
+ * reduced-motion arm pins the start to rest, as `MOTION` sets out.
+ */
+const ARRIVE_FROM: Record<"top" | "bottom", string> = {
+  top:
+    "data-[starting-style]:[translate:0_calc(var(--opsin-space-4,1rem)*-1)] " +
+    "motion-reduce:data-[starting-style]:[translate:0_0]",
+  bottom:
+    "data-[starting-style]:[translate:0_var(--opsin-space-4,1rem)] " +
+    "motion-reduce:data-[starting-style]:[translate:0_0]",
+}
+
+/**
+ * Where a thrown toast goes: its own width or height plus a gutter past where
+ * the finger let it go, in the direction Base UI recorded on
+ * `data-swipe-direction`. The axis the throw was not along keeps whatever
+ * distance the finger had moved on it, so the toast leaves along the line it
+ * was travelling rather than snapping back onto the axis first.
+ */
+const ENDING_SWIPE =
+  "data-[ending-style]:data-[swipe-direction=right]:[translate:calc(100%+var(--opsin-space-6,1.5rem))_var(--toast-swipe-movement-y,0px)] " +
+  "data-[ending-style]:data-[swipe-direction=left]:[translate:calc(-100%-var(--opsin-space-6,1.5rem))_var(--toast-swipe-movement-y,0px)] " +
+  "data-[ending-style]:data-[swipe-direction=down]:[translate:var(--toast-swipe-movement-x,0px)_calc(100%+var(--opsin-space-6,1.5rem))] " +
+  "data-[ending-style]:data-[swipe-direction=up]:[translate:var(--toast-swipe-movement-x,0px)_calc(-100%-var(--opsin-space-6,1.5rem))]"
+
+/**
+ * The directions a toast may be thrown, per position. Away from the edge it is
+ * docked to, never towards the middle of the screen, and sideways towards the
+ * corner it sits in; a centred stack can be thrown either way. Base UI's own
+ * default is down and right whatever the placement, which sent a toast docked
+ * to the top down across the page it was meant to stay out of.
+ */
+const SWIPE: Record<ToastPosition, ("up" | "down" | "left" | "right")[]> = {
+  "top-left": ["up", "left"],
+  "top-center": ["up", "left", "right"],
+  "top-right": ["up", "right"],
+  "bottom-left": ["down", "left"],
+  "bottom-center": ["down", "left", "right"],
+  "bottom-right": ["down", "right"],
+}
+
+/**
+ * The press the toast's two controls share, which is Button's (ADR 0031): down
+ * to 0.97 on pointer-down over `duration-instant`, back on `spring-snap`, with
+ * the hover fill and the ink riding the same timing. It is spelled here rather
+ * than borrowed because neither control is a Button. Under reduced motion both
+ * durations collapse, so the press is a change of state within one frame.
+ */
+const PRESS =
+  "transition-[color,background-color,scale] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+  "active:scale-97 active:duration-(--opsin-duration-instant) active:ease-opsin-standard"
 
 /**
  * The optional action inside a toast, such as Undo. It is a quiet text control
@@ -157,7 +241,7 @@ const TOAST_ACTION =
   "mt-opsin-1 inline-flex items-center self-start rounded-opsin-sm px-opsin-1 " +
   "min-h-(--opsin-target-minimum,2.75rem) text-opsin-footnote font-medium " +
   "underline underline-offset-2 [color:var(--foreground)] cursor-pointer " +
-  "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard hover:bg-state-hover " +
+  `${PRESS} hover:bg-state-hover ` +
   "focus-visible:outline-ring focus-visible:outline-[length:var(--opsin-border-focus,2px)] " +
   "focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)]"
 
@@ -173,7 +257,7 @@ const TOAST_CLOSE =
   "-mt-opsin-2 -mr-opsin-2 inline-flex shrink-0 items-center justify-center rounded-opsin-sm " +
   "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) " +
   "text-opsin-body [color:var(--muted-foreground)] cursor-pointer " +
-  "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
+  `${PRESS} ` +
   "hover:bg-state-hover hover:[color:var(--foreground)] " +
   "focus-visible:outline-ring focus-visible:outline-[length:var(--opsin-border-focus,2px)] " +
   "focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)]"
@@ -200,15 +284,17 @@ function warnDev(key: string, message: string): void {
  * A title, a description and an action are each drawn only when the pushed toast
  * carries one, so an empty element is never announced.
  */
-function ToastList({ closeLabel }: { closeLabel: string }) {
+function ToastList({ closeLabel, position }: { closeLabel: string; position: ToastPosition }) {
   const { toasts } = ToastPrimitive.useToastManager()
+  const edge = position.startsWith("top") ? "top" : "bottom"
 
   return toasts.map((toast) => (
     <ToastPrimitive.Root
       key={toast.id}
       toast={toast}
+      swipeDirection={SWIPE[position]}
       data-slot="toast"
-      className={cn(TOAST_ROOT, MOTION)}
+      className={cn(TOAST_ROOT, MOTION, ARRIVE_FROM[edge], ENDING_SWIPE)}
     >
       <div data-slot="toast-body" className="flex min-w-0 flex-1 flex-col gap-opsin-1">
         {toast.title ? (
@@ -339,7 +425,7 @@ export function Toast({
         aria-label={label}
         className={cn(VIEWPORT, POSITION[position], className)}
       >
-        <ToastList closeLabel={closeLabel} />
+        <ToastList closeLabel={closeLabel} position={position} />
       </ToastPrimitive.Viewport>
     </ToastPrimitive.Provider>
   )

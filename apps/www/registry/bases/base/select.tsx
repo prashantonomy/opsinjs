@@ -118,6 +118,41 @@ const VALUE =
 const ICON = "flex shrink-0 items-center [color:var(--muted-foreground)]"
 
 /**
+ * UNFOLD, the fourth of the five interaction motions (ADR 0031), shared by every
+ * popup in the system so a list opens the way a menu, a select, a combobox, a
+ * popover and a tooltip all do.
+ *
+ * The list grows out of the trigger that opened it rather than appearing out
+ * of nowhere. `origin-(--transform-origin)` reads the point Base UI's
+ * positioner computes on the trigger's side of the popup, so it scales up from
+ * there and collapses back into it. It arrives from 0.96 and slightly soft, a
+ * 4px blur that clears as it settles, so it comes into focus the way an object
+ * does when it is brought close, on `spring-settle`, the spring
+ * tokens/motion.json names for popovers, tooltips and menus. It leaves faster
+ * than it came, to 0.98 and transparent on `ease-exit` over `duration-fast`,
+ * because a reader does not need to watch a dismissal finish. When Escape, or
+ * a second press on the control that opened it, closes it, Base UI marks the
+ * popup `data-instant="dismiss"`, and that cancels the transition, so a reader
+ * who asked for it gone has it gone at once. Base UI also marks a popup opened from the keyboard
+ * `data-instant="click"`, and that one is ignored on purpose: a reader who
+ * opens it with Enter sees the same unfold as a reader with a pointer.
+ *
+ * Under `prefers-reduced-motion: reduce` the scale and the blur are pinned to
+ * rest, and `spring-settle` collapses in the generated sheet to a 100ms linear
+ * fade, so the list still visibly appears and does not travel. The exit's
+ * `duration-fast` collapses to 1ms. The list holds the options of a choice and never a reading, so nothing here animates a value.
+ */
+const UNFOLD =
+  "origin-(--transform-origin) " +
+  "transition-[opacity,scale,filter] duration-(--opsin-duration-spring-settle) ease-opsin-spring-settle " +
+  "data-[starting-style]:opacity-0 data-[starting-style]:scale-96 data-[starting-style]:blur-xs " +
+  "data-[ending-style]:opacity-0 data-[ending-style]:scale-98 " +
+  "data-[ending-style]:duration-(--opsin-duration-fast) data-[ending-style]:ease-opsin-exit " +
+  "data-[instant=dismiss]:transition-none " +
+  "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[starting-style]:blur-none " +
+  "motion-reduce:data-[ending-style]:scale-100"
+
+/**
  * The popup surface, spelled once. A raised card with a hairline: `bg-card`
  * lifts it off whatever it floats over, `border-border` draws its edge for
  * greyscale, and the `overlay` material rung casts the one black-alpha shadow the
@@ -127,11 +162,13 @@ const ICON = "flex shrink-0 items-center [color:var(--muted-foreground)]"
  * an internal scroll, so a long list stays inside the viewport rather than
  * growing past it. Consuming the material token rather than a raw shadow literal
  * keeps this file inside the colour contract.
+ * Its entrance and exit are `UNFOLD`, set out above.
  */
 const POPUP =
   "z-50 max-h-[var(--available-height)] min-w-[var(--anchor-width)] overflow-y-auto " +
   "rounded-opsin-md border border-edge bg-card p-opsin-1 " +
-  "shadow-(--opsin-material-raised-shadow) [color:var(--foreground)]"
+  "shadow-(--opsin-material-raised-shadow) [color:var(--foreground)] " +
+  UNFOLD
 
 /**
  * One option row, spelled once. A full-width row with the label on the left and

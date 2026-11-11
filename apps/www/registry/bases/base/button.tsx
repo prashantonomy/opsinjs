@@ -161,8 +161,8 @@ function hasNoLabel(children: ReactNode): boolean {
  * surface in the direction `foundations/interaction-states` specifies, darker
  * in light and lighter in dark, rather than back towards it the way the old
  * `bg-muted` borrow did. Press is a different value from hover, so a tap now
- * reads even without the 1px shift, and `active:translate-y-px` stays as the
- * one press cue that needs no colour at all. The honest figures, named in full
+ * reads even without the sink, and the sink set out on `PRESS` below stays as
+ * the one press cue that needs no colour at all. The honest figures, named in full
  * rather than by the friendlier one alone: the light neutral hover fill reaches
  * only 1.14:1 against the surfaces and the press fill 1.23:1, both under the
  * 1.5:1 the audit asked for, because `--background` and `--card` sit so near
@@ -252,7 +252,7 @@ function hasNoLabel(children: ReactNode): boolean {
  */
 const TONE: Record<ButtonVariant, string> = {
   primary:
-    "border-primary-edge bg-primary [color:var(--primary-foreground)] shadow-[0_10px_26px_-12px_var(--brand-glow)] hover:bg-state-primary-hover active:bg-state-primary-press not-disabled:aria-busy:bg-state-primary-press forced-colors:[background-color:Highlight] forced-colors:[color:HighlightText] forced-colors:border-[Highlight] forced-colors:forced-color-adjust-none",
+    "border-primary-edge bg-primary [color:var(--primary-foreground)] shadow-[0_10px_26px_-12px_var(--brand-glow)] not-aria-disabled:active:shadow-[0_4px_12px_-8px_var(--brand-glow)] hover:bg-state-primary-hover active:bg-state-primary-press not-disabled:aria-busy:bg-state-primary-press forced-colors:[background-color:Highlight] forced-colors:[color:HighlightText] forced-colors:border-[Highlight] forced-colors:forced-color-adjust-none",
   secondary:
     "border-border bg-card [color:var(--foreground)] hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
   quiet:
@@ -260,6 +260,42 @@ const TONE: Record<ButtonVariant, string> = {
   destructive:
     "border-foreground bg-transparent [color:var(--foreground)] hover:bg-state-hover active:bg-state-press not-disabled:aria-busy:bg-state-press",
 }
+
+/**
+ * THE PRESS, the first of the five interaction motions (ADR 0031), spelled once
+ * for both transports: Button's own root, and the link arms of the card action
+ * recipe at the foot of this file, so a recommended action sinks the same way
+ * whether it acts or navigates.
+ *
+ * It is asymmetric, and the asymmetry is the design. `foundations/states` asks
+ * for a press applied on pointer-down on `duration-instant`, and the use
+ * tokens/motion.json writes for `spring-snap` names a pressed button settling.
+ * CSS takes a transition's timing from the style it is changing TO, so the rest
+ * state carries the spring and `:active` carries the instant. Going down runs
+ * on the 80ms standard curve; coming back up runs on the snap spring, which
+ * passes its rest size by 1.5% of the distance travelled and settles. The
+ * fill, the boundary and the primary rung's glow ride the same timing as the
+ * scale, so the colour and the shape move as one object rather than the colour
+ * landing first. The glow is drawn closer on press in TONE above, as though the
+ * capsule had come down towards its own light.
+ *
+ * 0.97 reads as a press under a thumb and is small enough that the label does
+ * not visibly soften. It is `scale`, the individual transform property, and not
+ * `transform`, so it composes with anything a caller translates, and it never
+ * changes layout. Nothing a press moves displays a value, which is the one
+ * thing `spring-snap` is barred from.
+ *
+ * Under `prefers-reduced-motion: reduce` the generated sheet collapses
+ * `spring-snap` to 0ms and the product sheet collapses `instant` to 1ms, so the
+ * sink becomes a change of state within one frame, with no travel to watch.
+ * That is the cue the old one-pixel shift gave, and nothing here needs a
+ * branch of its own. Without the generated sheet the durations are undeclared,
+ * the transition is zero, and the press still shows, at once.
+ */
+const PRESS =
+  "transition-[color,background-color,border-color,box-shadow,scale] " +
+  "duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+  "active:scale-97 active:duration-(--opsin-duration-instant) active:ease-opsin-standard"
 
 /**
  * The boundary width per variant, as the token rather than as a number.
@@ -556,16 +592,11 @@ export function Button({
            shrink to its padding. 2.75rem grows with the reader's text size. */
         "min-h-(--opsin-target-minimum,2.75rem)",
         /* The second piece of motion in this file, and the one that needs no
-           branch: `--opsin-duration-fast` collapses to 1ms inside the product
-           stylesheet's own reduced-motion block, so the colour change becomes
-           instant for a reader who asked for that and nothing here has to know. */
-        "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard",
-        /* The press acknowledgement, and the only state signal in this file that
-           does not depend on colour. `transition-colors` deliberately excludes
-           transform, so the shift is instantaneous rather than animated. That
-           is what `prefers-reduced-motion` asks a press feedback to be, so this
-           needs no reduced-motion branch and behaves identically for everybody. */
-        "active:translate-y-px",
+           branch: the press, which carries the hover and press fills with it
+           and is the only state signal here that does not depend on colour.
+           `PRESS` above sets out the timing and what a reader who asked for
+           reduced motion gets instead. */
+        PRESS,
         /* Drawn outside the box with an offset, so it never changes layout.
            It IS clipped by an ancestor that clips. An outline is painted by the
            element and an `overflow: hidden` parent eats it, which is a property
@@ -643,8 +674,8 @@ export function Button({
            `cursor-progress`, so the pointer itself says wait, which
            `pointer-events: none` would have hidden along with the hover it was
            there to suppress. Keeping the events also restores `:active` on a
-           control that refuses activation, so `aria-disabled:active:translate-y-0`
-           cancels the 1px press nudge: the impatient tap is swallowed here rather
+           control that refuses activation, so `aria-disabled:active:scale-100`
+           cancels the sink: the impatient tap is swallowed here rather
            than forwarded, and a control that answers no activation gives no press
            movement either, because there is no press to acknowledge. The hover
            fill is suppressed anyway, because the busy fill in TONE now carries a
@@ -653,7 +684,7 @@ export function Button({
            control. Neither state touches the tab order. Busy keeps its stop by construction, and a natively disabled
            control loses it to the platform rather than to this rule. */
         "disabled:bg-muted disabled:text-muted-foreground disabled:border-border disabled:pointer-events-none",
-        "aria-disabled:cursor-progress aria-disabled:active:translate-y-0",
+        "aria-disabled:cursor-progress aria-disabled:active:scale-100",
         TONE[variant],
         SIZE[size],
         fullWidth ? "w-full" : null,
@@ -821,22 +852,27 @@ export function cardActionClassName(options: {
   /* as === "link". The anchor brings nothing of its own, so the recipe returns
      the whole class list: the box, the type step, the ink and the ring, plus a
      fill and a boundary on the neutral recommended arm, and a boundary on both
-     tinted arms. */
+     tinted arms. Every arm sinks on `PRESS`, the same press the handler twin
+     gets from Button's root, so the two transports still answer a tap alike. */
   if (weight === "recommended") {
     return ground === "tinted"
       ? `${CARD_ACTION_BOX} rounded-full border-2 px-opsin-5 py-opsin-2 ` +
-          "text-center text-opsin-headline active:translate-y-px " +
+          "text-center text-opsin-headline " +
+          `${PRESS} ` +
           `hover:bg-muted ${CARD_ACTION_RING}`
       : `${CARD_ACTION_BOX} rounded-full border border-border bg-card px-opsin-5 py-opsin-2 ` +
-          "text-center text-opsin-headline [color:var(--foreground)] active:translate-y-px " +
+          "text-center text-opsin-headline [color:var(--foreground)] " +
+          `${PRESS} ` +
           `hover:bg-state-hover ${CARD_ACTION_RING}`
   }
   return ground === "tinted"
     ? `${CARD_ACTION_BOX} rounded-full border border-current px-opsin-4 py-opsin-1 ` +
-        "text-center text-opsin-subheadline-emphasis active:translate-y-px " +
+        "text-center text-opsin-subheadline-emphasis " +
+        `${PRESS} ` +
         `hover:bg-muted ${CARD_ACTION_RING}`
     : `${CARD_ACTION_BOX} rounded-full px-opsin-2 py-opsin-1 ` +
-        "text-center text-opsin-subheadline-emphasis [color:var(--brand-ink)] active:translate-y-px " +
+        "text-center text-opsin-subheadline-emphasis [color:var(--brand-ink)] " +
+        `${PRESS} ` +
         `hover:bg-state-hover ${CARD_ACTION_RING}`
 }
 

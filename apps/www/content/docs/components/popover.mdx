@@ -80,7 +80,8 @@ since a control inside closes it.
 
 The panel is `role="dialog"`, named by `aria-labelledby`, and a missing title warns.
 Base UI moves focus into the panel on open and back to the trigger on close. The arrow
-is `aria-hidden`, and under `prefers-reduced-motion` only opacity crossfades. The
+is `aria-hidden`. The panel unfolds from its trigger and comes into focus as it
+settles, and under `prefers-reduced-motion` only a short opacity crossfade remains. The
 component uses only neutral chrome, the `overlay` shadow token and the `body` and
 `headline` steps, with no status colour, literal, ramp step or `px` size. The trigger's
 hit area was floored on height alone, so an icon-only trigger could clear the AA 24px

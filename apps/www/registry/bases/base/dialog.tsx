@@ -852,8 +852,15 @@ export function Dialog({
                        to `auto` and this control, the only exit from a modal
                        surface, would lose its floor with no error anywhere. */
                     "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) " +
-                    "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
-                    "hover:bg-muted " +
+                    /* It sinks when pressed, the press Button carries (ADR
+                       0031): down to 0.97 on pointer-down over
+                       `duration-instant`, back on `spring-snap`. Hover alone
+                       gave a touch reader nothing, and a tap on the way out of a
+                       modal that shows no change reads as a tap that missed.
+                       Under reduced motion both durations collapse to a frame. */
+                    "transition-[color,background-color,scale] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+                    "active:scale-97 active:duration-(--opsin-duration-instant) active:ease-opsin-standard " +
+                    "hover:bg-muted active:bg-muted " +
                     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   }
                 >

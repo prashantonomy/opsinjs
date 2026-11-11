@@ -1150,12 +1150,21 @@ export function Sheet({
                            action; the hover feedback is a `muted` background
                            rather than an ink change, since the ink is already the
                            foreground. Keep it quieter than the footer action and
-                           do not raise it to Button's step. */
+                           do not raise it to Button's step.
+
+                           IT SINKS WHEN PRESSED, the press Button carries (ADR
+                           0031): down to 0.97 on pointer-down over
+                           `duration-instant`, back on `spring-snap`. Hover alone
+                           gave a touch reader nothing, and on the one exit a form
+                           sheet guarantees, a tap that shows no change reads as a
+                           tap that missed. The fill rides the same timing, and
+                           under reduced motion both collapse to one frame. */
                         className={
                           "inline-flex min-h-(--opsin-target-minimum,2.75rem) shrink-0 items-center gap-opsin-1 " +
                           "rounded-opsin-sm px-opsin-2 text-opsin-callout text-foreground " +
-                          "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
-                          "hover:bg-muted " +
+                          "transition-[color,background-color,scale] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+                          "active:scale-97 active:duration-(--opsin-duration-instant) active:ease-opsin-standard " +
+                          "hover:bg-muted active:bg-muted " +
                           FOCUS_RING
                         }
                       >

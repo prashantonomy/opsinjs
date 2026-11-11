@@ -60,13 +60,14 @@ import { cn } from "@/lib/utils"
 /**
  * The whole labelled row, spelled once. It is a label element so a press
  * anywhere on it flips the switch, with the words on the left and the track on
- * the right. The 44pt target floor is `--opsin-target-minimum` in rem, so the
+ * the right. It is the named group `group/switch`, so the thumb can answer a
+ * press that lands on the words as well as one on the track. The 44pt target floor is `--opsin-target-minimum` in rem, so the
  * pressable region grows with the reader's text size rather than pinning at a
  * device pixel, with a literal fallback so the declaration stays valid where the
  * generated token sheet was not installed.
  */
 const ROW =
-  "flex w-full items-center justify-between gap-opsin-4 " +
+  "group/switch flex w-full items-center justify-between gap-opsin-4 " +
   "min-h-(--opsin-target-minimum,2.75rem) cursor-pointer select-none"
 
 /**
@@ -103,11 +104,30 @@ const TRACK =
  * than a change of layout, so it does not reflow the row, and a CSS transition
  * never fires on first paint, so a switch that mounts already on shows its thumb
  * on the right with no slide.
+ *
+ * TOGGLE, the second of the five interaction motions (ADR 0031). The travel
+ * runs on `spring-snap`, which tokens/motion.json names for exactly this, a
+ * switch the reader just flipped: it passes its stop by 1.5% of the distance
+ * and settles, which is enough to feel like a part that moved and not enough
+ * to look playful. While the row is held the thumb squashes, widened to 1.2
+ * times along the line it is about to travel and shifted by half the extra
+ * width, so its resting side stays where it is and it reaches towards the
+ * other. The figures are exact: the thumb is 1.25rem, so the squash adds
+ * 0.25rem centred on it and 0.125rem of shift keeps the far edge put. Let go
+ * and it travels and recovers its round shape on the same spring. Nothing a
+ * switch shows is a reading, so the overshoot is allowed here.
+ *
+ * Under `prefers-reduced-motion: reduce` the squash is never applied, because
+ * it sits behind `motion-safe:`, and `spring-snap` collapses to 0ms in the
+ * generated sheet, so the thumb is simply on the other side the frame after
+ * the flip.
  */
 const THUMB =
   "block size-opsin-5 rounded-full border border-border bg-card " +
-  "transition-transform duration-(--opsin-duration-fast) ease-opsin-standard " +
-  "data-[checked]:translate-x-[calc(1rem_-_2px)]"
+  "transition-[translate,scale] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+  "data-[checked]:translate-x-[calc(1rem_-_2px)] " +
+  "motion-safe:group-active/switch:scale-x-120 motion-safe:group-active/switch:translate-x-[0.125rem] " +
+  "motion-safe:data-[checked]:group-active/switch:translate-x-[calc(1rem_-_2px_-_0.125rem)]"
 
 /**
  * Development warnings, said once per distinct offender. Nothing here has an

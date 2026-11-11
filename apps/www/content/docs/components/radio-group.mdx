@@ -91,8 +91,10 @@ lifted ring and the filled dot, never on colour alone.
 - An option's `description` renders inside the radio, so the accessible name folds it in
   rather than exposing it through `aria-describedby`. It is announced and passes AA, and
   wiring it as a distinct description restructures the name, a redesign rather than a fix.
-- The colour transition on the row is not motion under 2.3.3, and its
-  `prefers-reduced-motion` handling lives in global product CSS.
+- The dot grows from the centre on `spring-snap` while the leaving one shrinks, and the
+  row's colour fades on `duration-fast`. Under `prefers-reduced-motion` the token sheets
+  collapse both to a single frame, which is what 2.3.3 asks of motion an interaction
+  starts.
 - Every colour is a role token, so no contrast ratio reads from the source. The measured
   pairs are the report below.
 

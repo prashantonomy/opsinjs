@@ -84,7 +84,9 @@ body without the card moving.
 
 Base UI's Tabs carries the tested WAI-ARIA pattern and the wrapper overrides none of
 it. Activation is manual, three sighted carriers plus `aria-selected` mark the active
-tab, and the row draws neutral chrome with no status or category axis. Rendered, it
+tab, and the row draws neutral chrome with no status or category axis. The indicator
+glides to the chosen tab on `spring-snap`, and under `prefers-reduced-motion` it moves in
+one frame. Rendered, it
 shows no axe violation, target-size breach, focus gap or 320px reflow, and the audit
 changed nothing.
 

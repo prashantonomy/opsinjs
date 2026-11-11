@@ -519,21 +519,20 @@ function actionControl(
          bordered control at the headline step; `secondary` is the quiet weight
          beside it. No brand fill, on either transport.
 
-         Two classes ride beside the recipe because they are about this card
-         rather than about the shared look. `text-wrap` sets the wrapping
-         property back where a consumer reset may have cleared it, so a label
-         that has to wrap at 200% text still can. `active:translate-y-px` is the
-         one-pixel press cue: instantaneous rather than animated, which is what
-         `prefers-reduced-motion` asks a press feedback to be, so it needs no
-         branch. The acting Button carries the same cue, so the two transports
-         acknowledge a press alike.
+         One class rides beside the recipe because it is about this card rather
+         than about the shared look. `text-wrap` sets the wrapping property back
+         where a consumer reset may have cleared it, so a label that has to wrap
+         at 200% text still can. The press is no longer added here. The recipe
+         now carries the sink itself, the same `PRESS` the acting Button's root
+         carries, so the two transports acknowledge a press alike without this
+         file adding a second cue on top of it.
 
-         THESE CLASSES RIDE THROUGH LINK'S `cn()`, SO THEY MAY SET ONLY WHAT THE
+         A CLASS HERE RIDES THROUGH LINK'S `cn()`, SO IT MAY SET ONLY WHAT THE
          RECIPE DOES NOT. `cn` is `twMerge(clsx(...))` with `tailwind-merge`
          left unconfigured, so a colour or a type step added here lands in the
          same `text-*` conflict group as the recipe's own `text-opsin-headline`
-         and one of the two is silently dropped with no error. The two classes
-         above are safe because neither touches that group. Anything that needs
+         and one of the two is silently dropped with no error. The class above
+         is safe because it does not touch that group. Anything that needs
          to change the shared ink or type step belongs in `cardActionClassName`
          in button.tsx, where the whole class list is built by concatenation for
          exactly this reason, not beside the recipe here.
@@ -546,7 +545,7 @@ function actionControl(
         key={key}
         href={action.href}
         emphasis={emphasis === "recommended" ? "action" : "secondary"}
-        className="text-wrap active:translate-y-px"
+        className="text-wrap"
       >
         {label}
         {qualifier}
@@ -578,9 +577,9 @@ function actionControl(
      which on this neutral ground is the empty string for both weights. Routing it through the recipe is what
      keeps this handler form and the Link form above from drifting, and it is
      why this file now holds no private action class string of its own. Button
-     carries the `active:translate-y-px` press cue in its own base class, so the
-     two transports still acknowledge a press alike without this file adding it
-     here. */
+     carries the press in its own base class, and the recipe gives the link arm
+     the same one, so the two transports still acknowledge a press alike without
+     this file adding it here. */
   return (
     <Button
       key={key}

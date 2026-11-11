@@ -76,9 +76,10 @@ The example passes `checked="indeterminate"` when some but not all children are 
 ## Accessibility
 
 The description is tied with `aria-describedby`, and fill, border and the Check against
-Minus glyph move together, so colour is never the sole state carrier. Sizes are rem,
-and the colour transition moves no transform, so it needs no reduced-motion guard. The
-audit
+Minus glyph move together, so colour is never the sole state carrier. Sizes are rem.
+The tick draws itself along its stroke on `spring-snap`, which collapses to 0ms under
+`prefers-reduced-motion`, so there the tick is whole the frame after the box is ticked.
+The audit
 fixed a missing name (WCAG 4.1.2): Base UI draws the box as a `span` with
 `role="checkbox"`, and the wrapping `label` named only the hidden input. The box now
 points `aria-labelledby` at the visible label's `id`, so its name is the visible words

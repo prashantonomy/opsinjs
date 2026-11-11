@@ -131,14 +131,27 @@ const TAB =
  * and this bar is the sighted echo of it, so it is not the only thing telling
  * the two states apart.
  *
- * The slide between tabs is a chrome transition on `transform` and `width`, not
- * a value animation, so it does not fall under the rule against animating a
- * reading on first paint. It moves only when the reader changes tab.
+ * GLIDE, the third of the five interaction motions (ADR 0031): the bar moves
+ * to the tab chosen next rather than one tab losing its mark and another
+ * gaining one, so the choice is seen to move. It travels on `spring-snap`, the
+ * spring tokens/motion.json names for a control the reader just chose, and
+ * passes its stop by 1.5% of the distance before it settles. A tab is a view
+ * and never a reading, so the overshoot is allowed, and it moves only when the
+ * reader changes tab, never on first paint.
+ *
+ * The transition names `translate`, not `transform`. Tailwind 4 writes
+ * `translate-x-*` to the individual `translate` property, so the list this
+ * file used to carry, `transform` and `width`, animated the width and left
+ * the bar's position to jump. It also transitions `width`, which the motion
+ * foundation otherwise forbids, under the exception that page names: an
+ * absolutely positioned indicator reflows nothing. Under
+ * `prefers-reduced-motion: reduce` `spring-snap` collapses to 0ms in the
+ * generated sheet, so the bar is under the new tab the frame after the choice.
  */
 const INDICATOR =
   "pointer-events-none absolute bottom-0 left-0 h-opsin-0-5 rounded-full bg-brand-ink " +
   "w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] " +
-  "transition-[transform,width] duration-(--opsin-duration-fast) ease-opsin-standard"
+  "transition-[translate,width] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap"
 
 /**
  * One panel, spelled once. The body of content the active tab reveals. It is a

@@ -93,6 +93,47 @@ const CONTROL =
   "focus-visible:outline-ring focus-visible:outline-[length:var(--opsin-border-focus,2px)] focus-visible:outline-offset-[var(--opsin-border-focus-offset,2px)]"
 
 /**
+ * TOGGLE, the second of the five interaction motions (ADR 0031), as a checkbox
+ * draws it: the tick writes itself.
+ *
+ * Base UI mounts the indicator only while the box is ticked or mixed, and
+ * marks its first frame `data-starting-style`, so both glyphs start with their
+ * stroke pushed out of sight along its own dash and then draw in on
+ * `spring-snap`, the spring tokens/motion.json names for a control the reader
+ * just flipped. The dash is 24 user units, longer than either path: the tick,
+ * `M20 6 9 17l-5-5`, is about 22.6 long, and the dash, `M5 12h14`, is 14. The
+ * tick starts from a negative offset, which reveals its path from the end, so
+ * the stroke runs the way a hand writes a tick, from the short arm down to the
+ * crook and up the long arm. The dash starts from a positive offset and draws
+ * from left to right. The box's fill changes on its own colour transition
+ * underneath. On untick the glyph fades on `ease-exit` over `duration-fast`
+ * rather than unwriting itself, because a reader does not need to watch a
+ * dismissal finish.
+ *
+ * A tick shows a choice and never a reading, so the spring's overshoot is
+ * allowed. Under `prefers-reduced-motion: reduce` `spring-snap` collapses to
+ * 0ms in the generated sheet and `duration-fast` to 1ms in the product sheet,
+ * so the tick is whole the frame after the box is ticked.
+ */
+const INDICATOR =
+  "group/tick grid place-items-center " +
+  "transition-opacity duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+  "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 " +
+  "data-[ending-style]:duration-(--opsin-duration-fast) data-[ending-style]:ease-opsin-exit"
+
+/** The tick, drawn from its short arm. See `INDICATOR`. */
+const TICK =
+  "size-[0.875rem] shrink-0 [stroke-dasharray:24] " +
+  "transition-[stroke-dashoffset] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+  "group-data-[starting-style]/tick:[stroke-dashoffset:-24]"
+
+/** The dash, drawn from the left. See `INDICATOR`. */
+const DASH =
+  "size-[0.875rem] shrink-0 [stroke-dasharray:24] " +
+  "transition-[stroke-dashoffset] duration-(--opsin-duration-spring-snap) ease-opsin-spring-snap " +
+  "group-data-[starting-style]/tick:[stroke-dashoffset:24]"
+
+/**
  * The label row, spelled once. It wraps the box and the visible words, so a tap
  * anywhere along it toggles the box and the row is the 44pt pointer target,
  * floored at `--opsin-target-minimum` in rem so it grows with the reader's text
@@ -221,12 +262,12 @@ export function Checkbox({
         >
           <CheckboxPrimitive.Indicator
             data-slot="checkbox-indicator"
-            className="grid place-items-center"
+            className={INDICATOR}
           >
             {isIndeterminate ? (
-              <Minus aria-hidden="true" className="size-[0.875rem] shrink-0" strokeWidth={3} />
+              <Minus aria-hidden="true" className={DASH} strokeWidth={3} />
             ) : (
-              <Check aria-hidden="true" className="size-[0.875rem] shrink-0" strokeWidth={3} />
+              <Check aria-hidden="true" className={TICK} strokeWidth={3} />
             )}
           </CheckboxPrimitive.Indicator>
         </CheckboxPrimitive.Root>

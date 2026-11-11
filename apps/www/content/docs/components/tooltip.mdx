@@ -78,7 +78,9 @@ The setting is named in plain words, so a touch reader needs no hover, and
 Base UI wires the popup through `aria-describedby`, so the label is a
 description, never a replacement for the control's own name. Focus opens the
 tooltip, Escape dismisses it without moving focus, and the label follows focus
-off the trigger. Text sits at the `footnote` step with no `px` size, and it
+off the trigger. On hover it unfolds from the trigger, while a tooltip opened by focus,
+or moved to from a neighbour, appears at once. Under `prefers-reduced-motion` only a
+short crossfade remains. Text sits at the `footnote` step with no `px` size, and it
 takes neither colour axis: no status colour, no colour literal and no ramp step.
 Axe, target-size, focus-visible and 320px clipping checks were clean, and
 `tooltip.tsx` needed no change.
