@@ -799,6 +799,7 @@
   },
   "status": {
     "$comment": "The `word`, `sentence`, `assignedBy` and `icon` fields on each level mirror CLINICAL_STATUS_META in lib/status.ts, which is the single source of that copy. Nothing reads them here; this file cannot import the map, so it restates the strings and they must be kept byte for byte in step with lib/status.ts. Colour lives here (seed and steps); the vocabulary lives there.",
+    "$plate": "The enamel plate StatusPill is drawn as. These are not ramp steps. The ramp holds every hue at one lightness so a component can swap level without changing its contrast, and a solid plate at one lightness turns amber olive and orange brown. Each plate is set instead at the lightness where its hue reads as itself, with a word chosen to clear the body-text floor on both the face and the lit band: white on the three deep plates, deep brown on the light gold one. `face` is the plate, `lit` is the band along its top edge that faces the light, `rim` is its outline and the tint of its shadow, and `word` colours the word and the glyph. The plate is the same in both themes, because an enamel plate does not change colour with the room. build-tokens.mts refuses a word below the text floor on `face` or `lit`, and check-contrast.mts measures both pairs.",
     "steady": {
       "level": 1,
       "word": "Steady",
@@ -810,6 +811,12 @@
         "c": 0.11,
         "h": 178,
         "srgb": "oklch(0.62 0.11 178)"
+      },
+      "plate": {
+        "face": { "l": 0.5, "c": 0.1, "h": 167, "srgb": "oklch(0.5 0.1 167)" },
+        "lit": { "l": 0.54, "c": 0.105, "h": 165, "srgb": "oklch(0.54 0.105 165)" },
+        "rim": { "l": 0.41, "c": 0.08, "h": 168, "srgb": "oklch(0.41 0.08 168)" },
+        "word": { "l": 1, "c": 0, "h": 0, "srgb": "oklch(1 0 0)" }
       },
       "steps": {
         "50": {
@@ -910,6 +917,12 @@
         "p3": "oklch(0.60 0.14 82)",
         "clampedToSrgb": true
       },
+      "plate": {
+        "face": { "l": 0.855, "c": 0.148, "h": 83, "srgb": "oklch(0.855 0.148 83)" },
+        "lit": { "l": 0.885, "c": 0.132, "h": 87, "srgb": "oklch(0.885 0.132 87)" },
+        "rim": { "l": 0.7, "c": 0.12, "h": 78, "srgb": "oklch(0.7 0.12 78)" },
+        "word": { "l": 0.21, "c": 0.045, "h": 68, "srgb": "oklch(0.21 0.045 68)" }
+      },
       "steps": {
         "50": {
           "l": 0.972,
@@ -1008,6 +1021,12 @@
         "h": 45,
         "srgb": "oklch(0.58 0.15 45)"
       },
+      "plate": {
+        "face": { "l": 0.54, "c": 0.165, "h": 43, "srgb": "oklch(0.54 0.165 43)" },
+        "lit": { "l": 0.575, "c": 0.16, "h": 46, "srgb": "oklch(0.575 0.16 46)" },
+        "rim": { "l": 0.44, "c": 0.13, "h": 40, "srgb": "oklch(0.44 0.13 40)" },
+        "word": { "l": 1, "c": 0, "h": 0, "srgb": "oklch(1 0 0)" }
+      },
       "steps": {
         "50": {
           "l": 0.972,
@@ -1105,6 +1124,12 @@
         "c": 0.2,
         "h": 27,
         "srgb": "oklch(0.52 0.2 27)"
+      },
+      "plate": {
+        "face": { "l": 0.5, "c": 0.19, "h": 25, "srgb": "oklch(0.5 0.19 25)" },
+        "lit": { "l": 0.54, "c": 0.19, "h": 26, "srgb": "oklch(0.54 0.19 26)" },
+        "rim": { "l": 0.4, "c": 0.15, "h": 24, "srgb": "oklch(0.4 0.15 24)" },
+        "word": { "l": 1, "c": 0, "h": 0, "srgb": "oklch(1 0 0)" }
       },
       "steps": {
         "50": {

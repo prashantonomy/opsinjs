@@ -101,16 +101,18 @@ See [Alerts](../health/alerts.mdx).
 
 The icon is `aria-hidden` and sized in `em`, so the word carries the meaning and the
 glyph grows with it. At 200% text the pill grows and wraps, and the word is never
-truncated or replaced by the icon alone. Light-mode text contrast passes, with no axe,
-target-size, focus or 320px reflow failure.
+truncated or replaced by the icon alone. The pill is an enamel plate, the same in both
+themes: white on the deep Steady, Needs attention and Urgent plates, deep brown on the
+gold Watch plate. Every plate's word clears the body-text floor on its face and on the lit
+band along its top, the build refuses a plate that does not, and the report below
+measures both pairs. There is no axe, target-size, focus or 320px reflow failure.
 
 `pnpm run check:a11y` checks on every commit that no file paints a status colour
 without reading `CLINICAL_STATUS_META` and a glyph, that every status surface carries
 `data-status`, and that status words come from `CLINICAL_STATUS_META[level].word`, never
 a literal. The four levels name four distinct glyphs: circle, ringed dot, diamond and
 octagon, the last two filled so each silhouette is heavier than the one below it. A11Y017
-fails the build when two levels share one. The glyph takes the level's line role and
-the word its ink.
+fails the build when two levels share one. The glyph takes the word's colour.
 
 **Residual items.**
 
@@ -123,9 +125,11 @@ the word its ink.
   and name.
 - No live region is mounted, on purpose. A static read-only label is not a message, so
   a `role="status"` announcement would be wrong.
-- Not measured here: dark-mode text contrast and forced colours. The glyph's line and the
-  word's ink are role pairs the report below measures on the surface; the boundary is the
-  line at a little under half strength, decorative, and not measured.
+- Steady and Urgent are both deep plates with a white word, so in greyscale and under
+  some colour-vision deficiencies they differ by word and glyph shape, not by colour.
+- On paper the plate, its light and its shadow go, and the pill prints as the level's tint
+  with its ink and a full-strength boundary. Forced colours drop the plate's light; that
+  rendering is not measured. The boundary and the shadow are decorative and not measured.
 
 <KeyboardTable
   name="status-pill"

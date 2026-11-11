@@ -11,6 +11,10 @@ Breaking changes lead each entry. A changed presentation default, such as a stat
 Sixty components were built after 0.0.0 and no entry records them. Every catalogue row still reads `since: unreleased`, so the version number to file that entry under is the decision blocking it.
 </Todo>
 
+## 10 November 2026
+
+[StatusPill](./components/status-pill.mdx) is an enamel plate, lit from above, with a semibold word. Its colours are new, and they are not the status ramp: Steady is emerald, Watch is gold, Needs attention is burnt orange and Urgent is crimson, each at the lightness where its hue reads as itself, and the same in both themes. The word is white on the three deep plates and deep brown on the gold one. The four plates are new tokens in `tokens/color.json`, such as `--opsin-status-urgent-plate`, and the build refuses a plate whose word falls below the body-text floor. On paper the pill still prints as the level's tint with its ink. The words, the glyphs, the sizes and the props are unchanged. None of it has had an accessibility review or a clinical review. This entry carries no version number.
+
 ## 8 November 2026
 
 The accent is yours to choose now. There are three [accent themes](./foundations/accent.mdx), each with the same nine accents: normal keeps the ink action and spends the accent on what is selected, vibes makes the accent the action at full chroma, and stryk is high contrast, applied on its own whenever a reader's system asks for more contrast. Set them with `data-accent-theme` and `data-accent`, or install a theme item such as `opsinjs-vibes-volt`. In the default theme a switch that is on, a ticked box, a chosen radio, a slider's range, a progress fill and a chosen scale point are cobalt rather than ink. A quiet button and a card's quiet action are set in the accent ink and are no longer underlined; only a link inside running text keeps its underline. Every accent pair is measured, and the build refuses one below its floor. None of it has had an accessibility review.

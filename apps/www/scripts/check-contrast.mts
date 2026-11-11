@@ -1060,6 +1060,30 @@ function buildPairs(tokens: GeneratedToken[]): PairDefinition[] {
     }
   }
 
+  /*
+   * The enamel plate StatusPill is drawn as (color.json `status.$plate`). Its
+   * word sits on the face and its top reaches into the lit band, so both are
+   * gated at the body floor. build-tokens.mts refuses the same two pairs
+   * before anything is written; these rows are the published measurement. The
+   * glyph takes the word's colour, so the text floor covers it as well.
+   */
+  for (const level of ["steady", "watch", "attention", "urgent"]) {
+    const word = `--opsin-status-${level}-plate-word`
+    if (!byVar.has(word)) continue
+    for (const [suffix, where] of [["", "face"], ["-lit", "lit band"]] as const) {
+      const ground = `--opsin-status-${level}-plate${suffix}`
+      if (!byVar.has(ground)) continue
+      pairs.push({
+        id: `status.${level}.plate-word-on-${suffix ? "lit" : "face"}`,
+        pair: `${level} plate word on the plate's ${where}`,
+        scope: "status",
+        use: "body",
+        foreground: word,
+        background: ground,
+      })
+    }
+  }
+
   return pairs
 }
 

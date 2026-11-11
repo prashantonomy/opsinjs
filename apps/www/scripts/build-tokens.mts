@@ -510,8 +510,81 @@ function emitColor(source: JsonObject, out: TokenLeaf[]): void {
           description: str(definitions[role]) ?? `${label}: the ${role} role.`,
         })
       }
+
+      /* The enamel plate, status levels only. It is not a ramp role, so its
+         names end in none of the four role words and check-contrast.mts's role
+         pattern does not mistake `-plate-word` for a ramp called `x-plate`.
+         One value serves both themes, which is the point of a plate. */
+      const plate = section === "status" ? obj(ramp.plate) : undefined
+      if (plate) {
+        for (const [part, partEntry] of Object.entries(plate)) {
+          if (isMetaKey(part)) continue
+          const description = PLATE_PARTS[part]
+          if (description === undefined) {
+            console.error(
+              `build-tokens: color.json#status.${name}.plate.${part} is not a plate part. ` +
+                `The parts are ${Object.keys(PLATE_PARTS).join(", ")}.`,
+            )
+            process.exit(1)
+          }
+          const value = str(obj(partEntry)?.srgb)
+          if (!value) continue
+          out.push({
+            path: `${section}.${name}.plate.${part}`,
+            cssVar: `${PREFIX}${axis}-${slug}-plate${part === "face" ? "" : `-${part}`}`,
+            namespace: axis,
+            group: "color",
+            tier: "semantic",
+            value,
+            description: `${label} plate: ${description}`,
+          })
+        }
+      }
     }
   }
+}
+
+/**
+ * The four parts of a status plate, and what each one is for. A part not named
+ * here is refused rather than emitted under a name nothing reads.
+ */
+const PLATE_PARTS: Record<string, string> = {
+  face: "the enamel face StatusPill is filled with.",
+  lit: "the band along the top edge of the face, where it turns to the light.",
+  rim: "the outline of the plate, and the tint of the shadow it casts.",
+  word: "the word and the glyph on the plate. Clears the body-text floor on the face and on the lit band.",
+}
+
+/**
+ * Every plate whose word falls below the body-text floor on its face or on its
+ * lit band. The floor is color.json's own, read rather than restated. An empty
+ * list is the only answer that lets the run continue.
+ */
+function plateFailures(tokens: TokenLeaf[], source: JsonObject | undefined): string[] {
+  const floor = obj(obj(source?.floor)?.text)
+  const apcaFloor = num(floor?.apcaLc) ?? 75
+  const wcagFloor = num(floor?.wcag) ?? 4.5
+  const byVar = new Map(tokens.map((token) => [token.cssVar, token.value]))
+  const problems: string[] = []
+  for (const token of tokens) {
+    const match = /^--opsin-status-([a-z]+)-plate-word$/.exec(token.cssVar)
+    if (!match) continue
+    const level = match[1]
+    for (const ground of ["", "-lit"]) {
+      const background = byVar.get(`--opsin-status-${level}-plate${ground}`)
+      if (!background) continue
+      const lc = Math.abs(apcaContrast(token.value, background))
+      const ratio = contrastRatio(token.value, background)
+      if (lc < apcaFloor || ratio < wcagFloor) {
+        problems.push(
+          `status.${level}: the plate word on the ${ground ? "lit band" : "face"} measures APCA Lc ` +
+            `${lc.toFixed(1)} and WCAG ${ratio.toFixed(2)}:1 against a text floor of Lc ${apcaFloor} ` +
+            `and ${wcagFloor}:1 (${token.value} on ${background}).`,
+        )
+      }
+    }
+  }
+  return problems
 }
 
 /* --------------------------- material ----------------------------- */
@@ -3297,6 +3370,7 @@ function main(): void {
 
   const rawSources: string[] = []
   const tokens: TokenLeaf[] = []
+  let colorSource: JsonObject | undefined
 
   for (const stem of TOKEN_FILES) {
     const file = join(TOKENS_DIR, `${stem}.json`)
@@ -3305,6 +3379,7 @@ function main(): void {
     rawSources.push(readFileSync(file, "utf8"))
     const emitter = EMITTERS[stem]
     if (emitter) emitter(source, tokens)
+    if (stem === "color") colorSource = source
   }
 
   const glossaryFile = join(TOKENS_DIR, "glossary.json")
@@ -3358,6 +3433,22 @@ function main(): void {
       ["build-tokens: two tokens resolve to the same CSS custom property.", ...duplicates].join(
         "\n",
       ),
+    )
+    process.exit(1)
+  }
+
+  /* THE PLATE REFUSAL. A status plate whose word falls below the text floor
+     is refused here, in `--check` as well, for the same reason the accent
+     refusal below exists: the build that would publish it fails instead. */
+  const plateProblems = plateFailures(tokens, colorSource)
+  if (plateProblems.length > 0) {
+    console.error(
+      [
+        `build-tokens: ${plateProblems.length} plate problem(s) in tokens/color.json.`,
+        ...plateProblems.map((line) => `  ${line}`),
+        "",
+        "  Change the plate or its word, not the floor.",
+      ].join("\n"),
     )
     process.exit(1)
   }
